@@ -18,25 +18,14 @@
 
 <script setup>
 import { useQuery, useMutation } from '@vue/apollo-composable';
-import gql from "graphql-tag";
 import UsersGQL from "../graphql/Users";
 import { ref } from 'vue';
 
+// 傳遞參數
 const user_name=ref('');
 const user_password = ref('');
 const token = ref('');
-
-// const LOGINMU = gql`
-//   mutation Login($username: String!, $userpassword: String!) {
-//     login(user_name: $username, user_password: $userpassword) {
-//       token
-//       user {
-//         user_id
-//         user_name
-//       }
-//     }
-//   }`;
-
+// 執行查詢
 const { mutate: userlogin, onDone } = useMutation(
   UsersGQL.LOGINMU,
   () => (

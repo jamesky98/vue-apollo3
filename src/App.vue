@@ -1,25 +1,7 @@
 <script setup>
-// import { computed } from 'vue'
-// import { RouterLink, RouterView } from 'vue-router'
-// import HelloWorld from '@/components/HelloWorld.vue'
+import { RouterLink, RouterView } from 'vue-router'
+import HelloWorld from '@/components/HelloWorld.vue'
 import login from '@/views/LoginUser.vue'
-import { useQuery } from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-
-const users_query = gql`
-  query Allusers {
-    allusers {
-      user_id
-      user_name
-      user_mail
-    }
-  }
-`;
-
-const { result, loading, error } = useQuery(users_query);
-
-// const users = computed(() => result.value?.allusers ?? []);
-
 </script>
 
 <template>
@@ -27,15 +9,15 @@ const { result, loading, error } = useQuery(users_query);
     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
     <div class="wrapper">
-      <!-- <HelloWorld msg="You did it!" /> -->
-      <!-- <nav>
+      <HelloWorld msg="You did it!" />
+      <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">About</RouterLink>
-      </nav> -->
+        <RouterLink to="/login">LogIn</RouterLink>
+      </nav>
     </div>
   </header>
-  <login />
-  <!-- <RouterView /> -->
+  <RouterView />
 </template>
 
 <style>
