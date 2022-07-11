@@ -1,8 +1,8 @@
 <script setup>
 // import { computed } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from '@/components/HelloWorld.vue'
-import login from '@/components/login/login.vue'
+// import { RouterLink, RouterView } from 'vue-router'
+// import HelloWorld from '@/components/HelloWorld.vue'
+import login from '@/views/LoginUser.vue'
 import { useQuery } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
 
@@ -35,14 +35,6 @@ const { result, loading, error } = useQuery(users_query);
     </div>
   </header>
   <login />
-  
-  <div v-if="loading">Loading...</div>
-  <div v-else-if="error">Error: {{ error.message }}</div>
-  <ul v-if="result && result.allusers">
-    <li v-for="user of result.allusers" :key="user.user_id">
-      {{ user.user_name }} {{ user.user_mail }}
-    </li>
-  </ul>
   <!-- <RouterView /> -->
 </template>
 
