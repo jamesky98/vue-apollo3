@@ -16,6 +16,7 @@ const GETALLUSERs = gql`
   query Allusers {
     allusers {
       user_name
+      user_id
     }
   }
 `;

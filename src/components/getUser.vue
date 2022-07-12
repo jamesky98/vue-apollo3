@@ -1,20 +1,38 @@
 <script setup>
-import { useQuery } from "@vue/apollo-composable";
+import { useQuery } from '@vue/apollo-composable'
+import gql from 'graphql-tag'
 import { computed } from "@vue/reactivity";
-import { ref } from "vue";
+import { ref, toRaw, unref } from "vue";
 import UsersGQL from "../graphql/Users";
 
+// const { result } = useQuery(gql`
+//   query Allusers {
+//     allusers {
+//       user_name
+//       user_id
+//     }
+//   }`);
+
+const userid=ref('1');
+
 const { result } = useQuery(
-  UsersGQL.GETALLUSERs
+  gql`
+  query getUserById($userId: Int!) {
+    getUserById(user_id: $userId) {
+      user_name
+      user_mail
+    }
+  }
+`,
+  () => ({
+    userId: parseInt(userid.value)
+  })
 );
 
-// const userid=ref('1');
-// const { result } = useQuery(
-//   UsersGQL.GETUSER,
-//   () => ({
-//     userId: parseInt(userid.value)
-//   })
-// );
+const temp = computed(() =>{
+  console.log(result.value);
+  return result.value
+})
 
 // const name = computed(() => { return result.getUserById });
   // function selectUser(id) {
@@ -27,7 +45,10 @@ const { result } = useQuery(
 
 <template>
   <input type="text" v-model="userid" />
-  <ul>
-    <li v-for="user in result.allusers">{{ user.user_name }}</li>
-  </ul>
+  <p>{{ temp }}</p>
+  <!-- <ul v-if="result && result.getUserById">
+    <li v-for="user of result.getUserById">
+      {{ user }}
+    </li>
+  </ul> -->
 </template>
