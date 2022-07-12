@@ -10,23 +10,28 @@
         <label>密碼</label>
         <input type="password" class="form-control form-control-lg" v-model="user_password" />
       </div>
-      <p>{{ token }}</p>
       <button type="submit" class="btn btn-dark btn-lg btn-block">登入</button>
+      <p>{{ token }}</p>
     </form>
+    <getUserVue/>
   </div>
 </template>
 
 <script setup>
-import { useQuery, useMutation } from '@vue/apollo-composable';
+import { useQuery, useMutation } from '@vue/apollo-composable'
+import gql from 'graphql-tag'
 import UsersGQL from "../graphql/Users";
 import { ref } from 'vue';
+import { computed } from 'vue'
+import getUserVue from '../components/getUser.vue';
 
 // 傳遞參數
 const user_name=ref('');
 const user_password = ref('');
 const token = ref('');
-// 執行查詢
-const { mutate: userlogin, onDone } = useMutation(
+
+// // 執行查詢
+const { mutate: userlogin, onDone:loginOnDone } = useMutation(
   UsersGQL.LOGINMU,
   () => (
     {
@@ -37,11 +42,10 @@ const { mutate: userlogin, onDone } = useMutation(
     }),
 );
 
-onDone(result => {
+loginOnDone(result => {
   console.log(result.data);
-  // console.log(LOGINMU); 
   token.value = result.data.login.token;
-});
-
+  localStorage.setItem("AUTH_TOKEN", result.data.login.token);
+})
 
 </script>
