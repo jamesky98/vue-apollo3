@@ -18,11 +18,9 @@
 </template>
 
 <script setup>
-import { useQuery, useMutation } from '@vue/apollo-composable'
-import gql from 'graphql-tag'
+import { useMutation } from '@vue/apollo-composable'
 import UsersGQL from "../graphql/Users";
 import { ref } from 'vue';
-import { computed } from 'vue'
 import getUserVue from '../components/getUser.vue';
 
 // 傳遞參數

@@ -1,18 +1,7 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from '@/components/HelloWorld.vue'
-import login from '@/views/LoginUser.vue'
-import { useQuery } from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-
-// const { result } = useQuery(gql`
-//       query Allusers {
-//     allusers {
-//       user_name
-//       user_id
-//     }
-//   }`);
-
+// import login from '@/views/LoginUser.vue'
 </script>
 
 <template>
@@ -29,11 +18,6 @@ import gql from 'graphql-tag'
     </div>
   </header>
   <RouterView />
-  <!-- <ul v-if="result && result.allusers">
-    <li v-for="user of result.allusers" :key="user.user_id">
-      {{ user.user_id }} {{ user.user_name }}
-    </li>
-  </ul> -->
 </template>
 
 <style>
