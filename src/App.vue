@@ -1,25 +1,21 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from '@/components/HelloWorld.vue'
+import router from './router'
+
+if (!localStorage.getItem("AUTH_TOKEN")){
+  router.push('/login');
+}else{
+  router.push('/');
+}
+
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-        <RouterLink to="/login">LogIn</RouterLink>
-      </nav>
-    </div>
-  </header>
   <RouterView />
 </template>
 
-<style>
+<!-- <style>
 @import '@/assets/base.css';
 
 #app {
@@ -115,4 +111,4 @@ nav a:first-of-type {
     margin-top: 1rem;
   }
 }
-</style>
+</style> -->
