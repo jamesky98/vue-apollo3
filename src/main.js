@@ -2,8 +2,8 @@ import { createApp, provide, h } from "vue";
 import { createPinia } from 'pinia'
 import apolloClient from './apolloclient'
 import { DefaultApolloClient } from "@vue/apollo-composable";
-import "bootstrap/dist/css/bootstrap.min.css";
-
+// import "bootstrap/dist/css/bootstrap.min.css";
+import "mdb-vue-ui-kit/css/mdb.min.css";
 import App from './App.vue'
 import router from './router'
 
