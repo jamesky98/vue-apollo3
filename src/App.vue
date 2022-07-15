@@ -17,9 +17,13 @@ if (!localStorage.getItem("AUTH_TOKEN")){
 
 <style>
 
+
+
+
+
 /* @import '@/assets/base.css'; */
 #app {
-  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Noto Sans TC','cwTeXYen', Roboto, Helvetica, Arial, sans-serif;
 }
 
 </style>
