@@ -18,6 +18,7 @@ import {
   MDBIcon
 } from 'mdb-vue-ui-kit';
 import { ref } from 'vue';
+import { RouterLink } from 'vue-router'
 const collapse1 = ref(false);
 </script>
 
@@ -65,7 +66,9 @@ const collapse1 = ref(false);
               <MDBRow class="h-100">
                 <MDBCol col="3">
                   <MDBRow class="d-flex flex-column">
-                    <MDBCol class="px-5 p-3 border w-100">文件查詢</MDBCol>
+                    <MDBCol class="px-5 p-3 border w-100">
+                      <RouterLink ref="/docs">文件查詢</RouterLink>
+                    </MDBCol>
                     <MDBCol class="px-5 p-3 border w-100">校正案件</MDBCol>
                     <MDBCol class="px-5 p-3 border w-100">人員管理</MDBCol>
                     <MDBCol class="px-5 p-3 border w-100">點位管理</MDBCol>
@@ -82,7 +85,6 @@ const collapse1 = ref(false);
           </MDBCard>
         </MDBContainer>
       </main>
-
       <!-- Footer -->
       <footer>
         <!-- Copyright -->
