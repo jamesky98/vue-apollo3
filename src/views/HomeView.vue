@@ -19,11 +19,15 @@ import {
 } from 'mdb-vue-ui-kit';
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router'
-
+import router from '../router';
 // const collapse1 = ref(false);
 
 const userName = '';
 
+function logout() {
+  localStorage.removeItem("AUTH_TOKEN");
+  router.push('/login');
+}
 </script>
 
 <template>
@@ -33,7 +37,13 @@ const userName = '';
         <!-- Navbar -->
         <MDBNavbar expand="lg" light bg="light" container>
           <MDBNavbarBrand>{{ userName }}，您好</MDBNavbarBrand>
+          <MDBNavbarNav right class="ml-auto mb-lg-0">
+            <MDBNavbarItem to="#" @click="logout()">
+              登出
+            </MDBNavbarItem>
+          </MDBNavbarNav>
         </MDBNavbar>
+
         <!-- Navbar -->
         <!-- Background image -->
         <div class="p-5 text-center bg-image" style="
