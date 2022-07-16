@@ -16,12 +16,10 @@ if (!localStorage.getItem("AUTH_TOKEN")){
 </template>
 
 <style>
-
-
-
-
-
 /* @import '@/assets/base.css'; */
+html, body, #app{
+  height: 100%;
+}
 #app {
   font-family: 'Noto Sans TC','cwTeXYen', Roboto, Helvetica, Arial, sans-serif;
 }

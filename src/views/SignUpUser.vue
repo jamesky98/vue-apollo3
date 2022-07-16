@@ -16,30 +16,25 @@ import { MDBCard,
 // 傳遞參數
 const user_name = ref('');
 const user_password = ref('');
-const token = ref('');
+const user_mail = ref('');
 
 // // 執行查詢
-const { mutate: userlogin, onDone: loginOnDone, onError:loginError } = useMutation(
-  UsersGQL.LOGINMU,
+const { mutate: usersignup, onDone: signupOnDone } = useMutation(
+  UsersGQL.SIGNUPMU,
   () => (
     {
       variables: {
-        username: user_name.value,
-        userpassword: user_password.value
+        userName: user_name.value,
+        userPassword: user_password.value,
+        userMail: user_mail.value
       }
     }),
 );
 
-loginOnDone(result => {
+signupOnDone(result => {
   localStorage.setItem("AUTH_TOKEN", result.data.login.token);
   router.push('/');
-});
-
-loginError(error => {
-  console.log(error);
-  localStorage.removeItem('AUTH_TOKEN');
-});
-
+})
 </script>
 
 <template>
@@ -55,8 +50,8 @@ loginError(error => {
                     <img src="/LOGO01.png" style="width: 185px;" alt="logo">
                     <h4 class="mt-1 mb-5 pb-1">航遙測校正管理系統</h4>
                   </div>
-                  <form @submit.prevent="userlogin()">
-                    <p>請登入帳號</p>
+                  <form @submit.prevent="usersignup()">
+                    <p>註冊新帳號</p>
                     <div class="form-outline mb-4">
                       <MDBInput type="text" label="員工編號" id="form2Example11" v-model="user_name" wrapperClass="mb-4" />
                     </div>
@@ -64,14 +59,16 @@ loginError(error => {
                       <MDBInput type="password" label="密碼" id="form2Example22" v-model="user_password"
                         wrapperClass="mb-4" />
                     </div>
+                    <div class="form-outline mb-4">
+                      <MDBInput type="email" label="電子郵件" id="form2Example33" v-model="user_mail" wrapperClass="mb-4" />
+                    </div>
                     <div class="text-center pt-1 mb-5 pb-1">
-                      <MDBBtn color="primary" block class="fa-lg gradient-custom-2 col-12" type="submit">登入
+                      <MDBBtn color="primary" block class="fa-lg gradient-custom-2 col-12" type="submit">註冊
                       </MDBBtn>
                     </div>
 
                     <div class="d-flex align-items-center justify-content-center pb-4">
-                      <p class="mb-0 me-2">還沒有帳號?</p>
-                      <MDBBtn outline="danger" @click="router.push('/signup')">這裡註冊</MDBBtn>
+                      <MDBBtn outline="primary" @click="router.push('/login')">返回登入</MDBBtn>
                     </div>
 
                   </form>

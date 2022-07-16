@@ -30,9 +30,29 @@ const GETUSER = gql`
   }
 `;
 
+const SIGNUPMU = gql`
+  mutation Login(
+    $userName: String!
+    $userPassword: String!
+    $userMail: String!
+  ) {
+    signup(
+      user_name: $userName
+      user_password: $userPassword
+      user_mail: $userMail
+    ) {
+      token
+      user {
+        user_id
+        user_name
+      }
+    }
+  }
+`;
 
 export default {
   LOGINMU,
   GETUSER,
   GETALLUSERs,
+  SIGNUPMU,
 };
