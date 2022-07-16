@@ -19,6 +19,14 @@ import {
 } from 'mdb-vue-ui-kit';
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router'
+
+defineProps({
+  userName: {
+    type: String,
+    required: true
+  }
+})
+
 const collapse1 = ref(false);
 </script>
 
@@ -28,24 +36,7 @@ const collapse1 = ref(false);
       <header>
         <!-- Navbar -->
         <MDBNavbar expand="lg" light bg="light" container>
-          <MDBNavbarBrand href="#">Brand</MDBNavbarBrand>
-          <MDBNavbarToggler @click="collapse1 = !collapse1" target="#navbarSupportedContent"></MDBNavbarToggler>
-          <MDBCollapse v-model="collapse1" id="navbarSupportedContent">
-            <MDBNavbarNav class="mb-2 mb-lg-0">
-              <MDBNavbarItem to="#" active>
-                Home
-              </MDBNavbarItem>
-              <MDBNavbarItem to="#">
-                Link
-              </MDBNavbarItem>
-              <MDBNavbarItem to="#">
-                Something else here
-              </MDBNavbarItem>
-              <MDBNavbarItem to="#" disabled>
-                Disabled
-              </MDBNavbarItem>
-            </MDBNavbarNav>
-          </MDBCollapse>
+          <MDBNavbarBrand>{{ userName }}</MDBNavbarBrand>
         </MDBNavbar>
         <!-- Navbar -->
         <!-- Background image -->
@@ -53,7 +44,7 @@ const collapse1 = ref(false);
         background-image: url('https://mdbootstrap.com/img/new/slides/041.webp');
         height: 150px;
       ">
-          <div class="mask" style="background-color: rgba(0, 0, 0, 0.6);">
+          <div class="mask" style="background-color: rgba(0, 0, 0, 0.0.5);">
           </div>
         </div>
         <!-- Background image -->
@@ -66,15 +57,42 @@ const collapse1 = ref(false);
               <MDBRow class="h-100">
                 <MDBCol col="3">
                   <MDBRow class="d-flex flex-column">
-                    <MDBCol class="px-5 p-3 border w-100">
-                      <RouterLink ref="/docs">文件查詢</RouterLink>
+                    <MDBCol class="px-2 p-3 border w-100">
+                      <RouterLink to="/docs">
+                        <MDBIcon icon="file-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />文件查詢
+                      </RouterLink>
                     </MDBCol>
-                    <MDBCol class="px-5 p-3 border w-100">校正案件</MDBCol>
-                    <MDBCol class="px-5 p-3 border w-100">人員管理</MDBCol>
-                    <MDBCol class="px-5 p-3 border w-100">點位管理</MDBCol>
-                    <MDBCol class="px-5 p-3 border w-100">參考值量測作業</MDBCol>
-                    <MDBCol class="px-5 p-3 border w-100">標準件管理</MDBCol>
-                    <MDBCol class="px-5 p-3 border w-100">顧客管理</MDBCol>
+                    <MDBCol class=" px-2 p-3 border w-100">
+                      <RouterLink to="/docs">
+                        <MDBIcon icon="balance-scale" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />校正案件
+                      </RouterLink>
+                    </MDBCol>
+                    <MDBCol class="px-2 p-3 border w-100">
+                      <RouterLink to="/docs">
+                        <MDBIcon icon="user-edit" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />人員管理
+                      </RouterLink>
+                    </MDBCol>
+                    <MDBCol class="px-2 p-3 border w-100">
+                      <RouterLink to="/docs">
+                        <MDBIcon icon="map-marked-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />點位管理
+                      </RouterLink>
+                    </MDBCol>
+                    <MDBCol class="px-2 p-3 border w-100">
+                      <RouterLink to="/docs">
+                        <MDBIcon icon="drafting-compass" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />
+                        參考值量測作業
+                      </RouterLink>
+                    </MDBCol>
+                    <MDBCol class="px-2 p-3 border w-100">
+                      <RouterLink to="/docs">
+                        <MDBIcon icon="wrench" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />標準件管理
+                      </RouterLink>
+                    </MDBCol>
+                    <MDBCol class="px-2 p-3 border w-100">
+                      <RouterLink to="/docs">
+                        <MDBIcon far icon="handshake" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />顧客管理
+                      </RouterLink>
+                    </MDBCol>
                   </MDBRow>
                 </MDBCol>
                 <MDBCol col="9" class="border h-100">
