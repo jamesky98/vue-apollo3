@@ -18,7 +18,6 @@ import {
   MDBIcon
 } from 'mdb-vue-ui-kit';
 import { ref } from 'vue';
-import
 const collapse1 = ref(false);
 </script>
 
