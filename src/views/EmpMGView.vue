@@ -8,7 +8,7 @@ import Navbar1 from "../components/Navbar.vue";
     <MDBRow class="d-flex flex-md-column h-100">
       <Navbar1 />
       <main class="flex-fill">
-        文件查詢
+        人員管理
       </main>
       <Footer1 />
     </MDBRow>

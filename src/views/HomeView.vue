@@ -20,14 +20,10 @@ import {
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router'
 
-defineProps({
-  userName: {
-    type: String,
-    required: true
-  }
-})
+// const collapse1 = ref(false);
 
-const collapse1 = ref(false);
+const userName = '';
+
 </script>
 
 <template>
@@ -36,7 +32,7 @@ const collapse1 = ref(false);
       <header>
         <!-- Navbar -->
         <MDBNavbar expand="lg" light bg="light" container>
-          <MDBNavbarBrand>{{ userName }}</MDBNavbarBrand>
+          <MDBNavbarBrand>{{ userName }}，您好</MDBNavbarBrand>
         </MDBNavbar>
         <!-- Navbar -->
         <!-- Background image -->
@@ -63,33 +59,33 @@ const collapse1 = ref(false);
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class=" px-2 p-3 border w-100">
-                      <RouterLink to="/docs">
+                      <RouterLink to="/cases">
                         <MDBIcon icon="balance-scale" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />校正案件
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink to="/docs">
+                      <RouterLink to="/employee">
                         <MDBIcon icon="user-edit" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />人員管理
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink to="/docs">
+                      <RouterLink to="/gcps">
                         <MDBIcon icon="map-marked-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />點位管理
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink to="/docs">
+                      <RouterLink to="/prjs">
                         <MDBIcon icon="drafting-compass" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />
                         參考值量測作業
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink to="/docs">
+                      <RouterLink to="/items">
                         <MDBIcon icon="wrench" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />標準件管理
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink to="/docs">
+                      <RouterLink to="/cust">
                         <MDBIcon far icon="handshake" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />顧客管理
                       </RouterLink>
                     </MDBCol>

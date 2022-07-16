@@ -3,8 +3,7 @@
   <footer>
     <!-- Copyright -->
     <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05)">
-      © 2022 Copyright:
-      <a class="text-reset fw-bold" href="">jamesky98</a>
+      狀態訊息
     </div>
     <!-- Copyright -->
   </footer>
