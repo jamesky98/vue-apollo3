@@ -2,7 +2,7 @@
 import { useMutation } from '@vue/apollo-composable'
 import UsersGQL from "../graphql/Users";
 import { ref } from 'vue';
-import router from '../router'
+// import router from '../router'
 import { MDBCard, 
   MDBCardBody, 
   MDBCardTitle, 
@@ -12,6 +12,8 @@ import { MDBCard,
   MDBRow, 
   MDBContainer, 
   MDBBtn } from 'mdb-vue-ui-kit';
+
+import { logIn } from '../methods/User';
 
 // 傳遞參數
 const user_name = ref('');
@@ -32,8 +34,11 @@ const { mutate: usersignup, onDone: signupOnDone } = useMutation(
 );
 
 signupOnDone(result => {
-  localStorage.setItem("AUTH_TOKEN", result.data.login.token);
-  router.push('/');
+  // localStorage.setItem("AUTH_TOKEN", result.data.login.token);
+  // localStorage.setItem("USER_ID", result.data.login.user.user_id);
+  // localStorage.setItem("USER_NAME", result.data.login.user.user_name);
+  // router.push('/');
+  logIn(result);
 })
 </script>
 

@@ -1,6 +1,7 @@
 <script setup>
 import {
   MDBNavbar,
+  MDBNavbarBrand,
   MDBNavbarToggler,
   MDBNavbarNav,
   MDBNavbarItem,
@@ -9,51 +10,56 @@ import {
 } from 'mdb-vue-ui-kit';
 import { ref } from 'vue';
 import router from '../router';
-
+import { logOut } from '../methods/User';
+// defineProps({
+//   username: String
+// });
+const username = localStorage.getItem("USER_NAME");
 const collapse1 = ref(false);
-const userName = '';
 
-function logout(){
-  localStorage.removeItem("AUTH_TOKEN");
-  router.push('/login');
-}
+// function logout(){
+//   localStorage.removeItem("AUTH_TOKEN");
+//   localStorage.removeItem('USER_ID');
+//   localStorage.removeItem('USER_NAME');
+//   router.push('/login');
+// }
 
 </script>
 <template>
   <!-- Navbar -->
   <MDBNavbar expand="lg" light bg="light" container>
-    <MDBNavbarBrand>{{ userName }}，您好</MDBNavbarBrand>
+    <MDBNavbarBrand>{{ username }}，您好</MDBNavbarBrand>
     <MDBNavbarToggler @click="collapse1 = !collapse1" target="#navbarSupportedContent"></MDBNavbarToggler>
     <MDBCollapse v-model="collapse1" id="navbarSupportedContent">
       <MDBNavbarNav class="mb-2 mb-lg-0">
-        <MDBNavbarItem to="/" >
+        <MDBNavbarItem :to="{ name: 'home', params: { username: username }}">
           <MDBIcon icon="home" />首頁
         </MDBNavbarItem>
-        <MDBNavbarItem to="/docs">
+        <MDBNavbarItem :to="{ name: 'docs', params: { username: username }}">
           <MDBIcon icon="file-alt" />文件查詢
         </MDBNavbarItem>
-        <MDBNavbarItem to="/cases">
+        <MDBNavbarItem :to="{ name: 'cases', params: { username: username }}">
           <MDBIcon icon="balance-scale" />校正案件
         </MDBNavbarItem>
-        <MDBNavbarItem to="/employee">
+        <MDBNavbarItem :to="{ name: 'employee', params: { username: username }}">
           <MDBIcon icon="user-edit" />人員管理
         </MDBNavbarItem>
-        <MDBNavbarItem to="/gcps">
+        <MDBNavbarItem :to="{ name: 'gcps', params: { username: username }}">
           <MDBIcon icon="map-marked-alt" />點位管理
         </MDBNavbarItem>
-        <MDBNavbarItem to="/prjs">
+        <MDBNavbarItem :to="{ name: 'prjs', params: { username: username }}">
           <MDBIcon icon="drafting-compass" />量測作業
         </MDBNavbarItem>
-        <MDBNavbarItem to="/items">
+        <MDBNavbarItem :to="{ name: 'items', params: { username: username }}">
           <MDBIcon icon="wrench" />標準件管理
         </MDBNavbarItem>
-        <MDBNavbarItem to="/cust">
+        <MDBNavbarItem :to="{ name: 'cust', params: { username: username }}">
           <MDBIcon far icon="handshake" />顧客管理
         </MDBNavbarItem>
 
       </MDBNavbarNav>
       <MDBNavbarNav right class="ml-auto mb-lg-0">
-        <MDBNavbarItem to="#" @click="logout()">
+        <MDBNavbarItem to="#" @click="logOut()">
           登出
         </MDBNavbarItem>
       </MDBNavbarNav>

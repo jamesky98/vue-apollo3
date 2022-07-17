@@ -16,7 +16,11 @@ if (!localStorage.getItem("AUTH_TOKEN")){
 </template>
 
 <style>
+
+
 /* @import '@/assets/base.css'; */
+@import 'datatables.net-dt';
+@import 'datatables.net-bs5';
 html, body, #app{
   height: 100%;
 }

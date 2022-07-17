@@ -12,6 +12,7 @@ import { MDBCard,
   MDBRow, 
   MDBContainer, 
   MDBBtn } from 'mdb-vue-ui-kit';
+import { logIn } from '../methods/User';
 
 // 傳遞參數
 const user_name = ref('');
@@ -31,13 +32,14 @@ const { mutate: userlogin, onDone: loginOnDone, onError:loginError } = useMutati
 );
 
 loginOnDone(result => {
-  localStorage.setItem("AUTH_TOKEN", result.data.login.token);
-  router.push('/');
+  logIn(result);
 });
 
 loginError(error => {
   console.log(error);
   localStorage.removeItem('AUTH_TOKEN');
+  localStorage.removeItem('USER_ID');
+  localStorage.removeItem('USER_NAME');
 });
 
 </script>

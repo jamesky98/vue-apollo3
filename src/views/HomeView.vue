@@ -1,6 +1,7 @@
 <script setup>
 import {
   MDBNavbar,
+  MDBNavbarBrand,
   MDBNavbarToggler,
   MDBNavbarNav,
   MDBNavbarItem,
@@ -17,17 +18,11 @@ import {
   MDBFooter,
   MDBIcon
 } from 'mdb-vue-ui-kit';
-import { ref } from 'vue';
 import { RouterLink } from 'vue-router'
-import router from '../router';
-// const collapse1 = ref(false);
+import { logOut } from '../methods/User';
 
-const userName = '';
+const username = localStorage.getItem("USER_NAME");
 
-function logout() {
-  localStorage.removeItem("AUTH_TOKEN");
-  router.push('/login');
-}
 </script>
 
 <template>
@@ -36,9 +31,9 @@ function logout() {
       <header>
         <!-- Navbar -->
         <MDBNavbar expand="lg" light bg="light" container>
-          <MDBNavbarBrand>{{ userName }}，您好</MDBNavbarBrand>
+          <MDBNavbarBrand>{{ username }}，您好</MDBNavbarBrand>
           <MDBNavbarNav right class="ml-auto mb-lg-0">
-            <MDBNavbarItem to="#" @click="logout()">
+            <MDBNavbarItem to="#" @click="logOut()">
               登出
             </MDBNavbarItem>
           </MDBNavbarNav>
@@ -64,38 +59,38 @@ function logout() {
                 <MDBCol col="3">
                   <MDBRow class="d-flex flex-column">
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink to="/docs">
+                      <RouterLink :to="{ name: 'docs', params: { username: username }}">
                         <MDBIcon icon="file-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />文件查詢
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class=" px-2 p-3 border w-100">
-                      <RouterLink to="/cases">
+                      <RouterLink :to="{ name: 'cases', params: { username: username }}">
                         <MDBIcon icon="balance-scale" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />校正案件
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink to="/employee">
+                      <RouterLink :to="{ name: 'employee', params: { username: username }}">
                         <MDBIcon icon="user-edit" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />人員管理
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink to="/gcps">
+                      <RouterLink :to="{ name: 'gcps', params: { username: username }}">
                         <MDBIcon icon="map-marked-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />點位管理
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink to="/prjs">
+                      <RouterLink :to="{ name: 'prjs', params: { username: username }}">
                         <MDBIcon icon="drafting-compass" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />
                         參考值量測作業
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink to="/items">
+                      <RouterLink :to="{ name: 'items', params: { username: username }}">
                         <MDBIcon icon="wrench" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />標準件管理
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink to="/cust">
+                      <RouterLink :to="{ name: 'cust', params: { username: username } }">
                         <MDBIcon far icon="handshake" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />顧客管理
                       </RouterLink>
                     </MDBCol>
