@@ -4,6 +4,7 @@ import { RouterLink, RouterView } from 'vue-router'
 import router from './router'
 
 if (!localStorage.getItem("AUTH_TOKEN")){
+  
   router.push('/login');
 }else{
   router.push('/');

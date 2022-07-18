@@ -21,7 +21,7 @@
     "graphql": "^16.5.0",
     "graphql-tag": "^2.12.6",
     "mdb-ui-kit": "^4.3.0",
-    "mdb-vue-ui-kit": "^2.0.0",
+    "mdb-vue-ui-kit": "git+https://oauth2:98cdRzsJ8BLj56q98WQz@git.mdbootstrap.com/mdb/vue/mdb5/prd/mdb5-vue-ui-kit-pro-essential",
     "pinia": "^2.0.14",
     "vue": "^3.2.37",
     "vue-router": "^4.0.16"
