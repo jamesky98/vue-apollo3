@@ -347,8 +347,8 @@
   "resolved" "https://registry.npmjs.org/mdb-ui-kit/-/mdb-ui-kit-4.3.0.tgz"
   "version" "4.3.0"
 
-"mdb-vue-ui-kit@git+https://oauth2:98cdRzsJ8BLj56q98WQz@git.mdbootstrap.com/mdb/vue/mdb5/prd/mdb5-vue-ui-kit-pro-essential":
-  "resolved" "git+https://oauth2:98cdRzsJ8BLj56q98WQz@git.mdbootstrap.com/mdb/vue/mdb5/prd/mdb5-vue-ui-kit-pro-essential#a7c39fd04ed714edf30cc3ffe4561f25045b1e52"
+"mdb-vue-ui-kit@git+https://oauth2:xfmb3NQ7xmmjona5VzHA@git.mdbootstrap.com/mdb/vue/mdb5/prd/mdb5-vue-ui-kit-pro-essential":
+  "resolved" "git+https://oauth2:xfmb3NQ7xmmjona5VzHA@git.mdbootstrap.com/mdb/vue/mdb5/prd/mdb5-vue-ui-kit-pro-essential#a7c39fd04ed714edf30cc3ffe4561f25045b1e52"
   "version" "2.0.0"
 
 "nanoid@^3.3.4":

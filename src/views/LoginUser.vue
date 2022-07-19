@@ -1,5 +1,5 @@
 <script setup>
-import { useMutation } from '@vue/apollo-composable'
+import { useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
 import { ref } from 'vue';
 import router from '../router'
@@ -97,18 +97,6 @@ loginError(error => {
   </section>
 </template>
 <style>
-
-
-
-
-
-
-
-
-
-
-
-
 .gradient-custom-2 {
   /* fallback for old browsers */
   background: #fccb90;

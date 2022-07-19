@@ -35,6 +35,17 @@ const GETALLDOCLATEST = gql`
   }
 `;
 
+const GETALLDOCTYPE = gql`
+  query GetAllDocType {
+    getAllDocType {
+      doc_type_id
+      doc_type
+    }
+  }
+`;
+
+
 export default {
   GETALLDOCLATEST,
+  GETALLDOCTYPE,
 };

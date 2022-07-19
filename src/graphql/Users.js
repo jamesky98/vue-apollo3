@@ -1,5 +1,11 @@
 import gql from "graphql-tag";
 
+const CHECKTOKEN = gql`
+  query checktoken {
+    checktoken
+  }
+`;
+
 const LOGINMU = gql`
   mutation Login($username: String!, $userpassword: String!) {
     login(user_name: $username, user_password: $userpassword) {
@@ -51,6 +57,7 @@ const SIGNUPMU = gql`
 `;
 
 export default {
+  CHECKTOKEN,
   LOGINMU,
   GETUSER,
   GETALLUSERs,

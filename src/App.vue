@@ -2,13 +2,21 @@
 import { RouterLink, RouterView } from 'vue-router'
 // import HelloWorld from '@/components/HelloWorld.vue'
 import router from './router'
+import { useQuery } from '@vue/apollo-composable';
+import UsersGQL from "./graphql/Users";
+// 判斷token狀況
+const { onResult:getchecktoken } = useQuery(UsersGQL.CHECKTOKEN);
 
-if (!localStorage.getItem("AUTH_TOKEN")){
-  
-  router.push('/login');
-}else{
-  router.push('/');
-}
+getchecktoken(result => {
+  if (!result.data.checktoken) {
+    localStorage.removeItem('AUTH_TOKEN');
+    localStorage.removeItem('USER_ID');
+    localStorage.removeItem('USER_NAME');
+    router.push('/login');
+  } else {
+    router.push('/');
+  }
+});
 
 </script>
 
