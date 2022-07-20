@@ -86,6 +86,7 @@ const doclevelmu = ref([
 const doclevelsel = ref("");
 const doctypemu = ref([]);
 const doctypesel = ref("");
+const docDidsel = ref("");
 const docnamesel = ref("");
 const docversel=ref("");
 // const docParentmu = ref([]);
@@ -118,6 +119,7 @@ function filterAllDocLatest() {
   let where = {};
   if (doclevelsel.value !== "") where.docLevel = doclevelsel.value;
   if (doctypesel.value !== "") where.docType = doctypesel.value;
+  if (docDidsel.value !== "") where.docId = docDidsel.value;
   if (docnamesel.value !== "") where.name = docnamesel.value;
   if (docversel.value !== "") where.ver = docversel.value;
   if (docStautsel.value !== "") where.stauts = docStautsel.value;
@@ -186,10 +188,10 @@ const tboption1 = {
   order: [[1, 'asc']],
   scrollY: '30vh', 
   scrollX: true,
-  search: {
-    return: true,
-  },
-  responsive: true,
+  lengthChange: false,
+  searching: false,
+  paging: false,
+  responsive: false,
   language: {
     info: '共 _TOTAL_ 筆資料', 
   }
@@ -285,6 +287,8 @@ const tboption2 = {
                                     v-model:selected="doclevelsel" />
                                   <MDBSelect size="sm" class="mb-2" label="文件類型" v-model:options="doctypemu"
                                     v-model:selected="doctypesel" />
+                                  <MDBInput size="sm" type="text" label="文件編號" wrapperClass="mb-2"
+                                    v-model="docDidsel" />
                                   <MDBInput size="sm" type="text" label="文件名稱" wrapperClass="mb-2"
                                     v-model="docnamesel" />
                                   <MDBInput size="sm" type="text" label="版次" wrapperClass="mb-2" v-model="docversel" />
@@ -292,7 +296,10 @@ const tboption2 = {
                                     v-model:selected="docParentsel" /> -->
                                   <MDBSelect size="sm" class="mb-2" label="現役狀態" v-model:options="docStautsmu"
                                     v-model:selected="docStautsel" />
-                                  <MDBBtn size="sm" color="primary" type="submit">篩選</MDBBtn>
+                                  <div>
+                                    <MDBBtn size="sm" color="primary" type="reset">清除</MDBBtn>
+                                    <MDBBtn size="sm" color="primary" type="submit">篩選</MDBBtn>
+                                  </div>
                                 </MDBCol>
                               </MDBTabPane>
                               <!-- 編輯表單 -->
