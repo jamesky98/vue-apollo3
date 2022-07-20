@@ -21,15 +21,31 @@ import {
   MDBTabPane,
   MDBIcon
 } from "mdb-vue-ui-kit";
-import DataTable from 'datatables.net-vue3';
-import Select from 'datatables.net-select';
-import DataTableBs5 from 'datatables.net-bs5';
-import 'datatables.net-responsive';
-import { useQuery,useMutation } from '@vue/apollo-composable'
+import { useQuery, useMutation } from '@vue/apollo-composable'
 import DocsGQL from "../graphql/Docs";
+
+import DataTable from 'datatables.net-vue3';
+import DataTableBs5 from 'datatables.net-bs5';
+import Select from 'datatables.net-select';
+// import SearchBuilder from 'datatables.net-searchbuilder-bs5';
+
+// require('pdfmake');
+// require('datatables.net-buttons-bs5')();
+// require('datatables.net-buttons/js/buttons.colVis.js')();
+// require('datatables.net-buttons/js/buttons.html5.js')();
+// require('datatables.net-buttons/js/buttons.print.js')();
+// require('datatables.net-datetime')();
+// require('datatables.net-keytable-bs5')();
+// require('datatables.net-responsive-bs5')();
+// require('datatables.net-scroller-bs5')();
+// require('datatables.net-searchbuilder-bs5')();
+// require('datatables.net-searchpanes-bs5')();
+// require('datatables.net-select-bs5')();
+
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
+// DataTable.use(SearchBuilder);
 
 const activeTabId1 = ref('filter');
 let dt1;
@@ -105,6 +121,7 @@ function filterAllDocLatest() {
   if (docnamesel.value !== "") where.name = docnamesel.value;
   if (docversel.value !== "") where.ver = docversel.value;
   if (docStautsel.value !== "") where.stauts = docStautsel.value;
+
   varAllDocLatest.value = where;
 }
 
@@ -115,7 +132,7 @@ getAllDocType(result => {
   // console.log(result);
   if (!result.loading) {
     doctypemu.value = result.data.getAllDocType.map(x => {
-      return { text: x.doc_type, value: x.doc_type_id }
+      return { text: x.doc_type, value: parseInt(x.doc_type_id) }
     });doctypemu.value.unshift({ text:"", value: "" });
   }
 });
@@ -161,6 +178,7 @@ const columns1 = [
   { data: "comment", title: "備註" }
 ];
 const tboption1 = {
+  dom: 'ti',
   select: {
     style: 'single',
     info: false
@@ -168,9 +186,9 @@ const tboption1 = {
   order: [[1, 'asc']],
   scrollY: '30vh', 
   scrollX: true,
-  lengthChange: false,
-  searching: false,
-  paging: false,
+  search: {
+    return: true,
+  },
   responsive: true,
   language: {
     info: '共 _TOTAL_ 筆資料', 

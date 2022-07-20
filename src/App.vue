@@ -27,9 +27,13 @@ getchecktoken(result => {
 <style>
 
 
+
+
+
 /* @import '@/assets/base.css'; */
 @import 'datatables.net-dt';
 @import 'datatables.net-bs5';
+@import 'datatables.net-searchbuilder-bs5';
 html, body, #app{
   height: 100%;
 }
