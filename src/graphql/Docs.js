@@ -7,8 +7,7 @@ const GETALLDOCLATEST = gql`
     $docType: Int
     $name: String
     $ver: String
-    $releaseDate: Date
-    $expirationDate: Date
+    $stauts: Int
   ) {
     getAllDocLatest(
       doc_id: $docId
@@ -16,8 +15,7 @@ const GETALLDOCLATEST = gql`
       doc_type: $docType
       name: $name
       ver: $ver
-      release_date: $releaseDate
-      expiration_date: $expirationDate
+      stauts: $stauts
     ) {
       id
       doc_id
@@ -43,9 +41,27 @@ const GETALLDOCTYPE = gql`
     }
   }
 `;
-
+const GETDOCHISTORY = gql`
+  query GetDocHistory($docId: String!) {
+    getDocHistory(doc_id: $docId) {
+      id
+      doc_id
+      doc_level
+      doc_type
+      name
+      ver
+      release_date
+      expiration_date
+      parent_id
+      upload
+      editable_upload
+      comment
+    }
+  }
+`;
 
 export default {
   GETALLDOCLATEST,
   GETALLDOCTYPE,
+  GETDOCHISTORY,
 };
