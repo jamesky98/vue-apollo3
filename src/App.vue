@@ -26,14 +26,10 @@ getchecktoken(result => {
 
 <style>
 
-
-
-
-
-/* @import '@/assets/base.css'; */
 @import 'datatables.net-dt';
 @import 'datatables.net-bs5';
 @import 'datatables.net-searchbuilder-bs5';
+@import "@lanseria/vue-pdf-vite/style.css";
 html, body, #app{
   height: 100%;
 }

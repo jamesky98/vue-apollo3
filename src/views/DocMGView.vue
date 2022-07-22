@@ -21,8 +21,10 @@ import {
   MDBTabPane,
   MDBIcon
 } from "mdb-vue-ui-kit";
-import { useQuery, useMutation } from '@vue/apollo-composable'
+import { useQuery, useMutation } from '@vue/apollo-composable';
 import DocsGQL from "../graphql/Docs";
+// import pdf from 'vite-vue-pdf';
+import { PdfEditor } from "@lanseria/vue-pdf-vite";
 
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
@@ -42,7 +44,6 @@ import Select from 'datatables.net-select';
 // require('datatables.net-searchpanes-bs5')();
 // require('datatables.net-select-bs5')();
 
-
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
 // DataTable.use(SearchBuilder);
@@ -57,6 +58,8 @@ const data1 = ref([]);
 const data2 = ref([]);
 const nowID = ref("");
 const nowDocID = ref("");
+// PDF Viewer
+const pdfPath = ref("");
 
 onMounted(function () {
   dt1 = table1.value.dt();
@@ -65,12 +68,14 @@ onMounted(function () {
     if (type === 'row') {
       nowID.value = dt.rows(indexes).data()[0].id;
       nowDocID.value = dt.rows(indexes).data()[0].doc_id;
+      pdfPath.value = dt.rows(indexes).data()[0].upload;
     }
   });
   dt2.on('select', function (e, dt, type, indexes) {
     if (type === 'row') {
       nowID.value = dt.rows(indexes).data()[0].id;
       nowDocID.value = dt.rows(indexes).data()[0].doc_id;
+      pdfPath.value = dt.rows(indexes).data()[0].upload;
     }
   });
 });
@@ -144,9 +149,7 @@ refgetAllDocType();
 const { result: histDoc, loading: lodingHistDoc, onResult: getHistDoc, refetch: refgetHistDoc } = useQuery(
   DocsGQL.GETDOCHISTORY,
   ()=>({
-    
       docId: nowDocID.value
-    
   })
 );
 getHistDoc(result => {
@@ -177,6 +180,7 @@ const columns1 = [
       return ttdate;
     }
   },
+  { data: "upload", title: "掃描檔", visible: false },
   { data: "comment", title: "備註" }
 ];
 const tboption1 = {
@@ -240,6 +244,10 @@ const tboption2 = {
     info: '共 _TOTAL_ 筆資料',
   }
 };
+
+
+
+
 
 
 </script>
@@ -317,7 +325,8 @@ const tboption2 = {
                   </MDBRow>
                 </MDBCol>
                 <MDBCol md="4" class="border">
-                  PDF預覽
+                  <p>PDF預覽</p>
+                  <PdfEditor :src="pdfPath"></PdfEditor>
                 </MDBCol>
               </MDBRow>
             </MDBCardBody>
@@ -329,7 +338,13 @@ const tboption2 = {
   </MDBContainer>
 </template>
 <style>
+
 .colnowarp {
   white-space: nowrap;
 }
+#the-canvas {
+  border: 1px solid black;
+  direction: ltr;
+}
+
 </style>
