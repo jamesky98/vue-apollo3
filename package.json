@@ -9,7 +9,6 @@
   "dependencies": {
     "@apollo/client": "^3.6.9",
     "@apollo/link-context": "^2.0.0-beta.3",
-    "@lanseria/vue-pdf-vite": "^1.0.5",
     "@vue/apollo-composable": "^4.0.0-alpha.18",
     "bootstrap": "5.2.0-beta1",
     "datatables.net-bs5": "^1.12.1",
@@ -33,6 +32,7 @@
     "graphql-tag": "^2.12.6",
     "mdb-ui-kit": "^4.3.0",
     "mdb-vue-ui-kit": "git+https://oauth2:xfmb3NQ7xmmjona5VzHA@git.mdbootstrap.com/mdb/vue/mdb5/prd/mdb5-vue-ui-kit-pro-essential",
+    "pdfjs-dist": "^2.14.305",
     "pdfmake": "^0.2.5",
     "pinia": "^2.0.14",
     "vue": "^3.2.37",

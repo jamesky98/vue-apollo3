@@ -188,12 +188,12 @@ const tboption1 = {
     info: false
   },
   order: [[1, 'asc']],
-  scrollY: '35vh', 
+  scrollY: '30vh', 
   scrollX: true,
   lengthChange: false,
   searching: false,
   paging: false,
-  responsive: true,
+  responsive: false,
   language: {
     info: '共 _TOTAL_ 筆資料', 
   }
@@ -227,18 +227,17 @@ const columns2 = [
 ];
 const tboption2 = {
   autoWidth: false,
-  dom: 'ti',
   select: {
     style: 'single',
     info: false
   },
   order: [[5, 'desc']],
-  scrollY: '30vh',
+  scrollY: '28vh',
   scrollX: true,
   lengthChange: false,
   searching: false,
   paging: false,
-  responsive: true,
+  responsive: false,
   language: {
     info: '共 _TOTAL_ 筆資料',
   }
@@ -252,71 +251,90 @@ const tboption2 = {
 </script>
 
 <template>
-  <MDBContainer fluid class="h-100">
-    <MDBRow class="d-flex flex-column h-100">
+  <MDBContainer fluid class="h-md-100">
+    <MDBRow class="d-flex flex-column h-md-100">
       <Navbar1 />
-      <MDBContainer tag="main" fluid class="flex-grow-1">
-        <MDBRow class="h-100 border">
-          <MDBCol md="8" class="h-100 border">
-            <MDBCol md="12" class="h-50 overflow-auto border">
-              <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1" style="font-size: smaller"
-                class="display w-100 compact" />
-            </MDBCol>
-            <MDBCol md="12" class="h-50">
-
-              <MDBCol md="7" class="h-100 overflow-auto border">歷史文件
-                <DataTable :data="data2" :columns="columns2" :options="tboption2" loding="lodingHistDoc" ref="table2"
-                  style="font-size: smaller" class="display compact w-100" />
-              </MDBCol>
-              <MDBCol md="5" class="h-100 border">
-                <MDBTabs v-model="activeTabId1">
-                  <!-- Tabs navs -->
-                  <MDBTabNav tabsClasses="mb-3">
-                    <MDBTabItem tabId="filter" href="filter">篩選</MDBTabItem>
-                    <MDBTabItem tabId="editor" href="editor">資料編輯</MDBTabItem>
-                  </MDBTabNav>
-                  <!-- Tabs navs -->
-                  <!-- Tabs content -->
-                  <MDBTabContent>
-                    <!-- 篩選表單 -->
-                    <MDBTabPane tabId="filter">
-                      <MDBCol tag="form" md="12" class="d-flex flex-md-column h-100 border" @submit.prevent="
+      <main class="flex-md-fill">
+        <MDBContainer fluid class="px-0 py-2 w-100 h-100">
+          <MDBCard class="rounded-5 text-black h-100">
+            <MDBCardBody class="h-100">
+              <MDBRow class="h-100">
+                <MDBCol md="8" class="h-100 border">
+                  <MDBRow class="h-100">
+                    <MDBCol md="12" class="h-50">
+                      <!-- <MDBCol v-if="allDocLatest && allDocLatest.getAllDocLatest"> -->
+                      <!-- <MDBDatatable :dataset="dataset2" striped sm maxHeight="20%" /> -->
+                      <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1"
+                        style="font-size: smaller" class="display compact h-100 w-100 border" />
+                      <!-- </MDBCol> -->
+                    </MDBCol>
+                    <MDBCol md="12" class="h-50">
+                      <MDBRow class="h-100">
+                        <MDBCol md="7" class="h-100 border">歷史文件
+                          <DataTable :data="data2" :columns="columns2" :options="tboption2" loding="lodingHistDoc"
+                            ref="table2" style="font-size: smaller" class="display h-80 compact w-100 border" />
+                        </MDBCol>
+                        <MDBCol md="5" class="h-100 border">
+                          <MDBTabs v-model="activeTabId1">
+                            <!-- Tabs navs -->
+                            <MDBTabNav tabsClasses="mb-3">
+                              <MDBTabItem tabId="filter" href="filter">篩選</MDBTabItem>
+                              <MDBTabItem tabId="editor" href="editor">資料編輯</MDBTabItem>
+                            </MDBTabNav>
+                            <!-- Tabs navs -->
+                            <!-- Tabs content -->
+                            <MDBTabContent>
+                              <!-- 篩選表單 -->
+                              <MDBTabPane tabId="filter">
+                                <MDBCol tag="form" md="12" class="d-flex flex-md-column h-100 border" @submit.prevent="
                                 filterAllDocLatest()">
-                        條件篩選
-                        <MDBSelect size="sm" class="mb-2" label="文件層級" v-model:options="doclevelmu"
-                          v-model:selected="doclevelsel" />
-                        <MDBSelect size="sm" class="mb-2" label="文件類型" v-model:options="doctypemu"
-                          v-model:selected="doctypesel" />
-                        <MDBInput size="sm" type="text" label="文件編號" wrapperClass="mb-2" v-model="docDidsel" />
-                        <MDBInput size="sm" type="text" label="文件名稱" wrapperClass="mb-2" v-model="docnamesel" />
-                        <MDBInput size="sm" type="text" label="版次" wrapperClass="mb-2" v-model="docversel" />
-                        <!-- <MDBSelect size="sm" filter class="mb-2" label="上階文件" v-model:options="docParentmu"
+                                  條件篩選
+                                  <MDBSelect size="sm" class="mb-2" label="文件層級" v-model:options="doclevelmu"
+                                    v-model:selected="doclevelsel" />
+                                  <MDBSelect size="sm" class="mb-2" label="文件類型" v-model:options="doctypemu"
+                                    v-model:selected="doctypesel" />
+                                  <MDBInput size="sm" type="text" label="文件編號" wrapperClass="mb-2"
+                                    v-model="docDidsel" />
+                                  <MDBInput size="sm" type="text" label="文件名稱" wrapperClass="mb-2"
+                                    v-model="docnamesel" />
+                                  <MDBInput size="sm" type="text" label="版次" wrapperClass="mb-2" v-model="docversel" />
+                                  <!-- <MDBSelect size="sm" filter class="mb-2" label="上階文件" v-model:options="docParentmu"
                                     v-model:selected="docParentsel" /> -->
-                        <MDBSelect size="sm" class="mb-2" label="現役狀態" v-model:options="docStautsmu"
-                          v-model:selected="docStautsel" />
-                        <div>
-                          <MDBBtn size="sm" color="primary" type="reset">清除</MDBBtn>
-                          <MDBBtn size="sm" color="primary" type="submit">篩選</MDBBtn>
-                        </div>
-                      </MDBCol>
-                    </MDBTabPane>
-                    <!-- 編輯表單 -->
-                    <MDBTabPane tabId="editor">
-                      <MDBCol tag="form" md="12" class="d-flex flex-md-column h-100 border">資料編輯
+                                  <MDBSelect size="sm" class="mb-2" label="現役狀態" v-model:options="docStautsmu"
+                                    v-model:selected="docStautsel" />
+                                  <div>
+                                    <MDBBtn size="sm" color="primary" type="reset">清除</MDBBtn>
+                                    <MDBBtn size="sm" color="primary" type="submit">篩選</MDBBtn>
+                                  </div>
+                                </MDBCol>
+                              </MDBTabPane>
+                              <!-- 編輯表單 -->
+                              <MDBTabPane tabId="editor">
+                                <MDBCol tag="form" md="12" class="d-flex flex-md-column h-100 border">資料編輯
 
-                      </MDBCol>
-                    </MDBTabPane>
-                  </MDBTabContent>
-                  <!-- Tabs content -->
-                </MDBTabs>
-              </MDBCol>
-            </MDBCol>
-          </MDBCol>
-          <MDBCol md="4" class="h-100 border">
-
-          </MDBCol>
-        </MDBRow>
-      </MDBContainer>
+                                </MDBCol>
+                              </MDBTabPane>
+                            </MDBTabContent>
+                            <!-- Tabs content -->
+                          </MDBTabs>
+                        </MDBCol>
+                      </MDBRow>
+                    </MDBCol>
+                  </MDBRow>
+                </MDBCol>
+                <MDBCol md="4" class="h-100 border">
+                  <!-- <p>PDF預覽</p> -->
+                  <MDBRow class="h-100">
+                    <MDBCol md="12" class="h-50">
+                      XXX
+                    </MDBCol> <!-- <PdfViewer /> -->
+                  </MDBRow>
+                </MDBCol>
+              </MDBRow>
+            </MDBCardBody>
+          </MDBCard>
+        </MDBContainer>
+      </main>
       <Footer1 />
     </MDBRow>
   </MDBContainer>
