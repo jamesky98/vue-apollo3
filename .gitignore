@@ -14,7 +14,7 @@ dist-ssr
 coverage
 *.local
 .env
-public
+public/02_DOC/
 
 /cypress/videos/
 /cypress/screenshots/

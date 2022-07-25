@@ -1,5 +1,5 @@
 <template>
-  <div id="pageContainer">
+  <div id="pageContainer" class="overflow-auto">
     <div id="viewer" class="pdfViewer"></div>
   </div>
 </template>
@@ -16,10 +16,10 @@ const pdfDialogOpen = () => {
     // 指定workerSrc屬性
     // pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
     pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker
-
+    
     const loadingTask = await pdfjsLib.getDocument({
       // url: state.currentPdfItem.url,
-      url: 'https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf',
+      url: '/test.pdf',
       cMapUrl: '../../node_modules/pdfjs-dist/cmaps',
       cMapPacked: true,
       enableXfa: true
@@ -61,6 +61,7 @@ onMounted(() => {
 #pageContainer {
   /* margin: auto; */
   width: 80%;
+  height: 100%;
 }
 
 div.page {

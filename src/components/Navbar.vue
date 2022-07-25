@@ -11,27 +11,18 @@ import {
 import { ref } from 'vue';
 import router from '../router';
 import { logOut } from '../methods/User';
-// defineProps({
-//   username: String
-// });
+
 const username = localStorage.getItem("USER_NAME");
 const collapse1 = ref(false);
-
-// function logout(){
-//   localStorage.removeItem("AUTH_TOKEN");
-//   localStorage.removeItem('USER_ID');
-//   localStorage.removeItem('USER_NAME');
-//   router.push('/login');
-// }
 
 </script>
 <template>
   <!-- Navbar -->
-  <MDBNavbar expand="lg" light bg="light" container>
+  <MDBNavbar expand="xl" light bg="light" container>
     <MDBNavbarBrand>{{ username }}，您好</MDBNavbarBrand>
     <MDBNavbarToggler @click="collapse1 = !collapse1" target="#navbarSupportedContent"></MDBNavbarToggler>
     <MDBCollapse v-model="collapse1" id="navbarSupportedContent">
-      <MDBNavbarNav class="mb-2 mb-lg-0">
+      <MDBNavbarNav class="mb-2 mb-xl-0">
         <MDBNavbarItem :to="{ name: 'home', params: { username: username }}">
           <MDBIcon icon="home" />首頁
         </MDBNavbarItem>
@@ -58,7 +49,7 @@ const collapse1 = ref(false);
         </MDBNavbarItem>
 
       </MDBNavbarNav>
-      <MDBNavbarNav right class="ml-auto mb-lg-0">
+      <MDBNavbarNav right class="ml-auto mb-xl-0">
         <MDBNavbarItem to="#" @click="logOut()">
           登出
         </MDBNavbarItem>
