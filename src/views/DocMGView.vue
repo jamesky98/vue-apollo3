@@ -356,10 +356,36 @@ const { mutate: addDoc, onDone: addDocOnDone, onError: addDocError } = useMutati
       editableUpload: (nowEdUpload.value === "") ? null : nowEdUpload.value,
       comment: (nowComment.value === "") ? null : nowComment.value,
     },
-    // update
+    update: (cache, { data: { addDoc } }) => {
+      // update GETALLDOCLATEST result
+      let data = cache.readQuery({ query: DocsGQL.GETALLDOCLATEST })
+      data = {
+        ...data,
+        getAllDocLatest: [
+          ...data.getAllDocLatest,
+          // add delDocfun result
+          addDoc,
+        ],
+      }
+      cache.writeQuery({ query: DocsGQL.GETALLDOCLATEST, data })
+
+      // update GETDOCHISTORY result
+      let data2 = cache.readQuery({ query: DocsGQL.GETDOCHISTORY })
+      data2 = {
+        ...data2,
+        getDocHistory: [
+          ...data2.getDocHistory,
+          // add delDocfun result
+          addDoc,
+        ],
+      }
+      cache.writeQuery({ query: DocsGQL.GETALLDOCLATEST, data2 })
+    },
   })
 );
-
+addDocOnDone(()=>{
+  console.log("完成新增");
+});
 function addDocBtn(){
   // 清空欄位
   nowIDed.value="";
@@ -377,7 +403,39 @@ function addDocBtn(){
   itemExpDate.value.inputValue = ""
 }
 // 編輯表單-刪除
-const { mutate: delDocfun, onDone: delDocOnDone, onError: delDocError } = useMutation(DocsGQL.DELDOC);
+const { mutate: delDocfun, onDone: delDocOnDone, onError: delDocError } = useMutation(
+  DocsGQL.DELDOC,
+  () => ({
+    variables: {
+      delDocId: parseInt(nowIDed.value),
+    },
+    update: (cache, { data: { delDocfun } }) => {
+      // update GETALLDOCLATEST result
+      let data = cache.readQuery({ query: DocsGQL.GETALLDOCLATEST })
+      data = {
+        ...data,
+        getAllDocLatest: [
+          ...data.getAllDocLatest,
+          // remove delDocfun result
+        ],
+      }
+      cache.writeQuery({ query: DocsGQL.GETALLDOCLATEST, data })
+      
+      // update GETDOCHISTORY result
+      let data2 = cache.readQuery({ query: DocsGQL.GETDOCHISTORY })
+      data2 = {
+        ...data2,
+        getDocHistory: [
+          ...data2.getDocHistory,
+          // remove delDocfun result
+        ],
+      }
+      cache.writeQuery({ query: DocsGQL.GETALLDOCLATEST, data2 })
+    },
+  }));
+delDocOnDone(()=>{
+  console.log("完成刪除");
+});
 
 // 編輯表單-修改
 const { mutate: saveDoc, onDone: saveDocOnDone, onError: saveDocError } = useMutation(
@@ -396,7 +454,31 @@ const { mutate: saveDoc, onDone: saveDocOnDone, onError: saveDocError } = useMut
       editableUpload: (nowEdUpload.value === "") ? null : nowEdUpload.value,
       comment: (nowComment.value === "") ? null : nowComment.value,
     },
-    // update
+    update: (cache, { data: { saveDoc } }) => {
+      // update GETALLDOCLATEST result
+      let data = cache.readQuery({ query: DocsGQL.GETALLDOCLATEST })
+      data = {
+        ...data,
+        getAllDocLatest: [
+          ...data.getAllDocLatest,
+          // add delDocfun result
+          saveDoc,
+        ],
+      }
+      cache.writeQuery({ query: DocsGQL.GETALLDOCLATEST, data })
+
+      // update GETDOCHISTORY result
+      let data2 = cache.readQuery({ query: DocsGQL.GETDOCHISTORY })
+      data2 = {
+        ...data2,
+        getDocHistory: [
+          ...data2.getDocHistory,
+          // add delDocfun result
+          saveDoc,
+        ],
+      }
+      cache.writeQuery({ query: DocsGQL.GETALLDOCLATEST, data2 })
+    },
   })
 );
 // 編輯表單-儲存
@@ -537,7 +619,7 @@ function saveDocBtn() {
                       </MDBRow>
                       <div class="d-flex justify-content-end p-2">
                         <MDBBtn size="sm" color="primary" @click="addDocBtn()">新增</MDBBtn>
-                        <MDBBtn size="sm" color="primary" @click="delDocfun({ delDocId: nowID.value })">刪除</MDBBtn>
+                        <MDBBtn size="sm" color="primary" @click="delDocfun()">刪除</MDBBtn>
                         <MDBBtn size="sm" color="primary" @click="saveDocBtn()">儲存</MDBBtn>
                       </div>
                     </MDBTabPane>

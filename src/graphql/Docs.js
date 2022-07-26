@@ -104,7 +104,7 @@ const ADDDOC = gql`
 `;
 
 const DELDOC = gql`
-  mutation DelDoc($delDocId: Int!) {
+  mutation UpdateDoc($delDocId: Int!) {
     delDoc(id: $delDocId) {
       id
     }
