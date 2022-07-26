@@ -4,7 +4,9 @@ import { RouterLink, RouterView } from 'vue-router'
 import router from './router'
 import { useQuery } from '@vue/apollo-composable';
 import UsersGQL from "./graphql/Users";
+// import { ref } from "vue";
 // 判斷token狀況
+// const hasToken = ref(result.data.checktoken);
 const { onResult:getchecktoken } = useQuery(UsersGQL.CHECKTOKEN);
 
 getchecktoken(result => {
