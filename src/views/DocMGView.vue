@@ -2,6 +2,7 @@
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import { ref, onMounted } from "vue";
+import path from "path-browserify";
 import {
   MDBCard,
   MDBCardBody,
@@ -21,6 +22,7 @@ import {
   MDBTabPane,
   MDBDatepicker,
   MDBTextarea,
+  MDBAlert,
   MDBIcon
 } from "mdb-vue-ui-kit";
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -47,6 +49,10 @@ import Select from 'datatables.net-select';
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
 // DataTable.use(SearchBuilder);
+
+// Information
+const infomsg = ref("");
+const alert1 = ref(false);
 
 const activeTabId1 = ref('filter');
 let dt1;
@@ -104,7 +110,12 @@ function updateDocContext(e, dt, type, indexes){
     docTypeSelect.value.setValue(parseInt(getDocData.doc_type));
     nowDocName.value = getDocData.name;
     nowVer.value = getDocData.ver;
-    nowReleaseDate.value = (getDocData.release_date)?getDocData.release_date.split("T")[0]:"";
+    if (getDocData.release_date === null){
+      nowReleaseDate.value="";
+      itemRelDate.value.inputValue = "";
+    }else{
+      nowReleaseDate.value = getDocData.release_date.split("T")[0];
+    }
     nowParents.value = getDocData.parent_id;
     nowUpload.value = getDocData.upload;
     if (!getDocData.upload){
@@ -113,6 +124,12 @@ function updateDocContext(e, dt, type, indexes){
       pdfPath.value = "pdfjs-dist/web/viewer.html?file=../../../02_DOC/" + getDocData.doc_level + "/" + getDocData.upload;
     }
     nowEdUpload.value = getDocData.editable_upload;
+    if (getDocData.expiration_date === null) {
+      nowExpDate.value = "";
+      itemExpDate.value.inputValue = "";
+    } else {
+      nowExpDate.value = getDocData.expiration_date.split("T")[0];
+    }
     nowExpDate.value = (getDocData.expiration_date) ? getDocData.expiration_date.split("T")[0] : "";
     nowComment.value = getDocData.comment;
   }
@@ -345,46 +362,25 @@ const { mutate: addDoc, onDone: addDocOnDone, onError: addDocError } = useMutati
   ()=>({
     variables: {
       docId: nowDocIDed.value,
-      docLevel: nowDocLevel.value,
-      docType: nowDocType.value,
+      docLevel: parseInt(nowDocLevel.value),
+      docType: parseInt(nowDocType.value),
       name: nowDocName.value,
       ver: nowVer.value,
-      releaseDate: (nowReleaseDate.value === "") ? null : nowReleaseDate.value,
-      expirationDate: (nowExpDate.value === "") ? null : nowExpDate.value,
+      releaseDate: (nowReleaseDate.value === "") ? null : (nowReleaseDate.value.trim() + "T00:00:00.000Z"),
+      expirationDate: (nowExpDate.value === "") ? null : (nowExpDate.value.trim() + "T00:00:00.000Z"),
       parentId: (nowParents.value === "") ? null : nowParents.value,
       upload: (nowUpload.value === "") ? null : nowUpload.value,
       editableUpload: (nowEdUpload.value === "") ? null : nowEdUpload.value,
       comment: (nowComment.value === "") ? null : nowComment.value,
-    },
-    update: (cache, { data: { addDoc } }) => {
-      // update GETALLDOCLATEST result
-      let data = cache.readQuery({ query: DocsGQL.GETALLDOCLATEST })
-      data = {
-        ...data,
-        getAllDocLatest: [
-          ...data.getAllDocLatest,
-          // add delDocfun result
-          addDoc,
-        ],
-      }
-      cache.writeQuery({ query: DocsGQL.GETALLDOCLATEST, data })
-
-      // update GETDOCHISTORY result
-      let data2 = cache.readQuery({ query: DocsGQL.GETDOCHISTORY })
-      data2 = {
-        ...data2,
-        getDocHistory: [
-          ...data2.getDocHistory,
-          // add delDocfun result
-          addDoc,
-        ],
-      }
-      cache.writeQuery({ query: DocsGQL.GETALLDOCLATEST, data2 })
-    },
+    }
   })
 );
 addDocOnDone(()=>{
-  console.log("完成新增");
+  refgetAllDocLatest();
+  refgetAllDocLatest2();
+  refgetHistDoc();
+  infomsg.value = "ID:" + nowIDed.value+ " " + nowDocIDed.value + "完成新增";
+  alert1.value = true;
 });
 function addDocBtn(){
   // 清空欄位
@@ -408,33 +404,14 @@ const { mutate: delDocfun, onDone: delDocOnDone, onError: delDocError } = useMut
   () => ({
     variables: {
       delDocId: parseInt(nowIDed.value),
-    },
-    update: (cache, { data: { delDocfun } }) => {
-      // update GETALLDOCLATEST result
-      let data = cache.readQuery({ query: DocsGQL.GETALLDOCLATEST })
-      data = {
-        ...data,
-        getAllDocLatest: [
-          ...data.getAllDocLatest,
-          // remove delDocfun result
-        ],
-      }
-      cache.writeQuery({ query: DocsGQL.GETALLDOCLATEST, data })
-      
-      // update GETDOCHISTORY result
-      let data2 = cache.readQuery({ query: DocsGQL.GETDOCHISTORY })
-      data2 = {
-        ...data2,
-        getDocHistory: [
-          ...data2.getDocHistory,
-          // remove delDocfun result
-        ],
-      }
-      cache.writeQuery({ query: DocsGQL.GETALLDOCLATEST, data2 })
-    },
+    }
   }));
 delDocOnDone(()=>{
-  console.log("完成刪除");
+  refgetAllDocLatest();
+  refgetAllDocLatest2();
+  refgetHistDoc();
+  infomsg.value = "ID:" + nowIDed.value+ " " + nowDocIDed.value + "完成刪除";
+  alert1.value = true;
 });
 
 // 編輯表單-修改
@@ -442,45 +419,33 @@ const { mutate: saveDoc, onDone: saveDocOnDone, onError: saveDocError } = useMut
   DocsGQL.SAVEDOC,
   () => ({
     variables: {
+      updateDocId: parseInt(nowIDed.value),
       docId: nowDocIDed.value,
-      docLevel: nowDocLevel.value,
-      docType: nowDocType.value,
+      docLevel: parseInt(nowDocLevel.value),
+      docType: parseInt(nowDocType.value),
       name: nowDocName.value,
       ver: nowVer.value,
-      releaseDate: (nowReleaseDate.value === "") ? null : nowReleaseDate.value,
-      expirationDate: (nowExpDate.value === "") ? null : nowExpDate.value,
+      releaseDate: (nowReleaseDate.value === "") ? null : (nowReleaseDate.value.trim() + "T00:00:00.000Z"),
+      expirationDate: (nowExpDate.value === "") ? null : (nowExpDate.value.trim() + "T00:00:00.000Z"),
       parentId: (nowParents.value === "") ? null : nowParents.value,
       upload: (nowUpload.value === "") ? null : nowUpload.value,
       editableUpload: (nowEdUpload.value === "") ? null : nowEdUpload.value,
       comment: (nowComment.value === "") ? null : nowComment.value,
-    },
-    update: (cache, { data: { saveDoc } }) => {
-      // update GETALLDOCLATEST result
-      let data = cache.readQuery({ query: DocsGQL.GETALLDOCLATEST })
-      data = {
-        ...data,
-        getAllDocLatest: [
-          ...data.getAllDocLatest,
-          // add delDocfun result
-          saveDoc,
-        ],
-      }
-      cache.writeQuery({ query: DocsGQL.GETALLDOCLATEST, data })
-
-      // update GETDOCHISTORY result
-      let data2 = cache.readQuery({ query: DocsGQL.GETDOCHISTORY })
-      data2 = {
-        ...data2,
-        getDocHistory: [
-          ...data2.getDocHistory,
-          // add delDocfun result
-          saveDoc,
-        ],
-      }
-      cache.writeQuery({ query: DocsGQL.GETALLDOCLATEST, data2 })
-    },
+    }
   })
 );
+
+saveDocError((error)=>{
+  console.log(error);
+});
+saveDocOnDone(()=>{
+  refgetAllDocLatest();
+  refgetAllDocLatest2();
+  refgetHistDoc();
+  infomsg.value = "ID:"+nowIDed.value+ " " + nowDocIDed.value + "完成修改";
+  alert1.value = true;
+});
+
 // 編輯表單-儲存
 function saveDocBtn() {
   if(nowIDed.value===""){
@@ -490,6 +455,48 @@ function saveDocBtn() {
     // 執行修改
     saveDoc();
   }
+}
+
+function uploadBtn(){
+  console.log(nowDocLevel.value);
+  console.log(nowReleaseDate.value);
+  if (nowDocIDed.value = "") {
+    alert("請輸入文件編號 !!");
+    return;
+  }
+  if (nowDocLevel.value = ""){
+    alert("請輸入文件階層 !!");
+    return;
+  }
+  if (nowReleaseDate.value = "") {
+    alert("請輸入發行日 !!");
+    return;
+  }
+
+  document.getElementById("itemUpload").click();
+}
+
+const upFile = ref();
+const { mutate: uploadDoc, onDone: uploadDocOnDone } = useMutation(DocsGQL.UPLOADDOC);
+
+uploadDocOnDone(()=>{
+  infomsg.value = "ID:" + nowIDed.value + " " + nowDocIDed.value + "檔案完成上傳";
+  alert1.value = true;
+});
+
+function uploadChenge(e){
+  upFile.value = e.target.files[0];
+
+  uploadDoc({ 
+    file: upFile.value,
+    subpath: nowDocLevel.value + "",
+    newfilename: nowDocIDed.value + "_" + nowReleaseDate.value.replace("-", "") + path.extname(e.target.value),
+  });
+
+}
+
+function expUploadBtn() {
+  document.getElementById("itemExpUpload").click();
 }
 
 </script>
@@ -587,39 +594,28 @@ function saveDocBtn() {
                         <MDBCol col="6" class="mb-2 px-0">
                           <MDBBtn size="sm" color="primary" @click="addParentDoc()">加入</MDBBtn>
                         </MDBCol>
-                        <MDBCol col="12" class="mb-2">
+                        <MDBCol col="9" class="mb-2">
                           <MDBInput size="sm" type="text" readonly label="掃描檔" v-model="nowUpload" />
                         </MDBCol>
-                        <MDBCol col="12" class="mb-2">
-                          <MDBFile size="sm" v-model="fileUpload" />
+                        <MDBCol col="3" class="px-0 mb-2">
+                          <input type="file" accept=".pdf" id="itemUpload" @change="uploadChenge"
+                            style="display: none;" />
+                          <MDBBtn size="sm" color="primary" @click="uploadBtn">上傳</MDBBtn>
                         </MDBCol>
-                        <MDBCol col="12" class="mb-2">
+                        <MDBCol col="9" class="mb-2">
                           <MDBInput size="sm" type="text" readonly label="編輯檔" v-model="nowEdUpload" />
                         </MDBCol>
-                        <MDBCol col="12" class="mb-2">
-                          <MDBFile size="sm" v-model="fileEdUpload" />
+                        <MDBCol col="3" class="px-0 mb-2">
+                          <input type="file" accept=".doc,.docx" id="itemExpUpload" style="display: none;" />
+                          <MDBBtn size="sm" color="primary" @click="expUploadBtn()">上傳</MDBBtn>
                         </MDBCol>
                         <MDBCol col="12" class="mb-2">
                           <MDBTextarea size="sm" label="備註" rows="2" v-model="nowComment" />
                         </MDBCol>
-
-
-                        <!-- <MDBCol col="6" class="mb-2">
-                          <MDBInput size="sm" type="text" label="文件層級" readonly v-model="nowDocLevel" />
-                        </MDBCol> -->
-
-
-                        <!-- 選單 -->
-                        <!-- <MDBSelect size="sm" class="mb-2 col-6" label="文件層級" /> -->
-                        <!-- 文字 -->
-                        <!-- <MDBCol col="6" class="mb-2">
-                          <MDBInput size="sm" type="text" label="文件編號" />
-                        </MDBCol> -->
-
                       </MDBRow>
-                      <div class="d-flex justify-content-end p-2">
+                      <div class="d-flex p-2">
+                        <MDBBtn size="sm" class="me-auto" color="danger" @click="delDocfun()">刪除</MDBBtn>
                         <MDBBtn size="sm" color="primary" @click="addDocBtn()">新增</MDBBtn>
-                        <MDBBtn size="sm" color="primary" @click="delDocfun()">刪除</MDBBtn>
                         <MDBBtn size="sm" color="primary" @click="saveDocBtn()">儲存</MDBBtn>
                       </div>
                     </MDBTabPane>
@@ -637,10 +633,15 @@ function saveDocBtn() {
             <!-- <a href="pdfjs-dist/web/viewer.html?file=%2Fmy-pdf-file.pdf">Open Full Screen PDF.js Viewer</a> -->
           </MDBCol>
         </MDBRow>
+
       </MDBContainer>
-      <Footer1 />
+      <Footer1 :msg="infomsg" />
     </MDBRow>
   </MDBContainer>
+  <MDBAlert dismiss v-model="alert1" id="alert-primary" color="primary" position="top-right" stacking width="535px"
+    appendToBody autohide :delay="2000">
+    {{ infomsg }}
+  </MDBAlert>
 </template>
 <style>
 .colnowarp {

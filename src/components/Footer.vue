@@ -2,10 +2,15 @@
   <!-- Footer -->
   <footer>
     <!-- Copyright -->
-    <div class="text-center p-2" style="background-color: rgba(0, 0, 0, 0.05)">
-      狀態訊息
+    <div class="p-2 overflow-hidden" style="background-color: rgba(0, 0, 0, 0.05); height: 5vh;">
+      狀態訊息：{{ msg }}
     </div>
     <!-- Copyright -->
   </footer>
   <!-- Footer -->
 </template>
+<script setup>
+defineProps({
+  msg: {type: String}
+})
+</script>

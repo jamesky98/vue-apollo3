@@ -114,6 +114,7 @@ const DELDOC = gql`
 const SAVEDOC = gql`
   mutation UpdateDoc(
     $updateDocId: Int!
+    $docId: String
     $docLevel: Int
     $docType: Int
     $name: String
@@ -127,6 +128,7 @@ const SAVEDOC = gql`
   ) {
     updateDoc(
       id: $updateDocId
+      doc_id: $docId
       doc_level: $docLevel
       doc_type: $docType
       name: $name
@@ -154,6 +156,16 @@ const SAVEDOC = gql`
   }
 `;
 
+const UPLOADDOC = gql`
+  mutation UploadDoc($file: Upload!, $subpath: String!, $newfilename: String!) {
+    uploadDoc(file: $file, subpath: $subpath, newfilename: $newfilename) {
+      filename
+      mimetype
+      encoding
+    }
+  }
+`;
+
 export default {
   GETALLDOCLATEST,
   GETALLDOCTYPE,
@@ -161,4 +173,5 @@ export default {
   ADDDOC,
   DELDOC,
   SAVEDOC,
+  UPLOADDOC,
 };

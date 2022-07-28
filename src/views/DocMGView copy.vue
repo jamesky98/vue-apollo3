@@ -335,7 +335,7 @@ const tboption2 = {
           </MDBCard>
         </MDBContainer>
       </main>
-      <Footer1 />
+      <Footer1/>
     </MDBRow>
   </MDBContainer>
 </template>

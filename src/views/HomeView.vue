@@ -59,38 +59,38 @@ const username = localStorage.getItem("USER_NAME");
                 <MDBCol col="3">
                   <MDBRow class="d-flex flex-column">
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'docs', params: { username: username }}">
+                      <RouterLink :to="{ name: 'docs'}">
                         <MDBIcon icon="file-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />文件查詢
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class=" px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'cases', params: { username: username }}">
+                      <RouterLink :to="{ name: 'cases'}">
                         <MDBIcon icon="balance-scale" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />校正案件
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'employee', params: { username: username }}">
+                      <RouterLink :to="{ name: 'employee'}">
                         <MDBIcon icon="user-edit" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />人員管理
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'gcps', params: { username: username }}">
+                      <RouterLink :to="{ name: 'gcps'}">
                         <MDBIcon icon="map-marked-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />點位管理
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'prjs', params: { username: username }}">
+                      <RouterLink :to="{ name: 'prjs'}">
                         <MDBIcon icon="drafting-compass" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />
                         參考值量測作業
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'items', params: { username: username }}">
+                      <RouterLink :to="{ name: 'items'}">
                         <MDBIcon icon="wrench" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />標準件管理
                       </RouterLink>
                     </MDBCol>
                     <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'cust', params: { username: username } }">
+                      <RouterLink :to="{ name: 'cust' }">
                         <MDBIcon far icon="handshake" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />顧客管理
                       </RouterLink>
                     </MDBCol>

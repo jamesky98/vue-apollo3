@@ -3,6 +3,7 @@ import {
   InMemoryCache,
 } from "@apollo/client/core";
 import { setContext } from "@apollo/client/link/context";
+import { createUploadLink } from "apollo-upload-client";
 
 const authLink = setContext((_, { headers }) => {
   // get the authentication token from local storage if it exists
@@ -12,11 +13,16 @@ const authLink = setContext((_, { headers }) => {
     headers: {
       ...headers,
       authorization: tokenvalue ? `Bearer ${tokenvalue}` : "",
+      "Apollo-Require-Preflight": "true",
     },
   };
 });
 
-const httpLink = createHttpLink({
+// const httpLink = createHttpLink({
+//   uri: import.meta.env.VITE_GRAPHQL_URL,
+// });
+
+const httpLink = createUploadLink({
   uri: import.meta.env.VITE_GRAPHQL_URL,
 });
 
