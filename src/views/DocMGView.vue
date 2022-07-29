@@ -79,7 +79,6 @@ const nowReleaseDate = ref("");
 const itemRelDate = ref();
 const nowParents = ref("");
 const nowUpload = ref("");
-const fileUpload = ref([]);
 // PDF Viewer ?file=../../../test.pdf
 const pdfPath = ref("pdfjs-dist/web/viewer.html");
 const nowEdUpload = ref("");
@@ -457,45 +456,84 @@ function saveDocBtn() {
   }
 }
 
+const isUploadBtn = ref(true);
 function uploadBtn(){
-  console.log(nowDocLevel.value);
-  console.log(nowReleaseDate.value);
-  if (nowDocIDed.value = "") {
+  // console.log(nowDocLevel.value);
+  // console.log(nowReleaseDate.value);
+  isUploadBtn.value=true;
+  if (nowDocIDed.value === "") {
     alert("請輸入文件編號 !!");
     return;
   }
-  if (nowDocLevel.value = ""){
+  if (nowDocLevel.value === ""){
     alert("請輸入文件階層 !!");
     return;
   }
-  if (nowReleaseDate.value = "") {
+  if (nowReleaseDate.value === "") {
     alert("請輸入發行日 !!");
     return;
   }
-
+  
   document.getElementById("itemUpload").click();
 }
 
+
 const upFile = ref();
 const { mutate: uploadDoc, onDone: uploadDocOnDone } = useMutation(DocsGQL.UPLOADDOC);
+const { mutate: saveUpload, onDone: saveUploadOnDone, onError: saveUploadError } = useMutation(DocsGQL.SAVEUPLOAD);
 
-uploadDocOnDone(()=>{
+saveUploadOnDone(() => {
+  refgetAllDocLatest();
+  refgetHistDoc();
+});
+
+uploadDocOnDone((result)=>{
+  // console.log(result.data.uploadDoc);
   infomsg.value = "ID:" + nowIDed.value + " " + nowDocIDed.value + "檔案完成上傳";
   alert1.value = true;
+  if(isUploadBtn.value){
+    nowUpload.value = result.data.uploadDoc.filename;
+    saveUpload({
+      updateDocId: parseInt(nowIDed.value),
+      upload: nowUpload.value,
+    });
+    pdfPath.value = "pdfjs-dist/web/viewer.html?file=../../../02_DOC/" + nowDocLevel.value + "/" + nowUpload.value;
+    
+    // console.log(pdfPath.value);
+  }else{
+    nowEdUpload.value = result.data.uploadDoc.filename;
+    saveUpload({
+      updateDocId: parseInt(nowIDed.value),
+      editableUpload: nowEdUpload.value,
+    });
+  }
 });
 
 function uploadChenge(e){
   upFile.value = e.target.files[0];
-
   uploadDoc({ 
     file: upFile.value,
     subpath: nowDocLevel.value + "",
-    newfilename: nowDocIDed.value + "_" + nowReleaseDate.value.replace("-", "") + path.extname(e.target.value),
+    newfilename: nowDocIDed.value + "_" + nowReleaseDate.value.replaceAll("-", "") + path.extname(e.target.value),
   });
-
 }
 
+
 function expUploadBtn() {
+  isUploadBtn.value = false;
+  if (nowDocIDed.value === "") {
+    alert("請輸入文件編號 !!");
+    return;
+  }
+  if (nowDocLevel.value === "") {
+    alert("請輸入文件階層 !!");
+    return;
+  }
+  if (nowReleaseDate.value === "") {
+    alert("請輸入發行日 !!");
+    return;
+  }
+
   document.getElementById("itemExpUpload").click();
 }
 
@@ -606,8 +644,9 @@ function expUploadBtn() {
                           <MDBInput size="sm" type="text" readonly label="編輯檔" v-model="nowEdUpload" />
                         </MDBCol>
                         <MDBCol col="3" class="px-0 mb-2">
-                          <input type="file" accept=".doc,.docx" id="itemExpUpload" style="display: none;" />
-                          <MDBBtn size="sm" color="primary" @click="expUploadBtn()">上傳</MDBBtn>
+                          <input type="file" accept=".doc,.docx" id="itemExpUpload" @change="uploadChenge"
+                            style="display: none;" />
+                          <MDBBtn size="sm" color="primary" @click="expUploadBtn">上傳</MDBBtn>
                         </MDBCol>
                         <MDBCol col="12" class="mb-2">
                           <MDBTextarea size="sm" label="備註" rows="2" v-model="nowComment" />

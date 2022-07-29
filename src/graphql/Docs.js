@@ -166,6 +166,24 @@ const UPLOADDOC = gql`
   }
 `;
 
+const SAVEUPLOAD = gql`
+  mutation UpdateDoc(
+    $updateDocId: Int!
+    $upload: String
+    $editableUpload: String
+  ) {
+    updateDoc(
+      id: $updateDocId
+      upload: $upload
+      editable_upload: $editableUpload
+    ) {
+      id
+      upload
+      editable_upload
+    }
+  }
+`;
+
 export default {
   GETALLDOCLATEST,
   GETALLDOCTYPE,
@@ -174,4 +192,5 @@ export default {
   DELDOC,
   SAVEDOC,
   UPLOADDOC,
+  SAVEUPLOAD,
 };
