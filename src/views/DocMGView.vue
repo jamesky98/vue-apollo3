@@ -22,7 +22,8 @@ import {
   MDBTabPane,
   MDBDatepicker,
   MDBTextarea,
-  MDBAlert,
+  MDBAlert, 
+  MDBBtnClose,
   MDBIcon
 } from "mdb-vue-ui-kit";
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -32,6 +33,7 @@ import DocsGQL from "../graphql/Docs";
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
+
 
 // require('pdfmake');
 // require('datatables.net-buttons-bs5')();
@@ -55,19 +57,26 @@ const infomsg = ref("");
 const alert1 = ref(false);
 
 const activeTabId1 = ref('filter');
+const activeTabId2 = ref('histroy');
 let dt1;
 let dt2;
+let dt3;
 // This variable is used in the `ref` attribute for the component
 const table1 = ref(); 
 const table2 = ref(); 
+const table3 = ref();
 const data1 = ref([]);
 const data2 = ref([]);
+const data3 = ref([]);
 
 // 文件編輯資料
 const nowID = ref("");
-const nowDocID = ref("");
 const nowIDed = ref("");
+
+const nowDocID = ref("");
 const nowDocIDed = ref("");
+const nowDocIDParent = ref("");
+
 const nowDocLevel = ref("");
 const docLevelSelect = ref();
 const nowDocTypemu = ref([]);
@@ -82,7 +91,6 @@ const nowUpload = ref("");
 // PDF Viewer ?file=../../../test.pdf
 const pdfPath = ref("pdfjs-dist/web/viewer.html");
 const nowEdUpload = ref("");
-const fileEdUpload = ref([]);
 const nowExpDate = ref("");
 const itemExpDate = ref();
 const nowComment = ref("");
@@ -90,12 +98,19 @@ const nowComment = ref("");
 onMounted(function () {
   dt1 = table1.value.dt();
   dt2 = table2.value.dt();
+  dt3 = table3.value.dt();
+
   dt1.on('select', function (e, dt, type, indexes) {
+    nowDocIDParent.value = dt.rows(indexes).data()[0].doc_id    
     updateDocContext(e, dt, type, indexes);
   });
   dt2.on('select', function (e, dt, type, indexes) {
     updateDocContext(e, dt, type, indexes);
   });
+  dt3.on('select', function (e, dt, type, indexes) {
+    updateDocContext(e, dt, type, indexes);
+  });
+
 });
 
 function updateDocContext(e, dt, type, indexes){
@@ -228,6 +243,22 @@ getHistDoc(result => {
 });
 refgetHistDoc();
 
+// 查詢下階文件
+const { result: childDoc, loading: lodingChildDoc, onResult: getChildDoc, refetch: refgetChildDoc } = useQuery(
+  DocsGQL.GETDOCCHILD,
+  () => ({
+    docId: nowDocIDParent.value
+  })
+);
+getChildDoc(result => {
+  if (!result.loading) {
+    data3.value = result.data.getDocChild;
+  }
+});
+refgetChildDoc();
+
+
+
 // 設定表格table1
 const columns1 = [
   { data: "id", title: "索引", visible: false },
@@ -271,7 +302,7 @@ const tboption1 = {
     info: '共 _TOTAL_ 筆資料', 
   }
 };
-// 設定表格table2
+// 設定表格table2、table3
 const columns2 = [
   { data: "id", title: "索引", width:"10px" },
   { data: "doc_id", title: "文件編號", className: "colnowarp", width: "30px" },
@@ -307,7 +338,53 @@ const tboption2 = {
     info: false
   },
   order: [[5, 'desc']],
-  scrollY: '32vh',
+  scrollY: '28vh',
+  scrollX: true,
+  lengthChange: false,
+  searching: false,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  },
+};
+
+const columns3 = [
+  { data: "id", title: "索引", width: "10px" },
+  { data: "doc_id", title: "文件編號", className: "colnowarp", width: "30px" },
+  { data: "doc_level", title: "層級", visible: false },
+  { data: "doc_type", title: "類型", visible: false },
+  { data: "ver", title: "版次", width: "50px" },
+  {
+    data: "release_date", title: "發行日", className: "colnowarp", defaultContent: "", render: (data) => {
+      let ttdate = ""
+      if (data) { ttdate = data.split("T")[0]; }
+      return ttdate;
+    }, width: "50px"
+  },
+  { data: "parent_id", title: "上階文件", visible: false },
+  {
+    data: "expiration_date", title: "廢止日", className: "colnowarp", defaultContent: "", render: (data) => {
+      let ttdate = ""
+      if (data) { ttdate = data.split("T")[0]; }
+      return ttdate;
+    }, visible: false
+  },
+  { data: "name", title: "文件名稱", width: "50px" },
+  { data: "parent_id", title: "父階文件", visible: false },
+  { data: "upload", title: "掃描檔", visible: false },
+  { data: "editable_upload", title: "編輯檔", visible: false },
+  { data: "comment", title: "備註", width: "50px" }
+];
+const tboption3 = {
+  autoWidth: false,
+  dom: 'ti',
+  select: {
+    style: 'single',
+    info: false
+  },
+  order: [[2, 'asc']],
+  scrollY: '28vh',
   scrollX: true,
   lengthChange: false,
   searching: false,
@@ -381,6 +458,8 @@ addDocOnDone(()=>{
   infomsg.value = "ID:" + nowIDed.value+ " " + nowDocIDed.value + "完成新增";
   alert1.value = true;
 });
+
+// 編輯表單-新增
 function addDocBtn(){
   // 清空欄位
   nowIDed.value="";
@@ -397,6 +476,15 @@ function addDocBtn(){
   nowExpDate.value ="";
   itemExpDate.value.inputValue = ""
 }
+// 編輯表單-複製並新增
+function copyAddDocBtn() {
+  // 清空部分欄位
+  nowIDed.value = "";
+  nowUpload.value = "";
+  nowEdUpload.value = "";
+}
+
+
 // 編輯表單-刪除
 const { mutate: delDocfun, onDone: delDocOnDone, onError: delDocError } = useMutation(
   DocsGQL.DELDOC,
@@ -456,86 +544,87 @@ function saveDocBtn() {
   }
 }
 
-const isUploadBtn = ref(true);
-function uploadBtn(){
-  // console.log(nowDocLevel.value);
-  // console.log(nowReleaseDate.value);
-  isUploadBtn.value=true;
-  if (nowDocIDed.value === "") {
-    alert("請輸入文件編號 !!");
-    return;
-  }
-  if (nowDocLevel.value === ""){
-    alert("請輸入文件階層 !!");
-    return;
-  }
-  if (nowReleaseDate.value === "") {
-    alert("請輸入發行日 !!");
-    return;
-  }
-  
-  document.getElementById("itemUpload").click();
-}
-
-
-const upFile = ref();
-const { mutate: uploadDoc, onDone: uploadDocOnDone } = useMutation(DocsGQL.UPLOADDOC);
-const { mutate: saveUpload, onDone: saveUploadOnDone, onError: saveUploadError } = useMutation(DocsGQL.SAVEUPLOAD);
-
-saveUploadOnDone(() => {
-  refgetAllDocLatest();
-  refgetHistDoc();
-});
-
-uploadDocOnDone((result)=>{
-  // console.log(result.data.uploadDoc);
-  infomsg.value = "ID:" + nowIDed.value + " " + nowDocIDed.value + "檔案完成上傳";
-  alert1.value = true;
-  if(isUploadBtn.value){
-    nowUpload.value = result.data.uploadDoc.filename;
-    saveUpload({
-      updateDocId: parseInt(nowIDed.value),
-      upload: nowUpload.value,
-    });
-    pdfPath.value = "pdfjs-dist/web/viewer.html?file=../../../02_DOC/" + nowDocLevel.value + "/" + nowUpload.value;
+// 檔案上傳==========start
+  const isUploadBtn = ref(true);
+  function uploadBtn(){
+    // console.log(nowDocLevel.value);
+    // console.log(nowReleaseDate.value);
+    isUploadBtn.value=true;
+    if (nowDocIDed.value === "") {
+      alert("請輸入文件編號 !!");
+      return;
+    }
+    if (nowDocLevel.value === ""){
+      alert("請輸入文件階層 !!");
+      return;
+    }
+    if (nowReleaseDate.value === "") {
+      alert("請輸入發行日 !!");
+      return;
+    }
     
-    // console.log(pdfPath.value);
-  }else{
-    nowEdUpload.value = result.data.uploadDoc.filename;
-    saveUpload({
-      updateDocId: parseInt(nowIDed.value),
-      editableUpload: nowEdUpload.value,
+    document.getElementById("itemUpload").click();
+  }
+
+  const upFile = ref();
+  const { mutate: uploadDoc, onDone: uploadDocOnDone } = useMutation(DocsGQL.UPLOADDOC);
+  const { mutate: saveUpload, onDone: saveUploadOnDone, onError: saveUploadError } = useMutation(DocsGQL.SAVEUPLOAD);
+
+  saveUploadOnDone(() => {
+    refgetAllDocLatest();
+    refgetHistDoc();
+  });
+
+  uploadDocOnDone((result)=>{
+    // console.log(result.data.uploadDoc);
+    infomsg.value = "ID:" + nowIDed.value + " " + nowDocIDed.value + "檔案完成上傳";
+    alert1.value = true;
+    if(isUploadBtn.value){
+      nowUpload.value = result.data.uploadDoc.filename;
+      saveUpload({
+        updateDocId: parseInt(nowIDed.value),
+        upload: nowUpload.value,
+      });
+      pdfPath.value = "pdfjs-dist/web/viewer.html?file=../../../02_DOC/" + nowDocLevel.value + "/" + nowUpload.value;
+      
+      // console.log(pdfPath.value);
+    }else{
+      nowEdUpload.value = result.data.uploadDoc.filename;
+      saveUpload({
+        updateDocId: parseInt(nowIDed.value),
+        editableUpload: nowEdUpload.value,
+      });
+    }
+  });
+
+  function uploadChenge(e){
+    upFile.value = e.target.files[0];
+    uploadDoc({ 
+      file: upFile.value,
+      subpath: nowDocLevel.value + "",
+      newfilename: nowDocIDed.value + "_" + nowReleaseDate.value.replaceAll("-", "") + path.extname(e.target.value),
     });
   }
-});
-
-function uploadChenge(e){
-  upFile.value = e.target.files[0];
-  uploadDoc({ 
-    file: upFile.value,
-    subpath: nowDocLevel.value + "",
-    newfilename: nowDocIDed.value + "_" + nowReleaseDate.value.replaceAll("-", "") + path.extname(e.target.value),
-  });
-}
 
 
-function expUploadBtn() {
-  isUploadBtn.value = false;
-  if (nowDocIDed.value === "") {
-    alert("請輸入文件編號 !!");
-    return;
+  function expUploadBtn() {
+    isUploadBtn.value = false;
+    if (nowDocIDed.value === "") {
+      alert("請輸入文件編號 !!");
+      return;
+    }
+    if (nowDocLevel.value === "") {
+      alert("請輸入文件階層 !!");
+      return;
+    }
+    if (nowReleaseDate.value === "") {
+      alert("請輸入發行日 !!");
+      return;
+    }
+
+    document.getElementById("itemExpUpload").click();
   }
-  if (nowDocLevel.value === "") {
-    alert("請輸入文件階層 !!");
-    return;
-  }
-  if (nowReleaseDate.value === "") {
-    alert("請輸入發行日 !!");
-    return;
-  }
-
-  document.getElementById("itemExpUpload").click();
-}
+// 檔案上傳==========end
 
 </script>
 
@@ -554,16 +643,32 @@ function expUploadBtn() {
                 class="display w-100 compact" />
             </MDBRow>
             <MDBRow md="12" class="h-50">
-
-              <MDBCol md="7" class="h-100 overflow-auto border">歷史文件{{ nowDocID }}
-                <DataTable :data="data2" :columns="columns2" :options="tboption2" loding="lodingHistDoc" ref="table2"
-                  style="font-size: smaller" class="display compact w-100" />
+              <!-- 下方左側資料 -->
+              <MDBCol md="7" class="h-100 overflow-auto border">
+                <MDBTabs v-model="activeTabId2">
+                  <!-- Tabs navs -->
+                  <MDBTabNav tabsClasses="mb-3">
+                    <MDBTabItem tabId="histroy" href="histroy">歷史文件</MDBTabItem>
+                    <MDBTabItem tabId="children" href="children">下階文件</MDBTabItem>
+                  </MDBTabNav>
+                  <MDBTabContent>
+                    <MDBTabPane tabId="histroy">
+                      <DataTable :data="data2" :columns="columns2" :options="tboption2" loding="lodingHistDoc"
+                        ref="table2" style="font-size: smaller" class="display compact w-100" />
+                    </MDBTabPane>
+                    <MDBTabPane tabId="children">
+                      <DataTable :data="data3" :columns="columns3" :options="tboption3" loding="lodingChildDoc"
+                        ref="table3" style="font-size: smaller" class="display compact w-100" />
+                    </MDBTabPane>
+                  </MDBTabContent>
+                </MDBTabs>
               </MDBCol>
+              <!-- 下方右側資料 -->
               <MDBCol md="5" class="h-100 border">
                 <MDBTabs v-model="activeTabId1">
                   <!-- Tabs navs -->
                   <MDBTabNav tabsClasses="mb-3">
-                    <MDBTabItem tabId="filter" href="filter">篩選</MDBTabItem>
+                    <MDBTabItem tabId="filter" href="filter">條件篩選</MDBTabItem>
                     <MDBTabItem tabId="editor" href="editor">資料編輯</MDBTabItem>
                   </MDBTabNav>
                   <!-- Tabs navs -->
@@ -572,7 +677,7 @@ function expUploadBtn() {
                     <!-- 篩選表單 -->
                     <MDBTabPane tabId="filter">
                       <MDBRow md="12" style="height: 33vh;" class="d-flex align-content-start overflow-auto border">
-                        <div>條件篩選</div>
+                        <!-- <div>條件篩選</div> -->
                         <MDBSelect size="sm" class="mb-2 col-6" label="文件層級" v-model:options="doclevelmu"
                           v-model:selected="doclevelsel" ref="docLevelFilter" />
                         <MDBSelect size="sm" class="mb-2 col-6" label="文件類型" v-model:options="doctypemu"
@@ -598,14 +703,15 @@ function expUploadBtn() {
                     <MDBTabPane tabId="editor">
                       <MDBRow tag="form" md="12" style="height: 33vh;"
                         class="d-flex align-content-start overflow-auto border">
-                        <div>資料編輯</div>
+                        <!-- <div>資料編輯</div> -->
                         <MDBCol col="6" class="mb-2">
                           <MDBInput size="sm" type="text" label="索引" readonly v-model="nowIDed" />
                         </MDBCol>
                         <MDBSelect size="sm" class="mb-2 col-6" label="文件層級" required v-model:options="nowDocLevelmu"
                           v-model:selected="nowDocLevel" ref="docLevelSelect" />
                         <MDBCol col="6" class="mb-2">
-                          <MDBInput size="sm" type="text" label="文件編號" required v-model="nowDocIDed" />
+                          <MDBInput size="sm" type="text" label="文件編號" required v-model="nowDocIDed"
+                            oninput="this.value = this.value.toUpperCase()" />
                         </MDBCol>
                         <MDBSelect size="sm" class="mb-2 col-6" label="文件類型" required v-model:options="nowDocTypemu"
                           v-model:selected="nowDocType" ref="docTypeSelect" />
@@ -633,20 +739,28 @@ function expUploadBtn() {
                           <MDBBtn size="sm" color="primary" @click="addParentDoc()">加入</MDBBtn>
                         </MDBCol>
                         <MDBCol col="9" class="mb-2">
-                          <MDBInput size="sm" type="text" readonly label="掃描檔" v-model="nowUpload" />
+                          <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="掃描檔"
+                            v-model="nowUpload">
+                            <MDBBtnClose @click.prevent="nowUpload=''" class="btn-upload-close" />
+                          </MDBInput>
                         </MDBCol>
                         <MDBCol col="3" class="px-0 mb-2">
                           <input type="file" accept=".pdf" id="itemUpload" @change="uploadChenge"
                             style="display: none;" />
                           <MDBBtn size="sm" color="primary" @click="uploadBtn">上傳</MDBBtn>
+                          <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
                         </MDBCol>
                         <MDBCol col="9" class="mb-2">
-                          <MDBInput size="sm" type="text" readonly label="編輯檔" v-model="nowEdUpload" />
+                          <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="編輯檔"
+                            v-model="nowEdUpload">
+                            <MDBBtnClose @click.prevent="nowEdUpload=''" class="btn-upload-close" />
+                          </MDBInput>
                         </MDBCol>
                         <MDBCol col="3" class="px-0 mb-2">
                           <input type="file" accept=".doc,.docx" id="itemExpUpload" @change="uploadChenge"
                             style="display: none;" />
                           <MDBBtn size="sm" color="primary" @click="expUploadBtn">上傳</MDBBtn>
+                          <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
                         </MDBCol>
                         <MDBCol col="12" class="mb-2">
                           <MDBTextarea size="sm" label="備註" rows="2" v-model="nowComment" />
@@ -654,6 +768,7 @@ function expUploadBtn() {
                       </MDBRow>
                       <div class="d-flex p-2">
                         <MDBBtn size="sm" class="me-auto" color="danger" @click="delDocfun()">刪除</MDBBtn>
+                        <MDBBtn size="sm" color="primary" @click="copyAddDocBtn()">複製並新增</MDBBtn>
                         <MDBBtn size="sm" color="primary" @click="addDocBtn()">新增</MDBBtn>
                         <MDBBtn size="sm" color="primary" @click="saveDocBtn()">儲存</MDBBtn>
                       </div>
@@ -683,12 +798,19 @@ function expUploadBtn() {
   </MDBAlert>
 </template>
 <style>
+
 .colnowarp {
   white-space: nowrap;
 }
 #the-canvas {
   border: 1px solid black;
   direction: ltr;
+}
+
+.btn-upload-close {
+  position: absolute;
+  top: 0.25em;
+  right: 0.25em;
 }
 
 </style>

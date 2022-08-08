@@ -184,6 +184,26 @@ const SAVEUPLOAD = gql`
   }
 `;
 
+const GETDOCCHILD = gql`
+  query GetDocChild($docId: String!) {
+    getDocChild(doc_id: $docId) {
+      id
+      doc_id
+      doc_level
+      doc_type
+      name
+      ver
+      release_date
+      expiration_date
+      parent_id
+      upload
+      editable_upload
+      comment
+    }
+  }
+`;
+
+
 export default {
   GETALLDOCLATEST,
   GETALLDOCTYPE,
@@ -193,4 +213,5 @@ export default {
   SAVEDOC,
   UPLOADDOC,
   SAVEUPLOAD,
+  GETDOCCHILD,
 };

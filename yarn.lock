@@ -907,6 +907,11 @@
   dependencies:
     "sourcemap-codec" "^1.4.1"
 
+"maska@^1.5.0":
+  "integrity" "sha512-BwZXzs5gHeu6wtn3iWFqrKRtcsM3sTpkHvfAngVNVNlN7tl9ZyQUeHTz11s9Sy7Bq1MoQ+xyR/+IzghY8nR84Q=="
+  "resolved" "https://registry.npmjs.org/maska/-/maska-1.5.0.tgz"
+  "version" "1.5.0"
+
 "mdb-ui-kit@^4.3.0":
   "integrity" "sha512-XRc6EJbdm6J0YhJwkSQg8a30zIEkOQMvNOs1AVBcT3P2dA6XejQYHigmZPzcKL3N0Gb84KEwCyxqzu4hQfmJOQ=="
   "resolved" "https://registry.npmjs.org/mdb-ui-kit/-/mdb-ui-kit-4.3.0.tgz"

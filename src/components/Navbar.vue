@@ -23,7 +23,7 @@ const collapse1 = ref(false);
     <MDBNavbarToggler @click="collapse1 = !collapse1" target="#navbarSupportedContent"></MDBNavbarToggler>
     <MDBCollapse v-model="collapse1" id="navbarSupportedContent">
       <MDBNavbarNav class="mb-2 mb-xl-0">
-        <MDBNavbarItem :to="{ name: 'home', params: { username: username }}">
+        <MDBNavbarItem :to="{ name: 'main', params: { username: username }}">
           <MDBIcon icon="home" />首頁
         </MDBNavbarItem>
         <MDBNavbarItem :to="{ name: 'docs', params: { username: username }}">

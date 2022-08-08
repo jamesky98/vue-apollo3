@@ -16,7 +16,7 @@ getchecktoken(result => {
     localStorage.removeItem('USER_NAME');
     router.push('/login');
   } else {
-    router.push('/');
+    router.push('/main');
   }
 });
 
