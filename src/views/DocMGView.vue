@@ -789,6 +789,7 @@ function saveDocBtn() {
         </MDBRow>
 
       </MDBContainer>
+      <!-- 頁腳 -->
       <Footer1 :msg="infomsg" />
     </MDBRow>
   </MDBContainer>
