@@ -4,7 +4,7 @@ function logIn(result) {
   localStorage.setItem("AUTH_TOKEN", result.data.login.token);
   localStorage.setItem("USER_ID", result.data.login.user.user_id);
   localStorage.setItem("USER_NAME", result.data.login.user.user_name);
-  router.push("/");
+  router.push("/main");
 }
 
 function logOut() { 

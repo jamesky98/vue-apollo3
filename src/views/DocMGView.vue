@@ -4,17 +4,12 @@ import Navbar1 from "../components/Navbar.vue";
 import { ref, onMounted } from "vue";
 import path from "path-browserify";
 import {
-  MDBCard,
-  MDBCardBody,
-  MDBCardTitle,
-  MDBCardText,
   MDBInput,
   MDBCol,
   MDBRow,
   MDBContainer,
   MDBBtn,
   MDBSelect,
-  MDBFile,
   MDBTabs,
   MDBTabNav,
   MDBTabContent,
@@ -24,33 +19,17 @@ import {
   MDBTextarea,
   MDBAlert, 
   MDBBtnClose,
-  MDBIcon
+  MDBPopconfirm,
 } from "mdb-vue-ui-kit";
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import DocsGQL from "../graphql/Docs";
-// import PdfViewer from "../components/Pdfviewer.vue";
 
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
 
-
-// require('pdfmake');
-// require('datatables.net-buttons-bs5')();
-// require('datatables.net-buttons/js/buttons.colVis.js')();
-// require('datatables.net-buttons/js/buttons.html5.js')();
-// require('datatables.net-buttons/js/buttons.print.js')();
-// require('datatables.net-datetime')();
-// require('datatables.net-keytable-bs5')();
-// require('datatables.net-responsive-bs5')();
-// require('datatables.net-scroller-bs5')();
-// require('datatables.net-searchbuilder-bs5')();
-// require('datatables.net-searchpanes-bs5')();
-// require('datatables.net-select-bs5')();
-
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
-// DataTable.use(SearchBuilder);
 
 // Information
 const infomsg = ref("");
@@ -261,29 +240,29 @@ refgetChildDoc();
 
 // 設定表格table1
 const columns1 = [
-  { data: "id", title: "索引", visible: false },
-  { data: "doc_id", title: "文件編號", className: "colnowarp" },
-  { data: "doc_level", title: "層級" },
-  { data: "doc_type", title: "類型", visible: false },
-  { data: "name", title: "文件名稱" },
-  { data: "ver", title: "版次" },
+  { data: "id", title: "索引", defaultContent: "-", visible: false },
+  { data: "doc_id", title: "文件編號", defaultContent: "-", className: "colnowarp" },
+  { data: "doc_level", title: "層級", defaultContent: "-" },
+  { data: "doc_type", title: "類型", defaultContent: "-", visible: false },
+  { data: "name", title: "文件名稱", defaultContent: "-" },
+  { data: "ver", title: "版次", defaultContent: "-" },
   {
-    data: "release_date", title: "發行日", className: "colnowarp", defaultContent: "", render: (data) =>{
+    data: "release_date", title: "發行日", className: "colnowarp", defaultContent: "-", render: (data) =>{
       let ttdate =""
       if(data){ttdate = data.split("T")[0];}
       return ttdate;
   }},
-  { data: "parent_id", title: "上階文件", visible: false },
+  { data: "parent_id", title: "上階文件", defaultContent: "-", visible: false },
   {
-    data: "expiration_date", title: "廢止日", className: "colnowarp", defaultContent: "", render: (data) => {
+    data: "expiration_date", title: "廢止日", className: "colnowarp", defaultContent: "-", render: (data) => {
       let ttdate = ""
       if (data) { ttdate = data.split("T")[0]; }
       return ttdate;
     }
   },
-  { data: "upload", title: "掃描檔", visible: false },
-  { data: "editable_upload", title: "編輯檔", visible: false },
-  { data: "comment", title: "備註" }
+  { data: "upload", title: "掃描檔", defaultContent: "-", visible: false },
+  { data: "editable_upload", title: "編輯檔", defaultContent: "-", visible: false },
+  { data: "comment", title: "備註", defaultContent: "-" }
 ];
 const tboption1 = {
   dom: 'ti',
@@ -304,31 +283,31 @@ const tboption1 = {
 };
 // 設定表格table2、table3
 const columns2 = [
-  { data: "id", title: "索引", width:"10px" },
-  { data: "doc_id", title: "文件編號", className: "colnowarp", width: "30px" },
-  { data: "doc_level", title: "層級", visible: false },
-  { data: "doc_type", title: "類型", visible: false },
-  { data: "ver", title: "版次", width: "50px" },
+  { data: "id", title: "索引", defaultContent: "-", width:"10px" },
+  { data: "doc_id", title: "文件編號", defaultContent: "-", className: "colnowarp", width: "30px" },
+  { data: "doc_level", title: "層級", defaultContent: "-", visible: false },
+  { data: "doc_type", title: "類型", defaultContent: "-", visible: false },
+  { data: "ver", title: "版次", defaultContent: "-", width: "50px" },
   {
-    data: "release_date", title: "發行日", className: "colnowarp", defaultContent: "", render: (data) => {
+    data: "release_date", title: "發行日", className: "colnowarp", defaultContent: "-", render: (data) => {
       let ttdate = ""
       if (data) { ttdate = data.split("T")[0]; }
       return ttdate;
     }, width: "50px"
   },
-  { data: "parent_id", title: "上階文件", visible: false },
+  { data: "parent_id", title: "上階文件", defaultContent: "-", visible: false },
   {
-    data: "expiration_date", title: "廢止日", className: "colnowarp", defaultContent: "", render: (data) => {
+    data: "expiration_date", title: "廢止日", className: "colnowarp", defaultContent: "-", render: (data) => {
       let ttdate = ""
       if (data) { ttdate = data.split("T")[0]; }
       return ttdate;
     }, visible: false
   },
-  { data: "name", title: "文件名稱", width: "50px" },
-  { data: "parent_id", title: "父階文件", visible: false },
-  { data: "upload", title: "掃描檔", visible: false },
-  { data: "editable_upload", title: "編輯檔", visible: false },
-  { data: "comment", title: "備註", width: "50px" }
+  { data: "name", title: "文件名稱", defaultContent: "-", width: "50px" },
+  { data: "parent_id", title: "父階文件", defaultContent: "-", visible: false },
+  { data: "upload", title: "掃描檔", defaultContent: "-", visible: false },
+  { data: "editable_upload", title: "編輯檔", defaultContent: "-", visible: false },
+  { data: "comment", title: "備註", defaultContent: "-", width: "50px" }
 ];
 const tboption2 = {
   autoWidth: false,
@@ -767,7 +746,11 @@ function saveDocBtn() {
                         </MDBCol>
                       </MDBRow>
                       <div class="d-flex p-2">
-                        <MDBBtn size="sm" class="me-auto" color="danger" @click="delDocfun()">刪除</MDBBtn>
+                        <MDBPopconfirm class="btn-sm btn-danger me-auto" position="top"
+                          message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delDocfun()">
+                          刪除
+                        </MDBPopconfirm>
+                        <!-- <MDBBtn size="sm" class="me-auto" color="danger" @click="delDocfun()">刪除</MDBBtn> -->
                         <MDBBtn size="sm" color="primary" @click="copyAddDocBtn()">複製並新增</MDBBtn>
                         <MDBBtn size="sm" color="primary" @click="addDocBtn()">新增</MDBBtn>
                         <MDBBtn size="sm" color="primary" @click="saveDocBtn()">儲存</MDBBtn>
