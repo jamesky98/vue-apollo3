@@ -49,56 +49,45 @@ DataTable.use(Select);
     {
       data: "status_code", title: "狀態", defaultContent: "-", className: "colnowarp", render: (data,type,row) => {
         let markicon="";
-        let color="";
-        let bcolor="";
+        let classn="";
         switch (data) {
           case 9: //退件
             markicon = '<i class="fas fa-reply-all"></i>';
-            color = "#DE3163"
-            bcolor ="antiquewhite";
+            classn = "status89";
             break;
           case 8: //補件
             markicon = '<i class="fas fa-history"></i>';
-            color = "#DE3163"
-            bcolor = "antiquewhite";
+            classn = "status89";
             break;
           case 7: //結案
             markicon = '<i class="fas fa-check"></i>';
-            color = "green"
-            bcolor = "white";
+            classn = "status7";
             break;
           case 6: //待繳費
             markicon = '<i class="fas fa-donate"></i>';
-            color = "#F39C12"
-            bcolor = "white";
+            classn = "status6";
             break;
           case 5: //陳核
             markicon = '<i class="fas fa-paste"></i>';
-            color = "#6495ED"
-            bcolor = "white";
+            classn = "status45";
             break;
           case 4: //校正中
             markicon = '<i class="fas fa-play"></i>';
-            color = "#6495ED"
-            bcolor = "white";
+            classn = "status45";
             break;
           case 3: //待送件
             markicon = '<i class="fas fa-hourglass-start"></i>';
-            color = "#FF7F50"
-            bcolor = "white";
+            classn = "status23";
             break;
           case 2: //審核中
             markicon = '<i class="fas fa-glasses"></i>';
-            color = "#FF7F50"
-            bcolor = "white";
+            classn = "status23";
             break;
           case 1: //(空)
             markicon = '<i class="fas fa-exclamation-circle"></i>';
-            color = "Gray"
-            bcolor = "white";
+            classn = "status1";
         }
-        // console.log(row);
-        return "<span style='color: " + color +"; background-color:"+ bcolor +"' >" + markicon + row.case_status.status + "</span>"
+        return "<span class='" + classn +"'>" + markicon + row.case_status.status + "</span>"
       }
     },
     
@@ -107,26 +96,31 @@ DataTable.use(Select);
     { data: "cal_type_cal_typeTocase_base.name", title: "校正項目名稱", defaultContent: "-", visible: false },
     { data: "cal_type_cal_typeTocase_base.code", title: "校正項目代碼", defaultContent: "-", render: (data, type, row) => {
       let markicon = "";
+      let classn = "";
       let color = "";
       let bcolor = "";
       switch (data) {
         case "F": //航測像機
           markicon = '<i class="fas fa-plane-departure"></i>';
-          color = "#6495ED"
-          bcolor = "white";
+          classn = "typeF"
+          // color = "#6495ED"
+          // bcolor = "white";
           break;
         case "I": //空載光達
           markicon = '<i class="fas fa-wifi"></i>';
-          color = "#229954"
-          bcolor = "white";
+          classn = "typeI"
+          // color = "#229954"
+          // bcolor = "white";
           break;
         case "J": //小像幅
           markicon = '<i class="fas fa-camera"></i>';
-          color = "#FF7F50"
-          bcolor = "white";
+          classn = "typeJ"
+          // color = "#FF7F50"
+          // bcolor = "white";
           break;
       }
-      return "<span style='color: " + color + "; background-color:" + bcolor + "' >" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
+      // return "<span style='color: " + color + "; background-color:" + bcolor + "' >" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
+      return "<span class='"+ classn +"'>" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
       }
     },
     { data: "operators_id", title: "校正人員編號", defaultContent: "-", visible: false },
@@ -336,7 +330,77 @@ DataTable.use(Select);
   </MDBContainer>
 </template>
 <style>
+
+
+
+
+
+
+
+
 .colAlignRight{
   text-align: right;
+}
+tr > td > span.status89{
+  color: #DE3163;
+}
+tr.selected > td >span.status89 {
+  color: white;
+}
+
+tr>td>span.status7 {
+  color: green;
+}
+tr.selected>td>span.status7 {
+  color: white;
+}
+
+tr>td>span.status6 {
+  color: #F39C12;
+}
+tr.selected>td>span.status6 {
+  color: white;
+}
+
+tr>td>span.status45 {
+  color: #6495ED;
+}
+tr.selected>td>span.status45 {
+  color: white;
+}
+
+tr>td>span.status23 {
+  color: #FF7F50;
+}
+tr.selected>td>span.status23 {
+  color: white;
+}
+
+tr>td>span.status1 {
+  color: Gray;
+}
+tr.selected>td>span.status1 {
+  color: white;
+}
+
+tr>td>span.typeF {
+  color: #6495ED;
+}
+tr.selected>td>span.typeF {
+  color: white;
+}
+tr>td>span.typeI {
+  color: #229954;
+}
+
+tr.selected>td>span.typeI {
+  color: white;
+}
+tr>td>span.typeJ {
+  color: #FF7F50;
+}
+
+tr.selected>td>span.typeJ {
+  color: white;
 }
 </style>
