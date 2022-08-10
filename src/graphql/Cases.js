@@ -1,8 +1,34 @@
 import gql from "graphql-tag";
 
 const GETALLCASE = gql`
-  query GetAllCase {
-    getAllCase {
+  query GetAllCase(
+    $getAllCaseId: String
+    $statusCode: Int
+    $calType: Int
+    $operatorsId: Int
+    $orgId: Int
+    $itemChop: String
+    $itemModel: String
+    $itemSn: String
+    $appdateStart: String
+    $appdateEnd: String
+    $paydateStart: String
+    $paydateEnd: String
+  ) {
+    getAllCase(
+      id: $getAllCaseId
+      status_code: $statusCode
+      cal_type: $calType
+      operators_id: $operatorsId
+      org_id: $orgId
+      item_chop: $itemChop
+      item_model: $itemModel
+      item_sn: $itemSn
+      appdate_start: $appdateStart
+      appdate_end: $appdateEnd
+      paydate_start: $paydateStart
+      paydate_end: $paydateEnd
+    ) {
       id
       status_code
       case_status {
@@ -54,6 +80,59 @@ const GETALLCASE = gql`
   }
 `;
 
+const GETCASESTATUS = gql`
+  query GetCaseStatus {
+    getCaseStatus {
+      code
+      status
+    }
+  }
+`;
+
+const GETCASECALTYPE = gql`
+  query GetCaseCalType {
+    getCaseCalType {
+      id
+      name
+      code
+    }
+  }
+`;
+
+const GETOPERATOR = gql`
+  query GetEmpByRole($roleType: String!) {
+    getEmpByRole(role_type: $roleType) {
+      person_id
+      name
+    }
+  }
+`;
+
+const GETALLORG = gql`
+  query GetAllOrg {
+    getAllOrg {
+      id
+      name
+    }
+  }
+`;
+
+const GETALLITEM = gql`
+  query GetAllItem {
+    getAllItem {
+      id
+      chop
+      model
+      serial_number
+    }
+  }
+`;
+
 export default {
   GETALLCASE,
+  GETCASESTATUS,
+  GETCASECALTYPE,
+  GETOPERATOR,
+  GETALLORG,
+  GETALLITEM,
 };

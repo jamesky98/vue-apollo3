@@ -248,13 +248,135 @@ DataTable.use(Select);
   const casePayDateEndFilter = ref();
   // 執行篩選
   function caseDoFilter(){
+    let where = {};
+    if (caseStatusSEL.value !== "") where.statusCode = parseInt(caseStatusSEL.value);
+    if (caseIDSEL.value !== "") where.getAllCaseId = caseIDSEL.value;
+    if (caseTypeSEL.value !== "") where.calType = parseInt(caseTypeSEL.value);
+    if (caseOptSEL.value !== "") where.operatorsId = parseInt(caseOptSEL.value);
+    if (caseCustSEL.value !== "") where.orgId = parseInt(caseCustSEL.value);
+    if (caseChopSEL.value !== "") where.itemChop = caseChopSEL.value;
+    if (caseModelSEL.value !== "") where.itemModel = caseModelSEL.value;
+    if (caseSelnumSEL.value !== "") where.itemSn = caseSelnumSEL.value;
+    if (caseAppDateStartSEL.value !== "") where.appdateStart = caseAppDateStartSEL.value.trim() + "T00:00:00.000Z" ;
+    if (caseAppDateEndtSEL.value !== "") where.appdateEnd = caseAppDateEndtSEL.value.trim() + "T00:00:00.000Z";
+    if (casePayDateStartSEL.value !== "") where.paydateStart = casePayDateStartSEL.value.trim() + "T00:00:00.000Z";
+    if (casePayDateEndtSEL.value !== "") where.paydateEnd = casePayDateEndtSEL.value.trim() + "T00:00:00.000Z";
 
+    varAllCase.value = where;
   }
   // 清除條件
   function caseClearFilter() {
+    caseStatusFilter.value.setValue("");
+    caseIDSEL.value = "";
+    caseTypeFilter.value.setValue("");
+    caseOptFilter.value.setValue("");
+    caseCustFilter.value.setValue("");
+    caseChopFilter.value.setValue("");
+    caseModelFilter.value.setValue("");
+    caseSelnumSEL.value = "";
+
+    caseAppDateStartSEL.value = "";
+    caseAppDateStartFilter.value.inputValue = ""
+    caseAppDateEndtSEL.value = "";
+    caseAppDateEndFilter.value.inputValue = ""
+
+    casePayDateStartSEL.value = "";
+    casePayDateStartFilter.value.inputValue = ""
+    casePayDateEndtSEL.value = "";
+    casePayDateEndFilter.value.inputValue = ""
 
   }
 // 篩選=========end
+// 填入下拉式選單==========Start
+
+  // 查詢案件狀態列表
+  const { result: caseStatus, onResult: getCaseStatus, refetch: refgetCaseStatus } = useQuery(CaseGQL.GETCASESTATUS);
+  getCaseStatus(result => {
+    // 加入案件狀態選單資料
+    if (!result.loading) {
+      caseStatusMU.value = result.data.getCaseStatus.map(x => {
+        return { text: x.status, value: parseInt(x.code) }
+      }); caseStatusMU.value.unshift({ text: "", value: "" });
+      // nowDocTypemu.value = result.data.getAllDocType.map(x => {
+      //   return { text: x.doc_type, value: parseInt(x.doc_type_id) }
+      // }); nowDocTypemu.value.unshift({ text: "", value: "" });
+    }
+  });
+  refgetCaseStatus();
+
+  // 查詢校正項目列表
+  const { result: caseCalType, onResult: getCaseCalType, refetch: refgetCaseCalType } = useQuery(CaseGQL.GETCASECALTYPE);
+  getCaseCalType(result => {
+    // 加入案件狀態選單資料
+    if (!result.loading) {
+      caseTypeMU.value = result.data.getCaseCalType.map(x => {
+        return { text: x.name, value: parseInt(x.id) }
+      }); caseTypeMU.value.unshift({ text: "", value: "" });
+      // nowDocTypemu.value = result.data.getAllDocType.map(x => {
+      //   return { text: x.doc_type, value: parseInt(x.doc_type_id) }
+      // }); nowDocTypemu.value.unshift({ text: "", value: "" });
+    }
+  });
+  refgetCaseCalType();
+
+  // 查詢校正人員列表
+  const { result: caseOperator, onResult: getCaseOperator, refetch: refgetCaseOperator } = useQuery(CaseGQL.GETOPERATOR,
+    { roleType: "校正人員"}
+  );
+  getCaseOperator(result => {
+    // 加入案件狀態選單資料
+    if (!result.loading) {
+      caseOptMU.value = result.data.getEmpByRole.map(x => {
+        return { text: x.name, value: parseInt(x.person_id) }
+      }); caseOptMU.value.unshift({ text: "", value: "" });
+      // nowDocTypemu.value = result.data.getAllDocType.map(x => {
+      //   return { text: x.doc_type, value: parseInt(x.doc_type_id) }
+      // }); nowDocTypemu.value.unshift({ text: "", value: "" });
+    }
+  });
+  refgetCaseOperator();
+
+  // 查詢顧客列表
+  const { result: caseAllOrg, onResult: getCaseAllOrg, refetch: refgetCaseAllOrg } = useQuery(CaseGQL.GETALLORG);
+  getCaseAllOrg(result => {
+    // 加入案件狀態選單資料
+    if (!result.loading) {
+      caseCustMU.value = result.data.getAllOrg.map(x => {
+        return { text: x.name, value: parseInt(x.id) }
+      }); caseCustMU.value.unshift({ text: "", value: "" });
+      // nowDocTypemu.value = result.data.getAllDocType.map(x => {
+      //   return { text: x.doc_type, value: parseInt(x.doc_type_id) }
+      // }); nowDocTypemu.value.unshift({ text: "", value: "" });
+    }
+  });
+  refgetCaseAllOrg();
+
+// 查詢待校件列表
+const { result: caseAllItem, onResult: getCaseAllItem, refetch: refgetCaseAllItem } = useQuery(CaseGQL.GETALLITEM);
+getCaseAllItem(result => {
+  // 加入案件狀態選單資料
+  if (!result.loading) {
+    let choplist=[];
+    let modellist = [];
+
+    choplist = result.data.getAllItem.map(x=>{return x.chop});//從物件陣列中取出成陣列
+    choplist = [...new Set(choplist)]; //ES6排除重複值語法
+    caseChopMU.value = choplist.sort().map(x=>{
+      return { text: x, value: x }
+    }); caseChopMU.value.unshift({ text: "", value: "" });
+
+    modellist = result.data.getAllItem.map(x => { return x.model });//從物件陣列中取出成陣列
+    modellist = [...new Set(modellist)]; //ES6排除重複值語法
+    caseModelMU.value = modellist.sort().map(x => {
+      return { text: x, value: x }
+    }); caseModelMU.value.unshift({ text: "", value: "" });
+  }
+});
+refgetCaseAllItem();
+
+// 填入下拉式選單==========end
+
+
 
 
 </script>
@@ -265,7 +387,7 @@ DataTable.use(Select);
       <Navbar1 />
       <!-- 主體 -->
       <MDBContainer tag="main" fluid class="flex-grow-1">
-        <MDBRow class="d-flex flex-md-column h-100 border">
+        <MDBRow class="d-flex h-100 border">
           <!-- 左方列表 -->
           <MDBCol md="8" class="h-100 border">
             <!-- 上方列表 -->
@@ -274,7 +396,7 @@ DataTable.use(Select);
                 class="display w-100 compact" />
             </MDBRow>
             <!-- 下方篩選 -->
-            <MDBRow md="12" class="flex-grow-1 overflow-auto">
+            <MDBRow md="12" class="h-25 flex-grow-1 overflow-auto">
               <div class="mb-3 d-flex">
                 <div class="flex-grow-1">篩選條件</div>
                 <div>

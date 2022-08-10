@@ -385,7 +385,7 @@ function filterAllDocLatest() {
   if (docStautsel.value !== "") where.stauts = docStautsel.value;
 
   varAllDocLatest.value = where;
-  console.log("filte data!!")
+  // console.log("filte data!!")
 }
 // 清空篩選條件
 function clearFilter(){
