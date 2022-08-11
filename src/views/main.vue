@@ -27,7 +27,7 @@ const username = localStorage.getItem("USER_NAME");
 
 <template>
   <MDBContainer fluid class="h-100">
-    <MDBRow class="d-flex flex-md-column h-100">
+    <MDBRow class="d-flex h-100">
       <header>
         <!-- Navbar -->
         <MDBNavbar expand="lg" light bg="light" container>
@@ -42,7 +42,7 @@ const username = localStorage.getItem("USER_NAME");
         <!-- Navbar -->
         <!-- Background image -->
         <div class="p-5 text-center bg-image" style="
-        background-image: url('https://mdbootstrap.com/img/new/slides/041.webp');
+        background-image: url('/ZZZZZ2598.png');
         height: 150px;
       ">
           <div class="mask" style="background-color: rgba(0, 0, 0, 0.0.5);">
@@ -51,7 +51,7 @@ const username = localStorage.getItem("USER_NAME");
         <!-- Background image -->
       </header>
 
-      <main class="flex-fill">
+      <main class="flex-grow-1">
         <MDBContainer fluid class="px-0 py-2 w-100 h-100">
           <MDBCard class="rounded-5 text-black  h-100">
             <MDBCardBody>
@@ -107,7 +107,7 @@ const username = localStorage.getItem("USER_NAME");
       <!-- Footer -->
       <footer>
         <!-- Copyright -->
-        <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05)">
+        <div class="text-center" style="background-color: rgba(0, 0, 0, 0.05); height: 5vh;">
           © 2022 Copyright:
           <a class="text-reset fw-bold" href="">jamesky98</a>
         </div>

@@ -609,7 +609,7 @@ function saveDocBtn() {
 
 <template>
   <MDBContainer fluid class="h-100">
-    <MDBRow class="d-flex flex-md-column h-100">
+    <MDBRow class="d-flex h-100">
       <!-- 導覽列 -->
       <Navbar1 />
       <!-- 主體 -->
