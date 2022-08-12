@@ -13,7 +13,8 @@ import {
   MDBDatepicker,
   MDBBtn,
   MDBPopconfirm,
-  MDBIcon
+  MDBIcon,
+  MDBAnimation,
 } from 'mdb-vue-ui-kit';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../graphql/Cases";
@@ -35,7 +36,6 @@ DataTable.use(Select);
     dt1 = table1.value.dt();
     dt1.on('select', function (e, dt, type, indexes) {
       nowCaseID.value = dt.rows(indexes).data()[0].id
-      console.log(nowCaseID.value);
     });
   });
 
@@ -276,9 +276,14 @@ DataTable.use(Select);
   getCaseStatus(result => {
     // 加入案件狀態選單資料
     if (!result.loading) {
+      // 篩選區
       caseStatusMU.value = result.data.getCaseStatus.map(x => {
         return { text: x.status, value: parseInt(x.code) }
       }); caseStatusMU.value.unshift({ text: "", value: "" });
+      // 資料區
+      nowCaseStatusMU.value = result.data.getCaseStatus.map(x => {
+        return { text: x.status, value: parseInt(x.code) }
+      }); nowCaseStatusMU.value.unshift({ text: "", value: "" });
       // nowDocTypemu.value = result.data.getAllDocType.map(x => {
       //   return { text: x.doc_type, value: parseInt(x.doc_type_id) }
       // }); nowDocTypemu.value.unshift({ text: "", value: "" });
@@ -289,11 +294,16 @@ DataTable.use(Select);
   // 查詢校正項目列表
   const { result: caseCalType, onResult: getCaseCalType, refetch: refgetCaseCalType } = useQuery(CaseGQL.GETCASECALTYPE);
   getCaseCalType(result => {
-    // 加入案件狀態選單資料
+    // 加入校正項目選單資料
     if (!result.loading) {
+      // 篩選區
       caseTypeMU.value = result.data.getCaseCalType.map(x => {
         return { text: x.name, value: parseInt(x.id) }
       }); caseTypeMU.value.unshift({ text: "", value: "" });
+      // 新增案件區
+      nowCaseTypeIdMU.value = result.data.getCaseCalType.map(x => {
+        return { text: x.name, value: parseInt(x.id) }
+      }); nowCaseTypeIdMU.value.unshift({ text: "", value: "" });
       // nowDocTypemu.value = result.data.getAllDocType.map(x => {
       //   return { text: x.doc_type, value: parseInt(x.doc_type_id) }
       // }); nowDocTypemu.value.unshift({ text: "", value: "" });
@@ -308,9 +318,14 @@ DataTable.use(Select);
   getCaseOperator(result => {
     // 加入校正人員選單資料
     if (!result.loading) {
+      // 篩選區
       caseOptMU.value = result.data.getEmpByRole.map(x => {
         return { text: x.name, value: parseInt(x.person_id) }
       }); caseOptMU.value.unshift({ text: "", value: "" });
+      // 資料區
+      nowCaseOperatorMU.value = result.data.getEmpByRole.map(x => {
+        return { text: x.name, value: parseInt(x.person_id) }
+      }); nowCaseOperatorMU.value.unshift({ text: "", value: "" });
       // nowDocTypemu.value = result.data.getAllDocType.map(x => {
       //   return { text: x.doc_type, value: parseInt(x.doc_type_id) }
       // }); nowDocTypemu.value.unshift({ text: "", value: "" });
@@ -358,11 +373,26 @@ refgetCaseAllItem();
 
 // 填入下拉式選單==========end
 // 案件基本資料==========start
+// 新增案件指標
+const newCaseSet = ref(false);
+// 案件狀態
 const nowCaseStatus = ref("");
+const nowCaseStatusMU = ref([]);
 const nowCaseStatusDOM = ref();
+// 案件編號
 const nowCaseID = ref("");
+const addCaseID = ref("");
+// 申請日期
 const nowCaseAppDate = ref("");
+const nowCaseAppDateDOM = ref();
+const addCaseAppDate = ref("");
+const addCaseAppDateDOM = ref();
+// 校正項目
 const nowCaseTypeName = ref("");
+const nowCaseTypeIdSEL = ref("");
+const nowCaseTypeIdMU = ref([]);
+const nowCaseTypeIdDOM = ref("");
+// 顧客
 const nowCaseCustOrgName = ref("");
 const nowCaseCustTaxID = ref("");
 const nowCaseCustName = ref("");
@@ -373,14 +403,19 @@ const nowCaseTitle = ref("");
 const nowCaseAddress = ref("");
 const nowCasePurpose = ref("");
 const nowCaseAgreement = ref("");
+// 費用
 const nowCaseCharge = ref("");
+// 繳費日
 const nowCasePayDate = ref("");
 const nowCasePayDateDOM = ref();
+// 校正人員
 const nowCaseOperator = ref("");
+const nowCaseOperatorMU = ref([]);
 const nowCaseOperatorDOM = ref();
+// 技術主管
 const nowCaseLeader = ref("");
 const nowCaseLeaderDOM = ref();
-const caseLeaderMU = ref([]);
+const nowCaseLeaderMU = ref([]);
 
 // 查詢技術主管列表
 const { result: caseLeader, onResult: getCaseLeader, refetch: refgetCaseLeader } = useQuery(CaseGQL.GETOPERATOR,
@@ -389,9 +424,9 @@ const { result: caseLeader, onResult: getCaseLeader, refetch: refgetCaseLeader }
 getCaseLeader(result => {
   // 加入技術主管選單資料
   if (!result.loading) {
-    caseLeaderMU.value = result.data.getEmpByRole.map(x => {
+    nowCaseLeaderMU.value = result.data.getEmpByRole.map(x => {
       return { text: x.name, value: parseInt(x.person_id) }
-    }); caseLeaderMU.value.unshift({ text: "", value: "" });
+    }); nowCaseLeaderMU.value.unshift({ text: "", value: "" });
   }
 });
 refgetCaseLeader();
@@ -404,7 +439,7 @@ const { result: nowCaseS, loading: lodingnowCaseS, onResult: getNowCaseS, refetc
   })
 );
 getNowCaseS(result => {
-  if (!result.loading) {
+  if (!result.loading && result && result.data.getCasebyID) {
     // 填入簡單資料
     let getData = result.data.getCasebyID;
     nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
@@ -440,13 +475,43 @@ function copyTileAdd(){
 // 查詢顯示選擇案件之詳細資料
 
 
+// 新增案件==開啟表單
+function openAddCaseForm(){
+  newCaseSet.value = true;
+}
+// 新增案件==確認
+function AddCaseOK() {
+  // 檢查必填資料
+  // 新增Case_base
+  // 依據校正項目同步新增record_01或record_02
+}
+
+// 新增案件==取消
+function AddCaseCancel() { 
+  newCaseSet.value = false;
+}
+
+// 新增案件==自動取得申請日
+function getAppDateByCaseId() {
+  // 驗證addCaseID存在正確日期?
+  let checkstr = addCaseID.value.substr(0, 4) + "-" + addCaseID.value.substr(4, 2) + "-" + addCaseID.value.substr(6, 2);
+  let isValidDate = Date.parse(checkstr);
+  if (isNaN(isValidDate)) {
+    // 非正確日期
+  }else{
+    // 填入日期
+    addCaseAppDate.value = checkstr;
+    addCaseAppDateDOM.value.inputValue = checkstr;
+  }
+}
+
 // 案件基本資料==========end
 
 
 
 </script>
 <template>
-  <MDBContainer fluid class="h-100">
+  <MDBContainer fluid class="h-100 overflow-hidden">
     <MDBRow class="h-100 flex-column flex-nowrap">
       <!-- 導覽列 -->
       <Navbar1 />
@@ -457,16 +522,16 @@ function copyTileAdd(){
         <MDBCol md="8" class="h-100">
           <MDBRow class="h-100 align-content-between">
             <!-- 上方列表 -->
-            <MDBCol md="12" style="height: calc(75% - 0.5rem) ;"
-              class="overflow-auto border border-5 rounded-8 shadow-4">
+            <MDBCol md="12" style="height: calc(75% - 1.5rem) ;"
+              class="mt-2 overflow-auto border border-5 rounded-8 shadow-4">
               <DataTable :data=" data1" :columns="columns1" :options="tboption1" ref="table1" style="font-size: smaller"
                 class="display w-100 compact" />
             </MDBCol>
             <!-- 下方篩選 -->
-            <MDBCol md="12" class="h-25 overflow-auto border border-5 rounded-8 shadow-4">
+            <MDBCol md="12" class="h-25 mb-2 overflow-auto border border-5 rounded-8 shadow-4">
               <MDBRow>
                 <div class="my-2 d-flex">
-                  <div class="flex-grow-1">篩選條件</div>
+                  <div class="flex-grow-1">條件篩選</div>
                   <div>
                     <MDBBtn size="sm" color="primary" @click="caseClearFilter">清除</MDBBtn>
                     <MDBBtn size="sm" color="primary" @click="caseDoFilter">篩選</MDBBtn>
@@ -511,20 +576,21 @@ function copyTileAdd(){
           </MDBRow>
         </MDBCol>
         <!-- 右方案件資料 -->
-        <MDBCol md="4" class="h-100">
-          <MDBRow style="margin-left: auto;" class="h-100 bg-light overflow-auto border border-5 rounded-8 shadow-4">
+        <MDBCol md="4" v-show="!newCaseSet" class="h-100">
+          <MDBRow style="margin-left: auto;height: calc(100% - 1rem);"
+            class="my-2 bg-light overflow-auto border border-5 rounded-8 shadow-4">
             <div class="px-3">案件資料</div>
             <div class="d-flex p-3">
               <MDBPopconfirm class="btn-sm btn-danger me-auto" position="top" message="刪除後無法恢復，確定刪除嗎？" cancelText="取消"
                 confirmText="確定" @confirm="">
                 刪除案件
               </MDBPopconfirm>
-              <MDBBtn size="sm" color="primary" @click="">新增</MDBBtn>
+              <MDBBtn size="sm" color="primary" @click="openAddCaseForm">新增</MDBBtn>
               <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
               <MDBBtn size="sm" color="primary" @click="">編輯更多<i class="fas fa-angle-double-right"></i></MDBBtn>
             </div>
             <hr>
-            <MDBSelect size="sm" class="mb-3  col-6" label="案件狀態" v-model:options="caseStatusMU"
+            <MDBSelect size="sm" class="mb-3  col-6" label="案件狀態" v-model:options="nowCaseStatusMU"
               v-model:selected="nowCaseStatus" ref="nowCaseStatusDOM" />
             <div></div>
             <MDBCol col="6" class="mb-3">
@@ -579,11 +645,49 @@ function copyTileAdd(){
               <MDBDatepicker size="sm" v-model="nowCasePayDate" format=" YYYY-MM-DD " label="繳費日"
                 ref="nowCasePayDateDOM" />
             </MDBCol>
-            <MDBSelect filter size="sm" class="mb-3  col-6" label="校正人員" v-model:options="caseOptMU"
+            <MDBSelect filter size="sm" class="mb-3  col-6" label="校正人員" v-model:options="nowCaseOperatorMU"
               v-model:selected="nowCaseOperator" ref="nowCaseOperatorDOM" />
-            <MDBSelect filter size="sm" class="mb-3  col-6" label="技術主管" v-model:options="caseLeaderMU"
+            <MDBSelect filter size="sm" class="mb-3  col-6" label="技術主管" v-model:options="nowCaseLeaderMU"
               v-model:selected="nowCaseLeader" ref="nowCaseLeaderDOM" />
           </MDBRow>
+        </MDBCol>
+        <MDBCol md="4" v-show="newCaseSet" class="h-100 py-2 bg-primary">
+          <MDBAnimation class="h-100" animation="fade-in-right" trigger="manually" v-model="newCaseSet">
+            <MDBRow style="margin-left:0;margin-right:0;"
+              class="h-100 bg-light align-content-start overflow-auto border border-5 rounded-8 shadow-4">
+              <MDBCol col="12" class="mb-3">新增案件</MDBCol>
+              <div class="d-flex mb-3 justify-content-end">
+                <MDBBtn size="sm" color="warning" @click="AddCaseCancel">取消</MDBBtn>
+                <MDBBtn size="sm" color="primary" @click="AddCaseOK">確認</MDBBtn>
+              </div>
+              <MDBCol col="6" class="mb-3">
+                <MDBInput size="sm" type="text" label="案件編號" v-model="addCaseID" />
+              </MDBCol>
+              <div></div>
+              <MDBCol style="font-size: 0.8rem" class="mx-3 mb-3 p-2 border">
+                案件編號編碼方式：
+                <br>"西元日期(8碼)"
+                <br> + "當日第幾案(2碼)"
+                <br> + "本案第幾件儀器(2碼)"
+                <br>例如："20220125" + "02" + "01"
+              </MDBCol>
+              <div></div>
+              <MDBCol col="6" class="mb-3">
+                <MDBDatepicker size="sm" v-model="addCaseAppDate" format=" YYYY-MM-DD " label="申請日"
+                  ref="addCaseAppDateDOM" />
+              </MDBCol>
+              <MDBCol col="6" class="mb-3">
+                <MDBBtn size="sm" color="primary" @click="getAppDateByCaseId">自動取得</MDBBtn>
+              </MDBCol>
+              <div></div>
+              <MDBCol style="font-size: 0.8rem" class="mx-3 mb-3 p-2 border">
+                申請日期可由案件編號前8碼取得或自行設定
+              </MDBCol>
+              <div></div>
+              <MDBSelect size="sm" class="mb-3  col-10" label="校正項目" v-model:options="nowCaseTypeIdMU"
+                v-model:selected="nowCaseTypeIdSEL" ref="nowCaseTypeIdDOM" />
+            </MDBRow>
+          </MDBAnimation>
         </MDBCol>
       </MDBRow>
       <!-- 頁腳 -->

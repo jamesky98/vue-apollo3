@@ -6,7 +6,11 @@ import {
   MDBNavbarNav,
   MDBNavbarItem,
   MDBCollapse,
-  MDBIcon
+  MDBIcon,
+  MDBDropdown,
+  MDBDropdownToggle,
+  MDBDropdownMenu,
+  MDBDropdownItem,
 } from 'mdb-vue-ui-kit';
 import { ref } from 'vue';
 import router from '../router';
@@ -14,6 +18,7 @@ import { logOut } from '../methods/User';
 
 const username = localStorage.getItem("USER_NAME");
 const collapse1 = ref(false);
+const dropdown3 = ref(false);
 
 </script>
 <template>
@@ -50,8 +55,16 @@ const collapse1 = ref(false);
 
       </MDBNavbarNav>
       <MDBNavbarNav right class="ml-auto mb-xl-0">
-        <MDBNavbarItem to="#" @click="logOut()">
-          登出
+        <MDBNavbarItem class="dropdown">
+          <MDBDropdown v-model="dropdown3">
+            <MDBDropdownToggle tag="a" class="nav-link" @click="dropdown3 = !dropdown3">
+              <MDBIcon icon="user" />
+            </MDBDropdownToggle>
+            <MDBDropdownMenu>
+              <MDBDropdownItem href="#">使用者管理</MDBDropdownItem>
+              <MDBDropdownItem href="#" @click="logOut()">登出</MDBDropdownItem>
+            </MDBDropdownMenu>
+          </MDBDropdown>
         </MDBNavbarItem>
       </MDBNavbarNav>
     </MDBCollapse>

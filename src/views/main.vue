@@ -16,25 +16,39 @@ import {
   MDBContainer,
   MDBBtn,
   MDBFooter,
-  MDBIcon
+  MDBIcon,
+  MDBDropdown,
+  MDBDropdownToggle,
+  MDBDropdownMenu,
+  MDBDropdownItem,
 } from 'mdb-vue-ui-kit';
 import { RouterLink } from 'vue-router'
 import { logOut } from '../methods/User';
+import { ref } from 'vue';
 
 const username = localStorage.getItem("USER_NAME");
+const dropdown1 = ref(false);
 
 </script>
 
 <template>
   <MDBContainer fluid class="h-100">
-    <MDBRow class="d-flex h-100">
+    <MDBRow class="h-100 flex-column flex-nowrap">
       <header>
         <!-- Navbar -->
         <MDBNavbar expand="lg" light bg="light" container>
           <MDBNavbarBrand>{{ username }}，您好</MDBNavbarBrand>
           <MDBNavbarNav right class="ml-auto mb-lg-0">
-            <MDBNavbarItem to="#" @click="logOut()">
-              登出
+            <MDBNavbarItem class="dropdown">
+              <MDBDropdown v-model="dropdown1">
+                <MDBDropdownToggle tag="a" class="nav-link" @click="dropdown1 = !dropdown1">
+                  <MDBIcon icon="user" />
+                </MDBDropdownToggle>
+                <MDBDropdownMenu>
+                  <MDBDropdownItem href="#">使用者管理</MDBDropdownItem>
+                  <MDBDropdownItem href="#" @click="logOut()">登出</MDBDropdownItem>
+                </MDBDropdownMenu>
+              </MDBDropdown>
             </MDBNavbarItem>
           </MDBNavbarNav>
         </MDBNavbar>
@@ -50,64 +64,59 @@ const username = localStorage.getItem("USER_NAME");
         </div>
         <!-- Background image -->
       </header>
-
-      <main class="flex-grow-1">
-        <MDBContainer fluid class="px-0 py-2 w-100 h-100">
-          <MDBCard class="rounded-5 text-black  h-100">
-            <MDBCardBody>
-              <MDBRow class="h-100">
-                <MDBCol col="3">
-                  <MDBRow class="d-flex flex-column">
-                    <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'docs'}">
-                        <MDBIcon icon="file-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />文件查詢
-                      </RouterLink>
-                    </MDBCol>
-                    <MDBCol class=" px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'cases'}">
-                        <MDBIcon icon="balance-scale" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />校正案件
-                      </RouterLink>
-                    </MDBCol>
-                    <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'employee'}">
-                        <MDBIcon icon="user-edit" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />人員管理
-                      </RouterLink>
-                    </MDBCol>
-                    <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'gcps'}">
-                        <MDBIcon icon="map-marked-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />點位管理
-                      </RouterLink>
-                    </MDBCol>
-                    <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'prjs'}">
-                        <MDBIcon icon="drafting-compass" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />
-                        參考值量測作業
-                      </RouterLink>
-                    </MDBCol>
-                    <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'items'}">
-                        <MDBIcon icon="wrench" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />標準件管理
-                      </RouterLink>
-                    </MDBCol>
-                    <MDBCol class="px-2 p-3 border w-100">
-                      <RouterLink :to="{ name: 'cust' }">
-                        <MDBIcon far icon="handshake" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />顧客管理
-                      </RouterLink>
-                    </MDBCol>
-                  </MDBRow>
+      <MDBRow style="margin-left:0;margin-right:0;" class=" flex-grow-1">
+        <MDBCol col="12" class="py-2">
+          <MDBRow class="h-100 border border-5 rounded-8 shadow-4">
+            <MDBCol col="3">
+              <MDBRow class="d-flex flex-column">
+                <MDBCol class="px-2 p-3 border w-100">
+                  <RouterLink :to="{ name: 'docs'}">
+                    <MDBIcon icon="file-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />文件查詢
+                  </RouterLink>
                 </MDBCol>
-                <MDBCol col="9" class="border h-100">
-                  <!-- 加入統計圖 -->加入統計圖
+                <MDBCol class=" px-2 p-3 border w-100">
+                  <RouterLink :to="{ name: 'cases'}">
+                    <MDBIcon icon="balance-scale" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />校正案件
+                  </RouterLink>
+                </MDBCol>
+                <MDBCol class="px-2 p-3 border w-100">
+                  <RouterLink :to="{ name: 'employee'}">
+                    <MDBIcon icon="user-edit" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />人員管理
+                  </RouterLink>
+                </MDBCol>
+                <MDBCol class="px-2 p-3 border w-100">
+                  <RouterLink :to="{ name: 'gcps'}">
+                    <MDBIcon icon="map-marked-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />點位管理
+                  </RouterLink>
+                </MDBCol>
+                <MDBCol class="px-2 p-3 border w-100">
+                  <RouterLink :to="{ name: 'prjs'}">
+                    <MDBIcon icon="drafting-compass" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />
+                    參考值量測作業
+                  </RouterLink>
+                </MDBCol>
+                <MDBCol class="px-2 p-3 border w-100">
+                  <RouterLink :to="{ name: 'items'}">
+                    <MDBIcon icon="wrench" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />標準件管理
+                  </RouterLink>
+                </MDBCol>
+                <MDBCol class="px-2 p-3 border w-100">
+                  <RouterLink :to="{ name: 'cust' }">
+                    <MDBIcon far icon="handshake" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />顧客管理
+                  </RouterLink>
                 </MDBCol>
               </MDBRow>
-            </MDBCardBody>
-          </MDBCard>
-        </MDBContainer>
-      </main>
+            </MDBCol>
+            <MDBCol col="9" class="border h-100">
+              <!-- 加入統計圖 -->加入統計圖
+            </MDBCol>
+          </MDBRow>
+        </MDBCol>
+      </MDBRow>
       <!-- Footer -->
       <footer>
         <!-- Copyright -->
-        <div class="text-center" style="background-color: rgba(0, 0, 0, 0.05); height: 5vh;">
+        <div class="text-center" style="background-color: rgba(0, 0, 0, 0.05); height: 2.5em;">
           © 2022 Copyright:
           <a class="text-reset fw-bold" href="">jamesky98</a>
         </div>
