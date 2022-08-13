@@ -16,6 +16,11 @@ import {
   MDBIcon,
   MDBAnimation,
   MDBAlert,
+  MDBStepper, 
+  MDBStepperStep, 
+  MDBStepperHead, 
+  MDBStepperContent, 
+  MDBStepperForm,
 } from 'mdb-vue-ui-kit';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../graphql/Cases";
@@ -307,9 +312,9 @@ const alertColor = ref("primary");
         return { text: x.name, value: parseInt(x.id) }
       }); caseTypeMU.value.unshift({ text: "", value: "" });
       // 新增案件區
-      nowCaseTypeIdMU.value = result.data.getCaseCalType.map(x => {
+      addCaseTypeIdMU.value = result.data.getCaseCalType.map(x => {
         return { text: x.name, value: parseInt(x.id) }
-      }); nowCaseTypeIdMU.value.unshift({ text: "", value: "" });
+      }); addCaseTypeIdMU.value.unshift({ text: "", value: "" });
       // nowDocTypemu.value = result.data.getAllDocType.map(x => {
       //   return { text: x.doc_type, value: parseInt(x.doc_type_id) }
       // }); nowDocTypemu.value.unshift({ text: "", value: "" });
@@ -381,8 +386,6 @@ refgetCaseAllItem();
 // 案件基本資料==========start
 // 新增案件指標
 const showCaseNew = ref(false);
-const showCaseEditFlag = ref(false);
-
 // 案件狀態
 const nowCaseStatus = ref("");
 const nowCaseStatusMU = ref([]);
@@ -397,9 +400,11 @@ const addCaseAppDate = ref("");
 const addCaseAppDateDOM = ref();
 // 校正項目
 const nowCaseTypeName = ref("");
-const nowCaseTypeIdSEL = ref("");
-const nowCaseTypeIdMU = ref([]);
-const nowCaseTypeIdDOM = ref("");
+const addCaseTypeIdSEL = ref("");
+const addCaseTypeIdMU = ref([]);
+const addCaseTypeIdDOM = ref("");
+const nowCaseTypeId = ref("");
+
 // 顧客
 const nowCaseCustOrgName = ref("");
 const nowCaseCustTaxID = ref("");
@@ -453,6 +458,7 @@ getNowCaseS(result => {
     nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
     nowCaseAppDate.value = toTWDate(getData.app_date);
     nowCaseTypeName.value = getData.cal_type_cal_typeTocase_base.name;
+    nowCaseTypeId.value = getData.cal_type
     nowCaseCustOrgName.value = getData.cus.cus_org.name;
     nowCaseCustTaxID.value = getData.cus.cus_org.tax_id;
     nowCaseCustName.value = getData.cus.name;
@@ -479,9 +485,6 @@ function copyTileAdd(){
   nowCaseTitle.value = nowCaseCustOrgName.value;
   nowCaseAddress.value = nowCaseCustAddress.value;
 }
-
-// 查詢顯示選擇案件之詳細資料
-
 
 // 新增案件==開啟表單
 function openAddCaseForm(){
@@ -515,33 +518,65 @@ function getAppDateByCaseId() {
     addCaseAppDateDOM.value.inputValue = checkstr;
   }
 }
+// 案件基本資料==========end
+// 案件詳細編輯資料==========start
+
+
+// 查詢顯示選擇案件之詳細資料
+// 查詢Record01資料
+
+// 查詢Record02資料
+
 // 顯示編輯更多畫面
 const caseBtnText = ref("編輯更多<i class='fas fa-angle-double-right'/>");
 const showCaseLeftDiv = ref(true);
 const animationType = ref("slide-left-ja");
+const showCaseEditAnima = ref(false);
+
+const showCaseEditR01Flag = ref(false);
+const showCaseEditR02Flag = ref(false);
+// 編輯更多按鈕
 function showCaseEdit(){
-  if (showCaseEditFlag.value){
+  console.log(nowCaseTypeId.value);
+  if (showCaseEditAnima.value){
     if (animationType.value ==="slide-right-ja"){
       caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
-      // showCaseEditFlag.value = true;
+      setRecordShow(showCaseEditAnima.value);
       animationType.value = "slide-left-ja"
-    // showCaseEditFlag.value = false;
     } else if(animationType.value === "slide-left-ja"){
       caseBtnText.value = "編輯更多<i class='fas fa-angle-double-right'/>";
-      // showCaseEditFlag.value = true;
-      // animationType.value = "slide-left-ja"
       animationType.value = "slide-right-ja"
-    // showCaseEditFlag.value = false;
+      setRecordShow(showCaseEditAnima.value);
     }
   }else{
-    caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
-    showCaseEditFlag.value = true;
-    // animationType.value = "slide-left-ja"
-    // showCaseEditFlag.value = false;
+    setRecordShow(showCaseEditAnima.value);
   }
   
 }
-// 案件基本資料==========end
+// 切換不同校正項目內容
+function setRecordShow(isAnimate){
+  if (nowCaseTypeId.value === 1 || nowCaseTypeId.value === 3) {
+    showCaseEditR01Flag.value = true;
+    showCaseEditR02Flag.value = false;
+    if(!isAnimate){
+      showCaseEditAnima.value = true;
+      caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
+    }
+  } else if (nowCaseTypeId.value === 2) {
+    showCaseEditR01Flag.value = false;
+    showCaseEditR02Flag.value = true;
+    if (!isAnimate) {
+      showCaseEditAnima.value = true;
+      caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
+    }
+  } else {
+    showCaseEditR01Flag.value = false;
+    showCaseEditR02Flag.value = false;
+  }
+}
+// 案件詳細編輯資料==========end
+
+
 
 
 
@@ -554,8 +589,8 @@ function showCaseEdit(){
       <!-- 主體 -->
       <!-- <MDBContainer tag="main" fluid> -->
       <MDBAnimation style="height: calc(100% - 6.5em);" :animation="animationType" trigger="manually"
-        v-model="showCaseEditFlag">
-        <MDBRow style="margin-left:0;margin-right:0;" class="h-100">
+        v-model="showCaseEditAnima">
+        <MDBRow style="margin-left:0;margin-right:0;" class="h-100 flex-nowrap">
           <!-- 左方列表 -->
           <MDBCol v-show="showCaseLeftDiv" md="8" class="h-100">
             <MDBRow class="h-100 align-content-between">
@@ -629,6 +664,10 @@ function showCaseEdit(){
                 </MDBBtn>
               </div>
               <hr>
+              <MDBSelect filter size="sm" class="mb-3  col-6" label="校正人員" v-model:options="nowCaseOperatorMU"
+                v-model:selected="nowCaseOperator" ref="nowCaseOperatorDOM" />
+              <MDBSelect filter size="sm" class="mb-3  col-6" label="技術主管" v-model:options="nowCaseLeaderMU"
+                v-model:selected="nowCaseLeader" ref="nowCaseLeaderDOM" />
               <MDBSelect size="sm" class="mb-3  col-6" label="案件狀態" v-model:options="nowCaseStatusMU"
                 v-model:selected="nowCaseStatus" ref="nowCaseStatusDOM" />
               <div></div>
@@ -674,9 +713,6 @@ function showCaseEdit(){
               <MDBCol col="12" class="mb-3">
                 <MDBInput size="sm" type="text" label="校正目的" v-model="nowCasePurpose" />
               </MDBCol>
-              <MDBCol col="12" class="mb-3">
-                <MDBTextarea size="sm" label="協議事項" rows="2" v-model="nowCaseAgreement" />
-              </MDBCol>
               <MDBCol col="6" class="mb-3">
                 <MDBInput size="sm" style="text-align: right" type="text" label="費用" v-model="nowCaseCharge" />
               </MDBCol>
@@ -684,10 +720,9 @@ function showCaseEdit(){
                 <MDBDatepicker size="sm" v-model="nowCasePayDate" format=" YYYY-MM-DD " label="繳費日"
                   ref="nowCasePayDateDOM" />
               </MDBCol>
-              <MDBSelect filter size="sm" class="mb-3  col-6" label="校正人員" v-model:options="nowCaseOperatorMU"
-                v-model:selected="nowCaseOperator" ref="nowCaseOperatorDOM" />
-              <MDBSelect filter size="sm" class="mb-3  col-6" label="技術主管" v-model:options="nowCaseLeaderMU"
-                v-model:selected="nowCaseLeader" ref="nowCaseLeaderDOM" />
+              <MDBCol col="12" class="mb-3">
+                <MDBTextarea size="sm" label="協議事項" rows="2" v-model="nowCaseAgreement" />
+              </MDBCol>
             </MDBRow>
           </MDBCol>
           <!-- 新增案件表單 -->
@@ -724,12 +759,77 @@ function showCaseEdit(){
                   申請日期可由案件編號前8碼取得或自行設定
                 </MDBCol>
                 <div></div>
-                <MDBSelect size="sm" class="mb-3  col-10" label="校正項目" v-model:options="nowCaseTypeIdMU"
-                  v-model:selected="nowCaseTypeIdSEL" ref="nowCaseTypeIdDOM" />
+                <MDBSelect size="sm" class="mb-3  col-10" label="校正項目" v-model:options="addCaseTypeIdMU"
+                  v-model:selected="addCaseTypeIdSEL" ref="addCaseTypeIdDOM" />
               </MDBRow>
             </MDBAnimation>
           </MDBCol>
-
+          <MDBCol md="8" v-if="showCaseEditR01Flag" class="h-100 py-2 bg-primary">
+            <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
+              <!-- record01表單 -->
+              <MDBStepper linear>
+                <MDBStepperForm>
+                  <MDBStepperStep active>
+                    <MDBStepperHead icon="1">
+                      送校
+                    </MDBStepperHead>
+                    <MDBStepperContent>
+                      送校內容01
+                    </MDBStepperContent>
+                  </MDBStepperStep>
+                  <MDBStepperStep>
+                    <MDBStepperHead icon="2">
+                      申請
+                    </MDBStepperHead>
+                    <MDBStepperContent>
+                      申請內容01
+                    </MDBStepperContent>
+                  </MDBStepperStep>
+                  <MDBStepperStep>
+                    <MDBStepperHead icon="3">
+                      校正
+                    </MDBStepperHead>
+                    <MDBStepperContent>
+                      校正內容01
+                    </MDBStepperContent>
+                  </MDBStepperStep>
+                </MDBStepperForm>
+              </MDBStepper>
+            </MDBRow>
+          </MDBCol>
+          <MDBCol md="8" v-else-if="showCaseEditR02Flag" class="h-100 py-2 bg-primary">
+            <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
+              <!-- record02表單 -->
+              <MDBStepper linear>
+                <MDBStepperForm>
+                  <MDBStepperStep active>
+                    <MDBStepperHead icon="1">
+                      申請
+                    </MDBStepperHead>
+                    <MDBStepperContent>
+                      申請內容02
+                    </MDBStepperContent>
+                  </MDBStepperStep>
+                  <MDBStepperStep>
+                    <MDBStepperHead icon="2">
+                      送校
+                    </MDBStepperHead>
+                    <MDBStepperContent>
+                      送校內容02
+                    </MDBStepperContent>
+                  </MDBStepperStep>
+                  <MDBStepperStep>
+                    <MDBStepperHead icon="3">
+                      校正
+                    </MDBStepperHead>
+                    <MDBStepperContent>
+                      校正內容02
+                    </MDBStepperContent>
+                  </MDBStepperStep>
+                </MDBStepperForm>
+              </MDBStepper>
+            </MDBRow>
+          </MDBCol>
         </MDBRow>
       </MDBAnimation>
       <!-- 頁腳 -->
