@@ -15,6 +15,7 @@ import {
   MDBPopconfirm,
   MDBIcon,
   MDBAnimation,
+  MDBAlert,
 } from 'mdb-vue-ui-kit';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../graphql/Cases";
@@ -25,6 +26,11 @@ import Select from 'datatables.net-select';
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
+
+// Information
+const infomsg = ref("");
+const alert1 = ref(false);
+const alertColor = ref("primary");
 
 // 案件列表=========start
   let dt1;
@@ -374,7 +380,9 @@ refgetCaseAllItem();
 // 填入下拉式選單==========end
 // 案件基本資料==========start
 // 新增案件指標
-const newCaseSet = ref(false);
+const showCaseNew = ref(false);
+const showCaseEditFlag = ref(false);
+
 // 案件狀態
 const nowCaseStatus = ref("");
 const nowCaseStatusMU = ref([]);
@@ -477,7 +485,7 @@ function copyTileAdd(){
 
 // 新增案件==開啟表單
 function openAddCaseForm(){
-  newCaseSet.value = true;
+  showCaseNew.value = true;
 }
 // 新增案件==確認
 function AddCaseOK() {
@@ -488,7 +496,7 @@ function AddCaseOK() {
 
 // 新增案件==取消
 function AddCaseCancel() { 
-  newCaseSet.value = false;
+  showCaseNew.value = false;
 }
 
 // 新增案件==自動取得申請日
@@ -498,13 +506,41 @@ function getAppDateByCaseId() {
   let isValidDate = Date.parse(checkstr);
   if (isNaN(isValidDate)) {
     // 非正確日期
+    infomsg.value ="非正確日期";
+    alertColor.value ="danger";
+    alert1.value=true;
   }else{
     // 填入日期
     addCaseAppDate.value = checkstr;
     addCaseAppDateDOM.value.inputValue = checkstr;
   }
 }
-
+// 顯示編輯更多畫面
+const caseBtnText = ref("編輯更多<i class='fas fa-angle-double-right'/>");
+const showCaseLeftDiv = ref(true);
+const animationType = ref("slide-left-ja");
+function showCaseEdit(){
+  if (showCaseEditFlag.value){
+    if (animationType.value ==="slide-right-ja"){
+      caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
+      // showCaseEditFlag.value = true;
+      animationType.value = "slide-left-ja"
+    // showCaseEditFlag.value = false;
+    } else if(animationType.value === "slide-left-ja"){
+      caseBtnText.value = "編輯更多<i class='fas fa-angle-double-right'/>";
+      // showCaseEditFlag.value = true;
+      // animationType.value = "slide-left-ja"
+      animationType.value = "slide-right-ja"
+    // showCaseEditFlag.value = false;
+    }
+  }else{
+    caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
+    showCaseEditFlag.value = true;
+    // animationType.value = "slide-left-ja"
+    // showCaseEditFlag.value = false;
+  }
+  
+}
 // 案件基本資料==========end
 
 
@@ -517,185 +553,206 @@ function getAppDateByCaseId() {
       <Navbar1 />
       <!-- 主體 -->
       <!-- <MDBContainer tag="main" fluid> -->
-      <MDBRow style="margin-left:0;margin-right:0;height: calc(100% - 6.5em);">
-        <!-- 左方列表 -->
-        <MDBCol md="8" class="h-100">
-          <MDBRow class="h-100 align-content-between">
-            <!-- 上方列表 -->
-            <MDBCol md="12" style="height: calc(75% - 1.5rem) ;"
-              class="mt-2 overflow-auto border border-5 rounded-8 shadow-4">
-              <DataTable :data=" data1" :columns="columns1" :options="tboption1" ref="table1" style="font-size: smaller"
-                class="display w-100 compact" />
-            </MDBCol>
-            <!-- 下方篩選 -->
-            <MDBCol md="12" class="h-25 mb-2 overflow-auto border border-5 rounded-8 shadow-4">
-              <MDBRow>
-                <div class="my-2 d-flex">
-                  <div class="flex-grow-1">條件篩選</div>
-                  <div>
-                    <MDBBtn size="sm" color="primary" @click="caseClearFilter">清除</MDBBtn>
-                    <MDBBtn size="sm" color="primary" @click="caseDoFilter">篩選</MDBBtn>
+      <MDBAnimation style="height: calc(100% - 6.5em);" :animation="animationType" trigger="manually"
+        v-model="showCaseEditFlag">
+        <MDBRow style="margin-left:0;margin-right:0;" class="h-100">
+          <!-- 左方列表 -->
+          <MDBCol v-show="showCaseLeftDiv" md="8" class="h-100">
+            <MDBRow class="h-100 align-content-between">
+              <!-- 上方列表 -->
+              <MDBCol md="12" style="height: calc(75% - 1.5rem) ;"
+                class="mt-2 overflow-auto border border-5 rounded-8 shadow-4">
+                <DataTable :data=" data1" :columns="columns1" :options="tboption1" ref="table1"
+                  style="font-size: smaller" class="display w-100 compact" />
+              </MDBCol>
+              <!-- 下方篩選 -->
+              <MDBCol md="12" class="h-25 mb-2 overflow-auto border border-5 rounded-8 shadow-4">
+                <MDBRow>
+                  <div class="my-2 d-flex">
+                    <div class="flex-grow-1">條件篩選</div>
+                    <div>
+                      <MDBBtn size="sm" color="primary" @click="caseClearFilter">清除</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="caseDoFilter">篩選</MDBBtn>
+                    </div>
                   </div>
-                </div>
-                <MDBSelect size="sm" class="mb-3 col-3" label="案件狀態" v-model:options="caseStatusMU"
-                  v-model:selected="caseStatusSEL" ref="caseStatusFilter" />
-                <MDBCol col="3" class="mb-3">
-                  <MDBInput size="sm" type="text" label="案件編號" v-model="caseIDSEL" />
-                </MDBCol>
-                <MDBSelect size="sm" class="mb-3  col-3" label="校正項目" v-model:options="caseTypeMU"
-                  v-model:selected="caseTypeSEL" ref="caseTypeFilter" />
-                <MDBSelect filter size="sm" class="mb-3  col-3" label="校正人員" v-model:options="caseOptMU"
-                  v-model:selected="caseOptSEL" ref="caseOptFilter" />
-                <MDBSelect filter size="sm" class="mb-3  col-3" label="顧客" v-model:options="caseCustMU"
-                  v-model:selected="caseCustSEL" ref="caseCustFilter" />
-                <MDBSelect filter size="sm" class="mb-3  col-3" label="廠牌" v-model:options="caseChopMU"
-                  v-model:selected="caseChopSEL" ref="caseChopFilter" />
-                <MDBSelect filter size="sm" class="mb-3  col-3" label="型號" v-model:options="caseModelMU"
-                  v-model:selected="caseModelSEL" ref="caseModelFilter" />
-                <MDBCol col="3" class="mb-3">
-                  <MDBInput size="sm" type="text" label="序號" v-model="caseSelnumSEL" />
-                </MDBCol>
-                <MDBCol col="3" class="mb-3">
-                  <MDBDatepicker size="sm" v-model="caseAppDateStartSEL" format=" YYYY-MM-DD " label="申請日(起)"
-                    ref="caseAppDateStartFilter" />
-                </MDBCol>
-                <MDBCol col="3" class="mb-3">
-                  <MDBDatepicker size="sm" v-model="caseAppDateEndtSEL" format=" YYYY-MM-DD " label="申請日(迄)"
-                    ref="caseAppDateEndFilter" />
-                </MDBCol>
-                <MDBCol col="3" class="mb-3">
-                  <MDBDatepicker size="sm" v-model="casePayDateStartSEL" format=" YYYY-MM-DD " label="繳費日(起)"
-                    ref="casePayDateStartFilter" />
-                </MDBCol>
-                <MDBCol col="3" class="mb-3">
-                  <MDBDatepicker size="sm" v-model="casePayDateEndtSEL" format=" YYYY-MM-DD " label="繳費日(迄)"
-                    ref="casePayDateEndFilter" />
-                </MDBCol>
-              </MDBRow>
-            </MDBCol>
-          </MDBRow>
-        </MDBCol>
-        <!-- 右方案件資料 -->
-        <MDBCol md="4" v-show="!newCaseSet" class="h-100">
-          <MDBRow style="margin-left: auto;height: calc(100% - 1rem);"
-            class="my-2 bg-light overflow-auto border border-5 rounded-8 shadow-4">
-            <div class="px-3">案件資料</div>
-            <div class="d-flex p-3">
-              <MDBPopconfirm class="btn-sm btn-danger me-auto" position="top" message="刪除後無法恢復，確定刪除嗎？" cancelText="取消"
-                confirmText="確定" @confirm="">
-                刪除案件
-              </MDBPopconfirm>
-              <MDBBtn size="sm" color="primary" @click="openAddCaseForm">新增</MDBBtn>
-              <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
-              <MDBBtn size="sm" color="primary" @click="">編輯更多<i class="fas fa-angle-double-right"></i></MDBBtn>
-            </div>
-            <hr>
-            <MDBSelect size="sm" class="mb-3  col-6" label="案件狀態" v-model:options="nowCaseStatusMU"
-              v-model:selected="nowCaseStatus" ref="nowCaseStatusDOM" />
-            <div></div>
-            <MDBCol col="6" class="mb-3">
-              <MDBInput size="sm" type="text" label="案件編號" v-model="nowCaseID" disabled />
-            </MDBCol>
-            <MDBCol col="6" class="mb-3">
-              <MDBInput size="sm" type="text" label="申請日期" v-model="nowCaseAppDate" disabled />
-            </MDBCol>
-            <MDBCol col="6" class="mb-3">
-              <MDBInput size="sm" type="text" label="校正項目" v-model="nowCaseTypeName" disabled />
-            </MDBCol>
-            <div></div>
-            <MDBCol col="12" class="mb-3">
-              <MDBInput size="sm" type="text" label="顧客名稱" v-model="nowCaseCustOrgName" disabled />
-            </MDBCol>
-            <MDBCol col="6" class="mb-3">
-              <MDBInput size="sm" type="text" label="統一編號" v-model="nowCaseCustTaxID" disabled />
-            </MDBCol>
-            <div></div>
-            <MDBCol col="6" class="mb-3">
-              <MDBInput size="sm" type="text" label="聯絡人" v-model="nowCaseCustName" disabled />
-            </MDBCol>
-            <div></div>
-            <MDBCol col="6" class="mb-3">
-              <MDBInput size="sm" type="text" label="聯絡電話" v-model="nowCaseCustTel" disabled />
-            </MDBCol>
-            <MDBCol col="6" class="mb-3">
-              <MDBInput size="sm" type="text" label="傳真" v-model="nowCaseCustFax" disabled />
-            </MDBCol>
-            <MDBCol col="12" class="mb-3">
-              <MDBInput size="sm" type="text" label="聯絡地址" v-model="nowCaseCustAddress" disabled />
-            </MDBCol>
-            <MDBCol col="12" class="mb-3">
-              <MDBBtn size="sm" color="primary" @click="copyTileAdd()">同上</MDBBtn>
-            </MDBCol>
-            <MDBCol col="12" class="mb-3">
-              <MDBInput size="sm" type="text" label="報告抬頭" v-model="nowCaseTitle" />
-            </MDBCol>
-            <MDBCol col="12" class="mb-3">
-              <MDBInput size="sm" type="text" label="報告地址" v-model="nowCaseAddress" />
-            </MDBCol>
-            <MDBCol col="12" class="mb-3">
-              <MDBInput size="sm" type="text" label="校正目的" v-model="nowCasePurpose" />
-            </MDBCol>
-            <MDBCol col="12" class="mb-3">
-              <MDBTextarea size="sm" label="協議事項" rows="2" v-model="nowCaseAgreement" />
-            </MDBCol>
-            <MDBCol col="6" class="mb-3">
-              <MDBInput size="sm" style="text-align: right" type="text" label="費用" v-model="nowCaseCharge" />
-            </MDBCol>
-            <MDBCol col="6" class="mb-3">
-              <MDBDatepicker size="sm" v-model="nowCasePayDate" format=" YYYY-MM-DD " label="繳費日"
-                ref="nowCasePayDateDOM" />
-            </MDBCol>
-            <MDBSelect filter size="sm" class="mb-3  col-6" label="校正人員" v-model:options="nowCaseOperatorMU"
-              v-model:selected="nowCaseOperator" ref="nowCaseOperatorDOM" />
-            <MDBSelect filter size="sm" class="mb-3  col-6" label="技術主管" v-model:options="nowCaseLeaderMU"
-              v-model:selected="nowCaseLeader" ref="nowCaseLeaderDOM" />
-          </MDBRow>
-        </MDBCol>
-        <MDBCol md="4" v-show="newCaseSet" class="h-100 py-2 bg-primary">
-          <MDBAnimation class="h-100" animation="fade-in-right" trigger="manually" v-model="newCaseSet">
-            <MDBRow style="margin-left:0;margin-right:0;"
-              class="h-100 bg-light align-content-start overflow-auto border border-5 rounded-8 shadow-4">
-              <MDBCol col="12" class="mb-3">新增案件</MDBCol>
-              <div class="d-flex mb-3 justify-content-end">
-                <MDBBtn size="sm" color="warning" @click="AddCaseCancel">取消</MDBBtn>
-                <MDBBtn size="sm" color="primary" @click="AddCaseOK">確認</MDBBtn>
-              </div>
-              <MDBCol col="6" class="mb-3">
-                <MDBInput size="sm" type="text" label="案件編號" v-model="addCaseID" />
+                  <MDBSelect size="sm" class="mb-3 col-3" label="案件狀態" v-model:options="caseStatusMU"
+                    v-model:selected="caseStatusSEL" ref="caseStatusFilter" />
+                  <MDBCol col="3" class="mb-3">
+                    <MDBInput size="sm" type="text" label="案件編號" v-model="caseIDSEL" />
+                  </MDBCol>
+                  <MDBSelect size="sm" class="mb-3  col-3" label="校正項目" v-model:options="caseTypeMU"
+                    v-model:selected="caseTypeSEL" ref="caseTypeFilter" />
+                  <MDBSelect filter size="sm" class="mb-3  col-3" label="校正人員" v-model:options="caseOptMU"
+                    v-model:selected="caseOptSEL" ref="caseOptFilter" />
+                  <MDBSelect filter size="sm" class="mb-3  col-3" label="顧客" v-model:options="caseCustMU"
+                    v-model:selected="caseCustSEL" ref="caseCustFilter" />
+                  <MDBSelect filter size="sm" class="mb-3  col-3" label="廠牌" v-model:options="caseChopMU"
+                    v-model:selected="caseChopSEL" ref="caseChopFilter" />
+                  <MDBSelect filter size="sm" class="mb-3  col-3" label="型號" v-model:options="caseModelMU"
+                    v-model:selected="caseModelSEL" ref="caseModelFilter" />
+                  <MDBCol col="3" class="mb-3">
+                    <MDBInput size="sm" type="text" label="序號" v-model="caseSelnumSEL" />
+                  </MDBCol>
+                  <MDBCol col="3" class="mb-3">
+                    <MDBDatepicker size="sm" v-model="caseAppDateStartSEL" format=" YYYY-MM-DD " label="申請日(起)"
+                      ref="caseAppDateStartFilter" />
+                  </MDBCol>
+                  <MDBCol col="3" class="mb-3">
+                    <MDBDatepicker size="sm" v-model="caseAppDateEndtSEL" format=" YYYY-MM-DD " label="申請日(迄)"
+                      ref="caseAppDateEndFilter" />
+                  </MDBCol>
+                  <MDBCol col="3" class="mb-3">
+                    <MDBDatepicker size="sm" v-model="casePayDateStartSEL" format=" YYYY-MM-DD " label="繳費日(起)"
+                      ref="casePayDateStartFilter" />
+                  </MDBCol>
+                  <MDBCol col="3" class="mb-3">
+                    <MDBDatepicker size="sm" v-model="casePayDateEndtSEL" format=" YYYY-MM-DD " label="繳費日(迄)"
+                      ref="casePayDateEndFilter" />
+                  </MDBCol>
+                </MDBRow>
               </MDBCol>
-              <div></div>
-              <MDBCol style="font-size: 0.8rem" class="mx-3 mb-3 p-2 border">
-                案件編號編碼方式：
-                <br>"西元日期(8碼)"
-                <br> + "當日第幾案(2碼)"
-                <br> + "本案第幾件儀器(2碼)"
-                <br>例如："20220125" + "02" + "01"
-              </MDBCol>
-              <div></div>
-              <MDBCol col="6" class="mb-3">
-                <MDBDatepicker size="sm" v-model="addCaseAppDate" format=" YYYY-MM-DD " label="申請日"
-                  ref="addCaseAppDateDOM" />
-              </MDBCol>
-              <MDBCol col="6" class="mb-3">
-                <MDBBtn size="sm" color="primary" @click="getAppDateByCaseId">自動取得</MDBBtn>
-              </MDBCol>
-              <div></div>
-              <MDBCol style="font-size: 0.8rem" class="mx-3 mb-3 p-2 border">
-                申請日期可由案件編號前8碼取得或自行設定
-              </MDBCol>
-              <div></div>
-              <MDBSelect size="sm" class="mb-3  col-10" label="校正項目" v-model:options="nowCaseTypeIdMU"
-                v-model:selected="nowCaseTypeIdSEL" ref="nowCaseTypeIdDOM" />
             </MDBRow>
-          </MDBAnimation>
-        </MDBCol>
-      </MDBRow>
+          </MDBCol>
+          <!-- 右方案件資料 -->
+          <MDBCol md="4" v-show="!showCaseNew" class="h-100">
+            <MDBRow style="margin-left: auto;height: calc(100% - 1rem);"
+              class="my-2 bg-light overflow-auto border border-5 rounded-8 shadow-4">
+              <div class="px-3">案件資料</div>
+              <div class="d-flex p-3">
+                <MDBPopconfirm class="btn-sm btn-light btn-outline-danger me-auto" position="top"
+                  message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="">
+                  刪除案件
+                </MDBPopconfirm>
+                <MDBBtn size="sm" color="primary" @click="openAddCaseForm">新增</MDBBtn>
+                <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
+                <MDBBtn size="sm" color="primary" @click="showCaseEdit" v-html="caseBtnText">
+                </MDBBtn>
+              </div>
+              <hr>
+              <MDBSelect size="sm" class="mb-3  col-6" label="案件狀態" v-model:options="nowCaseStatusMU"
+                v-model:selected="nowCaseStatus" ref="nowCaseStatusDOM" />
+              <div></div>
+              <MDBCol col="6" class="mb-3">
+                <MDBInput size="sm" type="text" label="案件編號" v-model="nowCaseID" disabled />
+              </MDBCol>
+              <MDBCol col="6" class="mb-3">
+                <MDBInput size="sm" type="text" label="申請日期" v-model="nowCaseAppDate" disabled />
+              </MDBCol>
+              <MDBCol col="6" class="mb-3">
+                <MDBInput size="sm" type="text" label="校正項目" v-model="nowCaseTypeName" disabled />
+              </MDBCol>
+              <div></div>
+              <MDBCol col="12" class="mb-3">
+                <MDBInput size="sm" type="text" label="顧客名稱" v-model="nowCaseCustOrgName" disabled />
+              </MDBCol>
+              <MDBCol col="6" class="mb-3">
+                <MDBInput size="sm" type="text" label="統一編號" v-model="nowCaseCustTaxID" disabled />
+              </MDBCol>
+              <div></div>
+              <MDBCol col="6" class="mb-3">
+                <MDBInput size="sm" type="text" label="聯絡人" v-model="nowCaseCustName" disabled />
+              </MDBCol>
+              <div></div>
+              <MDBCol col="6" class="mb-3">
+                <MDBInput size="sm" type="text" label="聯絡電話" v-model="nowCaseCustTel" disabled />
+              </MDBCol>
+              <MDBCol col="6" class="mb-3">
+                <MDBInput size="sm" type="text" label="傳真" v-model="nowCaseCustFax" disabled />
+              </MDBCol>
+              <MDBCol col="12" class="mb-3">
+                <MDBInput size="sm" type="text" label="聯絡地址" v-model="nowCaseCustAddress" disabled />
+              </MDBCol>
+              <MDBCol col="12" class="mb-3">
+                <MDBBtn size="sm" color="primary" @click="copyTileAdd()">同上</MDBBtn>
+              </MDBCol>
+              <MDBCol col="12" class="mb-3">
+                <MDBInput size="sm" type="text" label="報告抬頭" v-model="nowCaseTitle" />
+              </MDBCol>
+              <MDBCol col="12" class="mb-3">
+                <MDBInput size="sm" type="text" label="報告地址" v-model="nowCaseAddress" />
+              </MDBCol>
+              <MDBCol col="12" class="mb-3">
+                <MDBInput size="sm" type="text" label="校正目的" v-model="nowCasePurpose" />
+              </MDBCol>
+              <MDBCol col="12" class="mb-3">
+                <MDBTextarea size="sm" label="協議事項" rows="2" v-model="nowCaseAgreement" />
+              </MDBCol>
+              <MDBCol col="6" class="mb-3">
+                <MDBInput size="sm" style="text-align: right" type="text" label="費用" v-model="nowCaseCharge" />
+              </MDBCol>
+              <MDBCol col="6" class="mb-3">
+                <MDBDatepicker size="sm" v-model="nowCasePayDate" format=" YYYY-MM-DD " label="繳費日"
+                  ref="nowCasePayDateDOM" />
+              </MDBCol>
+              <MDBSelect filter size="sm" class="mb-3  col-6" label="校正人員" v-model:options="nowCaseOperatorMU"
+                v-model:selected="nowCaseOperator" ref="nowCaseOperatorDOM" />
+              <MDBSelect filter size="sm" class="mb-3  col-6" label="技術主管" v-model:options="nowCaseLeaderMU"
+                v-model:selected="nowCaseLeader" ref="nowCaseLeaderDOM" />
+            </MDBRow>
+          </MDBCol>
+          <!-- 新增案件表單 -->
+          <MDBCol md="4" v-show="showCaseNew" class="h-100 py-2 bg-primary">
+            <MDBAnimation class="h-100" animation="fade-in-right" trigger="manually" v-model="showCaseNew">
+              <MDBRow style="margin-left:0;margin-right:0;"
+                class="h-100 bg-light align-content-start overflow-auto border border-5 rounded-8 shadow-4">
+                <MDBCol col="12" class="mb-3">新增案件</MDBCol>
+                <div class="d-flex mb-3 justify-content-end">
+                  <MDBBtn size="sm" color="warning" @click="AddCaseCancel">取消</MDBBtn>
+                  <MDBBtn size="sm" color="primary" @click="AddCaseOK">確認</MDBBtn>
+                </div>
+                <MDBCol col="6" class="mb-4">
+                  <MDBInput counter :maxlength="12" size="sm" type="text" label="案件編號" v-model="addCaseID" />
+                </MDBCol>
+                <div></div>
+                <MDBCol style="font-size: 0.8rem" class="mx-3 mb-3 p-2 border">
+                  案件編號編碼方式：
+                  <br>"西元日期(8碼)"
+                  <br> + "當日第幾案(2碼)"
+                  <br> + "本案第幾件儀器(2碼)"
+                  <br>例如："20220125" + "02" + "01"
+                </MDBCol>
+                <div></div>
+                <MDBCol col="6" class="mb-3">
+                  <MDBDatepicker size="sm" v-model="addCaseAppDate" format=" YYYY-MM-DD " label="申請日"
+                    ref="addCaseAppDateDOM" />
+                </MDBCol>
+                <MDBCol col="6" class="mb-3">
+                  <MDBBtn size="sm" color="primary" @click="getAppDateByCaseId">自動取得</MDBBtn>
+                </MDBCol>
+                <div></div>
+                <MDBCol style="font-size: 0.8rem" class="mx-3 mb-3 p-2 border">
+                  申請日期可由案件編號前8碼取得或自行設定
+                </MDBCol>
+                <div></div>
+                <MDBSelect size="sm" class="mb-3  col-10" label="校正項目" v-model:options="nowCaseTypeIdMU"
+                  v-model:selected="nowCaseTypeIdSEL" ref="nowCaseTypeIdDOM" />
+              </MDBRow>
+            </MDBAnimation>
+          </MDBCol>
+
+        </MDBRow>
+      </MDBAnimation>
       <!-- 頁腳 -->
-      <Footer1 />
+      <Footer1 :msg="infomsg" />
     </MDBRow>
   </MDBContainer>
+  <MDBAlert dismiss v-model="alert1" id="alert-primary" :color="alertColor" position="top-right" stacking width="535px"
+    appendToBody autohide :delay="2000">
+    {{ infomsg }}
+  </MDBAlert>
 </template>
 <style>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -768,5 +825,33 @@ tr>td>span.typeJ {
 
 tr.selected>td>span.typeJ {
   color: white;
+}
+
+.slide-left-ja{
+  animation-name: slide-left-ja;
+}
+
+@keyframes slide-left-ja{
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-66.66666667%, 0, 0);
+    /* visibility: hidden; */
+  }
+}
+.slide-right-ja {
+  animation-name: slide-right-ja;
+}
+
+@keyframes slide-right-ja {
+  from {
+    transform: translate3d(-66.66666667%, 0, 0);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+    /* visibility: hidden; */
+  }
 }
 </style>
