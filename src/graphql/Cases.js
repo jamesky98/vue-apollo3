@@ -492,6 +492,14 @@ const ADDCASE = gql`
   }
 `;
 
+const DELCASE = gql`
+  mutation DelCase($delCaseId: String!) {
+    delCase(id: $delCaseId) {
+      id
+    }
+  }
+`;
+
 export default {
   GETALLCASE,
   GETCASESTATUS,
@@ -502,4 +510,5 @@ export default {
   GETFULLCASEBYID,
   GETSIMPLECASEBYID,
   ADDCASE,
+  DELCASE,
 };

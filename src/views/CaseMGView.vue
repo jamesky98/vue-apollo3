@@ -381,222 +381,247 @@ refgetCaseAllItem();
 
 // 填入下拉式選單==========end
 // 案件基本資料==========start
-// 新增案件指標
-const showCaseNew = ref(false);
-// 案件狀態
-const nowCaseStatus = ref("");
-const nowCaseStatusMU = ref([]);
-const nowCaseStatusDOM = ref();
-// 案件編號
-const nowCaseID = ref("");
-const addCaseID = ref("");
-// 申請日期
-const nowCaseAppDate = ref("");
-const addCaseAppDate = ref("");
-const addCaseAppDateDOM = ref();
-// 校正項目
-const nowCaseTypeName = ref("");
-const addCaseTypeIdSEL = ref("");
-const addCaseTypeIdMU = ref([]);
-const addCaseTypeIdDOM = ref("");
-const nowCaseTypeId = ref("");
+  // 新增案件指標
+  const showCaseNew = ref(false);
+  // 案件狀態
+  const nowCaseStatus = ref("");
+  const nowCaseStatusMU = ref([]);
+  const nowCaseStatusDOM = ref();
+  // 案件編號
+  const nowCaseID = ref("");
+  const addCaseID = ref("");
+  // 申請日期
+  const nowCaseAppDate = ref("");
+  const addCaseAppDate = ref("");
+  const addCaseAppDateDOM = ref();
+  // 校正項目
+  const nowCaseTypeName = ref("");
+  const addCaseTypeIdSEL = ref("");
+  const addCaseTypeIdMU = ref([]);
+  const addCaseTypeIdDOM = ref("");
+  const nowCaseTypeId = ref("");
 
-// 顧客
-const nowCaseCustOrgName = ref("");
-const nowCaseCustTaxID = ref("");
-const nowCaseCustName = ref("");
-const nowCaseCustTel = ref("");
-const nowCaseCustFax = ref("");
-const nowCaseCustAddress = ref("");
-const nowCaseTitle = ref("");
-const nowCaseAddress = ref("");
-// 校正目的
-const nowCasePurpose = ref("");
-const addCasePurpose = ref("");
-// 協商事項
-const nowCaseAgreement = ref("");
-// 費用
-const nowCaseCharge = ref("");
-// 繳費日
-const nowCasePayDate = ref("");
-const nowCasePayDateDOM = ref();
-// 校正人員
-const nowCaseOperator = ref("");
-const nowCaseOperatorMU = ref([]);
-const nowCaseOperatorDOM = ref();
-// 技術主管
-const nowCaseLeader = ref("");
-const nowCaseLeaderDOM = ref();
-const nowCaseLeaderMU = ref([]);
+  // 顧客
+  const nowCaseCustOrgName = ref("");
+  const nowCaseCustTaxID = ref("");
+  const nowCaseCustName = ref("");
+  const nowCaseCustTel = ref("");
+  const nowCaseCustFax = ref("");
+  const nowCaseCustAddress = ref("");
+  const nowCaseTitle = ref("");
+  const nowCaseAddress = ref("");
+  // 校正目的
+  const nowCasePurpose = ref("");
+  const addCasePurpose = ref("");
+  // 協商事項
+  const nowCaseAgreement = ref("");
+  // 費用
+  const nowCaseCharge = ref("");
+  // 繳費日
+  const nowCasePayDate = ref("");
+  const nowCasePayDateDOM = ref();
+  // 校正人員
+  const nowCaseOperator = ref("");
+  const nowCaseOperatorMU = ref([]);
+  const nowCaseOperatorDOM = ref();
+  // 技術主管
+  const nowCaseLeader = ref("");
+  const nowCaseLeaderDOM = ref();
+  const nowCaseLeaderMU = ref([]);
 
-// 查詢技術主管列表
-const { result: caseLeader, onResult: getCaseLeader, refetch: refgetCaseLeader } = useQuery(CaseGQL.GETOPERATOR,
-  { roleType: "技術主管" }
-);
-getCaseLeader(result => {
-  // 加入技術主管選單資料
-  if (!result.loading) {
-    nowCaseLeaderMU.value = result.data.getEmpByRole.map(x => {
-      return { text: x.name, value: parseInt(x.person_id) }
-    }); nowCaseLeaderMU.value.unshift({ text: "", value: "" });
-  }
-});
-refgetCaseLeader();
-
-// 查詢顯示選擇案件之簡單資料
-const { result: nowCaseS, loading: lodingnowCaseS, onResult: getNowCaseS, refetch: refgetNowCaseS } = useQuery(
-  CaseGQL.GETSIMPLECASEBYID,
-  ()=>({
-    getCasebyIdId: nowCaseID.value
-  })
-);
-getNowCaseS(result => {
-  if (!result.loading && result && result.data.getCasebyID) {
-    // 填入簡單資料
-    let getData = result.data.getCasebyID;
-    nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
-    nowCaseAppDate.value = toTWDate(getData.app_date);
-    nowCaseTypeName.value = getData.cal_type_cal_typeTocase_base.name;
-    nowCaseTypeId.value = getData.cal_type
-    nowCaseCustOrgName.value = (getData.cus)?getData.cus.cus_org.name:"";
-    nowCaseCustTaxID.value = (getData.cus) ?getData.cus.cus_org.tax_id:"";
-    nowCaseCustName.value = (getData.cus) ?getData.cus.name:"";
-    nowCaseCustTel.value = (getData.cus) ?getData.cus.tel:"";
-    nowCaseCustFax.value = (getData.cus) ?getData.cus.fax:"";
-    nowCaseCustAddress.value = (getData.cus) ?getData.cus.address:"";
-    nowCaseTitle.value = getData.title;
-    nowCaseAddress.value = getData.address;
-    nowCasePurpose.value = getData.purpose;
-    nowCaseAgreement.value = getData.agreement;
-    if (getData.charge === 0){
-      nowCaseCharge.value =""  
-    }else{
-      nowCaseCharge.value = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(getData.charge);  
+  // 查詢技術主管列表
+  const { result: caseLeader, onResult: getCaseLeader, refetch: refgetCaseLeader } = useQuery(CaseGQL.GETOPERATOR,
+    { roleType: "技術主管" }
+  );
+  getCaseLeader(result => {
+    // 加入技術主管選單資料
+    if (!result.loading) {
+      nowCaseLeaderMU.value = result.data.getEmpByRole.map(x => {
+        return { text: x.name, value: parseInt(x.person_id) }
+      }); nowCaseLeaderMU.value.unshift({ text: "", value: "" });
     }
-    nowCasePayDate.value = toTWDate(getData.pay_date);
-    nowCaseOperatorDOM.value.setValue(parseInt(getData.operators_id));
-    nowCaseLeaderDOM.value.setValue(parseInt(getData.leader_id));
-  }
-});
+  });
+  refgetCaseLeader();
 
-// 報告抬頭地址同上
-function copyTileAdd(){
-  nowCaseTitle.value = nowCaseCustOrgName.value;
-  nowCaseAddress.value = nowCaseCustAddress.value;
-}
-
-// 新增案件==開啟表單
-function openAddCaseForm(){
-  showCaseNew.value = true;
-}
-// 新增案件==確認
-const { mutate: addCase, onDone: addCaseOnDone, onError: addCaseError } = useMutation(
-  CaseGQL.ADDCASE,
-  () => ({
-    variables: {
-      creatCaseId: addCaseID.value,
-      calType: parseInt(addCaseTypeIdSEL.value),
-      appDate: (addCaseAppDate.value === "") ? null : (addCaseAppDate.value.trim() + "T00:00:00.000Z"),
-      purpose: addCasePurpose.value,
+  // 查詢顯示選擇案件之簡單資料
+  const { result: nowCaseS, loading: lodingnowCaseS, onResult: getNowCaseS, refetch: refgetNowCaseS } = useQuery(
+    CaseGQL.GETSIMPLECASEBYID,
+    ()=>({
+      getCasebyIdId: nowCaseID.value
+    })
+  );
+  getNowCaseS(result => {
+    if (!result.loading && result && result.data.getCasebyID) {
+      // 填入簡單資料
+      let getData = result.data.getCasebyID;
+      nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
+      nowCaseAppDate.value = toTWDate(getData.app_date);
+      nowCaseTypeName.value = getData.cal_type_cal_typeTocase_base.name;
+      nowCaseTypeId.value = getData.cal_type
+      nowCaseCustOrgName.value = (getData.cus)?getData.cus.cus_org.name:"";
+      nowCaseCustTaxID.value = (getData.cus) ?getData.cus.cus_org.tax_id:"";
+      nowCaseCustName.value = (getData.cus) ?getData.cus.name:"";
+      nowCaseCustTel.value = (getData.cus) ?getData.cus.tel:"";
+      nowCaseCustFax.value = (getData.cus) ?getData.cus.fax:"";
+      nowCaseCustAddress.value = (getData.cus) ?getData.cus.address:"";
+      nowCaseTitle.value = getData.title;
+      nowCaseAddress.value = getData.address;
+      nowCasePurpose.value = getData.purpose;
+      nowCaseAgreement.value = getData.agreement;
+      if (getData.charge === 0){
+        nowCaseCharge.value =""  
+      }else{
+        nowCaseCharge.value = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(getData.charge);  
+      }
+      nowCasePayDate.value = toTWDate(getData.pay_date);
+      nowCaseOperatorDOM.value.setValue(parseInt(getData.operators_id));
+      nowCaseLeaderDOM.value.setValue(parseInt(getData.leader_id));
     }
-  })
-);
+  });
 
-addCaseOnDone((result) => {
-  let getResultData = result.data.creatCase;
-  // 填入基本資料
-  nowCaseID.value = getResultData.id;
-  // 更新狀態訊息
-  infomsg.value = "ID:" + nowCaseID.value + "完成新增";
-  alertColor.value = "primary";
-  alert1.value = true;
-})
-
-function AddCaseOK() {
-  // 檢查必填資料
-  // 新增Case_base
-  // 依據校正項目同步新增record_01或record_02※解析器已經同步新增
-  addCase();
-  showCaseNew.value = false;
-}
-
-// 新增案件==取消
-function AddCaseCancel() { 
-  showCaseNew.value = false;
-}
-
-// 新增案件==自動取得申請日
-function getAppDateByCaseId() {
-  // 驗證addCaseID存在正確日期?
-  let checkstr = addCaseID.value.substr(0, 4) + "-" + addCaseID.value.substr(4, 2) + "-" + addCaseID.value.substr(6, 2);
-  let isValidDate = Date.parse(checkstr);
-  if (isNaN(isValidDate)) {
-    // 非正確日期
-    infomsg.value ="非正確日期";
-    alertColor.value ="danger";
-    alert1.value=true;
-  }else{
-    // 填入日期
-    addCaseAppDate.value = checkstr;
-    addCaseAppDateDOM.value.inputValue = checkstr;
+  // 報告抬頭地址同上
+  function copyTileAdd(){
+    nowCaseTitle.value = nowCaseCustOrgName.value;
+    nowCaseAddress.value = nowCaseCustAddress.value;
   }
-}
+  // 刪除案件
+    // 查詢刪除
+  const { mutate: delCase, onDone: delCaseOnDone, onError: delCaseError } = useMutation(
+    CaseGQL.DELCASE,
+    () => ({
+      variables: {
+        delCaseId: nowCaseID.value,
+      }
+    })
+  );
+  delCaseOnDone(()=>{
+    nowCaseID.value = "";
+    // 更新列表==重新查詢案件
+    refgetAllCase();
+  });
+
+  // 新增案件==開啟表單
+  function openAddCaseForm(){
+    showCaseNew.value = true;
+  }
+
+  // 顯示編輯更多畫面
+  const caseBtnText = ref("編輯更多<i class='fas fa-angle-double-right'/>");
+  const showCaseLeftDiv = ref(true);
+  const animationType = ref("slide-left-ja");
+  const showCaseEditAnima = ref(false);
+
+  const showCaseEditR01Flag = ref(false);
+  const showCaseEditR02Flag = ref(false);
+
+  const addBtnDisabled = ref(false);
+  // 編輯更多按鈕
+  function showCaseEdit() {
+    if (showCaseEditAnima.value) {
+      if (animationType.value === "slide-right-ja") {
+        caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
+        addBtnDisabled.value = true;
+        setRecordShow(showCaseEditAnima.value);
+        animationType.value = "slide-left-ja"
+      } else if (animationType.value === "slide-left-ja") {
+        caseBtnText.value = "編輯更多<i class='fas fa-angle-double-right'/>";
+        animationType.value = "slide-right-ja"
+        addBtnDisabled.value = false;
+        setRecordShow(showCaseEditAnima.value);
+      }
+    } else {
+      setRecordShow(showCaseEditAnima.value);
+    }
+  }
+  // 切換不同校正項目內容
+  function setRecordShow(isAnimate) {
+    if (nowCaseTypeId.value === 1 || nowCaseTypeId.value === 3) {
+      showCaseEditR01Flag.value = true;
+      showCaseEditR02Flag.value = false;
+      if (!isAnimate) {
+        showCaseEditAnima.value = true;
+        caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
+        addBtnDisabled.value = true;
+      }
+    } else if (nowCaseTypeId.value === 2) {
+      showCaseEditR01Flag.value = false;
+      showCaseEditR02Flag.value = true;
+      if (!isAnimate) {
+        showCaseEditAnima.value = true;
+        caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
+        addBtnDisabled.value = true;
+      }
+    } else {
+      showCaseEditR01Flag.value = false;
+      showCaseEditR02Flag.value = false;
+    }
+  }
 // 案件基本資料==========end
+
+// 新增案件表單==========start
+  // 新增案件==自動取得申請日
+  function getAppDateByCaseId() {
+    // 驗證addCaseID存在正確日期?
+    let checkstr = addCaseID.value.substr(0, 4) + "-" + addCaseID.value.substr(4, 2) + "-" + addCaseID.value.substr(6, 2);
+    let isValidDate = Date.parse(checkstr);
+    if (isNaN(isValidDate)) {
+      // 非正確日期
+      infomsg.value = "非正確日期";
+      alertColor.value = "danger";
+      alert1.value = true;
+    } else {
+      // 填入日期
+      addCaseAppDate.value = checkstr;
+      addCaseAppDateDOM.value.inputValue = checkstr;
+    }
+  }
+  // 新增案件==確認
+  const { mutate: addCase, onDone: addCaseOnDone, onError: addCaseError } = useMutation(
+    CaseGQL.ADDCASE,
+    () => ({
+      variables: {
+        creatCaseId: addCaseID.value,
+        calType: parseInt(addCaseTypeIdSEL.value),
+        appDate: (addCaseAppDate.value === "") ? null : (addCaseAppDate.value.trim() + "T00:00:00.000Z"),
+        purpose: addCasePurpose.value,
+      }
+    })
+  );
+  addCaseOnDone((result) => {
+    let getResultData = result.data.creatCase;
+    // 填入基本資料
+    nowCaseID.value = getResultData.id;
+    // 更新列表==重新查詢案件
+    refgetAllCase();
+    // 更新狀態訊息
+    infomsg.value = "ID:" + nowCaseID.value + "完成新增";
+    alertColor.value = "primary";
+    alert1.value = true;
+  })
+
+  function AddCaseOK() {
+    // 檢查必填資料
+    // 新增Case_base
+    // 依據校正項目同步新增record_01或record_02※解析器已經同步新增
+    addCase();
+    showCaseNew.value = false;
+  }
+
+  // 新增案件==取消
+  function AddCaseCancel() {
+    showCaseNew.value = false;
+  }
+// 新增案件表單==========end
+
 // 案件詳細編輯資料==========start
 
 
-// 查詢顯示選擇案件之詳細資料
-// 查詢Record01資料
+  // 查詢顯示選擇案件之詳細資料
+  // 查詢Record01資料
 
-// 查詢Record02資料
+  // 查詢Record02資料
 
-// 顯示編輯更多畫面
-const caseBtnText = ref("編輯更多<i class='fas fa-angle-double-right'/>");
-const showCaseLeftDiv = ref(true);
-const animationType = ref("slide-left-ja");
-const showCaseEditAnima = ref(false);
 
-const showCaseEditR01Flag = ref(false);
-const showCaseEditR02Flag = ref(false);
-// 編輯更多按鈕
-function showCaseEdit(){
-  console.log(nowCaseTypeId.value);
-  if (showCaseEditAnima.value){
-    if (animationType.value ==="slide-right-ja"){
-      caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
-      setRecordShow(showCaseEditAnima.value);
-      animationType.value = "slide-left-ja"
-    } else if(animationType.value === "slide-left-ja"){
-      caseBtnText.value = "編輯更多<i class='fas fa-angle-double-right'/>";
-      animationType.value = "slide-right-ja"
-      setRecordShow(showCaseEditAnima.value);
-    }
-  }else{
-    setRecordShow(showCaseEditAnima.value);
-  }
-  
-}
-// 切換不同校正項目內容
-function setRecordShow(isAnimate){
-  if (nowCaseTypeId.value === 1 || nowCaseTypeId.value === 3) {
-    showCaseEditR01Flag.value = true;
-    showCaseEditR02Flag.value = false;
-    if(!isAnimate){
-      showCaseEditAnima.value = true;
-      caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
-    }
-  } else if (nowCaseTypeId.value === 2) {
-    showCaseEditR01Flag.value = false;
-    showCaseEditR02Flag.value = true;
-    if (!isAnimate) {
-      showCaseEditAnima.value = true;
-      caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
-    }
-  } else {
-    showCaseEditR01Flag.value = false;
-    showCaseEditR02Flag.value = false;
-  }
-}
 // 案件詳細編輯資料==========end
 
 
@@ -613,8 +638,7 @@ function setRecordShow(isAnimate){
       <!-- <MDBContainer tag="main" fluid> -->
       <MDBAnimation style="height: calc(100% - 6.5em);" :animation="animationType" trigger="manually"
         v-model="showCaseEditAnima">
-        <MDBRow style="margin-left:0;margin-right:0;"
-          class="h-100 flex-md-nowrap ">
+        <MDBRow style="margin-left:0;margin-right:0;" class="h-100 flex-md-nowrap overflow-visible">
           <!-- 左方列表 -->
           <MDBCol v-show="showCaseLeftDiv" md="8" class="h-100">
             <MDBRow class="h-100 align-content-between">
@@ -679,10 +703,10 @@ function setRecordShow(isAnimate){
               <div class="px-3">案件資料</div>
               <div class="d-flex p-3">
                 <MDBPopconfirm class="btn-sm btn-light btn-outline-danger me-auto" position="top"
-                  message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="">
+                  message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delCase">
                   刪除案件
                 </MDBPopconfirm>
-                <MDBBtn size="sm" color="primary" @click="openAddCaseForm">新增</MDBBtn>
+                <MDBBtn size="sm" :disabled="addBtnDisabled" color="primary" @click="openAddCaseForm">新增</MDBBtn>
                 <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
                 <MDBBtn size="sm" color="primary" @click="showCaseEdit" v-html="caseBtnText">
                 </MDBBtn>
