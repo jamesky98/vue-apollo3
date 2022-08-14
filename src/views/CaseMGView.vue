@@ -395,7 +395,6 @@ const nowCaseID = ref("");
 const addCaseID = ref("");
 // 申請日期
 const nowCaseAppDate = ref("");
-const nowCaseAppDateDOM = ref();
 const addCaseAppDate = ref("");
 const addCaseAppDateDOM = ref();
 // 校正項目
@@ -459,12 +458,12 @@ getNowCaseS(result => {
     nowCaseAppDate.value = toTWDate(getData.app_date);
     nowCaseTypeName.value = getData.cal_type_cal_typeTocase_base.name;
     nowCaseTypeId.value = getData.cal_type
-    nowCaseCustOrgName.value = getData.cus.cus_org.name;
-    nowCaseCustTaxID.value = getData.cus.cus_org.tax_id;
-    nowCaseCustName.value = getData.cus.name;
-    nowCaseCustTel.value = getData.cus.tel;
-    nowCaseCustFax.value = getData.cus.fax;
-    nowCaseCustAddress.value = getData.cus.address;
+    nowCaseCustOrgName.value = (getData.cus)?getData.cus.cus_org.name:"";
+    nowCaseCustTaxID.value = (getData.cus) ?getData.cus.cus_org.tax_id:"";
+    nowCaseCustName.value = (getData.cus) ?getData.cus.name:"";
+    nowCaseCustTel.value = (getData.cus) ?getData.cus.tel:"";
+    nowCaseCustFax.value = (getData.cus) ?getData.cus.fax:"";
+    nowCaseCustAddress.value = (getData.cus) ?getData.cus.address:"";
     nowCaseTitle.value = getData.title;
     nowCaseAddress.value = getData.address;
     nowCasePurpose.value = getData.purpose;
@@ -491,10 +490,32 @@ function openAddCaseForm(){
   showCaseNew.value = true;
 }
 // 新增案件==確認
+const { mutate: addCase, onDone: addCaseOnDone, onError: addCaseError } = useMutation(
+  CaseGQL.ADDCASE,
+  () => ({
+    variables: {
+      creatCaseId: addCaseID.value,
+      calType: parseInt(addCaseTypeIdSEL.value),
+      appDate: (addCaseAppDate.value === "") ? null : (addCaseAppDate.value.trim() + "T00:00:00.000Z"),
+    }
+  })
+);
+
+addCaseOnDone((result) => {
+  let getResultData = result.data.creatCase;
+  // 填入基本資料
+  nowCaseID.value = getResultData.id;
+  // 更新狀態訊息
+  infomsg.value = "ID:" + nowCaseID.value + "完成新增";
+  alert1.value = true;
+})
+
 function AddCaseOK() {
   // 檢查必填資料
   // 新增Case_base
-  // 依據校正項目同步新增record_01或record_02
+  // 依據校正項目同步新增record_01或record_02※解析器已經同步新增
+  addCase();
+  showCaseNew.value = false;
 }
 
 // 新增案件==取消
@@ -764,7 +785,7 @@ function setRecordShow(isAnimate){
               </MDBRow>
             </MDBAnimation>
           </MDBCol>
-          <MDBCol md="8" v-if="showCaseEditR01Flag" class="h-100 py-2 bg-primary">
+          <MDBCol md="8" v-if="showCaseEditR01Flag" class="h-100 py-2">
             <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
               <!-- record01表單 -->
               <MDBStepper linear>
@@ -793,11 +814,19 @@ function setRecordShow(isAnimate){
                       校正內容01
                     </MDBStepperContent>
                   </MDBStepperStep>
+                  <MDBStepperStep>
+                    <MDBStepperHead icon="4">
+                      出具報告
+                    </MDBStepperHead>
+                    <MDBStepperContent>
+                      報告內容01
+                    </MDBStepperContent>
+                  </MDBStepperStep>
                 </MDBStepperForm>
               </MDBStepper>
             </MDBRow>
           </MDBCol>
-          <MDBCol md="8" v-else-if="showCaseEditR02Flag" class="h-100 py-2 bg-primary">
+          <MDBCol md="8" v-else-if="showCaseEditR02Flag" class="h-100 py-2">
             <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
               <!-- record02表單 -->
               <MDBStepper linear>
@@ -824,6 +853,14 @@ function setRecordShow(isAnimate){
                     </MDBStepperHead>
                     <MDBStepperContent>
                       校正內容02
+                    </MDBStepperContent>
+                  </MDBStepperStep>
+                  <MDBStepperStep>
+                    <MDBStepperHead icon="4">
+                      出具報告
+                    </MDBStepperHead>
+                    <MDBStepperContent>
+                      報告內容02
                     </MDBStepperContent>
                   </MDBStepperStep>
                 </MDBStepperForm>
