@@ -1,6 +1,8 @@
 <script setup>
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
+import Record01 from "../components/Record01.vue";
+import Record02 from "../components/Record02.vue";
 import { ref, onMounted } from "vue";
 import path from "path-browserify";
 import {
@@ -16,11 +18,6 @@ import {
   MDBIcon,
   MDBAnimation,
   MDBAlert,
-  MDBStepper, 
-  MDBStepperStep, 
-  MDBStepperHead, 
-  MDBStepperContent, 
-  MDBStepperForm,
 } from 'mdb-vue-ui-kit';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../graphql/Cases";
@@ -162,7 +159,7 @@ const alertColor = ref("primary");
       info: false
     },
     order: [[1, 'desc']],
-    scrollY: '55vh',
+    scrollY: '53vh',
     scrollX: true,
     lengthChange: false,
     searching: false,
@@ -616,7 +613,8 @@ function setRecordShow(isAnimate){
       <!-- <MDBContainer tag="main" fluid> -->
       <MDBAnimation style="height: calc(100% - 6.5em);" :animation="animationType" trigger="manually"
         v-model="showCaseEditAnima">
-        <MDBRow style="margin-left:0;margin-right:0;" class="h-100 flex-nowrap">
+        <MDBRow style="margin-left:0;margin-right:0;"
+          class="h-100 flex-md-nowrap ">
           <!-- 左方列表 -->
           <MDBCol v-show="showCaseLeftDiv" md="8" class="h-100">
             <MDBRow class="h-100 align-content-between">
@@ -797,83 +795,13 @@ function setRecordShow(isAnimate){
           <MDBCol md="8" v-if="showCaseEditR01Flag" class="h-100 py-2">
             <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
               <!-- record01表單 -->
-              <MDBStepper linear>
-                <MDBStepperForm>
-                  <MDBStepperStep active>
-                    <MDBStepperHead icon="1">
-                      送校
-                    </MDBStepperHead>
-                    <MDBStepperContent>
-                      送校內容01
-                    </MDBStepperContent>
-                  </MDBStepperStep>
-                  <MDBStepperStep>
-                    <MDBStepperHead icon="2">
-                      申請
-                    </MDBStepperHead>
-                    <MDBStepperContent>
-                      申請內容01
-                    </MDBStepperContent>
-                  </MDBStepperStep>
-                  <MDBStepperStep>
-                    <MDBStepperHead icon="3">
-                      校正
-                    </MDBStepperHead>
-                    <MDBStepperContent>
-                      校正內容01
-                    </MDBStepperContent>
-                  </MDBStepperStep>
-                  <MDBStepperStep>
-                    <MDBStepperHead icon="4">
-                      出具報告
-                    </MDBStepperHead>
-                    <MDBStepperContent>
-                      報告內容01
-                    </MDBStepperContent>
-                  </MDBStepperStep>
-                </MDBStepperForm>
-              </MDBStepper>
+              <Record01 />
             </MDBRow>
           </MDBCol>
           <MDBCol md="8" v-else-if="showCaseEditR02Flag" class="h-100 py-2">
             <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
               <!-- record02表單 -->
-              <MDBStepper linear>
-                <MDBStepperForm>
-                  <MDBStepperStep active>
-                    <MDBStepperHead icon="1">
-                      申請
-                    </MDBStepperHead>
-                    <MDBStepperContent>
-                      申請內容02
-                    </MDBStepperContent>
-                  </MDBStepperStep>
-                  <MDBStepperStep>
-                    <MDBStepperHead icon="2">
-                      送校
-                    </MDBStepperHead>
-                    <MDBStepperContent>
-                      送校內容02
-                    </MDBStepperContent>
-                  </MDBStepperStep>
-                  <MDBStepperStep>
-                    <MDBStepperHead icon="3">
-                      校正
-                    </MDBStepperHead>
-                    <MDBStepperContent>
-                      校正內容02
-                    </MDBStepperContent>
-                  </MDBStepperStep>
-                  <MDBStepperStep>
-                    <MDBStepperHead icon="4">
-                      出具報告
-                    </MDBStepperHead>
-                    <MDBStepperContent>
-                      報告內容02
-                    </MDBStepperContent>
-                  </MDBStepperStep>
-                </MDBStepperForm>
-              </MDBStepper>
+              <Record02 />
             </MDBRow>
           </MDBCol>
         </MDBRow>
@@ -888,25 +816,6 @@ function setRecordShow(isAnimate){
   </MDBAlert>
 </template>
 <style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .colAlignRight{
   text-align: right;
 }
@@ -982,7 +891,7 @@ tr.selected>td>span.typeJ {
     transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translate3d(-66.66666667%, 0, 0);
+    transform: translate3d(-66.16666667%, 0, 0);
     /* visibility: hidden; */
   }
 }
@@ -992,7 +901,7 @@ tr.selected>td>span.typeJ {
 
 @keyframes slide-right-ja {
   from {
-    transform: translate3d(-66.66666667%, 0, 0);
+    transform: translate3d(-66.16666667%, 0, 0);
   }
 
   to {
