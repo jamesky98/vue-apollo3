@@ -475,16 +475,19 @@ const GETSIMPLECASEBYID = gql`
 `;
 
 const ADDCASE = gql`
-  mutation CreatCase($creatCaseId: String!, $calType: Int!, $appDate: Date) {
-    creatCase(id: $creatCaseId, cal_type: $calType, app_date: $appDate) {
+  mutation CreatCase(
+    $creatCaseId: String!
+    $calType: Int!
+    $appDate: Date
+    $purpose: String
+  ) {
+    creatCase(
+      id: $creatCaseId
+      cal_type: $calType
+      app_date: $appDate
+      purpose: $purpose
+    ) {
       id
-      status_code
-      app_date
-      cal_type
-      cal_type_cal_typeTocase_base {
-        name
-      }
-      charge
     }
   }
 `;

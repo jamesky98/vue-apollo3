@@ -413,7 +413,10 @@ const nowCaseCustFax = ref("");
 const nowCaseCustAddress = ref("");
 const nowCaseTitle = ref("");
 const nowCaseAddress = ref("");
+// 校正目的
 const nowCasePurpose = ref("");
+const addCasePurpose = ref("");
+// 協商事項
 const nowCaseAgreement = ref("");
 // 費用
 const nowCaseCharge = ref("");
@@ -497,6 +500,7 @@ const { mutate: addCase, onDone: addCaseOnDone, onError: addCaseError } = useMut
       creatCaseId: addCaseID.value,
       calType: parseInt(addCaseTypeIdSEL.value),
       appDate: (addCaseAppDate.value === "") ? null : (addCaseAppDate.value.trim() + "T00:00:00.000Z"),
+      purpose: addCasePurpose.value,
     }
   })
 );
@@ -507,6 +511,7 @@ addCaseOnDone((result) => {
   nowCaseID.value = getResultData.id;
   // 更新狀態訊息
   infomsg.value = "ID:" + nowCaseID.value + "完成新增";
+  alertColor.value = "primary";
   alert1.value = true;
 })
 
@@ -782,6 +787,10 @@ function setRecordShow(isAnimate){
                 <div></div>
                 <MDBSelect size="sm" class="mb-3  col-10" label="校正項目" v-model:options="addCaseTypeIdMU"
                   v-model:selected="addCaseTypeIdSEL" ref="addCaseTypeIdDOM" />
+                <div></div>
+                <MDBCol col="12" class="mb-4">
+                  <MDBInput size="sm" type="text" label="校正目的" v-model="addCasePurpose" />
+                </MDBCol>
               </MDBRow>
             </MDBAnimation>
           </MDBCol>
