@@ -669,9 +669,9 @@ function saveDocBtn() {
                         </div>
                         <!-- 條件欄位 -->
                         <MDBRow md="12" class="d-flex align-content-start overflow-auto">
-                          <MDBSelect size="sm" class="mb-2 col-6" label="文件層級" v-model:options="doclevelmu"
+                          <MDBSelect size="sm" class="mt-2 mb-2 col-6" label="文件層級" v-model:options="doclevelmu"
                             v-model:selected="doclevelsel" ref="docLevelFilter" />
-                          <MDBSelect size="sm" class="mb-2 col-6" label="文件類型" v-model:options="doctypemu"
+                          <MDBSelect size="sm" class="mt-2 mb-2 col-6" label="文件類型" v-model:options="doctypemu"
                             v-model:selected="doctypesel" ref="docTypeFilter" />
                           <MDBCol col="6" class="mb-2">
                             <MDBInput size="sm" type="text" label="文件編號" v-model="docDidsel" />

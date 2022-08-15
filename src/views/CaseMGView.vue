@@ -613,21 +613,6 @@ refgetCaseAllItem();
   }
 // 新增案件表單==========end
 
-// 案件詳細編輯資料==========start
-
-
-  // 查詢顯示選擇案件之詳細資料
-  // 查詢Record01資料
-
-  // 查詢Record02資料
-
-
-// 案件詳細編輯資料==========end
-
-
-
-
-
 </script>
 <template>
   <MDBContainer fluid class="h-100 overflow-hidden">
@@ -819,13 +804,13 @@ refgetCaseAllItem();
           <MDBCol md="8" v-if="showCaseEditR01Flag" class="h-100 py-2">
             <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
               <!-- record01表單 -->
-              <Record01 />
+              <Record01 :caseID="nowCaseID" class="h-100 overflow-auto" />
             </MDBRow>
           </MDBCol>
           <MDBCol md="8" v-else-if="showCaseEditR02Flag" class="h-100 py-2">
             <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
               <!-- record02表單 -->
-              <Record02 />
+              <Record02 :caseID="nowCaseID" />
             </MDBRow>
           </MDBCol>
         </MDBRow>

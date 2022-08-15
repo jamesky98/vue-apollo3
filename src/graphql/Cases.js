@@ -411,9 +411,14 @@ const GETFULLCASEBYID = gql`
       }
       item_id
       item_base {
+        id
         chop
         model
         serial_number
+        type
+        item_type {
+          type
+        }
       }
       charge
       pay_date
