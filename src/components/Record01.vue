@@ -24,7 +24,7 @@ import CaseGQL from "../graphql/Cases";
 // 引入案件編號
 const props = defineProps({
   caseID: String
-})
+});
 // 案件詳細編輯資料==========start
   // 案件之詳細資料
   const isSMCam = ref(true);
@@ -122,7 +122,7 @@ function comSensorSize(){
           </MDBStepperHead>
           <MDBStepperContent>
             <MDBRow>
-              <MDBCol col="12" class="border">
+              <MDBCol col="12" class="border mt-0">
                 像機類型：
                 <MDBRadio label="大像幅" value="1" v-model="nowCaseCamTypeID" inline name="caseCamType" />
                 <MDBRadio label="小像幅" value="2" v-model="nowCaseCamTypeID" inline name="caseCamType" />
@@ -240,7 +240,7 @@ function comSensorSize(){
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 my-2">
-                    <input type="file" accept=".pdf" id="itemUpload" @change="" style="display: none;" />
+                    <input type="file" accept=".pdf" id="itemCamReportUpload" @change="" style="display: none;" />
                     <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
                     <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
                   </MDBCol>
@@ -253,7 +253,7 @@ function comSensorSize(){
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-2">
-                    <input type="file" accept=".pdf" id="itemUpload" @change="" style="display: none;" />
+                    <input type="file" accept=".pdf" id="itemCamPlanUpload" @change="" style="display: none;" />
                     <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
                     <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
                   </MDBCol>
@@ -291,6 +291,8 @@ function comSensorSize(){
   </div>
 </template>
 <style>
+
+
 .rounded-top-5 {
   border-top-right-radius: 0.5rem !important;
   border-top-left-radius: 0.5rem !important;
@@ -315,5 +317,9 @@ function comSensorSize(){
   position: absolute;
   top: 0.25em;
   right: 0.25em;
+}
+.py-3 {
+  padding-top: 0rem !important;
+  padding-bottom: 0rem !important;
 }
 </style>

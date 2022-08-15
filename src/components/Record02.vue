@@ -3,6 +3,7 @@ import { ref } from "vue";
 import path from "path-browserify";
 import {
   MDBInput,
+  MDBSwitch,
   MDBTextarea,
   MDBCol,
   MDBRow,
@@ -19,13 +20,17 @@ import {
 } from 'mdb-vue-ui-kit';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../graphql/Cases";
+import { computed } from "@vue/reactivity";
 // 引入案件編號
-defineProps({
-  caseID: { type: String }
-})
+const props = defineProps({
+  caseID: String
+});
 // 案件詳細編輯資料==========start
   // 案件之詳細資料
-
+  const isFullPara = ref(true);
+  const switchLabel = computed(() => {
+    return (isFullPara.value)?"具完整規格":"具整合精度";
+  });
   const nowCaseItemID = ref(""); // 校正件索引
   const nowCaseItemChop = ref(""); // 光達廠牌
   const nowCaseItemModel = ref(""); // 光達型號
@@ -74,7 +79,7 @@ const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetc
   })
 );
 getNowCaseF(result => {
-  if (!result.loading && result && result.data.getCasebyID) {
+  if (!result.loading && result && result.data.getCasebyID.case_record_02) {
     // 填入資料
     let getData = result.data.getCasebyID.case_record_02;
     let getItem = result.data.getCasebyID.item_base;
@@ -86,6 +91,8 @@ getNowCaseF(result => {
     nowCaseItemSN.value = (getItem) ? getItem.serial_number : "";
     // 參數型態
     nowCaseParaType.value = getData.type;
+    (getData.type === 1) ? isFullPara.value = true : isFullPara.value = false;
+
     // LiDAR規格
     nowCaseLrDisPrs.value = getData.dis_presision;
     nowCaseLrAngResol.value = getData.ang_resolution;
@@ -124,40 +131,201 @@ refgetNowCaseF();
 </script>
 <template>
   <!-- record02表單 -->
-  <MDBStepper linear>
-    <MDBStepperForm>
-      <MDBStepperStep active>
-        <MDBStepperHead icon="1">
-          申請
-        </MDBStepperHead>
-        <MDBStepperContent>
-          申請內容02
-        </MDBStepperContent>
-      </MDBStepperStep>
-      <MDBStepperStep>
-        <MDBStepperHead icon="2">
-          送校
-        </MDBStepperHead>
-        <MDBStepperContent>
-          送校內容02
-        </MDBStepperContent>
-      </MDBStepperStep>
-      <MDBStepperStep>
-        <MDBStepperHead icon="3">
-          校正
-        </MDBStepperHead>
-        <MDBStepperContent>
-          校正內容02
-        </MDBStepperContent>
-      </MDBStepperStep>
-      <MDBStepperStep>
-        <MDBStepperHead icon="4">
-          出具報告
-        </MDBStepperHead>
-        <MDBStepperContent>
-          報告內容02
-        </MDBStepperContent>
-      </MDBStepperStep>
-    </MDBStepperForm>
-  </MDBStepper>
+  <div>
+    <MDBStepper>
+      <MDBStepperForm>
+        <MDBStepperStep active>
+          <MDBStepperHead icon="1">
+            申請
+          </MDBStepperHead>
+          <MDBStepperContent>
+            <MDBRow>
+              <MDBCol col="12" class="mt-3 rounded-top-5 bg-info text-white">
+                校正件
+              </MDBCol>
+              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                <MDBRow>
+                  <MDBCol col="12" class="my-3">
+                    <MDBBtn size="sm" color="primary" @click="">查詢校正件</MDBBtn>
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput disabled size="sm" type="text" label="廠牌" v-model="nowCaseItemChop" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput disabled size="sm" type="text" label="型號" v-model="nowCaseItemModel" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput disabled size="sm" type="text" label="序號" v-model="nowCaseItemSN" />
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              <MDBCol col="12">
+                <MDBSwitch :label="switchLabel" v-model="isFullPara" />
+              </MDBCol>
+              <MDBCol v-show="isFullPara">
+                <MDBRow>
+                  <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                    各項參數
+                  </MDBCol>
+                  <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                    <MDBRow>
+
+                    </MDBRow>
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              <MDBCol v-show="!isFullPara">
+                <MDBRow>
+                  <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                    整合精度
+                  </MDBCol>
+                  <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                    <MDBRow>
+
+                    </MDBRow>
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                飛航規劃
+              </MDBCol>
+              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                <MDBRow>
+                  <MDBCol col="4" class="my-3">
+                    <MDBInput size="sm" type="text" label="預定拍攝年(民國)" v-model="nowCasePlanY" />
+                  </MDBCol>
+                  <MDBCol col="4" class="my-3">
+                    <MDBInput size="sm" type="text" label="預定拍攝月" v-model="nowCasePlanM" />
+                  </MDBCol>
+
+                  <MDBCol col="4" class="my-3">
+                    <MDBInput size="sm" type="text" label="航帶總數" v-model="nowCaseStrips" />
+                  </MDBCol>
+
+                  <div></div>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput size="sm" type="text" label="飛航橢球高" v-model="nowCaseEllH" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput size="sm" type="text" label="飛航離地高(AGL)" v-model="nowCaseAGL" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <div style="color: red;" class="border border-danger">※AGL = 橢球高 - 195 m</div>
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput size="sm" type="text" label="點雲密度" v-model="nowCasePtDensity" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput size="sm" type="text" label="FOV" v-model="nowCaseFOV" />
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                檢附資料
+              </MDBCol>
+              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                <MDBRow>
+                  <!-- 光達規格 -->
+                  <MDBCol col="9" class="my-2">
+                    <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="光達規格"
+                      v-model="nowCaseLrReport">
+                      <MDBBtnClose @click.prevent="nowCaseLrReport =''" class="btn-upload-close" />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 my-2">
+                    <input type="file" accept=".pdf" id="itemLrReportUpload" @change="" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
+                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                  </MDBCol>
+                  <div></div>
+                  <!-- POS規格 -->
+                  <MDBCol col="9" class="my-2">
+                    <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="POS規格"
+                      v-model="nowCasePosReport">
+                      <MDBBtnClose @click.prevent="nowCasePosReport =''" class="btn-upload-close" />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 my-2">
+                    <input type="file" accept=".pdf" id="itemPOSReportUpload" @change="" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
+                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                  </MDBCol>
+                  <div></div>
+                  <!-- 規劃圖 -->
+                  <MDBCol col="9" class="mb-2">
+                    <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="航線規劃圖"
+                      v-model="nowCasePlanMap">
+                      <MDBBtnClose @click.prevent="nowCasePlanMap =''" class="btn-upload-close" />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 mb-2">
+                    <input type="file" accept=".pdf" id="itemLrPlanUpload" @change="" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
+                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+            </MDBRow>
+          </MDBStepperContent>
+        </MDBStepperStep>
+        <MDBStepperStep>
+          <MDBStepperHead icon="2">
+            送校
+          </MDBStepperHead>
+          <MDBStepperContent>
+            送校內容02
+          </MDBStepperContent>
+        </MDBStepperStep>
+        <MDBStepperStep>
+          <MDBStepperHead icon="3">
+            校正
+          </MDBStepperHead>
+          <MDBStepperContent>
+            校正內容02
+          </MDBStepperContent>
+        </MDBStepperStep>
+        <MDBStepperStep>
+          <MDBStepperHead icon="4">
+            出具報告
+          </MDBStepperHead>
+          <MDBStepperContent>
+            報告內容02
+          </MDBStepperContent>
+        </MDBStepperStep>
+      </MDBStepperForm>
+    </MDBStepper>
+  </div>
 </template>
+<style>
+
+.rounded-top-5 {
+  border-top-right-radius: 0.5rem !important;
+  border-top-left-radius: 0.5rem !important;
+}
+
+.rounded-top-7 {
+  border-top-right-radius: 1rem !important;
+  border-top-left-radius: 1rem !important;
+}
+
+.rounded-bottom-5 {
+  border-bottom-right-radius: 0.5rem !important;
+  border-bottom-left-radius: 0.5rem !important;
+}
+
+.rounded-bottom-7 {
+  border-bottom-right-radius: 1rem !important;
+  border-bottom-left-radius: 1rem !important;
+}
+
+.btn-upload-close {
+  position: absolute;
+  top: 0.25em;
+  right: 0.25em;
+}
+
+.py-3 {
+  padding-top: 0rem !important;
+  padding-bottom: 0rem !important;
+}
+</style>
