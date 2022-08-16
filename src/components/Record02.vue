@@ -12,6 +12,7 @@ import {
   MDBDatepicker,
   MDBBtn,
   MDBIcon,
+  MDBBtnClose,
   MDBStepper,
   MDBStepperStep,
   MDBStepperHead,

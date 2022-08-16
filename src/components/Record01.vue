@@ -68,7 +68,7 @@ const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetc
   })
 );
 getNowCaseF(result => {
-  if (!result.loading && result && result.data.getCasebyID) {
+  if (!result.loading && result && result.data.getCasebyID.case_record_01) {
     // 填入資料
     let getData = result.data.getCasebyID.case_record_01;
     let getItem = result.data.getCasebyID.item_base;

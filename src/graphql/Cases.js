@@ -119,6 +119,7 @@ const GETALLORG = gql`
     getAllOrg {
       id
       name
+      tax_id
     }
   }
 `;

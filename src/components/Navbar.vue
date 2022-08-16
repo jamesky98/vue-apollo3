@@ -28,28 +28,28 @@ const dropdown3 = ref(false);
     <MDBNavbarToggler @click="collapse1 = !collapse1" target="#navbarSupportedContent"></MDBNavbarToggler>
     <MDBCollapse v-model="collapse1" id="navbarSupportedContent">
       <MDBNavbarNav class="mb-2 mb-xl-0">
-        <MDBNavbarItem :to="{ name: 'main', params: { username: username }}">
+        <MDBNavbarItem :to="{ name: 'main'}">
           <MDBIcon icon="home" />首頁
         </MDBNavbarItem>
-        <MDBNavbarItem :to="{ name: 'docs', params: { username: username }}">
+        <MDBNavbarItem :to="{ name: 'docs'}">
           <MDBIcon icon="file-alt" />文件查詢
         </MDBNavbarItem>
-        <MDBNavbarItem :to="{ name: 'cases', params: { username: username }}">
+        <MDBNavbarItem :to="{ name: 'cases'}">
           <MDBIcon icon="balance-scale" />校正案件
         </MDBNavbarItem>
-        <MDBNavbarItem :to="{ name: 'employee', params: { username: username }}">
+        <MDBNavbarItem :to="{ name: 'employee'}">
           <MDBIcon icon="user-edit" />人員管理
         </MDBNavbarItem>
-        <MDBNavbarItem :to="{ name: 'gcps', params: { username: username }}">
+        <MDBNavbarItem :to="{ name: 'gcps'}">
           <MDBIcon icon="map-marked-alt" />點位管理
         </MDBNavbarItem>
-        <MDBNavbarItem :to="{ name: 'prjs', params: { username: username }}">
+        <MDBNavbarItem :to="{ name: 'prjs'}">
           <MDBIcon icon="drafting-compass" />量測作業
         </MDBNavbarItem>
-        <MDBNavbarItem :to="{ name: 'items', params: { username: username }}">
+        <MDBNavbarItem :to="{ name: 'items'}">
           <MDBIcon icon="wrench" />標準件管理
         </MDBNavbarItem>
-        <MDBNavbarItem :to="{ name: 'cust', params: { username: username }}">
+        <MDBNavbarItem :to="{ name: 'cust'}">
           <MDBIcon far icon="handshake" />顧客管理
         </MDBNavbarItem>
 

@@ -18,13 +18,25 @@ import {
   MDBIcon,
   MDBAnimation,
   MDBAlert,
+  MDBModal,
+  MDBModalHeader,
+  MDBModalTitle,
+  MDBModalBody,
+  MDBModalFooter,
+  MDBTabs,
+  MDBTabNav,
+  MDBTabContent,
+  MDBTabItem,
+  MDBTabPane,
 } from 'mdb-vue-ui-kit';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../graphql/Cases";
+import CustGQL from "../graphql/Cust";
 
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
+import { computed } from "@vue/reactivity";
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
@@ -197,6 +209,125 @@ const alertColor = ref("primary");
   });
   refgetAllCase();
 // 案件列表=========end
+
+// 顧客列表=========start
+let dtCust;
+const tableCust = ref();
+const dataCust = ref([]);
+const showCustFrom = ref(false);
+const custTabId = ref("editor");
+
+const seletCustId = ref("");
+const selCustName = ref("");
+const selCustOrgName = ref("");
+const selCustOrgNameMU = ref([]);
+const selCustOrgNameDOM = ref();
+const selCustOrgList = ref([]);
+
+const selCustTaxId = computed(()=>{
+  let getData = selCustOrgList.value.filter((x)=>{
+      return parseInt(x.id) === selCustOrgName.value;
+    })[0];
+  return (getData) ? getData.tax_id:"";
+});
+
+const selCustTel = ref("");
+const selCustFax = ref("");
+const selCustAddress = ref("");
+
+const filterCustName = ref("");
+const filterCustOrgName = ref("");
+const filterCustTaxId = ref("");
+
+// 設定表格tableCust
+const columnsCust = [
+  { data: "id", title: "編號", defaultContent: "-" },
+  { data: "cus_org.name", title: "公司名稱", defaultContent: "-" },
+  { data: "name", title: "聯絡人", defaultContent: "-" },
+  { data: "tel", title: "電話", defaultContent: "-" },
+  { data: "fax", title: "傳真", defaultContent: "-" },
+  { data: "cus_org.tax_id", title: "統一編號", defaultContent: "-" },
+  { data: "address", title: "地址", defaultContent: "-" },
+];
+const tboptionCust = {
+  dom: 'ti',
+  select: {
+    style: 'single',
+    info: false
+  },
+  order: [[0, 'asc']],
+  scrollY: '22vh',
+  scrollX: true,
+  lengthChange: false,
+  searching: false,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  }
+};
+
+// 查詢顧客資料
+const { result: allCust, loading: lodingAllCust, variables: varAllCust, onResult: getAllCust, refetch: refgetAllCust } = useQuery(
+  CustGQL.GETALLCUST,
+);
+getAllCust(result => {
+  // 加入顧客資料
+  if (!result.loading && result.data) {
+    dataCust.value = result.data.getAllCust;
+  }
+});
+
+// 查詢選取顧客資料
+const { result: selCustData, loading: lodingselCust, onResult: getselCust, refetch: refgetselCust } = useQuery(
+  CustGQL.GETCUSTBYID,
+  () => ({
+    getCustByIdId: parseInt(seletCustId.value)
+  })
+);
+getselCust(result => {
+  if (!result.loading && result && result.data.getCustById) {
+    let getData = result.data.getCustById
+    selCustName.value = getData.name;
+    selCustOrgNameDOM.value.setValue(parseInt(getData.org_id));
+    // selCustTaxId.value = getData.cus_org.tax_id;
+    selCustTel.value = getData.tel;
+    selCustFax.value = getData.fax;
+    selCustAddress.value = getData.address;
+  }
+});
+
+function shownCustModal(){
+  dtCust = tableCust.value.dt();
+  dtCust.on('select', function (e, dt, type, indexes) {
+    let getData = dt.rows(indexes).data()[0];
+    seletCustId.value = getData.id;
+  });
+  refgetAllCust();
+  if (nowCaseCustId){
+    seletCustId.value = nowCaseCustId.value;
+  }
+}
+
+// 清除顧客篩選條件
+function clearCustFilter(){
+  filterCustName.value="";
+  filterCustOrgName.value="";
+  filterCustTaxId.value="";
+}
+
+// 執行顧客篩選
+function doCustFilter() {
+  let where = {};
+  if (filterCustOrgName.value !== "") where.orgName = filterCustOrgName.value;
+  if (filterCustName.value !== "") where.name = filterCustName.value;
+  if (filterCustTaxId.value !== "") where.orgTaxid = filterCustTaxId.value;
+
+  varAllCust.value = where;
+}
+
+// 顧客列表=========end
+
 // 篩選=========start
   // 案件狀態
   const caseStatusMU = ref([]);
@@ -349,9 +480,12 @@ const alertColor = ref("primary");
       caseCustMU.value = result.data.getAllOrg.map(x => {
         return { text: x.name, value: parseInt(x.id) }
       }); caseCustMU.value.unshift({ text: "", value: "" });
-      // nowDocTypemu.value = result.data.getAllDocType.map(x => {
-      //   return { text: x.doc_type, value: parseInt(x.doc_type_id) }
-      // }); nowDocTypemu.value.unshift({ text: "", value: "" });
+
+      selCustOrgNameMU.value = result.data.getAllOrg.map(x => {
+        return { text: x.name, value: parseInt(x.id) }
+      }); selCustOrgNameMU.value.unshift({ text: "", value: "" });
+
+      selCustOrgList.value = result.data.getAllOrg;
     }
   });
   refgetCaseAllOrg();
@@ -402,6 +536,7 @@ refgetCaseAllItem();
   const nowCaseTypeId = ref("");
 
   // 顧客
+  const nowCaseCustId = ref("");
   const nowCaseCustOrgName = ref("");
   const nowCaseCustTaxID = ref("");
   const nowCaseCustName = ref("");
@@ -458,6 +593,7 @@ refgetCaseAllItem();
       nowCaseAppDate.value = toTWDate(getData.app_date);
       nowCaseTypeName.value = getData.cal_type_cal_typeTocase_base.name;
       nowCaseTypeId.value = getData.cal_type
+      nowCaseCustId.value = getData.cus_id
       nowCaseCustOrgName.value = (getData.cus)?getData.cus.cus_org.name:"";
       nowCaseCustTaxID.value = (getData.cus) ?getData.cus.cus_org.tax_id:"";
       nowCaseCustName.value = (getData.cus) ?getData.cus.name:"";
@@ -615,6 +751,89 @@ refgetCaseAllItem();
 
 </script>
 <template>
+  <MDBAlert dismiss v-model="alert1" id="alert-primary" :color="alertColor" position="top-right" stacking width="535px"
+    appendToBody autohide :delay="2000">
+    {{ infomsg }}
+  </MDBAlert>
+  <MDBModal @shown="shownCustModal" v-model="showCustFrom" staticBackdrop scrollable>
+    <MDBModalHeader>
+      <MDBModalTitle>請選擇顧客</MDBModalTitle>
+    </MDBModalHeader>
+    <MDBModalBody>
+      <MDBContainer fluid>
+        <MDBRow>
+          <!-- 顧客列表 -->
+          <MDBCol col="12">
+            <DataTable :data=" dataCust" :columns="columnsCust" :options="tboptionCust" ref="tableCust"
+              style="font-size: smaller" class="display w-100 compact" />
+          </MDBCol>
+          <!-- 篩選 或 編輯 -->
+          <MDBCol col="12" class="border">
+            <MDBTabs v-model="custTabId">
+              <MDBTabNav tabsClasses="">
+                <MDBTabItem tabId="editor" href="editor">資料編輯</MDBTabItem>
+                <MDBTabItem tabId="filter" href="filter">條件篩選</MDBTabItem>
+              </MDBTabNav>
+              <MDBTabContent>
+                <!-- 編輯表單 -->
+                <MDBTabPane class="h-100" tabId="editor">
+                  <!-- 功能列 -->
+                  <div class="mt-2">
+                    <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
+                    <MDBBtn size="sm" color="primary" @click="">更多編輯</MDBBtn>
+                  </div>
+                  <MDBRow>
+                    <MDBSelect filter size="sm" class="my-3  col-12" label="公司名稱" v-model:options="selCustOrgNameMU"
+                      v-model:selected="selCustOrgName" ref="selCustOrgNameDOM" />
+                    <MDBCol col="6" class="mb-2">
+                      <MDBInput size="sm" type="text" label="聯絡人" v-model="selCustName" />
+                    </MDBCol>
+                    <MDBCol col="6" class="mb-2">
+                      <MDBInput size="sm" type="text" label="統一編號" v-model="selCustTaxId" disabled />
+                    </MDBCol>
+                    <MDBCol col="6" class="mb-2">
+                      <MDBInput size="sm" type="text" label="聯絡電話" v-model="selCustTel" />
+                    </MDBCol>
+                    <MDBCol col="6" class="mb-2">
+                      <MDBInput size="sm" type="text" label="傳真" v-model="selCustFax" />
+                    </MDBCol>
+                    <MDBCol col="12" class="mb-2">
+                      <MDBInput size="sm" type="text" label="地址" v-model="selCustAddress" />
+                    </MDBCol>
+                  </MDBRow>
+                </MDBTabPane>
+                <!-- 篩選表單 -->
+                <MDBTabPane tabId="filter">
+                  <!-- 功能列 -->
+                  <div class="mt-2">
+                    <MDBBtn size="sm" color="primary" @click="doCustFilter">篩選</MDBBtn>
+                    <MDBBtn size="sm" color="primary" @click="clearCustFilter">清除</MDBBtn>
+                  </div>
+                  <!-- 條件欄位 -->
+                  <MDBRow>
+                    <MDBCol col="12" class="my-2">
+                      <MDBInput size="sm" type="text" label="公司名稱" v-model="filterCustOrgName" />
+                    </MDBCol>
+                    <MDBCol col="6" class="mb-2">
+                      <MDBInput size="sm" type="text" label="聯絡人" v-model="filterCustName" />
+                    </MDBCol>
+                    <MDBCol col="6" class="mb-2">
+                      <MDBInput size="sm" type="text" label="統一編號" v-model="filterCustTaxId" />
+                    </MDBCol>
+                  </MDBRow>
+                </MDBTabPane>
+
+
+              </MDBTabContent>
+            </MDBTabs>
+          </MDBCol>
+        </MDBRow>
+      </MDBContainer>
+    </MDBModalBody>
+    <MDBModalFooter>
+      <MDBBtn @click="">確認</MDBBtn>
+    </MDBModalFooter>
+  </MDBModal>
   <MDBContainer fluid class="h-100 overflow-hidden">
     <MDBRow class="h-100 flex-column flex-nowrap">
       <!-- 導覽列 -->
@@ -720,7 +939,9 @@ refgetCaseAllItem();
               <MDBCol col="6" class="mb-3">
                 <MDBInput size="sm" type="text" label="統一編號" v-model="nowCaseCustTaxID" disabled />
               </MDBCol>
-              <div></div>
+              <MDBCol col="6" class="mb-3 ps-0">
+                <MDBBtn size="sm" color="primary" @click="showCustFrom=true">查詢顧客</MDBBtn>
+              </MDBCol>
               <MDBCol col="6" class="mb-3">
                 <MDBInput size="sm" type="text" label="聯絡人" v-model="nowCaseCustName" disabled />
               </MDBCol>
@@ -819,10 +1040,6 @@ refgetCaseAllItem();
       <Footer1 :msg="infomsg" />
     </MDBRow>
   </MDBContainer>
-  <MDBAlert dismiss v-model="alert1" id="alert-primary" :color="alertColor" position="top-right" stacking width="535px"
-    appendToBody autohide :delay="2000">
-    {{ infomsg }}
-  </MDBAlert>
 </template>
 <style>
 .colAlignRight{

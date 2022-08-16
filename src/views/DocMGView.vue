@@ -648,7 +648,7 @@ function saveDocBtn() {
                 </MDBCol>
                 <!-- 下方右側資料 -->
                 <MDBCol md="5" class="h-100 bg-light border-start">
-                  <MDBTabs v-model=" activeTabId1">
+                  <MDBTabs v-model="activeTabId1">
                     <!-- Tabs navs -->
                     <MDBTabNav tabsClasses="mb-1">
                       <MDBTabItem tabId="filter" href="filter">條件篩選</MDBTabItem>
