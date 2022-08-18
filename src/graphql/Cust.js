@@ -17,7 +17,7 @@ const GETALLCUST = gql`
   }
 `;
 const GETCUSTBYID = gql`
-  query GetCustById($getCustByIdId: Int!) {
+  query GetCustById($getCustByIdId: Int) {
     getCustById(id: $getCustByIdId) {
       id
       name
@@ -32,8 +32,30 @@ const GETCUSTBYID = gql`
     }
   }
 `;
+const UPDATECUST = gql`
+  mutation UpdateCust(
+    $updateCustId: Int!
+    $name: String
+    $address: String
+    $tel: String
+    $fax: String
+    $orgId: Int
+  ) {
+    updateCust(
+      id: $updateCustId
+      name: $name
+      address: $address
+      tel: $tel
+      fax: $fax
+      org_id: $orgId
+    ) {
+      id
+    }
+  }
+`;
 
 export default {
   GETALLCUST,
   GETCUSTBYID,
+  UPDATECUST,
 };

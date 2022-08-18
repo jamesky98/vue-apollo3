@@ -11,13 +11,19 @@ import { MDBCard,
   MDBCol, 
   MDBRow, 
   MDBContainer, 
-  MDBBtn } from 'mdb-vue-ui-kit';
+  MDBBtn,
+  MDBAlert
+} from 'mdb-vue-ui-kit';
 import { logIn } from '../methods/User';
 
 // 傳遞參數
 const user_name = ref('');
 const user_password = ref('');
 const token = ref('');
+
+const alert1 = ref(false);
+const infomsg = ref("");
+const alertColor = ref("primary");
 
 // // 執行查詢
 const { mutate: userlogin, onDone: loginOnDone, onError:loginError } = useMutation(
@@ -32,11 +38,26 @@ const { mutate: userlogin, onDone: loginOnDone, onError:loginError } = useMutati
 );
 
 loginOnDone(result => {
-  logIn(result);
+  if (!result.loading && result.data.login) {
+    logIn(result);
+  }
 });
 
 loginError(error => {
-  console.log(error);
+  switch (error.message) {
+    case "No such user found":
+      infomsg.value = "查無此帳號";
+      alert1.value = true;
+      break;
+    case "Invalid password":
+      infomsg.value = "密碼錯誤";
+      alert1.value = true;
+      break;
+    case "Not active":
+      infomsg.value = "帳號尚未啟用";
+      alert1.value = true;
+      break;
+  }
   localStorage.removeItem('AUTH_TOKEN');
   localStorage.removeItem('USER_ID');
   localStorage.removeItem('USER_NAME');
@@ -45,6 +66,10 @@ loginError(error => {
 </script>
 
 <template>
+  <MDBAlert v-model="alert1" id="alert-primary" :color="alertColor" position="top-right" stacking width="535px"
+    appendToBody autohide delay="2000">
+    {{ infomsg }}
+  </MDBAlert>
   <section class="h-100 gradient-form" style="background-color: #eee;">
     <MDBContainer class="py-5 h-100">
       <MDBRow class="d-flex justify-content-center align-items-center h-100">
@@ -60,10 +85,11 @@ loginError(error => {
                   <form @submit.prevent="userlogin()">
                     <p>請登入帳號</p>
                     <div class="form-outline mb-4">
-                      <MDBInput type="text" label="員工編號" id="form2Example11" v-model="user_name" wrapperClass="mb-4" />
+                      <MDBInput required type="text" label="員工編號" id="form2Example11" v-model="user_name"
+                        wrapperClass="mb-4" />
                     </div>
                     <div class="form-outline mb-4">
-                      <MDBInput type="password" label="密碼" id="form2Example22" v-model="user_password"
+                      <MDBInput required type="password" label="密碼" id="form2Example22" v-model="user_password"
                         wrapperClass="mb-4" />
                     </div>
                     <div class="text-center pt-1 mb-5 pb-1">

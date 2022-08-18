@@ -22,6 +22,7 @@ import {
   MDBPopconfirm,
 } from "mdb-vue-ui-kit";
 import { useQuery, useMutation } from '@vue/apollo-composable';
+import { computed } from "@vue/reactivity";
 import DocsGQL from "../graphql/Docs";
 
 import DataTable from 'datatables.net-vue3';
@@ -67,9 +68,16 @@ const nowReleaseDate = ref("");
 const itemRelDate = ref();
 const nowParents = ref("");
 const nowUpload = ref("");
+const nowDownLoad = computed(()=>{
+  return "02_DOC/" + nowDocLevel.value + "/" + nowUpload.value
+});
 // PDF Viewer ?file=../../../test.pdf
 const pdfPath = ref("pdfjs-dist/web/viewer.html");
 const nowEdUpload = ref("");
+const nowEdDownLoad = computed(() => {
+  return "02_DOC/" + nowDocLevel.value + "/" + nowEdUpload.value
+});
+
 const nowExpDate = ref("");
 const itemExpDate = ref();
 const nowComment = ref("");
@@ -669,20 +677,20 @@ function saveDocBtn() {
                         </div>
                         <!-- 條件欄位 -->
                         <MDBRow md="12" class="d-flex align-content-start overflow-auto">
-                          <MDBSelect size="sm" class="mt-2 mb-2 col-6" label="文件層級" v-model:options="doclevelmu"
+                          <MDBSelect size="sm" class="mt-3 mb-3 col-6" label="文件層級" v-model:options="doclevelmu"
                             v-model:selected="doclevelsel" ref="docLevelFilter" />
-                          <MDBSelect size="sm" class="mt-2 mb-2 col-6" label="文件類型" v-model:options="doctypemu"
+                          <MDBSelect size="sm" class="mt-3 mb-3 col-6" label="文件類型" v-model:options="doctypemu"
                             v-model:selected="doctypesel" ref="docTypeFilter" />
-                          <MDBCol col="6" class="mb-2">
+                          <MDBCol col="6" class="mb-3">
                             <MDBInput size="sm" type="text" label="文件編號" v-model="docDidsel" />
                           </MDBCol>
-                          <MDBCol col="6" class="mb-2">
+                          <MDBCol col="6" class="mb-3">
                             <MDBInput size="sm" type="text" label="文件名稱" v-model="docnamesel" />
                           </MDBCol>
-                          <MDBCol col="6" class="mb-2">
+                          <MDBCol col="6" class="mb-3">
                             <MDBInput size="sm" type="text" label="版次" v-model="docversel" />
                           </MDBCol>
-                          <MDBSelect size="sm" class="mb-2 col-6" label="現役狀態" v-model:options="docStautsmu"
+                          <MDBSelect size="sm" class="mb-3 col-6" label="現役狀態" v-model:options="docStautsmu"
                             v-model:selected="docStautsel" ref="docStautsFilter" />
                         </MDBRow>
                       </MDBTabPane>
@@ -702,65 +710,65 @@ function saveDocBtn() {
                         <!-- 資料欄位 -->
                         <MDBRow tag="form" md="12" style="height:calc(100% - 3rem) ;"
                           class="d-flex align-content-start overflow-auto">
-                          <MDBCol col="6" class="mb-2">
+                          <MDBCol col="6" class="my-3">
                             <MDBInput size="sm" type="text" label="索引" readonly v-model="nowIDed" />
                           </MDBCol>
-                          <MDBSelect size="sm" class="mb-2 col-6" label="文件層級" required v-model:options="nowDocLevelmu"
+                          <MDBSelect size="sm" class="my-3 col-6" label="文件層級" required v-model:options="nowDocLevelmu"
                             v-model:selected="nowDocLevel" ref="docLevelSelect" />
-                          <MDBCol col="6" class="mb-2">
+                          <MDBCol col="6" class="mb-3">
                             <MDBInput size="sm" type="text" label="文件編號" required v-model="nowDocIDed"
                               oninput="this.value = this.value.toUpperCase()" />
                           </MDBCol>
-                          <MDBSelect size="sm" class="mb-2 col-6" label="文件類型" required v-model:options="nowDocTypemu"
+                          <MDBSelect size="sm" class="mb-3 col-6" label="文件類型" required v-model:options="nowDocTypemu"
                             v-model:selected="nowDocType" ref="docTypeSelect" />
-                          <MDBCol col="12" class="mb-2">
+                          <MDBCol col="12" class="mb-3">
                             <MDBInput size="sm" type="text" label="文件名稱" required v-model="nowDocName" />
                           </MDBCol>
-                          <MDBCol col="6" class="mb-2">
+                          <MDBCol col="6" class="mb-3">
                             <MDBInput size="sm" type="text" label="版次" required v-model="nowVer" />
                           </MDBCol>
-                          <MDBCol col="6" class="mb-2"></MDBCol>
-                          <MDBCol col="6" class="mb-2">
+                          <MDBCol col="6" class="mb-3"></MDBCol>
+                          <MDBCol col="6" class="mb-3">
                             <MDBDatepicker size="sm" v-model="nowReleaseDate" format=" YYYY-MM-DD " label="發行日"
                               ref="itemRelDate" />
                           </MDBCol>
-                          <MDBCol col="6" class="mb-2">
+                          <MDBCol col="6" class="mb-3">
                             <MDBDatepicker size="sm" v-model="nowExpDate" format=" YYYY-MM-DD " label="廢止日"
                               ref="itemExpDate" />
                           </MDBCol>
-                          <MDBCol col="12" class="mb-2">
+                          <MDBCol col="12" class="mb-3">
                             <MDBInput size="sm" type="text" label="上階文件" v-model="nowParents" />
                           </MDBCol>
-                          <MDBSelect class="mb-2 col-6" style="padding-right: 0;" filter size="sm" label="加入上階文件"
+                          <MDBSelect class="mb-3 col-6" style="padding-right: 0;" filter size="sm" label="加入上階文件"
                             v-model:options="parentsmu" v-model:selected="parentsel" />
-                          <MDBCol col="6" class="mb-2 px-0">
+                          <MDBCol col="6" class="mb-3 px-0">
                             <MDBBtn size="sm" color="primary" @click="addParentDoc()">加入</MDBBtn>
                           </MDBCol>
-                          <MDBCol col="9" class="mb-2">
+                          <MDBCol col="9" class="mb-3">
                             <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="掃描檔"
                               v-model="nowUpload">
                               <MDBBtnClose @click.prevent="nowUpload=''" class="btn-upload-close" />
                             </MDBInput>
                           </MDBCol>
-                          <MDBCol col="3" class="px-0 mb-2">
+                          <MDBCol col="3" class="px-0 mb-3">
                             <input type="file" accept=".pdf" id="itemUpload" @change="uploadChenge"
                               style="display: none;" />
                             <MDBBtn size="sm" color="primary" @click="uploadBtn">上傳</MDBBtn>
-                            <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                            <MDBBtn tag="a" :href="nowDownLoad" download size="sm" color="secondary">下載</MDBBtn>
                           </MDBCol>
-                          <MDBCol col="9" class="mb-2">
+                          <MDBCol col="9" class="mb-3">
                             <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="編輯檔"
                               v-model="nowEdUpload">
                               <MDBBtnClose @click.prevent="nowEdUpload=''" class="btn-upload-close" />
                             </MDBInput>
                           </MDBCol>
-                          <MDBCol col="3" class="px-0 mb-2">
+                          <MDBCol col="3" class="px-0 mb-3">
                             <input type="file" accept=".doc,.docx" id="itemExpUpload" @change="uploadChenge"
                               style="display: none;" />
                             <MDBBtn size="sm" color="primary" @click="expUploadBtn">上傳</MDBBtn>
-                            <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                            <MDBBtn tag="a" :href="nowEdDownLoad" download size="sm" color="secondary">下載</MDBBtn>
                           </MDBCol>
-                          <MDBCol col="12" class="mb-2">
+                          <MDBCol col="12" class="mb-3">
                             <MDBTextarea size="sm" label="備註" rows="2" v-model="nowComment" />
                           </MDBCol>
                         </MDBRow>

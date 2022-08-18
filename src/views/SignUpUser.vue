@@ -1,5 +1,5 @@
 <script setup>
-import { useMutation } from '@vue/apollo-composable'
+import { useQuery, useLazyQuery, useMutation } from '@vue/apollo-composable'
 import UsersGQL from "../graphql/Users";
 import { ref } from 'vue';
 import router from '../router'
@@ -20,7 +20,35 @@ const user_name = ref('');
 const user_password = ref('');
 const user_mail = ref('');
 
-// // 執行查詢
+// 防止帳號重複建立
+function doSignkup(){
+  chkUser();
+}
+
+const { mutate: chkUser, onDone: chkUserOnDone } = useMutation(
+  UsersGQL.CHKUSERBYNAME,
+  () => (
+    {
+      variables: {
+        userName: user_name.value,
+      }
+    }),
+);
+chkUserOnDone(result=>{
+  if (!result.loading){
+    console.log(result.data.chkUserByName);
+    if (result.data.chkUserByName){
+      // 帳號重複
+      console.log("帳號重複");
+    }else{
+      // 建立帳號
+      console.log("建立");
+      usersignup();
+    }
+  }
+});
+
+// 執行查詢
 const { mutate: usersignup, onDone: signupOnDone } = useMutation(
   UsersGQL.SIGNUPMU,
   () => (
@@ -34,12 +62,7 @@ const { mutate: usersignup, onDone: signupOnDone } = useMutation(
 );
 
 signupOnDone(result => {
-  console.log(result);
-  localStorage.setItem("AUTH_TOKEN", result.data.signup.token);
-  localStorage.setItem("USER_ID", result.data.signup.user.user_id);
-  localStorage.setItem("USER_NAME", result.data.signup.user.user_name);
-  router.push("/main");
-  // logIn(result);
+  router.push("/");
 })
 </script>
 
@@ -56,17 +79,19 @@ signupOnDone(result => {
                     <img src="/LOGO01.png" style="width: 185px;" alt="logo">
                     <h4 class="mt-1 mb-5 pb-1">航遙測校正管理系統</h4>
                   </div>
-                  <form @submit.prevent="usersignup()">
+                  <form @submit.prevent="doSignkup">
                     <p>註冊新帳號</p>
                     <div class="form-outline mb-4">
-                      <MDBInput type="text" label="員工編號" id="form2Example11" v-model="user_name" wrapperClass="mb-4" />
-                    </div>
-                    <div class="form-outline mb-4">
-                      <MDBInput type="password" label="密碼" id="form2Example22" v-model="user_password"
+                      <MDBInput required type="text" label="員工編號" id="form2Example11" v-model="user_name"
                         wrapperClass="mb-4" />
                     </div>
                     <div class="form-outline mb-4">
-                      <MDBInput type="email" label="電子郵件" id="form2Example33" v-model="user_mail" wrapperClass="mb-4" />
+                      <MDBInput required type="password" label="密碼" id="form2Example22" v-model="user_password"
+                        wrapperClass="mb-4" />
+                    </div>
+                    <div class="form-outline mb-4">
+                      <MDBInput required type="email" label="電子郵件" id="form2Example33" v-model="user_mail"
+                        wrapperClass="mb-4" />
                     </div>
                     <div class="text-center pt-1 mb-5 pb-1">
                       <MDBBtn color="primary" block class="fa-lg gradient-custom-2 col-12" type="submit">註冊

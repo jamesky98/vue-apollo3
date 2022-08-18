@@ -37,6 +37,8 @@ import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
+import router from '../router'
+import { logIn, logOut, toTWDate } from '../methods/User';
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
@@ -45,7 +47,7 @@ DataTable.use(Select);
 const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
-
+const updateKey = ref(0);
 // 案件列表=========start
   let dt1;
   const table1 = ref(); 
@@ -182,19 +184,19 @@ const alertColor = ref("primary");
     }
   };
 
-  function toTWDate(data){
-    let ttdate = "";
-    if (data) {
-      ttdate = data.split("T")[0];
-      let dateObj = new Date(ttdate);
-      let year = dateObj.getFullYear() - 1911;
-      let month = ((dateObj.getMonth() + 1) < 10) ? "0" + (dateObj.getMonth() + 1) : (dateObj.getMonth() + 1);
-      let date = (dateObj.getDate() < 10) ? "0" + dateObj.getDate() : dateObj.getDate();
-      // console.log(dateObj.getMonth());
-      ttdate = year + "/" + month + "/" + date
-    }
-    return ttdate;
-  }
+  // function toTWDate(data){
+  //   let ttdate = "";
+  //   if (data) {
+  //     ttdate = data.split("T")[0];
+  //     let dateObj = new Date(ttdate);
+  //     let year = dateObj.getFullYear() - 1911;
+  //     let month = ((dateObj.getMonth() + 1) < 10) ? "0" + (dateObj.getMonth() + 1) : (dateObj.getMonth() + 1);
+  //     let date = (dateObj.getDate() < 10) ? "0" + dateObj.getDate() : dateObj.getDate();
+  //     // console.log(dateObj.getMonth());
+  //     ttdate = year + "/" + month + "/" + date
+  //   }
+  //   return ttdate;
+  // }
 
   // 查詢案件資料
   const { result: allCase, loading: lodingAllCase, variables: varAllCase, onResult: getAllCase, refetch: refgetAllCase } = useQuery(
@@ -279,7 +281,7 @@ getAllCust(result => {
 });
 
 // 查詢選取顧客資料
-const { result: selCustData, loading: lodingselCust, onResult: getselCust, refetch: refgetselCust } = useQuery(
+const { result: selCustData, loading: loadselCust, onResult: getselCust, refetch: refgetselCust } = useQuery(
   CustGQL.GETCUSTBYID,
   () => ({
     getCustByIdId: parseInt(seletCustId.value)
@@ -309,6 +311,36 @@ function shownCustModal(){
   }
 }
 
+// 儲存顧客資料
+const { mutate: saveCust, onDone: saveCustOnDone, onError: saveCustError } = useMutation(
+  CustGQL.UPDATECUST,
+  () => ({
+    variables: {
+      updateCustId: parseInt(seletCustId.value),
+      name: selCustName.value,
+      address: selCustAddress.value,
+      tel: selCustTel.value,
+      fax: selCustFax.value,
+      orgId: parseInt(selCustOrgName.value),
+    }
+  })
+);
+
+saveCustError((error) => {
+  console.log(error);
+});
+saveCustOnDone(() => {
+  refgetAllCust();
+  refgetselCust();
+  refgetCaseAllOrg();
+  infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
+  alert1.value = true;
+});
+// 更多編輯=>引導至顧客管理
+function gotoCustMG(){
+  router.push('/cust');
+}
+
 // 清除顧客篩選條件
 function clearCustFilter(){
   filterCustName.value="";
@@ -326,6 +358,22 @@ function doCustFilter() {
   varAllCust.value = where;
 }
 
+// 案加入後回填顧客id
+function setCustBtn(){
+  nowCaseCustId.value = seletCustId.value;
+
+  let getData = selCustOrgList.value.filter((x) => {
+    return parseInt(x.id) === selCustOrgName.value;
+  })[0];
+  nowCaseCustOrgName.value = (getData) ? getData.name : "";
+
+  nowCaseCustTaxID.value = selCustTaxId.value;
+  nowCaseCustName.value = selCustName.value;
+  nowCaseCustTel.value = selCustTel.value;
+  nowCaseCustFax.value = selCustFax.value;
+  nowCaseCustAddress.value = selCustAddress.value;
+  showCustFrom.value = false;
+}
 // 顧客列表=========end
 
 // 篩選=========start
@@ -671,6 +719,7 @@ refgetCaseAllItem();
   }
   // 切換不同校正項目內容
   function setRecordShow(isAnimate) {
+    updateKey.value += 1;
     if (nowCaseTypeId.value === 1 || nowCaseTypeId.value === 3) {
       showCaseEditR01Flag.value = true;
       showCaseEditR02Flag.value = false;
@@ -755,6 +804,7 @@ refgetCaseAllItem();
     appendToBody autohide :delay="2000">
     {{ infomsg }}
   </MDBAlert>
+  <!-- 選擇顧客 -->
   <MDBModal @shown="shownCustModal" v-model="showCustFrom" staticBackdrop scrollable>
     <MDBModalHeader>
       <MDBModalTitle>請選擇顧客</MDBModalTitle>
@@ -779,8 +829,8 @@ refgetCaseAllItem();
                 <MDBTabPane class="h-100" tabId="editor">
                   <!-- 功能列 -->
                   <div class="mt-2">
-                    <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
-                    <MDBBtn size="sm" color="primary" @click="">更多編輯</MDBBtn>
+                    <MDBBtn size="sm" color="primary" @click="saveCust">儲存</MDBBtn>
+                    <MDBBtn size="sm" color="primary" @click="gotoCustMG">顧客管理</MDBBtn>
                   </div>
                   <MDBRow>
                     <MDBSelect filter size="sm" class="my-3  col-12" label="公司名稱" v-model:options="selCustOrgNameMU"
@@ -822,8 +872,6 @@ refgetCaseAllItem();
                     </MDBCol>
                   </MDBRow>
                 </MDBTabPane>
-
-
               </MDBTabContent>
             </MDBTabs>
           </MDBCol>
@@ -831,9 +879,11 @@ refgetCaseAllItem();
       </MDBContainer>
     </MDBModalBody>
     <MDBModalFooter>
-      <MDBBtn @click="">確認</MDBBtn>
+      <MDBCol>目前選取：{{ selCustName }}</MDBCol>
+      <MDBBtn color="primary" @click="setCustBtn">加入</MDBBtn>
     </MDBModalFooter>
   </MDBModal>
+
   <MDBContainer fluid class="h-100 overflow-hidden">
     <MDBRow class="h-100 flex-column flex-nowrap">
       <!-- 導覽列 -->
@@ -1025,13 +1075,13 @@ refgetCaseAllItem();
           <MDBCol md="8" v-if="showCaseEditR01Flag" class="h-100 py-2">
             <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
               <!-- record01表單 -->
-              <Record01 :caseID="nowCaseID" class="h-100 overflow-auto" />
+              <Record01 :caseID="nowCaseID" :key="updateKey" />
             </MDBRow>
           </MDBCol>
           <MDBCol md="8" v-else-if="showCaseEditR02Flag" class="h-100 py-2">
             <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
               <!-- record02表單 -->
-              <Record02 :caseID="nowCaseID" />
+              <Record02 :caseID="nowCaseID" :key="updateKey" />
             </MDBRow>
           </MDBCol>
         </MDBRow>

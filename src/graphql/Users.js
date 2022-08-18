@@ -13,6 +13,8 @@ const LOGINMU = gql`
       user {
         user_id
         user_name
+        active
+        role
       }
     }
   }
@@ -36,6 +38,14 @@ const GETUSER = gql`
   }
 `;
 
+const CHKUSERBYNAME = gql`
+  mutation ChkUserByName($userName: String) {
+    chkUserByName(user_name: $userName) {
+      user_name
+    }
+  }
+`;
+
 const SIGNUPMU = gql`
   mutation Login(
     $userName: String!
@@ -51,6 +61,8 @@ const SIGNUPMU = gql`
       user {
         user_id
         user_name
+        active
+        role
       }
     }
   }
@@ -60,6 +72,7 @@ export default {
   CHECKTOKEN,
   LOGINMU,
   GETUSER,
+  CHKUSERBYNAME,
   GETALLUSERs,
   SIGNUPMU,
 };

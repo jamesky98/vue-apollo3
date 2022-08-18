@@ -14,6 +14,8 @@ getchecktoken(result => {
     localStorage.removeItem('AUTH_TOKEN');
     localStorage.removeItem('USER_ID');
     localStorage.removeItem('USER_NAME');
+    localStorage.removeItem('USER_ROLE');
+    localStorage.removeItem('USER_AC');
     router.push('/');
   } else {
     router.push('/main');
