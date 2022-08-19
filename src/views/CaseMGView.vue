@@ -29,7 +29,6 @@ import {
   MDBTabItem,
   MDBTabPane,
 } from 'mdb-vue-ui-kit';
-import { useQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../graphql/Cases";
 import CustGQL from "../graphql/Cust";
 
@@ -37,8 +36,19 @@ import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
-import router from '../router'
+
+// 判斷token狀況
+import { useQuery, useMutation } from '@vue/apollo-composable';
+import UsersGQL from "../graphql/Users";
 import { logIn, logOut, toTWDate } from '../methods/User';
+import router from '../router';
+const { onResult: getchecktoken, refetch: refgetCheckToken } = useQuery(UsersGQL.CHECKTOKEN);
+getchecktoken(result => {
+  if (!result.data.checktoken) {
+    logOut();
+  }
+});
+refgetCheckToken();
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
@@ -183,20 +193,6 @@ const updateKey = ref(0);
       info: '共 _TOTAL_ 筆資料',
     }
   };
-
-  // function toTWDate(data){
-  //   let ttdate = "";
-  //   if (data) {
-  //     ttdate = data.split("T")[0];
-  //     let dateObj = new Date(ttdate);
-  //     let year = dateObj.getFullYear() - 1911;
-  //     let month = ((dateObj.getMonth() + 1) < 10) ? "0" + (dateObj.getMonth() + 1) : (dateObj.getMonth() + 1);
-  //     let date = (dateObj.getDate() < 10) ? "0" + dateObj.getDate() : dateObj.getDate();
-  //     // console.log(dateObj.getMonth());
-  //     ttdate = year + "/" + month + "/" + date
-  //   }
-  //   return ttdate;
-  // }
 
   // 查詢案件資料
   const { result: allCase, loading: lodingAllCase, variables: varAllCase, onResult: getAllCase, refetch: refgetAllCase } = useQuery(

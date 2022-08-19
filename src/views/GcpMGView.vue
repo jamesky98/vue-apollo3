@@ -21,6 +21,19 @@ import {
   MDBIcon
 } from 'mdb-vue-ui-kit';
 
+// 判斷token狀況
+import { useQuery, useMutation } from '@vue/apollo-composable';
+import UsersGQL from "../graphql/Users";
+import { logIn, logOut, toTWDate } from '../methods/User';
+import router from '../router';
+const { onResult: getchecktoken, refetch: refgetCheckToken } = useQuery(UsersGQL.CHECKTOKEN);
+getchecktoken(result => {
+  if (!result.data.checktoken) {
+    logOut();
+  }
+});
+refgetCheckToken();
+
 </script>
 <template>
   <MDBContainer fluid class="h-100">

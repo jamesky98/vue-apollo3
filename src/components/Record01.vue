@@ -4,6 +4,7 @@ import path from "path-browserify";
 import {
   MDBRadio,
   MDBInput,
+  MDBCheckbox,
   MDBTextarea,
   MDBCol,
   MDBRow,
@@ -50,6 +51,7 @@ const props = defineProps({
 // 案件詳細編輯資料==========start
   // 案件之詳細資料
   // 申請
+  const updateKey = ref(0);
   const isSMCam = ref(true);
   const nowCaseCamTypeID = ref(""); // 像機類型
 
@@ -108,40 +110,45 @@ const props = defineProps({
   const nowCaseStartDate = ref(""); //開始校正日
   const nowCaseStartDateDOM = ref();
 
-  const nowCaseRefPrjID = ref(""); // 參考值索引
-  const nowCaseRefPrjCode = ref(""); // 參考值編號
+  const nowCaseRefPrjID = ref(""); // 量測作業索引
+  const nowCaseRefPrjCode = ref(""); // 量測作業編號編號
   const nowCaseRefPrjPublishDate = ref(""); // 參考值發布日期
-
   const nowCaseREFUpload = ref(""); // 參考值檔
-  const nowCaseGCPUpload = ref(""); // 控制點檔
-  const nowCaseTotPt = ref(""); //總點數
-  const nowCaseMeaPt = ref(""); //量測點數
+
+  const nowCaseImgNo = ref(""); // 使用影像數
+  const nowCaseUndist = ref(false); // 是否已糾正影像
+  const nowCaseTotPt = ref(""); //總點數(自動計算)
+  const nowCaseMeaPt = ref(""); //量測點數(自動計算)
   const nowCaseDelPt = ref(""); //刪除點數
   const nowCaseDelCommt = ref(""); //刪除註記
   const nowCaseDist = ref(""); // 畸變差參數
+
+  // 平差紀錄
   const nowCaseFreeStd = ref(""); //自由網中誤差
   const nowCaseFreeUpload = ref(""); //自由網專案檔
   const nowCaseFixStd = ref(""); // 強制網中誤差
   const nowCaseFixUpload = ref(""); // 強制網專案檔
-  const nowCaseImgNo = ref(""); // 使用影像數
-  const nowCaseUndist = ref(false); // 是否已糾正影像
-  const nowCaseCrtNo = ref(""); // 控制點數
-  const nowCaseChkNo = ref(""); // 檢核點數
-  const nowCaseATreport = ref(""); // 空三報表檔
-  const nowCaseConnectNo = ref(""); // 連結點數
-  const nowCaseObsNo = ref(""); // 觀測量
-  const nowCaseRedundancy = ref(""); // 多於觀測量
-  const nowCaseRMSx = ref(""); // X-均方根
-  const nowCaseRMSy = ref(""); // Y-均方根
-  const nowCaseRMSz = ref(""); // Z-均方根
-  const nowCaseRsultFile = ref(""); // 計算成果表
-  const nowCaseNetGraph = ref(""); //網形圖
-  const nowCaseGCPGraph = ref(""); //點位分布圖
-  const nowCaseSTDh = ref(""); //水平較差均方根
-  const nowCaseSTDv = ref(""); //高程較差均方根
-  const nowCaseKh = ref(""); //水平涵蓋因子
-  const nowCaseKv = ref(""); //高程涵蓋因子
-  const nowCaseSTDExl = ref(""); //不確定度計算表
+
+  const nowCaseGCPUpload = ref(""); // 控制點檔(上傳GCP.dat)
+  const nowCaseATreport = ref(""); // 空三報表檔(上傳PrintOut.0)
+  const nowCaseCrtNo = ref(""); // 控制點數(自動計算)
+  const nowCaseChkNo = ref(""); // 檢核點數(自動計算)
+  const nowCaseConnectNo = ref(""); // 連結點數(自動計算)
+  const nowCaseObsNo = ref(""); // 觀測量(自動計算)
+  const nowCaseRedundancy = ref(""); // 多餘觀測量(自動計算)
+  const nowCaseRMSx = ref(""); // X-均方根(自動計算)
+  const nowCaseRMSy = ref(""); // Y-均方根(自動計算)
+  const nowCaseRMSz = ref(""); // Z-均方根(自動計算)
+  const nowCaseSTDh = ref(""); //水平較差均方根(自動計算)
+  const nowCaseSTDv = ref(""); //高程較差均方根(自動計算)
+  const nowCaseRsultFile = ref(""); // 計算成果表(自動計算)
+  // 作業紀錄
+  const nowCaseNetGraph = ref(""); //網形圖(上傳)
+  const nowCaseGCPGraph = ref(""); //點位分布圖(上傳)
+  const nowCaseSTDExl = ref(""); //不確定度計算表(上傳)
+  const nowCaseKh = ref(""); //水平涵蓋因子(自動計算)
+  const nowCaseKv = ref(""); //高程涵蓋因子(自動計算)
+  
   const nowCaseRecTemp = ref(""); //作業紀錄表範本
   // 出具報告
   const nowCaseHasLOGO = ref(true); //列印TAF LOGO
@@ -481,6 +488,13 @@ function setItemBtn() {
   showItemFrom.value = false;
 }
 // 校正件列表=========end
+// 參考值列表=========start
+const showPrjFrom = ref(false);
+const seletPrjID = ref("");
+const seletPrjCode = ref("");
+const seletPrjPublishDate = ref("");
+
+// 參考值列表=========end
 
 </script>
 <template>
@@ -569,12 +583,12 @@ function setItemBtn() {
           <MDBStepperHead icon="1">
             申請
           </MDBStepperHead>
-          <MDBStepperContent>
+          <MDBStepperContent :key="updateKey">
             <MDBRow>
-              <MDBCol col="12" class="border my-3">
+              <MDBCol v-if="!isSMCam" col="12" class="border my-3">
                 像機類型：
-                <MDBRadio label="大像幅" value="1" v-model="nowCaseCamTypeID" inline name="caseCamType" />
-                <MDBRadio label="中像幅" value="2" v-model="nowCaseCamTypeID" inline name="caseCamType" />
+                <MDBRadio required label="大像幅" value="1" v-model="nowCaseCamTypeID" inline name="caseCamType" />
+                <MDBRadio required label="中像幅" value="2" v-model="nowCaseCamTypeID" inline name="caseCamType" />
               </MDBCol>
             </MDBRow>
             <MDBRow>
@@ -718,7 +732,7 @@ function setItemBtn() {
           <MDBStepperContent>
             <MDBRow>
               <MDBCol col="4" class="my-3">
-                <MDBDatepicker size="sm" v-model="nowCaseRecDate" format=" YYYY-MM-DD " label="送件日"
+                <MDBDatepicker required size="sm" v-model="nowCaseRecDate" format=" YYYY-MM-DD " label="送件日"
                   ref="nowCaseRecDateDOM" />
               </MDBCol>
               <div></div>
@@ -728,32 +742,32 @@ function setItemBtn() {
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="4" class="my-3">
-                    <MDBDatepicker size="sm" v-model="nowCaseFlyDate" format=" YYYY-MM-DD " label="航拍日"
+                    <MDBDatepicker required size="sm" v-model="nowCaseFlyDate" format=" YYYY-MM-DD " label="航拍日"
                       ref="nowCaseFlyDateDOM" />
                   </MDBCol>
                   <MDBCol col="4" class="my-3">
-                    <MDBInput size="sm" type="text" label="實際GSD(cm)" v-model="nowCaseGSDac" />
+                    <MDBInput required size="sm" type="text" label="實際GSD(cm)" v-model="nowCaseGSDac" />
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput size="sm" type="text" label="實際南北航線數" v-model="nowCaseStrNSac" />
+                    <MDBInput required size="sm" type="text" label="實際南北航線數" v-model="nowCaseStrNSac" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput size="sm" type="text" label="實際東西航線數" v-model="nowCaseStrEWac" />
-                  </MDBCol>
-                  <div></div>
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput size="sm" type="text" label="實際前後重疊率(%)" v-model="nowCaseEndLapAc" />
-                  </MDBCol>
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput size="sm" type="text" label="實際側向重疊率(%)" v-model="nowCaseSideLapAc" />
+                    <MDBInput required size="sm" type="text" label="實際東西航線數" v-model="nowCaseStrEWac" />
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput size="sm" type="text" label="實際橢球高(m)" v-model="nowCaseEllHac" />
+                    <MDBInput required size="sm" type="text" label="實際前後重疊率(%)" v-model="nowCaseEndLapAc" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput size="sm" type="text" label="實際離地高AGL(m)" v-model="nowCaseAGLac" />
+                    <MDBInput required size="sm" type="text" label="實際側向重疊率(%)" v-model="nowCaseSideLapAc" />
+                  </MDBCol>
+                  <div></div>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required size="sm" type="text" label="實際橢球高(m)" v-model="nowCaseEllHac" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required size="sm" type="text" label="實際離地高AGL(m)" v-model="nowCaseAGLac" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
                     <div style="color: red;" class="border border-danger">※AGL = 橢球高 - 195 m</div>
@@ -767,32 +781,32 @@ function setItemBtn() {
                 <MDBRow>
                   <!-- 像機參數 -->
                   <MDBCol col="9" class="my-3">
-                    <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="像機參數"
+                    <MDBInput required style="padding-right: 2.2em;" size="sm" type="text" readonly label="像機參數"
                       v-model="nowCaseCamUpload">
                       <MDBBtnClose @click.prevent="nowCaseCamUpload =''" class="btn-upload-close" />
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 my-3">
-                    <input type="file" accept=".pdf" id="CamUploadUpload" @change="" style="display: none;" />
+                    <input type="file" id="CamUploadUpload" @change="" style="display: none;" />
                     <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
                     <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
                   </MDBCol>
                   <div></div>
                   <!-- 航線圖 -->
                   <MDBCol col="9" class="mb-3">
-                    <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="實際航線圖"
+                    <MDBInput required style="padding-right: 2.2em;" size="sm" type="text" readonly label="實際航線圖"
                       v-model="nowCaseFlyMapAc">
                       <MDBBtnClose @click.prevent="nowCaseFlyMapAc =''" class="btn-upload-close" />
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".pdf" id="FlyMapAcUpload" @change="" style="display: none;" />
+                    <input type="file" id="FlyMapAcUpload" @change="" style="display: none;" />
                     <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
                     <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
                   </MDBCol>
                   <!-- 航拍紀錄表 -->
                   <MDBCol col="9" class="mb-3">
-                    <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="航拍紀錄表"
+                    <MDBInput required style="padding-right: 2.2em;" size="sm" type="text" readonly label="航拍紀錄表"
                       v-model="nowCaseRecTable">
                       <MDBBtnClose @click.prevent="nowCaseRecTable =''" class="btn-upload-close" />
                     </MDBInput>
@@ -804,13 +818,13 @@ function setItemBtn() {
                   </MDBCol>
                   <!-- 外方位紀錄檔 -->
                   <MDBCol col="9" class="mb-3">
-                    <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="外方位紀錄檔"
+                    <MDBInput required style="padding-right: 2.2em;" size="sm" type="text" readonly label="外方位紀錄檔"
                       v-model="nowCaseEO">
                       <MDBBtnClose @click.prevent="nowCaseEO =''" class="btn-upload-close" />
                     </MDBInput>
                   </MDBCol>
-                  <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".pdf" id="EOUpload" @change="" style="display: none;" />
+                  <MDBCol required col="3" class="px-0 mb-3">
+                    <input type="file" id="EOUpload" @change="" style="display: none;" />
                     <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
                     <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
                   </MDBCol>
@@ -820,13 +834,13 @@ function setItemBtn() {
                   <div></div>
                   <!-- 設備佐證照片 -->
                   <MDBCol col="9" class="mb-3">
-                    <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="設備佐證照片"
+                    <MDBInput required style="padding-right: 2.2em;" size="sm" type="text" readonly label="設備佐證照片"
                       v-model="nowCaseOther">
                       <MDBBtnClose @click.prevent="nowCaseOther =''" class="btn-upload-close" />
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".pdf" id="OtherUpload" @change="" style="display: none;" />
+                    <input type="file" id="OtherUpload" @change="" style="display: none;" />
                     <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
                     <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
                   </MDBCol>
@@ -855,7 +869,7 @@ function setItemBtn() {
           <MDBStepperContent>
             <MDBRow>
               <MDBCol col="4" class="my-3">
-                <MDBDatepicker size="sm" v-model="nowCaseStartDate" format=" YYYY-MM-DD " label="校正開始日"
+                <MDBDatepicker required size="sm" v-model="nowCaseStartDate" format=" YYYY-MM-DD " label="校正開始日"
                   ref="nowCaseStartDateDOM" />
               </MDBCol>
               <div></div>
@@ -864,15 +878,225 @@ function setItemBtn() {
               </MDBCol>
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput required disabled size="sm" type="text" label="廠牌" v-model="nowCaseItemChop" />
+                  <MDBCol col="4" class="my-3">
+                    <MDBInput required disabled size="sm" type="text" label="量測作業編號" v-model="nowCaseRefPrjCode" />
                   </MDBCol>
                   <MDBCol col="4" class="my-3">
-                    <MDBBtn size="sm" color="primary" @click="showItemFrom = true">查詢校正件</MDBBtn>
+                    <MDBInput required disabled size="sm" type="text" label="發布日期" v-model="nowCaseRefPrjPublishDate" />
+                  </MDBCol>
+                  <MDBCol col="4" class="px-0 my-3">
+                    <MDBBtn size="sm" color="primary" @click="showPrjFrom = true">查詢量測作業</MDBBtn>
+                  </MDBCol>
+                  <!-- 參考值檔 -->
+                  <MDBCol col="8" class="mb-3">
+                    <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="參考值檔"
+                      v-model="nowCaseREFUpload">
+                      <MDBBtnClose @click.prevent="nowCaseREFUpload =''" class="btn-upload-close" />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 mb-3">
+                    <input type="file" id="REFUpload" @change="" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
+                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+
+              <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                量測紀錄
+              </MDBCol>
+              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                <MDBRow>
+                  <MDBCol col="4" class="my-3">
+                    <MDBInput required size="sm" type="text" label="使用影像數" v-model="nowCaseImgNo" />
+                  </MDBCol>
+                  <MDBCol v-if="isSMCam" col="4" class="my-3">
+                    <MDBCheckbox label="是否已糾正影像" v-model="nowCaseUndist" />
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required disabled size="sm" type="text" label="型號" v-model="nowCaseItemModel" />
+                    <MDBInput required disabled size="sm" type="text" label="總點數" v-model="nowCaseTotPt" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="量測點數" v-model="nowCaseMeaPt" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="刪除點數" v-model="nowCaseDelPt" />
+                  </MDBCol>
+                  <MDBCol col="6" class="mb-3">
+                    <MDBTextarea size="sm" label="刪除註記" rows="4" v-model="nowCaseDelCommt" />
+                  </MDBCol>
+                  <MDBCol col="6" class="mb-3">
+                    <MDBTextarea required size="sm" label="畸變差參數" rows="4" v-model="nowCaseDist" />
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                平差紀錄
+              </MDBCol>
+              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                <MDBRow>
+                  <MDBCol col="4" class="my-3">
+                    <MDBInput required size="sm" type="text" label="自由網中誤差" v-model="nowCaseFreeStd" />
+                  </MDBCol>
+                  <!-- 自由網專案檔 -->
+                  <MDBCol col="5" class="my-3">
+                    <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="自由網專案檔"
+                      v-model="nowCaseFreeUpload">
+                      <MDBBtnClose @click.prevent="nowCaseFreeUpload =''" class="btn-upload-close" />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 my-3">
+                    <input type="file" id="FreeUpload" @change="" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
+                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                  </MDBCol>
+
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="強制網中誤差" v-model="nowCaseFixStd" />
+                  </MDBCol>
+                  <!-- 強制網專案檔 -->
+                  <MDBCol col="5" class="mb-3">
+                    <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="強制網專案檔"
+                      v-model="nowCaseFixUpload">
+                      <MDBBtnClose @click.prevent="nowCaseFixUpload =''" class="btn-upload-close" />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 mb-3">
+                    <input type="file" id="FixUpload" @change="" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
+                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                  </MDBCol>
+                  <!-- 控制點檔 -->
+                  <MDBCol col="8" class="mb-3">
+                    <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="控制點檔"
+                      v-model="nowCaseGCPUpload">
+                      <MDBBtnClose @click.prevent="nowCaseGCPUpload =''" class="btn-upload-close" />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 mb-3">
+                    <input type="file" id="GCPUpload" @change="" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
+                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                  </MDBCol>
+                  <!-- 空三報表檔 -->
+                  <MDBCol col="8" class="mb-3">
+                    <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="空三報表檔"
+                      v-model="nowCaseATreport">
+                      <MDBBtnClose @click.prevent="nowCaseATreport =''" class="btn-upload-close" />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 mb-3">
+                    <input type="file" id="ATreportUpload" @change="" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
+                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                  </MDBCol>
+
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="控制點數" v-model="nowCaseCrtNo" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="檢核點數" v-model="nowCaseChkNo" />
+                  </MDBCol>
+                  <div></div>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="連結點數" v-model="nowCaseConnectNo" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="觀測量" v-model="nowCaseObsNo" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="多餘觀測量" v-model="nowCaseRedundancy" />
+                  </MDBCol>
+
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="X-均方根" v-model="nowCaseRMSx" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="Y-均方根" v-model="nowCaseRMSy" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="Z-均方根" v-model="nowCaseRMSz" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="水平較差均方根" v-model="nowCaseSTDh" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="高程較差均方根" v-model="nowCaseSTDv" />
+                  </MDBCol>
+                  <div></div>
+                  <!-- 計算成果表 -->
+                  <MDBCol col="8" class="mb-3">
+                    <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="計算成果表"
+                      v-model="nowCaseRsultFile">
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 mb-3">
+                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                作業紀錄
+              </MDBCol>
+              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                <MDBRow>
+                  <!-- 網形圖 -->
+                  <MDBCol col="8" class="my-3">
+                    <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="網形圖"
+                      v-model="nowCaseNetGraph">
+                      <MDBBtnClose @click.prevent="nowCaseNetGraph =''" class="btn-upload-close" />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 my-3">
+                    <input type="file" id="NetGraphUpload" @change="" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
+                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                  </MDBCol>
+
+                  <!-- 點位分布圖 -->
+                  <MDBCol col="8" class="mb-3">
+                    <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="點位分布圖"
+                      v-model="nowCaseGCPGraph">
+                      <MDBBtnClose @click.prevent="nowCaseGCPGraph =''" class="btn-upload-close" />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 mb-3">
+                    <input type="file" id="GCPGraphUpload" @change="" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
+                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                  </MDBCol>
+
+                  <!-- 不確定度計算表 -->
+                  <MDBCol col="8" class="mb-3">
+                    <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="不確定度計算表"
+                      v-model="nowCaseSTDExl">
+                      <MDBBtnClose @click.prevent="nowCaseSTDExl =''" class="btn-upload-close" />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 mb-3">
+                    <input type="file" id="STDExlUpload" @change="" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
+                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                  </MDBCol>
+
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="水平涵蓋因子" v-model="nowCaseKh" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput required disabled size="sm" type="text" label="高程涵蓋因子" v-model="nowCaseKv" />
+                  </MDBCol>
+
+                  <!-- 產生作業紀錄表 -->
+                  <MDBCol col="8" class="mb-3">
+                    <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="作業紀錄表"
+                      v-model="nowCaseRecTemp">
+                      <MDBBtnClose @click.prevent="nowCaseRecTemp =''" class="btn-upload-close" />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 mb-3">
+                    <input type="file" id="RecTemp" @change="" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="">產生作業紀錄表</MDBBtn>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>

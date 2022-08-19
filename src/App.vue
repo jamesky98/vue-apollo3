@@ -4,19 +4,14 @@ import { RouterLink, RouterView } from 'vue-router'
 import router from './router'
 import { useQuery } from '@vue/apollo-composable';
 import UsersGQL from "./graphql/Users";
+import { logIn, logOut, toTWDate } from './methods/User';
 // import { ref } from "vue";
 // 判斷token狀況
 // const hasToken = ref(result.data.checktoken);
 const { onResult:getchecktoken } = useQuery(UsersGQL.CHECKTOKEN);
-
 getchecktoken(result => {
   if (!result.data.checktoken) {
-    localStorage.removeItem('AUTH_TOKEN');
-    localStorage.removeItem('USER_ID');
-    localStorage.removeItem('USER_NAME');
-    localStorage.removeItem('USER_ROLE');
-    localStorage.removeItem('USER_AC');
-    router.push('/');
+    logOut();
   } else {
     router.push('/main');
   }
