@@ -15,6 +15,7 @@ coverage
 *.local
 .env
 public/02_DOC/
+public/06_Case/
 
 /cypress/videos/
 /cypress/screenshots/

@@ -106,8 +106,8 @@ const GETCASECALTYPE = gql`
 `;
 
 const GETOPERATOR = gql`
-  query GetEmpByRole($roleType: String!) {
-    getEmpByRole(role_type: $roleType) {
+  query GetEmpByRole($roleType: String, $calType: Int) {
+    getEmpByRole(role_type: $roleType, cal_type: $calType) {
       person_id
       name
     }

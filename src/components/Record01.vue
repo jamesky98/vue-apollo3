@@ -1,10 +1,11 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted,reactive } from "vue";
 import path from "path-browserify";
 import {
   MDBRadio,
   MDBInput,
   MDBCheckbox,
+  MDBSwitch,
   MDBTextarea,
   MDBCol,
   MDBRow,
@@ -33,6 +34,7 @@ import {
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../graphql/Cases";
 import ItemGQL from "../graphql/Item";
+import SelectPs from "./SelectPs.vue";
 
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
@@ -53,6 +55,9 @@ const props = defineProps({
   // 申請
   const updateKey = ref(0);
   const isSMCam = ref(true);
+
+  const nowCaseCalType = ref(""); //校正項目
+
   const nowCaseCamTypeID = ref(""); // 像機類型
 
   const nowCaseItemID = ref(""); // 校正件索引
@@ -155,11 +160,32 @@ const props = defineProps({
   const nowCaseReportTemp = ref(""); //校正報告範本
   const nowCaseReportEdit = ref(""); //校正報告編輯檔
   const nowCaseCompleteDate = ref(""); //報告(列印)日期
+  const nowCaseCompleteDateDOM = ref();
+
   const nowCaseChkDate = ref(""); // 數據檢核日
+  const nowCaseChkDateDOM = ref();
+
   const nowCaseChkPersonID = ref(""); //數據檢核人
+  const nowCaseChkPersonMU = ref([]);
+  const nowCaseChkPersonDOM = ref();
+
   const nowCaseSignDate = ref(""); // 報告簽署日
+  const nowCaseSignDateDOM = ref();
+
   const nowCaseSignPersonID = ref(""); // 報告簽署人
-  
+  const nowCaseSignPersonMU = ref([]);
+  const nowCaseSignPersonDOM = ref();
+
+  const nowCaseReportScan = ref(""); //校正報告掃描檔
+  const nowCasePDFPath = ref(""); //校正報告掃描檔路徑
+  const signData = reactive({
+    nowCaseChkDate,
+    nowCaseChkPersonID,
+    nowCaseChkPersonMU,
+    nowCaseSignDate,
+    nowCaseSignPersonID,
+    nowCaseSignPersonMU,
+  });
   // 查詢Record01資料
 const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
   CaseGQL.GETFULLCASEBYID,
@@ -174,6 +200,7 @@ getNowCaseF(result => {
     let getItem = result.data.getCasebyID.item_base;
     (result.data.getCasebyID.cal_type === 3) ? isSMCam.value = true : isSMCam.value = false;
     // 校正件資料
+    nowCaseCalType.value = result.data.getCasebyID.cal_type;
     nowCaseCamTypeID.value = getData.cam_type + "";
     nowCaseItemID.value = (getItem) ? getItem.id : "";
     nowCaseItemChop.value = (getItem)?getItem.chop:"";
@@ -204,8 +231,8 @@ getNowCaseF(result => {
     nowCaseCamReport.value = getData.cam_report;
     nowCasePlanMap.value = getData.plan_map;
     // 送件
-    nowCaseRecDate.value = toTWDate(getData.receive_date);
-    nowCaseFlyDate.value = toTWDate(getData.fly_date);
+    nowCaseRecDate.value = (getData.receive_date)?getData.receive_date.split("T")[0]:"";
+    nowCaseFlyDate.value = (getData.fly_date)?getData.fly_date.split("T")[0]:"";
     nowCaseGSDac.value = getData.gsd_ac;
     nowCaseStrNSac.value = getData.strip_ns_ac;
     nowCaseStrEWac.value = getData.strip_ew_ac;
@@ -222,10 +249,10 @@ getNowCaseF(result => {
     nowCaseErrData.value = getData.err_data;
     nowCaseErrPhoto.value = getData.err_photo;
     // 校正
-    nowCaseStartDate.value = toTWDate(getData.start_Date);
+    nowCaseStartDate.value = (getData.start_Date)?getData.start_Date.split("T")[0]:"";
     nowCaseRefPrjID.value = getData.ref_id;
     nowCaseRefPrjCode.value = (getData.ref_project)?getData.ref_project.project_code:"";
-    nowCaseRefPrjPublishDate.value = (getData.ref_project) ?toTWDate(getData.ref_project.publish_date):"";
+    nowCaseRefPrjPublishDate.value = (getData.ref_project) ?getData.ref_project.publish_date.split("T")[0]:"";
     nowCaseREFUpload.value = getData.ref_file;
     nowCaseGCPUpload.value = getData.gcp_file;
     nowCaseTotPt.value = getData.total_pt;
@@ -261,11 +288,18 @@ getNowCaseF(result => {
     nowCaseHasLOGO.value = getData.has_logo;
     nowCaseReportTemp.value = getData.report_template;
     nowCaseReportEdit.value = getData.report_edit;
-    nowCaseCompleteDate.value = toTWDate(getData.complete_date);
-    nowCaseChkDate.value = toTWDate(getData.chk_date);
+    nowCaseCompleteDate.value = (getData.complete_date)?getData.complete_date.split("T")[0]:""
+    ;
+    nowCaseChkDate.value = (getData.chk_date)?getData.chk_date.split("T")[0]:"";
     nowCaseChkPersonID.value = getData.chk_person_id;
-    nowCaseSignDate.value = toTWDate(getData.sign_date);
+    // nowCaseChkPersonDOM.value.setValue(getData.chk_person_id);
+
+    nowCaseSignDate.value = (getData.sign_date)?getData.sign_date.split("T")[0]:"";
     nowCaseSignPersonID.value = getData.sign_person_id;
+    // nowCaseSignPersonDOM.value.setValue(getData.sign_person_id);
+
+    nowCaseReportScan.value = getData.report_scan
+    nowCasePDFPath.value = "pdfjs-dist/web/viewer.html?file=../../../" + nowCaseReportScan.value;
   }
 });
 refgetNowCaseF();
@@ -274,6 +308,43 @@ function comSensorSize(){
   nowCaseSizeX.value = (parseFloat(nowCasePxSizeX.value) * parseFloat(nowCasePXw.value)/1000).toFixed(4);
   nowCaseSizeY.value = (parseFloat(nowCasePxSizeY.value) * parseFloat(nowCasePXh.value) / 1000).toFixed(4);
 }
+
+function onChangeStep(){
+  updateKey.value += 1;
+}
+
+// 查詢報告簽署人列表
+  const { result: allSignPson, onResult: getAllSignPson, refetch: refgetAllSignPson } = useQuery(CaseGQL.GETOPERATOR,
+    ()=>({ 
+      calType: (nowCaseCalType.value==="")?null:nowCaseCalType.value,
+      roleType: "報告簽署人"
+    })
+  );
+  getAllSignPson(result=>{
+    // 加入報告簽署人選單資料
+    if (!result.loading && result.data.getEmpByRole) {
+      // 資料區
+      nowCaseSignPersonMU.value = result.data.getEmpByRole.map(x => {
+        return { text: x.name, value: parseInt(x.person_id) }
+      }); nowCaseSignPersonMU.value.unshift({ text: "", value: "" });
+    }
+  });
+// 查詢數據檢核人列表
+  const { result: allChkPson, onResult: getAllChkPson, refetch: refgetAllChkPson } = useQuery(CaseGQL.GETOPERATOR,
+    ()=>({ 
+      calType: (nowCaseCalType.value==="")?null:nowCaseCalType.value,
+      roleType: null
+    })
+  );
+  getAllChkPson(result=>{
+    // 加入數據檢核人選單資料
+    if (!result.loading && result.data.getEmpByRole) {
+      // 資料區
+      nowCaseChkPersonMU.value = result.data.getEmpByRole.map(x => {
+        return { text: x.name, value: parseInt(x.person_id) }
+      }); nowCaseChkPersonMU.value.unshift({ text: "", value: "" });
+    }
+  });
 
 // 案件詳細編輯資料==========end
 
@@ -577,7 +648,7 @@ const seletPrjPublishDate = ref("");
       </MDBModalFooter>
     </MDBModal>
     <!-- record01表單 linear -->
-    <MDBStepper linear>
+    <MDBStepper linear @onChangeStep="onChangeStep">
       <MDBStepperForm>
         <MDBStepperStep active>
           <MDBStepperHead icon="1">
@@ -585,10 +656,10 @@ const seletPrjPublishDate = ref("");
           </MDBStepperHead>
           <MDBStepperContent :key="updateKey">
             <MDBRow>
-              <MDBCol v-if="!isSMCam" col="12" class="border my-3">
+              <MDBCol v-if="!isSMCam" col="12" class="border">
                 像機類型：
-                <MDBRadio required label="大像幅" value="1" v-model="nowCaseCamTypeID" inline name="caseCamType" />
-                <MDBRadio required label="中像幅" value="2" v-model="nowCaseCamTypeID" inline name="caseCamType" />
+                <MDBRadio tooltipFeedback required label="大像幅" value="1" v-model="nowCaseCamTypeID" inline name="caseCamType" />
+                <MDBRadio tooltipFeedback required label="中像幅" value="2" v-model="nowCaseCamTypeID" inline name="caseCamType" />
               </MDBCol>
             </MDBRow>
             <MDBRow>
@@ -601,40 +672,40 @@ const seletPrjPublishDate = ref("");
                     <MDBBtn size="sm" color="primary" @click="showItemFrom = true">查詢校正件</MDBBtn>
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required disabled size="sm" type="text" label="廠牌" v-model="nowCaseItemChop" />
+                    <MDBInput tooltipFeedback required disabled size="sm" type="text" label="廠牌" v-model="nowCaseItemChop" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required disabled size="sm" type="text" label="型號" v-model="nowCaseItemModel" />
+                    <MDBInput tooltipFeedback required disabled size="sm" type="text" label="型號" v-model="nowCaseItemModel" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required disabled size="sm" type="text" label="序號" v-model="nowCaseItemSN" />
+                    <MDBInput tooltipFeedback required disabled size="sm" type="text" label="序號" v-model="nowCaseItemSN" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="焦距" v-model="nowCaseFocal" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="焦距" v-model="nowCaseFocal" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="像主點_X" v-model="nowCasePPAx" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="像主點_X" v-model="nowCasePPAx" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="像主點_Y" v-model="nowCasePPAy" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="像主點_Y" v-model="nowCasePPAy" />
                   </MDBCol>
                   <MDBCol col="3" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="像元數(rows)" v-model="nowCasePXh" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="像元數(rows)" v-model="nowCasePXh" />
                   </MDBCol>
                   <MDBCol col="3" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="像元數(columns)" v-model="nowCasePXw" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="像元數(columns)" v-model="nowCasePXw" />
                   </MDBCol>
                   <MDBCol col="3" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="像元尺寸_x(um)" v-model="nowCasePxSizeX" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="像元尺寸_x(um)" v-model="nowCasePxSizeX" />
                   </MDBCol>
                   <MDBCol col="3" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="像元尺寸_y(um)" v-model="nowCasePxSizeY" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="像元尺寸_y(um)" v-model="nowCasePxSizeY" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="感應器尺寸_x(mm)" v-model="nowCaseSizeX" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="感應器尺寸_x(mm)" v-model="nowCaseSizeX" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="感應器尺寸_y(mm)" v-model="nowCaseSizeY" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="感應器尺寸_y(mm)" v-model="nowCaseSizeY" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3 ps-0">
                     <MDBBtn size="sm" color="primary" @click="comSensorSize()">計算尺寸</MDBBtn>
@@ -642,10 +713,10 @@ const seletPrjPublishDate = ref("");
                   <MDBCol col="12">
                     <MDBRow v-if="isSMCam">
                       <MDBCol col="4" class="mb-3">
-                        <MDBInput required size="sm" type="text" label="畸變差糾正軟體" v-model="nowCaseDistSoft" />
+                        <MDBInput tooltipFeedback required size="sm" type="text" label="畸變差糾正軟體" v-model="nowCaseDistSoft" />
                       </MDBCol>
                       <MDBCol col="4" class="mb-3">
-                        <MDBInput required size="sm" type="text" label="軟體版本" v-model="nowCaseDistVer" />
+                        <MDBInput tooltipFeedback required size="sm" type="text" label="軟體版本" v-model="nowCaseDistVer" />
                       </MDBCol>
                     </MDBRow>
                   </MDBCol>
@@ -657,33 +728,33 @@ const seletPrjPublishDate = ref("");
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="4" class="my-3">
-                    <MDBInput required size="sm" type="text" label="預定拍攝年(民國)" v-model="nowCasePlanY" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="預定拍攝年(民國)" v-model="nowCasePlanY" />
                   </MDBCol>
                   <MDBCol col="4" class="my-3">
-                    <MDBInput required size="sm" type="text" label="預定拍攝月" v-model="nowCasePlanM" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="預定拍攝月" v-model="nowCasePlanM" />
                   </MDBCol>
                   <MDBCol col="4" class="my-3">
-                    <MDBInput required size="sm" type="text" label="地元尺寸GSD" v-model="nowCaseGSD" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="地元尺寸GSD" v-model="nowCaseGSD" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="南北航線數" v-model="nowCaseStripsNS" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="南北航線數" v-model="nowCaseStripsNS" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="東西航線數" v-model="nowCaseStripsEW" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="東西航線數" v-model="nowCaseStripsEW" />
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="前後重疊率 %" v-model="nowCaseEndLap" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="前後重疊率 %" v-model="nowCaseEndLap" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="側向重疊率 %" v-model="nowCaseSideLap" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="側向重疊率 %" v-model="nowCaseSideLap" />
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="飛航橢球高(m)" v-model="nowCaseEllH" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="飛航橢球高(m)" v-model="nowCaseEllH" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput required size="sm" type="text" label="飛航離地高AGL(m)" v-model="nowCaseAGL" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="飛航離地高AGL(m)" v-model="nowCaseAGL" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
                     <div style="color: red;" class="border border-danger">※AGL = 橢球高 - 195 m</div>
@@ -697,7 +768,7 @@ const seletPrjPublishDate = ref("");
                 <MDBRow>
                   <!-- 率定報告 -->
                   <MDBCol col="9" class="my-3">
-                    <MDBInput required style="padding-right: 2.2em;" size="sm" type="text" readonly label="像機率定報告"
+                    <MDBInput tooltipFeedback required style="padding-right: 2.2em;" size="sm" type="text" readonly label="像機率定報告"
                       v-model="nowCaseCamReport">
                       <MDBBtnClose @click.prevent="nowCaseCamReport =''" class="btn-upload-close" />
                     </MDBInput>
@@ -710,7 +781,7 @@ const seletPrjPublishDate = ref("");
                   <div></div>
                   <!-- 規劃圖 -->
                   <MDBCol col="9" class="mb-3">
-                    <MDBInput required style="padding-right: 2.2em;" size="sm" type="text" readonly label="航線規劃圖"
+                    <MDBInput tooltipFeedback required style="padding-right: 2.2em;" size="sm" type="text" readonly label="航線規劃圖"
                       v-model="nowCasePlanMap">
                       <MDBBtnClose @click.prevent="nowCasePlanMap =''" class="btn-upload-close" />
                     </MDBInput>
@@ -729,10 +800,10 @@ const seletPrjPublishDate = ref("");
           <MDBStepperHead icon="2">
             送校
           </MDBStepperHead>
-          <MDBStepperContent>
+          <MDBStepperContent :key="updateKey">
             <MDBRow>
               <MDBCol col="4" class="my-3">
-                <MDBDatepicker required size="sm" v-model="nowCaseRecDate" format=" YYYY-MM-DD " label="送件日"
+                <MDBDatepicker required size="sm" v-model="nowCaseRecDate" format="YYYY-MM-DD" label="送件日"
                   ref="nowCaseRecDateDOM" />
               </MDBCol>
               <div></div>
@@ -742,7 +813,7 @@ const seletPrjPublishDate = ref("");
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="4" class="my-3">
-                    <MDBDatepicker required size="sm" v-model="nowCaseFlyDate" format=" YYYY-MM-DD " label="航拍日"
+                    <MDBDatepicker required size="sm" v-model="nowCaseFlyDate" format="YYYY-MM-DD " label="航拍日"
                       ref="nowCaseFlyDateDOM" />
                   </MDBCol>
                   <MDBCol col="4" class="my-3">
@@ -866,10 +937,10 @@ const seletPrjPublishDate = ref("");
           <MDBStepperHead icon="3">
             校正
           </MDBStepperHead>
-          <MDBStepperContent>
+          <MDBStepperContent :key="updateKey">
             <MDBRow>
               <MDBCol col="4" class="my-3">
-                <MDBDatepicker required size="sm" v-model="nowCaseStartDate" format=" YYYY-MM-DD " label="校正開始日"
+                <MDBDatepicker required size="sm" v-model="nowCaseStartDate" format="YYYY-MM-DD" label="校正開始日"
                   ref="nowCaseStartDateDOM" />
               </MDBCol>
               <div></div>
@@ -901,7 +972,6 @@ const seletPrjPublishDate = ref("");
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
-
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 量測紀錄
               </MDBCol>
@@ -951,7 +1021,6 @@ const seletPrjPublishDate = ref("");
                     <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
                     <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
                   </MDBCol>
-
                   <MDBCol col="4" class="mb-3">
                     <MDBInput required disabled size="sm" type="text" label="強制網中誤差" v-model="nowCaseFixStd" />
                   </MDBCol>
@@ -991,7 +1060,6 @@ const seletPrjPublishDate = ref("");
                     <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
                     <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
                   </MDBCol>
-
                   <MDBCol col="4" class="mb-3">
                     <MDBInput required disabled size="sm" type="text" label="控制點數" v-model="nowCaseCrtNo" />
                   </MDBCol>
@@ -1008,7 +1076,6 @@ const seletPrjPublishDate = ref("");
                   <MDBCol col="4" class="mb-3">
                     <MDBInput required disabled size="sm" type="text" label="多餘觀測量" v-model="nowCaseRedundancy" />
                   </MDBCol>
-
                   <MDBCol col="4" class="mb-3">
                     <MDBInput required disabled size="sm" type="text" label="X-均方根" v-model="nowCaseRMSx" />
                   </MDBCol>
@@ -1053,7 +1120,6 @@ const seletPrjPublishDate = ref("");
                     <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
                     <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
                   </MDBCol>
-
                   <!-- 點位分布圖 -->
                   <MDBCol col="8" class="mb-3">
                     <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="點位分布圖"
@@ -1086,7 +1152,7 @@ const seletPrjPublishDate = ref("");
                   <MDBCol col="4" class="mb-3">
                     <MDBInput required disabled size="sm" type="text" label="高程涵蓋因子" v-model="nowCaseKv" />
                   </MDBCol>
-
+                  <div></div>
                   <!-- 產生作業紀錄表 -->
                   <MDBCol col="8" class="mb-3">
                     <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="作業紀錄表"
@@ -1107,8 +1173,87 @@ const seletPrjPublishDate = ref("");
           <MDBStepperHead icon="4">
             出具報告
           </MDBStepperHead>
-          <MDBStepperContent>
-            報告內容01
+          <MDBStepperContent :key="updateKey">
+            <MDBRow>
+              <MDBCol col="6">
+                <MDBRow>
+                  <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                    報告設定
+                  </MDBCol>
+                  <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                    <MDBRow>
+                      <MDBCol col="12" class="my-3">
+                        <MDBSwitch label="具TAF-LOGO" v-model="nowCaseHasLOGO" />
+                      </MDBCol>
+                      <!-- 選擇報告範本 -->
+                      <MDBCol col="8" class="mb-3">
+                        <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="報告範本"
+                          v-model="nowCaseReportTemp">
+                          <MDBBtnClose @click.prevent="nowCaseReportTemp =''" class="btn-upload-close" />
+                        </MDBInput>
+                      </MDBCol>
+                      <MDBCol col="3" class="px-0 mb-3">
+                        <input type="file" id="RecTemp" @change="" style="display: none;" />
+                        <MDBBtn size="sm" color="primary" @click="">選擇範本</MDBBtn>
+                        <MDBBtn size="sm" color="primary" @click="">產生報告</MDBBtn>
+                      </MDBCol>
+
+                      <!-- 報告編輯檔 -->
+                      <MDBCol col="8" class="mb-3">
+                        <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="報告編輯檔"
+                          v-model="nowCaseReportEdit">
+                          <MDBBtnClose @click.prevent="nowCaseReportEdit =''" class="btn-upload-close" />
+                        </MDBInput>
+                      </MDBCol>
+                      <MDBCol col="3" class="px-0 mb-3">
+                        <input type="file" id="REFUpload" @change="" style="display: none;" />
+                        <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
+                        <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                      </MDBCol>
+
+                      <MDBCol col="4" class="mb-3">
+                        <MDBDatepicker required size="sm" v-model="nowCaseCompleteDate" format="YYYY-MM-DD" label="報告完成日"
+                          ref="nowCaseCompleteDateDOM" />
+                      </MDBCol>
+                    </MDBRow>
+                  </MDBCol>
+                  <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                    檢核與簽署
+                  </MDBCol>
+                  <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                    <MDBRow>
+                      <SelectPs
+                        :signData="signData"
+                      />
+                      <!-- 校正報告掃描檔 -->
+                      <MDBCol col="8" class="mb-3">
+                        <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="報告掃描檔"
+                          v-model="nowCaseReportScan">
+                          <MDBBtnClose @click.prevent="nowCaseReportScan =''" class="btn-upload-close" />
+                        </MDBInput>
+                      </MDBCol>
+                      <MDBCol col="3" class="px-0 mb-3">
+                        <input type="file" id="ReportScanUpload" @change="" style="display: none;" />
+                        <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
+                        <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                      </MDBCol>
+                    </MDBRow>
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              <MDBCol col="6">
+                <MDBRow>
+                  <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                    校正報告
+                  </MDBCol>
+                  <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                    <MDBRow>
+                      <iframe id="nowCasePDF-viewer" :src="nowCasePDFPath" style="height:calc(100vh - 16rem) ;" class="w-100"></iframe>
+                    </MDBRow>
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+            </MDBRow>
           </MDBStepperContent>
         </MDBStepperStep>
       </MDBStepperForm>
@@ -1116,8 +1261,6 @@ const seletPrjPublishDate = ref("");
   </div>
 </template>
 <style>
-
-
 .rounded-top-5 {
   border-top-right-radius: 0.5rem !important;
   border-top-left-radius: 0.5rem !important;
@@ -1146,5 +1289,23 @@ const seletPrjPublishDate = ref("");
 .py-3 {
   padding-top: 0rem !important;
   padding-bottom: 0rem !important;
+}
+.was-validated .form-control:invalid, .form-control.is-invalid {
+    margin-bottom: 0rem;
+    background-image: none;
+    border-color: #f93154;
+}
+.was-validated .form-control:valid, .form-control.is-valid {
+    margin-bottom: 0rem;
+    background-image: none;
+    border-color: #00b74a;
+}
+.was-validated .form-check-input:invalid~.form-check-label, .form-check-input.is-invalid~.form-check-label {
+    color: #f93154;
+    margin-bottom: 0rem;
+}
+.was-validated .form-check-input:valid~.form-check-label, .form-check-input.is-valid~.form-check-label {
+    color: #00b74a;
+    margin-bottom: 0rem;
 }
 </style>

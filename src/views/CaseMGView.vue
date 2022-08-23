@@ -634,7 +634,7 @@ refgetCaseAllItem();
       // 填入簡單資料
       let getData = result.data.getCasebyID;
       nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
-      nowCaseAppDate.value = toTWDate(getData.app_date);
+      nowCaseAppDate.value = (getData.app_date)?getData.app_date.split("T")[0]:"";
       nowCaseTypeName.value = getData.cal_type_cal_typeTocase_base.name;
       nowCaseTypeId.value = getData.cal_type
       nowCaseCustId.value = getData.cus_id
@@ -653,7 +653,7 @@ refgetCaseAllItem();
       }else{
         nowCaseCharge.value = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(getData.charge);  
       }
-      nowCasePayDate.value = toTWDate(getData.pay_date);
+      nowCasePayDate.value = (getData.pay_date)?getData.pay_date.split("T")[0]:"";
       nowCaseOperatorDOM.value.setValue(parseInt(getData.operators_id));
       nowCaseLeaderDOM.value.setValue(parseInt(getData.leader_id));
     }
@@ -784,8 +784,10 @@ refgetCaseAllItem();
     // 檢查必填資料
     // 新增Case_base
     // 依據校正項目同步新增record_01或record_02※解析器已經同步新增
-    addCase();
-    showCaseNew.value = false;
+    if(addCaseTypeIdSEL.value!==""){
+      addCase();
+      showCaseNew.value = false;
+    }
   }
 
   // 新增案件==取消
@@ -927,19 +929,19 @@ refgetCaseAllItem();
                     <MDBInput size="sm" type="text" label="序號" v-model="caseSelnumSEL" />
                   </MDBCol>
                   <MDBCol col="3" class="mb-3">
-                    <MDBDatepicker size="sm" v-model="caseAppDateStartSEL" format=" YYYY-MM-DD " label="申請日(起)"
+                    <MDBDatepicker size="sm" v-model="caseAppDateStartSEL" format="YYYY-MM-DD" label="申請日(起)"
                       ref="caseAppDateStartFilter" />
                   </MDBCol>
                   <MDBCol col="3" class="mb-3">
-                    <MDBDatepicker size="sm" v-model="caseAppDateEndtSEL" format=" YYYY-MM-DD " label="申請日(迄)"
+                    <MDBDatepicker size="sm" v-model="caseAppDateEndtSEL" format="YYYY-MM-DD" label="申請日(迄)"
                       ref="caseAppDateEndFilter" />
                   </MDBCol>
                   <MDBCol col="3" class="mb-3">
-                    <MDBDatepicker size="sm" v-model="casePayDateStartSEL" format=" YYYY-MM-DD " label="繳費日(起)"
+                    <MDBDatepicker size="sm" v-model="casePayDateStartSEL" format="YYYY-MM-DD" label="繳費日(起)"
                       ref="casePayDateStartFilter" />
                   </MDBCol>
                   <MDBCol col="3" class="mb-3">
-                    <MDBDatepicker size="sm" v-model="casePayDateEndtSEL" format=" YYYY-MM-DD " label="繳費日(迄)"
+                    <MDBDatepicker size="sm" v-model="casePayDateEndtSEL" format="YYYY-MM-DD" label="繳費日(迄)"
                       ref="casePayDateEndFilter" />
                   </MDBCol>
                 </MDBRow>
@@ -1017,7 +1019,7 @@ refgetCaseAllItem();
                 <MDBInput size="sm" style="text-align: right" type="text" label="費用" v-model="nowCaseCharge" />
               </MDBCol>
               <MDBCol col="6" class="mb-3">
-                <MDBDatepicker size="sm" v-model="nowCasePayDate" format=" YYYY-MM-DD " label="繳費日"
+                <MDBDatepicker size="sm" v-model="nowCasePayDate" format="YYYY-MM-DD" label="繳費日"
                   ref="nowCasePayDateDOM" />
               </MDBCol>
               <MDBCol col="12" class="mb-3">
@@ -1028,15 +1030,15 @@ refgetCaseAllItem();
           <!-- 新增案件表單 -->
           <MDBCol md="4" v-show="showCaseNew" class="h-100 py-2 bg-primary">
             <MDBAnimation class="h-100" animation="fade-in-right" trigger="manually" v-model="showCaseNew">
-              <MDBRow style="margin-left:0;margin-right:0;"
+              <MDBRow tag="form" @submit.prevent="AddCaseOK" style="margin-left:0;margin-right:0;"
                 class="h-100 bg-light align-content-start overflow-auto border border-5 rounded-8 shadow-4">
                 <MDBCol col="12" class="mb-3">新增案件</MDBCol>
                 <div class="d-flex mb-3 justify-content-end">
                   <MDBBtn size="sm" color="warning" @click="AddCaseCancel">取消</MDBBtn>
-                  <MDBBtn size="sm" color="primary" @click="AddCaseOK">確認</MDBBtn>
+                  <MDBBtn size="sm" color="primary" type="submit">確認</MDBBtn>
                 </div>
                 <MDBCol col="6" class="mb-4">
-                  <MDBInput counter :maxlength="12" size="sm" type="text" label="案件編號" v-model="addCaseID" />
+                  <MDBInput required counter :maxlength="12" size="sm" type="text" label="案件編號" v-model="addCaseID" />
                 </MDBCol>
                 <div></div>
                 <MDBCol style="font-size: 0.8rem" class="mx-3 mb-3 p-2 border">
@@ -1048,7 +1050,7 @@ refgetCaseAllItem();
                 </MDBCol>
                 <div></div>
                 <MDBCol col="6" class="mb-3">
-                  <MDBDatepicker size="sm" v-model="addCaseAppDate" format=" YYYY-MM-DD " label="申請日"
+                  <MDBDatepicker required size="sm" v-model="addCaseAppDate" format="YYYY-MM-DD" label="申請日"
                     ref="addCaseAppDateDOM" />
                 </MDBCol>
                 <MDBCol col="6" class="mb-3">
@@ -1059,11 +1061,13 @@ refgetCaseAllItem();
                   申請日期可由案件編號前8碼取得或自行設定
                 </MDBCol>
                 <div></div>
-                <MDBSelect size="sm" class="mb-3  col-10" label="校正項目" v-model:options="addCaseTypeIdMU"
+                <MDBSelect required data-mdb-validation="true"
+                  data-mdb-valid-feedback="This value is valid"
+                  data-mdb-invalid-feedback="This value is invalid" size="sm" class="mb-3  col-10" label="校正項目" v-model:options="addCaseTypeIdMU"
                   v-model:selected="addCaseTypeIdSEL" ref="addCaseTypeIdDOM" />
                 <div></div>
                 <MDBCol col="12" class="mb-4">
-                  <MDBInput size="sm" type="text" label="校正目的" v-model="addCasePurpose" />
+                  <MDBInput required size="sm" type="text" label="校正目的" v-model="addCasePurpose" />
                 </MDBCol>
               </MDBRow>
             </MDBAnimation>
