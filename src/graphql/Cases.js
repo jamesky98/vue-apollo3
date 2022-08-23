@@ -506,6 +506,49 @@ const DELCASE = gql`
   }
 `;
 
+const SAVECASESIMPLE = gql`
+  mutation UpdateCase(
+    $updateCaseId: String!
+    $statusCode: Int
+    $appDate: Date
+    $cusId: Int
+    $title: String
+    $address: String
+    $purpose: String
+    $calType: Int
+    $itemId: Int
+    $charge: Int
+    $payDate: Date
+    $agreement: String
+    $leaderId: Int
+    $operatorsId: Int
+  ) {
+    updateCase(
+      id: $updateCaseId
+      status_code: $statusCode
+      app_date: $appDate
+      cus_id: $cusId
+      title: $title
+      address: $address
+      purpose: $purpose
+      cal_type: $calType
+      item_id: $itemId
+      charge: $charge
+      pay_date: $payDate
+      agreement: $agreement
+      leader_id: $leaderId
+      operators_id: $operatorsId
+    ) {
+      id
+    }
+  }
+`;
+
+
+// const SAVECASERECORD01 = gql``;
+
+// const SAVECASERECORD02 = gql``;
+
 export default {
   GETALLCASE,
   GETCASESTATUS,
@@ -517,4 +560,7 @@ export default {
   GETSIMPLECASEBYID,
   ADDCASE,
   DELCASE,
+  SAVECASESIMPLE,
+  // SAVECASERECORD01,
+  // SAVECASERECORD02,
 };

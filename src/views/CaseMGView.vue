@@ -648,11 +648,7 @@ refgetCaseAllItem();
       nowCaseAddress.value = getData.address;
       nowCasePurpose.value = getData.purpose;
       nowCaseAgreement.value = getData.agreement;
-      if (getData.charge === 0){
-        nowCaseCharge.value =""  
-      }else{
-        nowCaseCharge.value = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(getData.charge);  
-      }
+      nowCaseCharge.value = getData.charge;
       nowCasePayDate.value = (getData.pay_date)?getData.pay_date.split("T")[0]:"";
       nowCaseOperatorDOM.value.setValue(parseInt(getData.operators_id));
       nowCaseLeaderDOM.value.setValue(parseInt(getData.leader_id));
@@ -685,17 +681,71 @@ refgetCaseAllItem();
     showCaseNew.value = true;
   }
 
-  // 顯示編輯更多畫面
   const caseBtnText = ref("編輯更多<i class='fas fa-angle-double-right'/>");
   const showCaseLeftDiv = ref(true);
   const animationType = ref("slide-left-ja");
   const showCaseEditAnima = ref(false);
-
   const showCaseEditR01Flag = ref(false);
   const showCaseEditR02Flag = ref(false);
+  const addBtnDisabled = ref(false); //是否為完整編輯畫面
 
-  const addBtnDisabled = ref(false);
-  // 編輯更多按鈕
+  // 儲存案件
+  // mutation case_base
+  const { mutate: saveCaseS, onDone: saveCaseSOnDone, onError: saveCaseSError } = useMutation(
+    CaseGQL.SAVECASESIMPLE,
+    () => ({
+      variables: {
+        updateCaseId: nowCaseID.value,
+        statusCode: parseInt(nowCaseStatus.value),
+        cusId: parseInt(nowCaseCustId.value),
+        title: nowCaseTitle.value,
+        address: nowCaseAddress.value,
+        purpose: nowCasePurpose.value,
+        charge: parseInt(nowCaseCharge.value),
+        payDate: (nowCasePayDate.value === "")?null:(nowCasePayDate.value.trim() + "T00:00:00.000Z"),
+        agreement: nowCaseAgreement.value,
+        leaderId: parseInt(nowCaseLeader.value),
+        operatorsId: parseInt(nowCaseOperator.value),
+      }
+    })
+  );
+  saveCaseSOnDone(result=>{
+    if(!addBtnDisabled.value){
+      //簡單模式
+      refgetAllCase();
+      infomsg.value = "ID:" + nowCaseID.value + "完成儲存";
+      alert1.value = true;
+    }
+  });
+
+  // mutation record01
+
+  // mutation record02
+
+  function saveNowCaseData(){
+    if(addBtnDisabled.value){
+      // 完整畫面saveSimple + Record01 or Record02
+      switch (nowCaseTypeId.value){
+        case 1:
+          // 航測相機
+        case 3:
+          // 小像幅
+          // mutation case_base+record01
+          saveCaseS();
+          break;
+        case 2:
+          // 空載光達
+          // mutation case_base+record02
+          break;
+      }
+    }else{
+      // 簡易畫面saveSimple
+      // mutation case_base
+      saveCaseS();
+    }
+  }
+
+  // 顯示編輯更多畫面
   function showCaseEdit() {
     if (showCaseEditAnima.value) {
       if (animationType.value === "slide-right-ja") {
@@ -959,7 +1009,7 @@ refgetCaseAllItem();
                   刪除案件
                 </MDBPopconfirm>
                 <MDBBtn size="sm" :disabled="addBtnDisabled" color="primary" @click="openAddCaseForm">新增</MDBBtn>
-                <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
+                <MDBBtn size="sm" color="primary" @click="saveNowCaseData">儲存</MDBBtn>
                 <MDBBtn size="sm" color="primary" @click="showCaseEdit" v-html="caseBtnText">
                 </MDBBtn>
               </div>
