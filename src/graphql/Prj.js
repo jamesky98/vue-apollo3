@@ -16,6 +16,7 @@ const GETALLPRJ = gql`
       cal_type_id
       cal_type {
         name
+        code
       }
       method
       year
