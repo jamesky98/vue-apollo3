@@ -50,10 +50,42 @@ const GETPRJBYID = gql`
   }
 `;
 
+const GETGCPRECBYPRJ = gql`
+  query GetGcpRecordsByPrj($projectId: Int, $status: String, $calTypeId: Int) {
+    getGcpRecordsByPrj(
+      project_id: $projectId
+      status: $status
+      cal_type_id: $calTypeId
+    ) {
+      id
+      gcp_id
+      gcp {
+        type_code
+      }
+      project_id
+      date
+      person
+      status
+      coor_E
+      coor_N
+      coor_h
+      close_photo
+      far_photo1
+      far_photo2
+      far_photo3
+      obstruction
+      ismodify
+      comment
+    }
+  }
+`;
+
+
 // const SAVEPRJ = gql``;
 
 export default {
   GETALLPRJ,
   GETPRJBYID,
+  GETGCPRECBYPRJ,
   // SAVEPRJ,
 };

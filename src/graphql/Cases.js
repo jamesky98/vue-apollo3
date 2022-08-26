@@ -544,7 +544,6 @@ const SAVECASESIMPLE = gql`
   }
 `;
 
-
 const SAVECASERECORD01 = gql`
   mutation UpdateRecord01(
     $updateRecord01Id: String!
@@ -733,6 +732,7 @@ const UPLOADFILE = gql`
     }
   }
 `;
+
 
 export default {
   GETALLCASE,
