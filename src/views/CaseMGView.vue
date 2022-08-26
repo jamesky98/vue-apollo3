@@ -3,7 +3,7 @@ import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import Record01 from "../components/Record01.vue";
 import Record02 from "../components/Record02.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, provide } from "vue";
 import path from "path-browserify";
 import {
   MDBInput,
@@ -579,6 +579,10 @@ refgetCaseAllItem();
   const addCaseTypeIdDOM = ref("");
   const nowCaseTypeId = ref("");
 
+  // 校正件
+  const nowCaseItemID = ref("");
+  provide('nowCaseItemID',nowCaseItemID);
+
   // 顧客
   const nowCaseCustId = ref("");
   const nowCaseCustOrgName = ref("");
@@ -701,6 +705,7 @@ refgetCaseAllItem();
         title: nowCaseTitle.value,
         address: nowCaseAddress.value,
         purpose: nowCasePurpose.value,
+        itemId: (nowCaseItemID.value === "")?null:parseInt(nowCaseItemID.value),
         charge: parseInt(nowCaseCharge.value),
         payDate: (nowCasePayDate.value === "")?null:(nowCasePayDate.value.trim() + "T00:00:00.000Z"),
         agreement: nowCaseAgreement.value,
@@ -719,8 +724,9 @@ refgetCaseAllItem();
   });
 
   // mutation record01
-
+  const subFormRecord01 = ref();
   // mutation record02
+  const subFormRecord02 = ref();
 
   function saveNowCaseData(){
     if(addBtnDisabled.value){
@@ -732,10 +738,13 @@ refgetCaseAllItem();
           // 小像幅
           // mutation case_base+record01
           saveCaseS();
+          subFormRecord01.value.saveRecord01();
           break;
         case 2:
           // 空載光達
           // mutation case_base+record02
+          saveCaseS();
+          subFormRecord02.value.saveRecord02();
           break;
       }
     }else{
@@ -1125,13 +1134,13 @@ refgetCaseAllItem();
           <MDBCol md="8" v-if="showCaseEditR01Flag" class="h-100 py-2">
             <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
               <!-- record01表單 -->
-              <Record01 :caseID="nowCaseID" :key="updateKey" />
+              <Record01 :caseID="nowCaseID" :key="updateKey" ref="subFormRecord01"/>
             </MDBRow>
           </MDBCol>
           <MDBCol md="8" v-else-if="showCaseEditR02Flag" class="h-100 py-2">
             <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
               <!-- record02表單 -->
-              <Record02 :caseID="nowCaseID" :key="updateKey" />
+              <Record02 :caseID="nowCaseID" :key="updateKey" ref="subFormRecord02"/>
             </MDBRow>
           </MDBCol>
         </MDBRow>

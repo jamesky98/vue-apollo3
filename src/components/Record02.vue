@@ -405,6 +405,14 @@ function showItemFromBtn(x){
 
 // 校正件列表=========end
 
+
+defineExpose({
+  nowCaseItemID,
+  saveRecord02 (){
+
+  }
+});
+
 </script>
 <template>
   <div class="h-100 overflow-auto">

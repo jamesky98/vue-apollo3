@@ -565,8 +565,10 @@ function saveDocBtn() {
     document.getElementById("itemUpload").click();
   }
 
-  const upFile = ref();
+  
+  // 上傳檔案
   const { mutate: uploadDoc, onDone: uploadDocOnDone } = useMutation(DocsGQL.UPLOADDOC);
+  // 儲存(更新)上傳路徑檔名
   const { mutate: saveUpload, onDone: saveUploadOnDone, onError: saveUploadError } = useMutation(DocsGQL.SAVEUPLOAD);
 
   saveUploadOnDone(() => {
@@ -596,6 +598,8 @@ function saveDocBtn() {
     }
   });
 
+  // 檔案選擇器選擇事件
+  const upFile = ref();
   function uploadChenge(e){
     upFile.value = e.target.files[0];
     uploadDoc({ 

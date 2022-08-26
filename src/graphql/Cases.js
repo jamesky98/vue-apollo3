@@ -545,9 +545,194 @@ const SAVECASESIMPLE = gql`
 `;
 
 
-// const SAVECASERECORD01 = gql``;
+const SAVECASERECORD01 = gql`
+  mutation UpdateRecord01(
+    $updateRecord01Id: String!
+    $camType: Int
+    $focal: Float
+    $ppaX: Float
+    $ppaY: Float
+    $pxW: Int
+    $pxH: Int
+    $pxSizeX: Float
+    $pxSizeY: Float
+    $sizeX: Float
+    $sizeY: Float
+    $planYear: Int
+    $planMonth: Int
+    $gsd: Float
+    $stripsNs: Int
+    $stripsEw: Int
+    $endLap: Float
+    $sideLap: Float
+    $ellHeight: Float
+    $agl: Float
+    $camReport: String
+    $planMap: String
+    $receiveDate: Date
+    $flyDate: Date
+    $stripNsAc: Int
+    $stripEwAc: Int
+    $endLapAc: Float
+    $sideLapAc: Float
+    $ellHeightAc: Float
+    $aglAc: Float
+    $gsdAc: Float
+    $camParm: String
+    $flyMap: String
+    $recTable: String
+    $photoNo: Int
+    $others: String
+    $errData: String
+    $errPhoto: String
+    $distorCorrSoft: String
+    $distorCorrVer: String
+    $undistortion: Boolean
+    $startDate: Date
+    $refId: Int
+    $refFile: String
+    $gcpFile: String
+    $totalPt: Int
+    $measPt: Int
+    $delPt: Int
+    $delComt: String
+    $freeStd: Float
+    $freeFile: String
+    $fixStd: Float
+    $fixFile: String
+    $imgNo: Int
+    $ctrNo: Int
+    $chkNo: Int
+    $atRpt: String
+    $connectNo: Int
+    $obsNo: Int
+    $redundancy: Int
+    $rmsX: Float
+    $rmsY: Float
+    $rmsZ: Float
+    $resultFile: String
+    $netGraph: String
+    $gcpGraph: String
+    $stdH: Float
+    $stdV: Float
+    $kH: Float
+    $kV: Float
+    $stdFile: String
+    $reportEdit: String
+    $chkDate: Date
+    $chkPersonId: Int
+    $completeDate: Date
+    $signDate: Date
+    $signPersonId: Int
+    $reportScan: String
+    $hasLogo: Boolean
+    $reportTemplate: String
+    $distrotion: String
+    $recordTamplate: String
+  ) {
+    updateRecord01(
+      id: $updateRecord01Id
+      cam_type: $camType
+      focal: $focal
+      ppa_x: $ppaX
+      ppa_y: $ppaY
+      px_w: $pxW
+      px_h: $pxH
+      px_size_x: $pxSizeX
+      px_size_y: $pxSizeY
+      size_x: $sizeX
+      size_y: $sizeY
+      plan_year: $planYear
+      plan_month: $planMonth
+      gsd: $gsd
+      strips_ns: $stripsNs
+      strips_ew: $stripsEw
+      end_lap: $endLap
+      side_lap: $sideLap
+      ell_height: $ellHeight
+      agl: $agl
+      cam_report: $camReport
+      plan_map: $planMap
+      receive_date: $receiveDate
+      fly_date: $flyDate
+      strip_ns_ac: $stripNsAc
+      strip_ew_ac: $stripEwAc
+      end_lap_ac: $endLapAc
+      side_lap_ac: $sideLapAc
+      ell_height_ac: $ellHeightAc
+      agl_ac: $aglAc
+      gsd_ac: $gsdAc
+      cam_parm: $camParm
+      fly_map: $flyMap
+      rec_table: $recTable
+      photo_no: $photoNo
+      others: $others
+      err_data: $errData
+      err_photo: $errPhoto
+      distor_corr_soft: $distorCorrSoft
+      distor_corr_ver: $distorCorrVer
+      Undistortion: $undistortion
+      start_Date: $startDate
+      ref_id: $refId
+      ref_file: $refFile
+      gcp_file: $gcpFile
+      total_pt: $totalPt
+      meas_pt: $measPt
+      del_pt: $delPt
+      del_comt: $delComt
+      free_std: $freeStd
+      free_file: $freeFile
+      fix_std: $fixStd
+      fix_file: $fixFile
+      img_no: $imgNo
+      ctr_no: $ctrNo
+      chk_no: $chkNo
+      at_rpt: $atRpt
+      connect_no: $connectNo
+      obs_no: $obsNo
+      redundancy: $redundancy
+      RMS_x: $rmsX
+      RMS_y: $rmsY
+      RMS_z: $rmsZ
+      result_file: $resultFile
+      net_graph: $netGraph
+      gcp_graph: $gcpGraph
+      std_h: $stdH
+      std_v: $stdV
+      k_h: $kH
+      k_v: $kV
+      std_file: $stdFile
+      report_edit: $reportEdit
+      chk_date: $chkDate
+      chk_person_id: $chkPersonId
+      complete_date: $completeDate
+      sign_date: $signDate
+      sign_person_id: $signPersonId
+      report_scan: $reportScan
+      has_logo: $hasLogo
+      report_template: $reportTemplate
+      distrotion: $distrotion
+      record_tamplate: $recordTamplate
+    ) {
+      id
+    }
+  }
+`;
 
 // const SAVECASERECORD02 = gql``;
+const UPLOADFILE = gql`
+  mutation UploadFile(
+    $file: Upload!
+    $subpath: String!
+    $newfilename: String!
+  ) {
+    uploadFile(file: $file, subpath: $subpath, newfilename: $newfilename) {
+      filename
+      mimetype
+      encoding
+    }
+  }
+`;
 
 export default {
   GETALLCASE,
@@ -561,6 +746,7 @@ export default {
   ADDCASE,
   DELCASE,
   SAVECASESIMPLE,
-  // SAVECASERECORD01,
+  SAVECASERECORD01,
+  UPLOADFILE,
   // SAVECASERECORD02,
 };

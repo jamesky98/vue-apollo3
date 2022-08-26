@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted,reactive } from "vue";
+import { ref, reactive, provide, inject } from "vue";
 import path from "path-browserify";
 import {
   MDBRadio,
@@ -34,6 +34,7 @@ import {
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../graphql/Cases";
 import ItemGQL from "../graphql/Item";
+import PrjGQL from "../graphql/Prj";
 import SelectPs from "./SelectPs.vue";
 
 import DataTable from 'datatables.net-vue3';
@@ -50,6 +51,8 @@ DataTable.use(Select);
 const props = defineProps({
   caseID: String
 });
+
+
 // 案件詳細編輯資料==========start
   // 案件之詳細資料
   // 申請
@@ -60,7 +63,7 @@ const props = defineProps({
 
   const nowCaseCamTypeID = ref(""); // 像機類型
 
-  const nowCaseItemID = ref(""); // 校正件索引
+  const nowCaseItemID = inject('nowCaseItemID'); // 校正件索引
   const nowCaseItemChop = ref(""); // 像機廠牌
   const nowCaseItemModel = ref(""); // 像機型號
   const nowCaseItemSN = ref(""); // 像機序號
@@ -87,7 +90,13 @@ const props = defineProps({
   const nowCaseEllH = ref(""); // 飛航橢球高
   const nowCaseAGL = ref(""); // 飛航離地高
   const nowCaseCamReport = ref(""); // 像機率定報告
+  const nowCaseCamReportDL = computed(()=>{
+    return "06_Case/"+ props.caseID + "/" + nowCaseCamReport.value
+  });
   const nowCasePlanMap = ref(""); // 航線規劃圖
+  const nowCasePlanMapDL = computed(()=>{
+    return "06_Case/"+ props.caseID + "/" + nowCasePlanMap.value
+  });
   // 送校
   const nowCaseRecDate = ref(""); // 送校日期
   const nowCaseRecDateDOM =ref();
@@ -104,11 +113,26 @@ const props = defineProps({
   const nowCaseAGLac = ref(""); // 實際飛航離地高
 
   const nowCaseCamUpload = ref(""); // 上傳像機參數
+  const nowCaseCamDL = computed(()=>{
+    return "06_Case/"+ props.caseID + "/" + nowCaseCamUpload.value
+  });
   const nowCaseFlyMapAc = ref(""); // 實際航線規劃圖
+  const nowCaseFlyMapAcDL = computed(()=>{
+    return "06_Case/"+ props.caseID + "/" + nowCaseFlyMapAc.value
+  });
   const nowCaseRecTable = ref(""); // 影像檢核紀錄表
+  const nowCaseRecTableDL = computed(()=>{
+    return "06_Case/"+ props.caseID + "/" + nowCaseRecTable.value
+  });
   const nowCaseEO = ref(""); //外方位資料檔
+  const nowCaseEODL = computed(()=>{
+    return "06_Case/"+ props.caseID + "/" + nowCaseEO.value
+  });
   const nowCasePhotoNo = ref(""); //送校影像數
   const nowCaseOther = ref(""); //設備佐證照片
+  const nowCaseOtherDL = computed(()=>{
+    return "06_Case/"+ props.caseID + "/" + nowCaseOther.value
+  });
   const nowCaseErrData = ref(""); // 送校資料異常註記
   const nowCaseErrPhoto = ref(""); // 送校影像異常註記
   // 校正
@@ -163,29 +187,29 @@ const props = defineProps({
   const nowCaseCompleteDateDOM = ref();
 
   const nowCaseChkDate = ref(""); // 數據檢核日
-  const nowCaseChkDateDOM = ref();
+  provide('nowCaseChkDate',nowCaseChkDate);
 
   const nowCaseChkPersonID = ref(""); //數據檢核人
+  provide('nowCaseChkPersonID',nowCaseChkPersonID);
+  const selectChkPersonID = ref("");
+  provide('selectChkPersonID',selectChkPersonID);
   const nowCaseChkPersonMU = ref([]);
-  const nowCaseChkPersonDOM = ref();
+  provide('nowCaseChkPersonMU',nowCaseChkPersonMU);
 
   const nowCaseSignDate = ref(""); // 報告簽署日
-  const nowCaseSignDateDOM = ref();
+  provide('nowCaseSignDate',nowCaseSignDate);
 
   const nowCaseSignPersonID = ref(""); // 報告簽署人
+  provide('nowCaseSignPersonID',nowCaseSignPersonID);
+  const selectSignPersonID = ref("");
+  provide('selectSignPersonID',selectSignPersonID);
   const nowCaseSignPersonMU = ref([]);
-  const nowCaseSignPersonDOM = ref();
+  provide('nowCaseSignPersonMU',nowCaseSignPersonMU);
 
+  const selectPsData = ref();
   const nowCaseReportScan = ref(""); //校正報告掃描檔
-  const nowCasePDFPath = ref(""); //校正報告掃描檔路徑
-  const signData = reactive({
-    nowCaseChkDate,
-    nowCaseChkPersonID,
-    nowCaseChkPersonMU,
-    nowCaseSignDate,
-    nowCaseSignPersonID,
-    nowCaseSignPersonMU,
-  });
+  const nowCasePDFPath = ref("pdfjs-dist/web/viewer.html"); //校正報告掃描檔路徑
+
   // 查詢Record01資料
 const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
   CaseGQL.GETFULLCASEBYID,
@@ -251,6 +275,9 @@ getNowCaseF(result => {
     // 校正
     nowCaseStartDate.value = (getData.start_Date)?getData.start_Date.split("T")[0]:"";
     nowCaseRefPrjID.value = getData.ref_id;
+    console.log(getData);
+    console.log(getData.ref_id);
+    console.log(getData.ref_project);
     nowCaseRefPrjCode.value = (getData.ref_project)?getData.ref_project.project_code:"";
     nowCaseRefPrjPublishDate.value = (getData.ref_project) ?getData.ref_project.publish_date.split("T")[0]:"";
     nowCaseREFUpload.value = getData.ref_file;
@@ -292,14 +319,18 @@ getNowCaseF(result => {
     ;
     nowCaseChkDate.value = (getData.chk_date)?getData.chk_date.split("T")[0]:"";
     nowCaseChkPersonID.value = getData.chk_person_id;
-    // nowCaseChkPersonDOM.value.setValue(getData.chk_person_id);
-
+    selectChkPersonID.value = getData.chk_person_id;
+    
     nowCaseSignDate.value = (getData.sign_date)?getData.sign_date.split("T")[0]:"";
     nowCaseSignPersonID.value = getData.sign_person_id;
-    // nowCaseSignPersonDOM.value.setValue(getData.sign_person_id);
+    selectSignPersonID.value = getData.sign_person_id;
 
     nowCaseReportScan.value = getData.report_scan
-    nowCasePDFPath.value = "pdfjs-dist/web/viewer.html?file=../../../" + nowCaseReportScan.value;
+    if (!getData.report_scan){
+      nowCasePDFPath.value = "pdfjs-dist/web/viewer.html";  
+    }else{
+      nowCasePDFPath.value = "pdfjs-dist/web/viewer.html?file=../../../" + getData.report_scan;
+    }
   }
 });
 refgetNowCaseF();
@@ -361,12 +392,6 @@ const selItemTypeID = ref("");
 const selItemTypeMU = ref([]);
 const selItemTypeDOM = ref();
 const selItemList = ref([]);
-// const selItemTypeName = computed(() => {
-//   let getData = selItemList.value.filter((x) => {
-//     return parseInt(x.id) === selItemTypeID.value;
-//   })[0];
-//   return (getData) ? getData.type : "";
-// });
 
 const selItemChop = ref("");
 const selItemModel = ref("");
@@ -559,13 +584,322 @@ function setItemBtn() {
   showItemFrom.value = false;
 }
 // 校正件列表=========end
+
 // 參考值列表=========start
+let dtPrj;
+const tablePrj = ref();
+const dataPrj = ref([]);
 const showPrjFrom = ref(false);
+const prjTabId = ref("prjFilter");
+
 const seletPrjID = ref("");
 const seletPrjCode = ref("");
 const seletPrjPublishDate = ref("");
 
+const filterPrjCode = ref("");
+
+const filterPrjPubDateStart = ref("");
+const filterPrjPubDateStartDOM = ref();
+
+const filterPrjPubDateEnd = ref("");
+const filterPrjPubDateEndDOM = ref();
+
+// 設定表格tablePrj
+const columnsPrj = [
+  { data: "id", title: "編號", defaultContent: "-" },
+  { data: "project_code", title: "作業編號", defaultContent: "-" },
+  { data: "cal_type.name", title: "校正項目", defaultContent: "-" },
+  { data: "publish_date", title: "發布日", defaultContent: "-", render: (data) => {return toTWDate(data);} },
+  { data: "method", title: "方式", defaultContent: "-" },
+  { data: "year", title: "作業年", defaultContent: "-" },
+  { data: "month", title: "月", defaultContent: "-" },
+  { data: "organizer", title: "作業機關", defaultContent: "-" },
+  { data: "start_date", title: "開始日", defaultContent: "-", render: (data) => {return toTWDate(data);}},
+  { data: "end_date", title: "結束日", defaultContent: "-", render: (data) => {return toTWDate(data);}},
+];
+const tboptionPrj = {
+  dom: 'ti',
+  select: {
+    style: 'single',
+    info: false
+  },
+  order: [[1, 'desc']],
+  scrollY: '22vh',
+  scrollX: true,
+  lengthChange: false,
+  searching: false,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  }
+};
+
+// 查詢量測作業資料
+const { result: allPrj, loading: lodingAllPrj, variables: varAllPrj, onResult: getAllPrj, refetch: refgetAllPrj } = useQuery(
+  PrjGQL.GETALLPRJ,
+);
+getAllPrj(result => {
+  // 加入量測作業資料
+  if (!result.loading && result.data.getAllPrj) {
+    dataPrj.value = result.data.getAllPrj;
+  }
+});
+
+// 查詢選取校正件資料
+// const { result: selPrjData, loading: loadselPrj, onResult: getselPrj, refetch: refgetselPrj } = useQuery(
+//   PrjGQL.GETPRJBYID,
+//   () => ({
+//     getPrjByIdId: parseInt(seletPrjID.value)
+//   })
+// );
+// getselPrj(result => {
+//   if (!result.loading && result && result.data.getPrjById) {
+//     let getData = result.data.getPrjById
+//     seletPrjCode.value = getData.project_code;
+//     seletPrjPublishDate.value = (getData.publish_date)?getData.publish_date.split("T")[0]:"";
+//   }else{
+//     seletPrjCode.value = "";
+//     seletPrjPublishDate.value = "";
+//   }
+// });
+
+function shownPrjModal() {
+  dtPrj = tablePrj.value.dt();
+  dtPrj.on('select', function (e, dt, type, indexes) {
+    let getData = dt.rows(indexes).data()[0];
+    seletPrjID.value = getData.id;
+    seletPrjCode.value = getData.project_code;
+    seletPrjPublishDate.value = getData.publish_date.split("T")[0];
+  });
+  refgetAllPrj();
+  // if (nowCaseRefPrjID.value) {
+  //   seletPrjID.value = nowCaseRefPrjID.value;
+  // }
+}
+
+// 更多編輯=>引導至校正件管理
+function gotoPrjMG(){
+  router.push('/prjs');
+}
+
+// 清除校正件篩選條件
+function clearPrjFilter() {
+  filterPrjCode.value = "";
+  filterPrjPubDateStart.value = "";
+  filterPrjPubDateEnd.value = "";
+}
+
+// 執行量測作業篩選
+function doPrjFilter() {
+  let where = {};
+  if (filterPrjCode.value !== "") where.projectCode = filterPrjCode.value;
+  if (filterPrjPubDateStart.value !== "") where.pubdateStart = filterPrjPubDateStart.value;
+  if (filterPrjPubDateEnd.value !== "") where.pubdateEnd = filterPrjPubDateEnd.value;
+
+  varAllPrj.value = where;
+}
+
+// 案加入後回填量測作業id
+function setPrjBtn() {
+  nowCaseRefPrjID.value = seletPrjID.value;
+  nowCaseRefPrjCode.value = seletPrjCode.value;
+  nowCaseRefPrjPublishDate.value = seletPrjPublishDate.value;
+  showPrjFrom.value = false;
+}
+
 // 參考值列表=========end
+
+
+// 儲存Record01
+const { mutate: saveRecord01, onDone: saveRecord01OnDone, onError: saveRecord01Error } = useMutation(
+  CaseGQL.SAVECASERECORD01,
+  () => ({
+    variables: {
+      updateRecord01Id: props.caseID,
+      camType: parseInt(nowCaseCamTypeID.value),
+      focal: parseFloat(nowCaseFocal.value),
+      ppaX: parseFloat(nowCasePPAx.value),
+      ppaY: parseFloat(nowCasePPAy.value),
+      pxW: parseInt(nowCasePXw.value),
+      pxH: parseInt(nowCasePXh.value),
+      pxSizeX: parseFloat(nowCasePxSizeX.value),
+      pxSizeY: parseFloat(nowCasePxSizeY.value),
+      sizeX: parseFloat(nowCaseSizeX.value),
+      sizeY: parseFloat(nowCaseSizeY.value),
+      planYear: parseInt(nowCasePlanY.value),
+      planMonth: parseInt(nowCasePlanM.value),
+      gsd: parseFloat(nowCaseGSD.value),
+      stripsNs: parseInt(nowCaseStripsNS.value),
+      stripsEw: parseInt(nowCaseStripsEW.value),
+      endLap: parseFloat(nowCaseEndLap.value),
+      sideLap: parseFloat(nowCaseSideLap.value),
+      ellHeight: parseFloat(nowCaseEllH.value),
+      agl: parseFloat(nowCaseAGL.value),
+      camReport: nowCaseCamReport.value,
+      planMap: nowCasePlanMap.value,
+      receiveDate: (nowCaseRecDate.value === "") ? null : (nowCaseRecDate.value.trim() + "T00:00:00.000Z"),
+      flyDate: (nowCaseFlyDate.value === "") ? null : (nowCaseFlyDate.value.trim() + "T00:00:00.000Z"),
+      stripNsAc: parseInt(nowCaseStrNSac.value),
+      stripEwAc: parseInt(nowCaseStrEWac.value),
+      endLapAc: parseFloat(nowCaseEndLapAc.value),
+      sideLapAc: parseFloat(nowCaseSideLapAc.value),
+      ellHeightAc: parseFloat(nowCaseEllHac.value),
+      aglAc: parseFloat(nowCaseAGLac.value),
+      gsdAc: parseFloat(nowCaseGSDac.value),
+      camParm: nowCaseCamUpload.value,
+      flyMap: nowCaseFlyMapAc.value,
+      recTable: nowCaseRecTable.value,
+      photoNo: parseInt(nowCasePhotoNo.value),
+      others: nowCaseOther.value,
+      errData: nowCaseErrData.value,
+      errPhoto: nowCaseErrPhoto.value,
+      distorCorrSoft: nowCaseDistSoft.value,
+      distorCorrVer: nowCaseDistVer.value,
+      undistortion: nowCaseUndist.value,
+      startDate: (nowCaseStartDate.value === "") ? null : (nowCaseStartDate.value.trim() + "T00:00:00.000Z"),
+      refId: parseInt(nowCaseRefPrjID.value),
+      refFile: nowCaseREFUpload.value,
+      gcpFile: nowCaseGCPUpload.value,
+      totalPt: parseInt(nowCaseTotPt.value),
+      measPt: parseInt(nowCaseMeaPt.value),
+      delPt: parseInt(nowCaseDelPt.value),
+      delComt: nowCaseDelCommt.value,
+      freeStd: parseFloat(nowCaseFreeStd.value),
+      freeFile: nowCaseFreeUpload.value,
+      fixStd: parseFloat(nowCaseFixStd.value),
+      fixFile: nowCaseFixUpload.value,
+      imgNo: parseInt(nowCaseImgNo.value),
+      ctrNo: parseInt(nowCaseCrtNo.value),
+      chkNo: parseInt(nowCaseChkNo.value),
+      atRpt: nowCaseATreport.value,
+      connectNo: parseInt(nowCaseConnectNo.value),
+      obsNo: parseInt(nowCaseObsNo.value),
+      redundancy: parseInt(nowCaseRedundancy.value),
+      rmsX: parseFloat(nowCaseRMSx.value),
+      rmsY: parseFloat(nowCaseRMSy.value),
+      rmsZ: parseFloat(nowCaseRMSz.value),
+      resultFile: nowCaseRsultFile.value,
+      netGraph: nowCaseNetGraph.value,
+      gcpGraph: nowCaseGCPGraph.value,
+      stdH: parseFloat(nowCaseSTDh.value),
+      stdV: parseFloat(nowCaseSTDv.value),
+      kH: parseFloat(nowCaseKh.value),
+      kV: parseFloat(nowCaseKv.value),
+      stdFile: nowCaseSTDExl.value,
+      reportEdit: nowCaseReportEdit.value,
+      chkDate: (nowCaseChkDate.value === "") ? null : (nowCaseChkDate.value.trim() + "T00:00:00.000Z"),
+      chkPersonId: (selectChkPersonID.value === "")?null:parseInt(selectChkPersonID.value),
+      completeDate: (nowCaseCompleteDate.value === "") ? null : (nowCaseCompleteDate.value.trim() + "T00:00:00.000Z"),
+      signDate: (nowCaseSignDate.value === "") ? null : (nowCaseSignDate.value.trim() + "T00:00:00.000Z"),
+      signPersonId: (selectSignPersonID.value === "")?null:parseInt(selectSignPersonID.value),
+      reportScan: nowCaseReportScan.value,
+      hasLogo: nowCaseHasLOGO.value,
+      reportTemplate: nowCaseReportTemp.value,
+      distrotion: nowCaseDist.value,
+      recordTamplate: nowCaseRecTemp.value,
+    }
+  })
+);
+saveRecord01Error((error) => {
+  console.log(error);
+});
+saveRecord01OnDone(() => {
+  // console.log('nowCaseChkPersonID: ',nowCaseChkPersonID.value); 
+  // console.log('selectChkPersonID: ',selectChkPersonID.value);
+  // infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
+  // alert1.value = true;
+});
+
+// 檔案上傳==========Start
+const uploadType = ref("");
+function uploadBtn(inputId){
+  // 由按鈕啟動檔案選擇器
+  uploadType.value = inputId;
+  document.getElementById(inputId).click();
+}
+
+// 上傳檔案
+const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(CaseGQL.UPLOADFILE);
+
+uploadFileOnDone(result=>{
+  // 儲存(更新)上傳紀錄資料
+  if(!uploadType.value){return}
+  switch (uploadType.value){
+    case 'itemCamReportUpload':
+      nowCaseCamReport.value = result.data.uploadFile.filename;
+      saveRecord01()
+      break;
+    case 'planMapUpload':
+      nowCasePlanMap.value = result.data.uploadFile.filename;
+      saveRecord01()
+      break;
+    case 'CamUploadUpload':
+      nowCaseCamUpload.value = result.data.uploadFile.filename;
+      saveRecord01()
+      break;
+    case 'FlyMapAcUpload':
+      nowCaseFlyMapAc.value = result.data.uploadFile.filename;
+      saveRecord01()
+      break;
+    case 'RecTableUpload':
+      nowCaseRecTable.value = result.data.uploadFile.filename;
+      saveRecord01()
+      break;
+    case 'EOUpload':
+      nowCaseEO.value = result.data.uploadFile.filename;
+      saveRecord01()
+      break;
+    case 'OtherUpload':
+      nowCaseOther.value = result.data.uploadFile.filename;
+      saveRecord01()
+      break;
+  }
+});
+
+// 檔案選擇器選擇事件
+const upFile = ref();
+function uploadChenge(e){
+  upFile.value = e.target.files[0];
+  let subpath = "06_Case/" + props.caseID;
+  let newName = "";
+  if(!uploadType.value){return}
+  switch (uploadType.value){
+    case 'itemCamReportUpload':
+      newName = "01_CamReport" + path.extname(e.target.value);
+      break;
+    case 'planMapUpload':
+      newName = "02_PlanDwg" + path.extname(e.target.value);
+      break;
+    case 'CamUploadUpload':
+      newName = "03_CamParameter" + path.extname(e.target.value);
+      break;
+    case 'FlyMapAcUpload':
+      newName = "04_APhotoDwg" + path.extname(e.target.value);
+      break;
+    case 'RecTableUpload':
+      newName = "05_RecForm" + path.extname(e.target.value);
+      break;
+    case 'EOUpload':
+      newName = "05_EO" + path.extname(e.target.value);
+      break;
+    case 'OtherUpload':
+      newName = "06_Other" + path.extname(e.target.value);
+      break;
+  }  
+  uploadFile({ 
+    file: upFile.value,
+    subpath: subpath,
+    newfilename: newName,
+  });
+}
+
+
+// 檔案上傳==========End
+
+defineExpose({
+  saveRecord01
+});
 
 </script>
 <template>
@@ -647,6 +981,63 @@ const seletPrjPublishDate = ref("");
         <MDBBtn color="primary" @click="setItemBtn">加入</MDBBtn>
       </MDBModalFooter>
     </MDBModal>
+    <!-- 選擇參考值量測作業 -->
+    <MDBModal style="left: 66%;" @shown="shownPrjModal" v-model="showPrjFrom" staticBackdrop scrollable>
+      <MDBModalHeader>
+        <MDBModalTitle>請選擇參考值量測作業</MDBModalTitle>
+      </MDBModalHeader>
+      <MDBModalBody>
+        <MDBContainer fluid>
+          <MDBRow>
+            <!-- 量測作業列表 -->
+            <MDBCol col="12">
+              <DataTable :data=" dataPrj" :columns="columnsPrj" :options="tboptionPrj" ref="tablePrj"
+                style="font-size: smaller" class="display w-100 compact" />
+            </MDBCol>
+            <!-- 篩選 或 編輯 -->
+            <MDBCol col="12" class="border">
+              <MDBTabs v-model="prjTabId">
+                <MDBTabNav tabsClasses="">
+                  <MDBTabItem tabId="prjFilter" href="prjFilter">條件篩選</MDBTabItem>
+                </MDBTabNav>
+                <MDBTabContent>
+                  <!-- 篩選表單 -->
+                  <MDBTabPane tabId="prjFilter">
+                    <!-- 功能列 -->
+                    <div class="mt-2">
+                      <MDBBtn size="sm" color="primary" @click="doPrjFilter">篩選</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="clearPrjFilter">清除</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="gotoPrjMG">量測作業管理</MDBBtn>
+                    </div>
+                    <!-- 條件欄位 -->
+                    <MDBRow>
+                      <MDBCol col="6" class="mb-2">
+                        目前：{{seletPrjID}}-{{seletPrjCode}}
+                      </MDBCol>
+                      <MDBCol col="6" class="mb-2">
+                        <MDBInput size="sm" type="text" label="作業編號" v-model="filterPrjCode" />
+                      </MDBCol>
+                      <div></div>
+                      <MDBCol col="6" class="mb-3">
+                        <MDBDatepicker size="sm" v-model="filterPrjPubDateStart" format="YYYY-MM-DD" label="發布日(起)"
+                          ref="filterPrjPubDateStartDOM" />
+                      </MDBCol>
+                      <MDBCol col="6" class="mb-3">
+                        <MDBDatepicker size="sm" v-model="filterPrjPubDateEnd" format="YYYY-MM-DD" label="發布日(迄)"
+                          ref="filterPrjPubDateEndDOM" />
+                      </MDBCol>
+                    </MDBRow>
+                  </MDBTabPane>
+                </MDBTabContent>
+              </MDBTabs>
+            </MDBCol>
+          </MDBRow>
+        </MDBContainer>
+      </MDBModalBody>
+      <MDBModalFooter>
+        <MDBBtn color="primary" @click="setPrjBtn">加入</MDBBtn>
+      </MDBModalFooter>
+    </MDBModal>
     <!-- record01表單 linear -->
     <MDBStepper linear @onChangeStep="onChangeStep">
       <MDBStepperForm>
@@ -669,7 +1060,7 @@ const seletPrjPublishDate = ref("");
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
-                    <MDBBtn size="sm" color="primary" @click="showItemFrom = true">查詢校正件</MDBBtn>
+                    <MDBBtn size="sm" color="primary" @click="showItemFrom = true">選擇校正件</MDBBtn>
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required disabled size="sm" type="text" label="廠牌" v-model="nowCaseItemChop" />
@@ -774,9 +1165,9 @@ const seletPrjPublishDate = ref("");
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 my-3">
-                    <input type="file" accept=".pdf" id="itemCamReportUpload" @change="" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
-                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                    <input type="file" id="itemCamReportUpload" @change="uploadChenge" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="uploadBtn('itemCamReportUpload')">上傳</MDBBtn>
+                    <MDBBtn tag="a" :href="nowCaseCamReportDL" download size="sm" color="secondary" @click="">下載</MDBBtn>
                   </MDBCol>
                   <div></div>
                   <!-- 規劃圖 -->
@@ -787,9 +1178,9 @@ const seletPrjPublishDate = ref("");
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".pdf" id="itemCamPlanUpload" @change="" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
-                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                    <input type="file" accept=".dwg" id="planMapUpload" @change="uploadChenge" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="uploadBtn('planMapUpload')">上傳</MDBBtn>
+                    <MDBBtn tag="a" :href="nowCasePlanMapDL" download size="sm" color="secondary" @click="">下載</MDBBtn>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -858,9 +1249,9 @@ const seletPrjPublishDate = ref("");
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 my-3">
-                    <input type="file" id="CamUploadUpload" @change="" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
-                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                    <input type="file" id="CamUploadUpload" @change="uploadChenge" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="uploadBtn('CamUploadUpload')">上傳</MDBBtn>
+                    <MDBBtn tag="a" :href="nowCaseCamDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <div></div>
                   <!-- 航線圖 -->
@@ -871,9 +1262,9 @@ const seletPrjPublishDate = ref("");
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" id="FlyMapAcUpload" @change="" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
-                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                    <input type="file" accept=".dwg" id="FlyMapAcUpload" @change="uploadChenge" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="uploadBtn('FlyMapAcUpload')">上傳</MDBBtn>
+                    <MDBBtn tag="a" :href="nowCaseFlyMapAcDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <!-- 航拍紀錄表 -->
                   <MDBCol col="9" class="mb-3">
@@ -883,9 +1274,9 @@ const seletPrjPublishDate = ref("");
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".pdf" id="FlyMapAcUpload" @change="" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
-                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                    <input type="file" accept=".pdf" id="RecTableUpload" @change="uploadChenge" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="uploadBtn('RecTableUpload')">上傳</MDBBtn>
+                    <MDBBtn tag="a" :href="nowCaseRecTableDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <!-- 外方位紀錄檔 -->
                   <MDBCol col="9" class="mb-3">
@@ -895,9 +1286,9 @@ const seletPrjPublishDate = ref("");
                     </MDBInput>
                   </MDBCol>
                   <MDBCol required col="3" class="px-0 mb-3">
-                    <input type="file" id="EOUpload" @change="" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
-                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                    <input type="file" id="EOUpload" @change="uploadChenge" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="uploadBtn('EOUpload')">上傳</MDBBtn>
+                    <MDBBtn tag="a" :href="nowCaseEODL" download size="sm" color="secondary" >下載</MDBBtn>
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput size="sm" type="text" label="送校影像數" v-model="nowCasePhotoNo" />
@@ -911,9 +1302,9 @@ const seletPrjPublishDate = ref("");
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" id="OtherUpload" @change="" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
-                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                    <input type="file" id="OtherUpload" @change="uploadChenge" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="uploadBtn('OtherUpload')">上傳</MDBBtn>
+                    <MDBBtn tag="a" :href="nowCaseOtherDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -945,7 +1336,7 @@ const seletPrjPublishDate = ref("");
               </MDBCol>
               <div></div>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
-                參考值
+                參考值{{nowCaseRefPrjID}}
               </MDBCol>
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
@@ -1222,9 +1613,7 @@ const seletPrjPublishDate = ref("");
                   </MDBCol>
                   <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                     <MDBRow>
-                      <SelectPs
-                        :signData="signData"
-                      />
+                      <SelectPs ref="selectPsData"/>
                       <!-- 校正報告掃描檔 -->
                       <MDBCol col="8" class="mb-3">
                         <MDBInput required disabled style="padding-right: 2.2em;" size="sm" type="text" label="報告掃描檔"
