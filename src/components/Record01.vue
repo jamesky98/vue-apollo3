@@ -224,8 +224,8 @@ const props = defineProps({
   const nowCaseRMSx = ref(""); // X-均方根(自動計算)
   const nowCaseRMSy = ref(""); // Y-均方根(自動計算)
   const nowCaseRMSz = ref(""); // Z-均方根(自動計算)
-  const nowCaseSTDh = ref(""); //水平較差均方根(自動計算)
-  const nowCaseSTDv = ref(""); //高程較差均方根(自動計算)
+  const nowCaseSTDh = ref(""); //水平不確定度(自動計算)
+  const nowCaseSTDv = ref(""); //高程不確定度(自動計算)
   const nowCaseRsultFile = ref(""); // 計算成果表(自動計算)
   const nowCaseRsultFileDL = computed(()=>{
     if(nowCaseRsultFile.value && nowCaseRsultFile.value !== ""){
@@ -744,24 +744,6 @@ getAllPrj(result => {
   }
 });
 
-// 查詢選取校正件資料
-// const { result: selPrjData, loading: loadselPrj, onResult: getselPrj, refetch: refgetselPrj } = useQuery(
-//   PrjGQL.GETPRJBYID,
-//   () => ({
-//     getPrjByIdId: parseInt(seletPrjID.value)
-//   })
-// );
-// getselPrj(result => {
-//   if (!result.loading && result && result.data.getPrjById) {
-//     let getData = result.data.getPrjById
-//     seletPrjCode.value = getData.project_code;
-//     seletPrjPublishDate.value = (getData.publish_date)?getData.publish_date.split("T")[0]:"";
-//   }else{
-//     seletPrjCode.value = "";
-//     seletPrjPublishDate.value = "";
-//   }
-// });
-
 function shownPrjModal() {
   dtPrj = tablePrj.value.dt();
   dtPrj.on('select', function (e, dt, type, indexes) {
@@ -771,9 +753,6 @@ function shownPrjModal() {
     seletPrjPublishDate.value = getData.publish_date.split("T")[0];
   });
   refgetAllPrj();
-  // if (nowCaseRefPrjID.value) {
-  //   seletPrjID.value = nowCaseRefPrjID.value;
-  // }
 }
 
 // 更多編輯=>引導至校正件管理
@@ -1060,14 +1039,17 @@ async function uploadChenge(e){
 
 
 // 讀取PrintOut.0 並填入資料====Start
+const { result: refPtData, variables: varRefPtData, onResult: getRefPtData, refetch: refgetRefPtData } = useQuery(
+  PrjGQL.GETGCPRECBYPRJ,
+);
+
+
 async function readPrintOut(POfile){
   let total_Img = 0; //像片總數
   let pt_Ref = 0;    //校正標數(參考值數量)
   let pt_F = 0;     //控制點數(Full control points)
   let pt_T = 0;     //連接點數(Tie points)
   let pt_C = 0;     //檢核點數(Check points)
-  let pt_Use = 0;   //使用校正標數 = pt_F + pt_C
-  let pt_Del = 0;   //刪除點數 = pt_Ref - (pt_F + pt_C)
 
   let total_Obs = 0;//總連結數(總觀測量)
   let redundancy = 0;//多餘觀測數
@@ -1106,33 +1088,23 @@ async function readPrintOut(POfile){
         let i = 0;
         do {
           if(allTextLines[i].trim()!==""){
-
-          
             //取得像片總數
             if(allTextLines[i].indexOf(" Number of Images")>=0){
               total_Img = parseInt(allTextLines[i].slice(allTextLines[i].indexOf(":")+1));
-              console.log("total_Img",total_Img);
-              // continue;
             }
 
             //取得總連結數(總觀測量)
             if(allTextLines[i].indexOf(" Total number of observations")>=0){
               total_Obs = parseInt(allTextLines[i].slice(allTextLines[i].indexOf(":")+1));
-              console.log("total_Obs",total_Obs);
-              // continue;
             }
             // 取得多餘觀測數
             if(allTextLines[i].indexOf(" Total redundancy")>=0){
               redundancy = parseInt(allTextLines[i].slice(allTextLines[i].indexOf(":")+1));
-              console.log("redundancy",redundancy);
-              // continue;
             }
 
             // 取得sigma0
             if(allTextLines[i].indexOf(" Sigma0:")>=0){
               sig_0 = parseFloat(allTextLines[i].slice(allTextLines[i].indexOf(":")+1));
-              console.log("sig_0",sig_0);
-              // continue;
             }
             
             // Blunders within control points
@@ -1217,21 +1189,49 @@ async function readPrintOut(POfile){
 
         // 比對參考值檔找出檢核點
         // 同時計算RMSE及檢核點數量
+        varRefPtData.value = {
+          projectId: parseInt(nowCaseRefPrjID.value),
+          status: "正常",
+          calTypeId: parseInt(nowCaseCamTypeID.value),
+        }
+        getRefPtData(result=>{
+          if(!result.loading && result.data.getGcpRecordsByPrj && pt_Data){
+            let refData = result.data.getGcpRecordsByPrj;
+            let dx=0.0;
+            let dy=0.0;
+            let dz=0.0;
+            refData.forEach((x,i)=>{
+              if(pt_Data[x.gcp_id]){
+                if(pt_Data[x.gcp_id].type==="T"){
+                  dx=dx+(pt_Data[x.gcp_id].x - x.coor_E) ** 2;
+                  dy=dy+(pt_Data[x.gcp_id].y - x.coor_N) ** 2;
+                  dz=dz+(pt_Data[x.gcp_id].z - x.coor_h) ** 2;
+                  pt_C=pt_C+1;
+                }
+              }
+            })
 
-        // 填入資料
-        nowCaseImgNo.value = total_Img;
-        nowCaseObsNo.value = total_Obs;
-        nowCaseRedundancy.value = redundancy;
-        nowCaseFixStd.value = sig_0 * 1000.0;
-        nowCaseRMSx.value = rms_X;
-        nowCaseRMSy.value = rms_Y;
-        nowCaseRMSz.value = rms_Z;
-        nowCaseTotPt.value = pt_Ref;
-        nowCaseMeaPt.value = pt_F + pt_C;
-        nowCaseDelPt.value = pt_Ref - (pt_F + pt_C);
-        nowCaseCrtNo.value = pt_F;
-        nowCaseChkNo.value = pt_C;
-        console.log(pt_Data);
+
+            // 填入資料
+            pt_Ref = refData.length;
+            nowCaseImgNo.value = total_Img;
+            nowCaseObsNo.value = total_Obs;
+            nowCaseRedundancy.value = redundancy;
+            nowCaseFixStd.value = sig_0 * 1000.0;
+            nowCaseRMSx.value = rms_X * 1000.0;
+            nowCaseRMSy.value = rms_Y * 1000.0;
+            nowCaseRMSz.value = rms_Z * 1000.0;
+            nowCaseTotPt.value = pt_Ref;
+            nowCaseMeaPt.value = pt_F + pt_C;
+            nowCaseDelPt.value = pt_Ref - (pt_F + pt_C);
+            nowCaseCrtNo.value = pt_F;
+            nowCaseChkNo.value = pt_C;
+            nowCaseConnectNo.value = pt_T;
+            
+          }
+        });
+        
+        console.log("pt_Data",pt_Data);
       };
     };
     //真正執行以文字方式載入檔案
@@ -1812,19 +1812,19 @@ defineExpose({
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="多餘觀測量" v-model="nowCaseRedundancy" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="X-均方根(m)" v-model="nowCaseRMSx" />
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="X-均方根(mm)" v-model="nowCaseRMSx" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="Y-均方根(m)" v-model="nowCaseRMSy" />
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="Y-均方根(mm)" v-model="nowCaseRMSy" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="Z-均方根(m)" v-model="nowCaseRMSz" />
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="Z-均方根(mm)" v-model="nowCaseRMSz" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="水平較差均方根(m)" v-model="nowCaseSTDh" />
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="水平不確定度(mm)" v-model="nowCaseSTDh" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="高程較差均方根(m)" v-model="nowCaseSTDv" />
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="高程不確定度(mm)" v-model="nowCaseSTDv" />
                   </MDBCol>
                   <div></div>
                   <!-- 計算成果表 -->
