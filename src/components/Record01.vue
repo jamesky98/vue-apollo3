@@ -1064,7 +1064,7 @@ async function readPrintOut(POfile){
   let total_Img = 0; //像片總數
   let pt_Ref = 0;    //校正標數(參考值數量)
   let pt_F = 0;     //控制點數(Full control points)
-  let pt_T = 0;     //連接點數(Tie points) = pt_F + pt_T
+  let pt_T = 0;     //連接點數(Tie points)
   let pt_C = 0;     //檢核點數(Check points)
   let pt_Use = 0;   //使用校正標數 = pt_F + pt_C
   let pt_Del = 0;   //刪除點數 = pt_Ref - (pt_F + pt_C)
@@ -1080,6 +1080,7 @@ async function readPrintOut(POfile){
 
   let isBlunderFlag = false;
   let isContrlPtFlag = false;
+  let isContrlPtFinish = false;
   let isLinkPtFlag = false;
 
   let pt_Data = {};
@@ -1088,7 +1089,8 @@ async function readPrintOut(POfile){
   let pt_X = 0.0;
   let pt_Y = 0.0;
   let pt_Z = 0.0;
-  let pt_temp = "";
+  let pt_temp;
+  let pt_temp_pos=0;
 
   if (POfile) { 
     //確認有檔案存在
@@ -1103,76 +1105,132 @@ async function readPrintOut(POfile){
         // 逐行解析
         let i = 0;
         do {
-          //取得像片總數
-          if(allTextLines[i].indexOf(" Number of Images")>=0){
-            total_Img = parseInt(allTextLines[i].slice(allTextLines[i].indexOf(":")+1));
-            console.log("total_Img",total_Img);
-            // continue;
-          }
+          if(allTextLines[i].trim()!==""){
 
-          //取得總連結數(總觀測量)
-          if(allTextLines[i].indexOf(" Total number of observations")>=0){
-            total_Obs = parseInt(allTextLines[i].slice(allTextLines[i].indexOf(":")+1));
-            console.log("total_Obs",total_Obs);
-            // continue;
-          }
-          // 取得多餘觀測數
-          if(allTextLines[i].indexOf(" Total redundancy")>=0){
-            redundancy = parseInt(allTextLines[i].slice(allTextLines[i].indexOf(":")+1));
-            console.log("redundancy",redundancy);
-            // continue;
-          }
-
-          // 取得sigma0
-          if(allTextLines[i].indexOf(" Sigma0:")>=0){
-            sig_0 = parseFloat(allTextLines[i].slice(allTextLines[i].indexOf(":")+1));
-            console.log("sig_0",sig_0);
-            // continue;
-          }
           
-          // Blunders within control points
-          if(allTextLines[i].indexOf("Blunders within control points")>=0){isBlunderFlag=true};
-          // 非Blunders within control points區塊
-          if(allTextLines[i].indexOf(" Control points")>=0 && !isBlunderFlag){
-            isContrlPtFlag=true;
-            i = i + 4;
-          };
+            //取得像片總數
+            if(allTextLines[i].indexOf(" Number of Images")>=0){
+              total_Img = parseInt(allTextLines[i].slice(allTextLines[i].indexOf(":")+1));
+              console.log("total_Img",total_Img);
+              // continue;
+            }
 
-          if(isContrlPtFlag && !isBlunderFlag){
-            if(allTextLines[i].indexOf("Maximum changes at control points:")>=0){
-              isContrlPtFlag=false
-            }else{
-              console.log(allTextLines[i]);
+            //取得總連結數(總觀測量)
+            if(allTextLines[i].indexOf(" Total number of observations")>=0){
+              total_Obs = parseInt(allTextLines[i].slice(allTextLines[i].indexOf(":")+1));
+              console.log("total_Obs",total_Obs);
+              // continue;
+            }
+            // 取得多餘觀測數
+            if(allTextLines[i].indexOf(" Total redundancy")>=0){
+              redundancy = parseInt(allTextLines[i].slice(allTextLines[i].indexOf(":")+1));
+              console.log("redundancy",redundancy);
+              // continue;
+            }
 
-              pt_Type = allTextLines[i].slice(0,1).trim();
-              pt_Name = allTextLines[i].slice(1,allTextLines[i].indexOf("X")).trim();
-              pt_temp = allTextLines[i].slice(allTextLines[i].indexOf("X")+1).trim();
-              pt_X = parseFloat(allTextLines[i].slice(0,allTextLines[i].indexOf(" ")).trim());
-              i=i+1
-              pt_temp = allTextLines[i].slice(allTextLines[i].indexOf("Y")+1).trim();
-              pt_Y = parseFloat(allTextLines[i].slice(0,allTextLines[i].indexOf(" ")).trim());
-              i=i+1
-              pt_temp = allTextLines[i].slice(allTextLines[i].indexOf("Z")+1).trim();
-              pt_Z = parseFloat(allTextLines[i].slice(0,allTextLines[i].indexOf(" ")).trim());
+            // 取得sigma0
+            if(allTextLines[i].indexOf(" Sigma0:")>=0){
+              sig_0 = parseFloat(allTextLines[i].slice(allTextLines[i].indexOf(":")+1));
+              console.log("sig_0",sig_0);
+              // continue;
+            }
+            
+            // Blunders within control points
+            if(allTextLines[i].indexOf("Blunders within control points")>=0){isBlunderFlag=true};
+            // 非Blunders within control points區塊
+            if(allTextLines[i].indexOf(" Control points")>=0 && !isBlunderFlag){
+              isContrlPtFlag=true;
+              i = i + 4;
+            };
 
-              pt_Data[pt_Name] = {
-                type: pt_Type,
-                x: pt_X,
-                y: pt_Y,
-                z: pt_Z,
-              };
-              
+            if(isContrlPtFlag && !isBlunderFlag && !isContrlPtFinish){
+              // 讀取控制點資料
+              if(allTextLines[i].indexOf("Maximum changes at control points:")>=0){
+                isContrlPtFinish=true;
+              }else{
+                pt_Type = allTextLines[i].slice(0,2).trim();
+                pt_Name = allTextLines[i].slice(2,54).trim();
+                pt_temp = allTextLines[i].slice(56).trim();
+                pt_X = parseFloat(pt_temp.slice(0,pt_temp.indexOf(" ")).trim());
+                i=i+1
+                pt_temp = allTextLines[i].slice(56).trim();
+                pt_Y = parseFloat(pt_temp.slice(0,pt_temp.indexOf(" ")).trim());
+                i=i+1
+                pt_temp = allTextLines[i].slice(56).trim();
+                pt_Z = parseFloat(pt_temp.slice(0,pt_temp.indexOf(" ")).trim());
+                i=i+1
+                pt_Data[pt_Name] = {
+                  type: pt_Type,
+                  x: pt_X,
+                  y: pt_Y,
+                  z: pt_Z,
+                };
+                pt_F=pt_F+1;
+              }
+            }
+
+            if(isContrlPtFlag && !isBlunderFlag && isContrlPtFinish && isLinkPtFlag){
+              if(allTextLines[i].indexOf("RMS:")>=0){
+                // 讀取RMS值
+                pt_temp = allTextLines[i].slice(allTextLines[i].indexOf("RMS:")+4).trim();
+                console.log(pt_temp);
+                pt_temp_pos=pt_temp.indexOf(" ");
+                rms_X = parseFloat(pt_temp.slice(0,pt_temp_pos).trim());
+                pt_temp = pt_temp.slice(pt_temp_pos+1).trim();
+                pt_temp_pos=pt_temp.indexOf(" ");
+                rms_Y = parseFloat(pt_temp.slice(0,pt_temp_pos).trim());
+                pt_temp = pt_temp.slice(pt_temp_pos+1).trim();
+                pt_temp_pos=pt_temp.indexOf(" ");
+                rms_Z = parseFloat(pt_temp.slice(0,pt_temp_pos).trim());
+                isBlunderFlag=true;
+              }else{
+                // 讀取連結點資料
+                pt_Type = allTextLines[i].slice(0,2).trim();
+                pt_Name = allTextLines[i].slice(2,54).trim();
+                pt_temp = allTextLines[i].slice(55).trim();
+                pt_temp_pos=pt_temp.indexOf(" ");
+                pt_X = parseFloat(pt_temp.slice(0,pt_temp_pos).trim());
+                pt_temp = pt_temp.slice(pt_temp_pos+1).trim();
+                pt_temp_pos=pt_temp.indexOf(" ");
+                pt_Y = parseFloat(pt_temp.slice(0,pt_temp_pos).trim());
+                pt_temp = pt_temp.slice(pt_temp_pos+1).trim();
+                pt_temp_pos=pt_temp.indexOf(" ");
+                pt_Z = parseFloat(pt_temp.slice(0,pt_temp_pos).trim());
+                
+                pt_Data[pt_Name] = {
+                  type: pt_Type,
+                  x: pt_X,
+                  y: pt_Y,
+                  z: pt_Z,
+                };
+                pt_T=pt_T+1
+              }
+            }else if(isContrlPtFlag && !isBlunderFlag && isContrlPtFinish){
+              if(allTextLines[i].indexOf("  Point ID")>=0){
+                isLinkPtFlag=true;
+              }
             }
           }
 
           i = i + 1;
         } while (i < allTextLines.length);
 
+        // 比對參考值檔找出檢核點
+        // 同時計算RMSE及檢核點數量
+
         // 填入資料
         nowCaseImgNo.value = total_Img;
         nowCaseObsNo.value = total_Obs;
         nowCaseRedundancy.value = redundancy;
         nowCaseFixStd.value = sig_0 * 1000.0;
+        nowCaseRMSx.value = rms_X;
+        nowCaseRMSy.value = rms_Y;
+        nowCaseRMSz.value = rms_Z;
+        nowCaseTotPt.value = pt_Ref;
+        nowCaseMeaPt.value = pt_F + pt_C;
+        nowCaseDelPt.value = pt_Ref - (pt_F + pt_C);
+        nowCaseCrtNo.value = pt_F;
+        nowCaseChkNo.value = pt_C;
         console.log(pt_Data);
       };
     };
@@ -1754,19 +1812,19 @@ defineExpose({
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="多餘觀測量" v-model="nowCaseRedundancy" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="X-均方根" v-model="nowCaseRMSx" />
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="X-均方根(m)" v-model="nowCaseRMSx" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="Y-均方根" v-model="nowCaseRMSy" />
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="Y-均方根(m)" v-model="nowCaseRMSy" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="Z-均方根" v-model="nowCaseRMSz" />
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="Z-均方根(m)" v-model="nowCaseRMSz" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="水平較差均方根" v-model="nowCaseSTDh" />
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="水平較差均方根(m)" v-model="nowCaseSTDh" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="高程較差均方根" v-model="nowCaseSTDv" />
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="高程較差均方根(m)" v-model="nowCaseSTDv" />
                   </MDBCol>
                   <div></div>
                   <!-- 計算成果表 -->
