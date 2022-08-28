@@ -43,6 +43,7 @@ import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
 import router from '../router';
 import { logIn, logOut, toTWDate } from '../methods/User';
+import { floatify } from '../methods/mathpor';
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
@@ -1043,6 +1044,7 @@ const { result: refPtData, variables: varRefPtData, onResult: getRefPtData, refe
   PrjGQL.GETGCPRECBYPRJ,
 );
 
+const pramJsonStr = ref("");
 
 async function readPrintOut(POfile){
   let total_Img = 0; //像片總數
@@ -1073,6 +1075,7 @@ async function readPrintOut(POfile){
   let pt_Z = 0.0;
   let pt_temp;
   let pt_temp_pos=0;
+  let pramJson={};
 
   if (POfile) { 
     //確認有檔案存在
@@ -1145,15 +1148,13 @@ async function readPrintOut(POfile){
               if(allTextLines[i].indexOf("RMS:")>=0){
                 // 讀取RMS值
                 pt_temp = allTextLines[i].slice(allTextLines[i].indexOf("RMS:")+4).trim();
-                console.log(pt_temp);
                 pt_temp_pos=pt_temp.indexOf(" ");
                 rms_X = parseFloat(pt_temp.slice(0,pt_temp_pos).trim());
                 pt_temp = pt_temp.slice(pt_temp_pos+1).trim();
                 pt_temp_pos=pt_temp.indexOf(" ");
                 rms_Y = parseFloat(pt_temp.slice(0,pt_temp_pos).trim());
                 pt_temp = pt_temp.slice(pt_temp_pos+1).trim();
-                pt_temp_pos=pt_temp.indexOf(" ");
-                rms_Z = parseFloat(pt_temp.slice(0,pt_temp_pos).trim());
+                rms_Z = parseFloat(pt_temp.slice(0).trim());
                 isBlunderFlag=true;
               }else{
                 // 讀取連結點資料
@@ -1203,9 +1204,9 @@ async function readPrintOut(POfile){
             refData.forEach((x,i)=>{
               if(pt_Data[x.gcp_id]){
                 if(pt_Data[x.gcp_id].type==="T"){
-                  dx=dx+(pt_Data[x.gcp_id].x - x.coor_E) ** 2;
-                  dy=dy+(pt_Data[x.gcp_id].y - x.coor_N) ** 2;
-                  dz=dz+(pt_Data[x.gcp_id].z - x.coor_h) ** 2;
+                  dx=floatify(dx+floatify(floatify((pt_Data[x.gcp_id].x - x.coor_E)) ** 2));
+                  dy=floatify(dy+floatify(floatify((pt_Data[x.gcp_id].y - x.coor_N)) ** 2));
+                  dz=floatify(dz+floatify(floatify((pt_Data[x.gcp_id].z - x.coor_h)) ** 2));
                   pt_C=pt_C+1;
                 }
               }
@@ -1218,20 +1219,31 @@ async function readPrintOut(POfile){
             nowCaseObsNo.value = total_Obs;
             nowCaseRedundancy.value = redundancy;
             nowCaseFixStd.value = sig_0 * 1000.0;
-            nowCaseRMSx.value = rms_X * 1000.0;
-            nowCaseRMSy.value = rms_Y * 1000.0;
-            nowCaseRMSz.value = rms_Z * 1000.0;
+            nowCaseRMSx.value = floatify(rms_X * 1000);
+            nowCaseRMSy.value = floatify(rms_Y * 1000);
+            nowCaseRMSz.value = floatify(rms_Z * 1000);
             nowCaseTotPt.value = pt_Ref;
             nowCaseMeaPt.value = pt_F + pt_C;
             nowCaseDelPt.value = pt_Ref - (pt_F + pt_C);
             nowCaseCrtNo.value = pt_F;
             nowCaseChkNo.value = pt_C;
             nowCaseConnectNo.value = pt_T;
-            
+            // nowCaseSTDh.value =floatify(floatify((floatify(floatify(dx+dy)/pt_C))**.5)*1000);
+            // nowCaseSTDv.value =floatify(floatify(floatify(dz/pt_C)**.5)*1000);
           }
         });
         
         console.log("pt_Data",pt_Data);
+
+        pramJson={
+          sx:nowCaseRMSx.value,
+          sy:nowCaseRMSy.value,
+          sz:nowCaseRMSz.value,
+          redundancy:nowCaseRedundancy.value,
+          gsd:nowCaseGSDac.value,
+        }
+        pramJsonStr.value = JSON.stringify(pramJson);
+        computeUc();
       };
     };
     //真正執行以文字方式載入檔案
@@ -1239,7 +1251,22 @@ async function readPrintOut(POfile){
   }
 }
 // 讀取PrintOut.0 並填入資料====End
-
+const { mutate: computeUc, onDone: computeUcOnDone, onError: computeUcError } = useMutation(
+  CaseGQL.COMPUTEUC,
+  () => ({
+    variables: {
+      parm:pramJsonStr.value,
+    }
+  })
+);
+computeUcOnDone(result=>{
+  console.log("computeUcOnDone");
+  console.log(result.data.computeUc);
+  nowCaseSTDh.value = result.data.computeUc[0];
+  nowCaseSTDv.value = result.data.computeUc[3];
+  nowCaseKh.value = result.data.computeUc[2].toFixed(2);
+  nowCaseKv.value = result.data.computeUc[5].toFixed(2);
+});
 
 defineExpose({
   saveRecord01

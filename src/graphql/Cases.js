@@ -733,6 +733,11 @@ const UPLOADFILE = gql`
   }
 `;
 
+const COMPUTEUC = gql`
+  mutation ComputeUc($parm: String) {
+    computeUc(parm: $parm)
+  }
+`;
 
 export default {
   GETALLCASE,
@@ -748,5 +753,6 @@ export default {
   SAVECASESIMPLE,
   SAVECASERECORD01,
   UPLOADFILE,
+  COMPUTEUC,
   // SAVECASERECORD02,
 };
