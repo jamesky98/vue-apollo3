@@ -270,6 +270,9 @@ const GETFULLCASEBYID = gql`
         report_template
         distrotion
         record_tamplate
+        eo_file
+        recal_table
+        uccal_table
       }
       case_record_02 {
         id
@@ -628,6 +631,9 @@ const SAVECASERECORD01 = gql`
     $reportTemplate: String
     $distrotion: String
     $recordTamplate: String
+    $eoFile: String
+    $recalTable: String
+    $uccalTable: String
   ) {
     updateRecord01(
       id: $updateRecord01Id
@@ -712,6 +718,9 @@ const SAVECASERECORD01 = gql`
       report_template: $reportTemplate
       distrotion: $distrotion
       record_tamplate: $recordTamplate
+      eo_file: $eoFile
+      recal_table: $recalTable
+      uccal_table: $uccalTable
     ) {
       id
     }

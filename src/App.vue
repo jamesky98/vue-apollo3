@@ -13,7 +13,7 @@ getchecktoken(result => {
   if (!result.data.checktoken) {
     logOut();
   } else {
-    router.push('/main');
+    // router.push('/main');
   }
 });
 

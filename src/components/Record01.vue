@@ -262,9 +262,9 @@ const props = defineProps({
 
   const nowCaseKh = ref(""); //水平涵蓋因子(自動計算)
   const nowCaseKv = ref(""); //高程涵蓋因子(自動計算)
-  
   const nowCaseRecTemp = ref(""); //作業紀錄表範本
-
+  const nowCaseCalResult = ref(""); //計算成果表
+  const nowCaseUcResult = ref(""); //不確定度計算表
   // 出具報告
   const nowCaseHasLOGO = ref(true); //列印TAF LOGO
   const nowCaseReportTemp = ref(""); //校正報告範本
@@ -369,7 +369,7 @@ getNowCaseF(result => {
     nowCaseCamUpload.value = getData.cam_parm;
     nowCaseFlyMapAc.value = getData.fly_map;
     nowCaseRecTable.value = getData.rec_table;
-    // nowCaseEO.value = 
+    nowCaseEO.value = getData.eo_file;
     nowCasePhotoNo.value = getData.photo_no;
     nowCaseOther.value = getData.others;
     nowCaseErrData.value = getData.err_data;
@@ -410,6 +410,8 @@ getNowCaseF(result => {
     nowCaseKv.value = getData.k_v;
     nowCaseSTDExl.value = getData.std_file;
     nowCaseRecTemp.value = getData.report_edit;
+    nowCaseCalResult.value = getData.recal_table;
+    nowCaseUcResult.value = getData.uccal_table;
     // 出具報告
     nowCaseHasLOGO.value = getData.has_logo;
     nowCaseReportTemp.value = getData.report_template;
@@ -876,6 +878,9 @@ const { mutate: saveRecord01, onDone: saveRecord01OnDone, onError: saveRecord01E
       reportTemplate: nowCaseReportTemp.value,
       distrotion: nowCaseDist.value,
       recordTamplate: nowCaseRecTemp.value,
+      eoFile: nowCaseEO.value,
+      recalTable: nowCaseCalResult.value,
+      uccalTable: nowCaseUcResult.value,
     }
   })
 );
@@ -883,6 +888,7 @@ saveRecord01Error((error) => {
   console.log(error);
 });
 saveRecord01OnDone(() => {
+  console.log(nowCaseCalResult.value)
   // console.log('nowCaseChkPersonID: ',nowCaseChkPersonID.value); 
   // console.log('selectChkPersonID: ',selectChkPersonID.value);
   // infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
@@ -1204,14 +1210,21 @@ async function readPrintOut(POfile){
             refData.forEach((x,i)=>{
               if(pt_Data[x.gcp_id]){
                 if(pt_Data[x.gcp_id].type==="T"){
-                  dx=floatify(dx+floatify(floatify((pt_Data[x.gcp_id].x - x.coor_E)) ** 2));
-                  dy=floatify(dy+floatify(floatify((pt_Data[x.gcp_id].y - x.coor_N)) ** 2));
-                  dz=floatify(dz+floatify(floatify((pt_Data[x.gcp_id].z - x.coor_h)) ** 2));
+                  pt_Data[x.gcp_id].sx = x.coor_E;
+                  pt_Data[x.gcp_id].dx = floatify(pt_Data[x.gcp_id].x - x.coor_E);
+                  dx = dx + pt_Data[x.gcp_id].dx ** 2;
+
+                  pt_Data[x.gcp_id].sy = x.coor_N;
+                  pt_Data[x.gcp_id].dy = floatify(pt_Data[x.gcp_id].y - x.coor_N);
+                  dy = dy + pt_Data[x.gcp_id].dy ** 2;
+
+                  pt_Data[x.gcp_id].sz = x.coor_h;
+                  pt_Data[x.gcp_id].dz = floatify(pt_Data[x.gcp_id].z - x.coor_h);
+                  dz = dz + pt_Data[x.gcp_id].dz ** 2;
                   pt_C=pt_C+1;
                 }
               }
-            })
-
+            });
 
             // 填入資料
             pt_Ref = refData.length;
@@ -1228,13 +1241,15 @@ async function readPrintOut(POfile){
             nowCaseCrtNo.value = pt_F;
             nowCaseChkNo.value = pt_C;
             nowCaseConnectNo.value = pt_T;
-            // nowCaseSTDh.value =floatify(floatify((floatify(floatify(dx+dy)/pt_C))**.5)*1000);
-            // nowCaseSTDv.value =floatify(floatify(floatify(dz/pt_C)**.5)*1000);
+
+            // console.log("pt_Data",pt_Data);
+            // 將pt_Data寫入nowCaseCalResult
+            nowCaseCalResult.value = JSON.stringify(pt_Data);
+            // console.log(nowCaseCalResult.value);
+
           }
         });
         
-        console.log("pt_Data",pt_Data);
-
         pramJson={
           sx:nowCaseRMSx.value,
           sy:nowCaseRMSy.value,
@@ -1251,6 +1266,8 @@ async function readPrintOut(POfile){
   }
 }
 // 讀取PrintOut.0 並填入資料====End
+
+// 呼叫計算不確定度=======Start
 const { mutate: computeUc, onDone: computeUcOnDone, onError: computeUcError } = useMutation(
   CaseGQL.COMPUTEUC,
   () => ({
@@ -1260,13 +1277,17 @@ const { mutate: computeUc, onDone: computeUcOnDone, onError: computeUcError } = 
   })
 );
 computeUcOnDone(result=>{
-  console.log("computeUcOnDone");
-  console.log(result.data.computeUc);
   nowCaseSTDh.value = result.data.computeUc[0];
   nowCaseSTDv.value = result.data.computeUc[3];
   nowCaseKh.value = result.data.computeUc[2].toFixed(2);
   nowCaseKv.value = result.data.computeUc[5].toFixed(2);
 });
+// 呼叫計算不確定度=======End
+
+// function openSTab01(){
+//   console.log("openSTab01");
+//   router.resolve('/sicltab01');
+// }
 
 defineExpose({
   saveRecord01
@@ -1418,20 +1439,24 @@ defineExpose({
           </MDBStepperHead>
           <MDBStepperContent :key="updateKey">
             <MDBRow>
-              <MDBCol v-if="!isSMCam" col="12" class="border">
-                像機類型：
-                <MDBRadio tooltipFeedback required label="大像幅" value="1" v-model="nowCaseCamTypeID" inline name="caseCamType" />
-                <MDBRadio tooltipFeedback required label="中像幅" value="2" v-model="nowCaseCamTypeID" inline name="caseCamType" />
-              </MDBCol>
-            </MDBRow>
-            <MDBRow>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 校正件
               </MDBCol>
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
+                  <MDBCol v-if="!isSMCam" col="12" class="border-bottom">
+                    像機類型：
+                    <MDBRadio tooltipFeedback required label="大像幅" value="1" v-model="nowCaseCamTypeID" inline name="caseCamType" />
+                    <MDBRadio tooltipFeedback required label="中像幅" value="2" v-model="nowCaseCamTypeID" inline name="caseCamType" />
+                  </MDBCol>
                   <MDBCol col="12" class="my-3">
                     <MDBBtn size="sm" color="primary" @click="showItemFrom = true">選擇校正件</MDBBtn>
+                      <RouterLink target="_blank" :to="{ name: 'sicltab01'}">
+                        <MDBBtn size="sm" color="primary" >
+                        列印管理表
+                        </MDBBtn>
+                      </RouterLink>
+                    <MDBBtn size="sm" color="primary" @click="">列印申請單</MDBBtn>
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="廠牌" v-model="nowCaseItemChop" />

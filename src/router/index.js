@@ -4,12 +4,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // {
-    //   path: "/",
-    //   name: "home",
-    //   component: HomeView,
-    //   props: true,
-    // },
     {
       path: "/",
       name: "login",
@@ -66,6 +60,12 @@ const router = createRouter({
       path: "/cust",
       name: "cust",
       component: () => import("../views/CustMGView.vue"),
+      props: true,
+    },
+    {
+      path: "/sicltab01",
+      name: "sicltab01",
+      component: () => import("../views/SiclTab01.vue"),
       props: true,
     },
   ],
