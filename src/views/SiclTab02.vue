@@ -54,44 +54,41 @@ refgetNowCaseF();
 			<div>內政部國土測繪中心</div>
 			<div>臺中市南屯區黎明路2段497號4樓 電話：(04)22522966轉206 傳真：(04)22592273</div>
 		</div>
-
+		<!-- 以上頁首 -->
 		<div v-if="isSMCam" class="fstyle01">
 			<div class="fstyle01C">校正申請表(適用小像幅航拍攝影機)</div>
 			<div>Calibration Application Form</div>
-			<div>(apply for small-format airborne camera)</div>
+			<div style="margin-bottom: 20px;">(apply for small-format airborne camera)</div>
 		</div>
 		<div v-else class="fstyle01">
 			<div class="fstyle01C">校正申請表(適用航空測量攝影機)</div>
 			<div>Calibration Application Form</div>
-			<div>(apply for aerial photogrammetric camera)</div>
+			<div style="margin-bottom: 20px;">(apply for aerial photogrammetric camera)</div>
 		</div>
 		
-		<table width="100%">
+		<table width="100%" cellspacing=0 cellpadding=0 class="sicltab01">
 			<tr>
-				<td>
-					<table width="100%" class="sicltab00">
-						<tr class="sicltab01">
-							<td scope="col" width="33%" class="fstyle02">
-								<div>申請單編號：{{tableID}}</div>
-								<div>Application Number</div>
-							</td>
-							<td scope="col" class="fstyle02">
-								<div>校正件編號：{{itemID}}</div>
-								<div>Item Number</div>
-							</td>
-							<td scope="col" width="33%" class="fstyle02">
-								<div>申請日期：年月日</div>
-								<div>Application Date</div>
-							</td>
-						</tr>
-					</table>
+				<td scope="col" width="38%" class="fstyle02">
+					<div>申請單編號：{{tableID}}</div>
+					<div>Application Number</div>
+				</td>
+				<td scope="col" class="fstyle02">
+					<div>校正件編號：{{itemID}}</div>
+					<div>Item Number</div>
+				</td>
+				<td scope="col" width="38%" class="fstyle02">
+					<div>申請日期：年月日</div>
+					<div>Application Date</div>
 				</td>
 			</tr>
 
 			<tr>
-				<td>
-					<table width="100%">
-						<tr class="sicltab01">
+				<th colspan="3">
+					<table width="100%" style="border: hidden;">
+						<tr>
+							<td width="8%" rowspan="5">
+								<div class="fstyle02V">顧客資料<br/>Applicant information</div>
+							</td>
 							<td colspan="2" scope="col" class="fstyle02">
 								<div>顧客名稱：{{nowCaseCustOrgName}}</div>
 								<div>Name</div>
@@ -101,19 +98,201 @@ refgetNowCaseF();
 								<div>tax ID Number</div>
 							</td>
 						</tr>
-						<tr class="sicltab01"></tr>
-						<tr class="sicltab01"></tr>
-						<tr class="sicltab01"></tr>
-						<tr class="sicltab01"></tr>
+						<tr>
+							<td width="30%" scope="col" class="fstyle02">
+								<div>聯絡人：</div>
+								<div>Contact person</div>
+							</td>
+							<td width="30%" scope="col" class="fstyle02">
+								<div>聯絡電話：</div>
+								<div>Phone Number</div>
+							</td>
+							<td scope="col" class="fstyle02">
+								<div>傳真：</div>
+								<div>FAX</div>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="3" scope="col" class="fstyle02">
+								<div>聯絡地址：</div>
+								<div>Contact Address</div>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="3" scope="col" class="fstyle02">
+								<div>報告抬頭：</div>
+								<div>Report Title</div>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="3" scope="col" class="fstyle02">
+								<div>報告地址：</div>
+								<div>Report Address</div>
+							</td>
+						</tr>
 					</table>
+				</th>
+			</tr>
+			<tr>
+				<th colspan="3">
+					<table width="100%" style="border: hidden;">
+						<tr>
+							<td width="20%" scope="col" class="fstyle02middle">
+								<div>校正目的</div>
+								<div>Calibration purpose</div>
+							</td>
+							<td scope="col" class="fstyle02">
+								<div>校正目的</div>
+							</td>
+						</tr>
+					</table>
+				</th>
+			</tr>
+			<tr>
+				<td colspan="3" class="fstyle02" style="border-bottom: 2px dashed;">
+					<div>申請像機類型(請擇一勾選)Camera type(Please choose one)</div>
 				</td>
 			</tr>
-
-
-
-				
+			<tr>
+				<td colspan="3" class="fstyle02">
+					<div><span style="font-family:標楷體;">□</span> 大像幅：感測器元件尺寸大於60 mm × 90 mm (適用大校正場)</div>
+					<div style="padding-left: 25px;">Large-format: Sensor size bigger than 60 mm × 90 mm (suitable for big calibration field)</div>
+					<div><span style="font-family:標楷體;">□</span> 中像幅：感測器元件尺寸介於24 mm × 36 mm to 60 mm × 90 mm (適用小校正場)</div>
+					<div style="padding-left: 25px;">Medium-format: Sensor size between 60 mm × 90 mm and 60 mm × 90 mm<br/>(Suitable for small calibration field)</div>
+				</td>
+			</tr>
+			<tr>
+				<th colspan="3">
+					<table width="100%" style="border: hidden;">
+						<tr>
+							<td width="8%" rowspan="4">
+								<div class="fstyle02V">校正件基本資料<br/>Calibration Instrument Info</div>
+							</td>
+							<td width="30%" scope="col" class="fstyle02">
+								<div>廠牌：{{nowCaseItemChop}}</div>
+								<div>Manufacturer</div>
+							</td>
+							<td colspan="2" scope="col" class="fstyle02" style="border-left: hidden;">
+								<div>型號：{{nowCaseItemModel}}</div>
+								<div>Model</div>
+							</td>
+							<td width="30%" scope="col" class="fstyle02" style="border-left: hidden;">
+								<div>序號：{{nowCaseItemSN}}</div>
+								<div>Serial Number</div>
+							</td>
+						</tr>
+						<tr>
+							<td width="46%" colspan="2" scope="col" class="fstyle02">
+								<div>攝影機焦距：</div>
+								<div>Focal length</div>
+							</td>
+							<td width="46%" colspan="2" scope="col" class="fstyle02" style="border-left: hidden;">
+								<div>像主點坐標：</div>
+								<div>Principal point offset</div>
+							</td>
+						</tr>
+						<tr>
+							<td width="46%" colspan="2" scope="col" class="fstyle02">
+								<div>感測器像元數量：</div>
+								<div>Number of pixels</div>
+							</td>
+							<td width="46%" colspan="2" scope="col" class="fstyle02" style="border-left: hidden;">
+								<div>像元尺寸：</div>
+								<div>Pixel size</div>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="4" scope="col" class="fstyle02">
+								<div>感測器元件尺寸：</div>
+								<div>Sensor size</div>
+							</td>
+						</tr>
+					</table>
+				</th>
+			</tr>
+			<tr>
+				<th colspan="3">
+					<table width="100%" style="border: hidden;">
+						<tr>
+							<td width="8%" rowspan="4">
+								<div class="fstyle02V">飛航拍攝規劃<br/>Flight plan</div>
+							</td>
+							<td width="46%" scope="col" class="fstyle02">
+								<div>預定航拍期間：</div>
+								<div>Scheduled flight date</div>
+							</td>
+							<td scope="col" class="fstyle02">
+								<div>影像地面像素解析度：</div>
+								<div>GSD (Ground Sample Distance)</div>
+							</td>
+						</tr>
+						<tr>
+							<td width="46%" scope="col" class="fstyle02">
+								<div>南北向航線：</div>
+								<div>Number of North-south strips</div>
+							</td>
+							<td scope="col" class="fstyle02">
+								<div>東西向航線：</div>
+								<div>Number of East-west strips</div>
+							</td>
+						</tr>
+						<tr>
+							<td width="46%" scope="col" class="fstyle02">
+								<div>前後重疊率：</div>
+								<div>End Lap</div>
+							</td>
+							<td scope="col" class="fstyle02">
+								<div>側向重疊率：</div>
+								<div>Side Lap</div>
+							</td>
+						</tr>
+						<tr>
+							<td width="46%" scope="col" class="fstyle02">
+								<div>飛航橢球高：</div>
+								<div>Ellipsoidal Height</div>
+							</td>
+							<td scope="col" class="fstyle02">
+								<div>飛航離地高：</div>
+								<div>AGL (Above Ground Level)</div>
+							</td>
+						</tr>
+					</table>
+				</th>
+			</tr>
 		</table>
+		<!-- 以下頁尾 -->
+		<div class="fstyle03 tpageFooter">
+			<table width="100%">
+				<tr>
+					<td width="33%" style="border: hidden;">文件編號：SICL-4-15-1</td>
+					<td width="33%" style="border: hidden;text-align: center;">1/3</td>
+					<td style="border: hidden;text-align: right;">版次：2.4</td>
+				</tr>
+			</table>
+		</div>
   </div>
+	<div class="noprint pageline"></div>
+	<p style='page-break-after:always'> </p>
+	<div class="tpage">
+		<div class="fstyle03">
+			<div>內政部國土測繪中心</div>
+			<div>臺中市南屯區黎明路2段497號4樓 電話：(04)22522966轉206 傳真：(04)22592273</div>
+		</div>
+		<!-- 以上頁首 -->
+
+
+		<!-- 以下頁尾 -->
+		<div class="fstyle03 tpageFooter">
+			<table width="100%">
+				<tr>
+					<td width="33%" style="border: hidden;">文件編號：SICL-4-15-1</td>
+					<td width="33%" style="border: hidden;text-align: center;">2/3</td>
+					<td style="border: hidden;text-align: right;">版次：2.4</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div class="noprint pageline"></div>
 </template>
 <style>
 /* body {
@@ -133,13 +312,14 @@ refgetNowCaseF();
     display: none;
   }
 	.tpage {
+		position: relative;
     height: 297mm;
     width: 210mm;
     /* to centre page on screen*/
     margin-left: auto;
     margin-right: auto;
     border: solid 1px;
-    padding: 6mm 20mm 6mm 20mm;
+    padding: 8mm 20mm 8mm 20mm;
     box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.6);
 	}
 }
@@ -152,16 +332,20 @@ refgetNowCaseF();
     position: fixed;
     bottom: 0;
   }
+	.noprint{
+		display: none;
+	}
 	.tpage {
+		position: relative;
 		print-color-adjust: exact;
 		-webkit-print-color-adjust: exact; 
-    /* height: 297mm; */
+    height: 297mm;
     width: 210mm;
     /* to centre page on screen*/
     margin-left: auto;
     margin-right: auto;
     border: none;
-    padding: 6mm 20mm 6mm 20mm;
+    padding: 8mm 20mm 8mm 20mm;
     box-shadow: none;
 	}
 	/*.tpage::after {
@@ -176,18 +360,28 @@ refgetNowCaseF();
 	}*/
 }
 
+.pageline{
+	height: 20px;
+}
+
 .bgyellow {
 	background-color: #ffff99;
 }
-.sicltab00 {
-	border-collapse: collapse;
-}
 
+.sicltab01 {
+  border: 1px solid;
+  border-collapse: collapse;
+}
 .sicltab01 > tr, td {
   border: 1px solid;
-	padding: 0;
+  /* height: 30px; */
 }
 
+.tpageFooter {
+	position: absolute;
+	top: 277mm;
+	width: 170mm;
+}
 .fstyle01{
   text-align: center;
   font-size: 26px;
@@ -204,13 +398,33 @@ refgetNowCaseF();
 	letter-spacing: 5px;
 }
 .fstyle02{
-	padding-left: 5px;
-  font-size: 12px;
+	padding: 3px 10px 3px 10px;
+  font-size: 14px;
   font-family: "Times New Roman", 標楷體;
 	text-align: left;
   font-weight:normal;
-	line-height: 16px;
+	line-height: 18px;
 }
+.fstyle02middle{
+	padding: 3px 0px 3px 0px;
+  font-size: 14px;
+  font-family: "Times New Roman", 標楷體;
+	text-align: center;
+  font-weight:normal;
+	line-height: 18px;
+}
+.fstyle02V{
+	margin-left: auto;
+	margin-right: auto;
+  font-size: 14px;
+  font-family: "Times New Roman", 標楷體;
+	text-align: center;
+  font-weight:normal;
+	line-height: 16px;
+	writing-mode: vertical-lr;
+  text-orientation: mixed;
+}
+
 .fstyle03{
   font-size: 14px;
   font-family: "Times New Roman", 標楷體;

@@ -56,7 +56,7 @@ refgetNowCaseF();
       編號: {{tableID}}&nbsp;{{itemID}}
     </div>
 		
-		<table class="sicltab01" width="100%">
+		<table class="sicltab01" cellspacing=0 cellpadding=0 width="100%">
 			<tr>
 				<td scope="col" width="33%" class="fstyle03">申請單編號：{{tableID}}</td>
 				<td scope="col" class="fstyle03">校正件編號：{{itemID}}</td>
