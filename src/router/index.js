@@ -66,9 +66,28 @@ const router = createRouter({
       path: "/sicltab01",
       name: "sicltab01",
       component: () => import("../views/SiclTab01.vue"),
-      props: true,
+      props: (route) => route.query,
+      meta: {
+        title: "校正作業管理表",
+      },
+    },
+    {
+      path: "/sicltab02",
+      name: "sicltab02",
+      component: () => import("../views/SiclTab02.vue"),
+      props: (route) => route.query,
+      meta: {
+        title: "校正申請表",
+      },
     },
   ],
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.meta.title) {
+    document.title = to.meta.title;
+  }
+  next();
 });
 
 export default router

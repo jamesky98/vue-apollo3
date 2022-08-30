@@ -53,17 +53,13 @@ const props = defineProps({
   caseID: String
 });
 
-
 // 案件詳細編輯資料==========start
   // 案件之詳細資料
   // 申請
   const updateKey = ref(0);
   const isSMCam = ref(true);
-
   const nowCaseCalType = ref(""); //校正項目
-
   const nowCaseCamTypeID = ref(""); // 像機類型
-
   const nowCaseItemID = inject('nowCaseItemID'); // 校正件索引
   const nowCaseItemChop = ref(""); // 像機廠牌
   const nowCaseItemModel = ref(""); // 像機型號
@@ -888,7 +884,7 @@ saveRecord01Error((error) => {
   console.log(error);
 });
 saveRecord01OnDone(() => {
-  console.log(nowCaseCalResult.value)
+  // console.log(nowCaseCalResult.value)
   // console.log('nowCaseChkPersonID: ',nowCaseChkPersonID.value); 
   // console.log('selectChkPersonID: ',selectChkPersonID.value);
   // infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
@@ -1284,11 +1280,6 @@ computeUcOnDone(result=>{
 });
 // 呼叫計算不確定度=======End
 
-// function openSTab01(){
-//   console.log("openSTab01");
-//   router.resolve('/sicltab01');
-// }
-
 defineExpose({
   saveRecord01
 });
@@ -1451,12 +1442,12 @@ defineExpose({
                   </MDBCol>
                   <MDBCol col="12" class="my-3">
                     <MDBBtn size="sm" color="primary" @click="showItemFrom = true">選擇校正件</MDBBtn>
-                      <RouterLink target="_blank" :to="{ name: 'sicltab01'}">
-                        <MDBBtn size="sm" color="primary" >
-                        列印管理表
-                        </MDBBtn>
+                      <RouterLink target="_blank" :to="{ path: '/sicltab01' ,query:{ caseID: props.caseID }}">
+                        <MDBBtn size="sm" color="primary">列印管理表</MDBBtn>
                       </RouterLink>
-                    <MDBBtn size="sm" color="primary" @click="">列印申請單</MDBBtn>
+                      <RouterLink target="_blank" :to="{ path: '/sicltab02' ,query:{ caseID: props.caseID }}">
+                        <MDBBtn size="sm" color="primary">列印申請單</MDBBtn>
+                      </RouterLink>
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="廠牌" v-model="nowCaseItemChop" />

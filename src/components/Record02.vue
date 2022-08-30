@@ -509,6 +509,11 @@ defineExpose({
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
                     <MDBBtn size="sm" color="primary" @click="showItemFromBtn(2)">查詢校正件</MDBBtn>
+                    <RouterLink target="_blank" :to="{ path: '/sicltab01' ,query:{ caseID: props.caseID }}">
+                      <MDBBtn size="sm" color="primary">
+                      列印管理表
+                      </MDBBtn>
+                    </RouterLink>
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput disabled size="sm" type="text" label="廠牌" v-model="nowCaseItemChop" />
