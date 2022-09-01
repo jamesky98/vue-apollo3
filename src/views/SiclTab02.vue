@@ -12,12 +12,58 @@ const props = defineProps({
 const isSMCam = ref(false); //是否為小像幅
 const tableID = computed(()=>{return props.caseID.slice(0,-2)}); //申請單編號
 const itemID = computed(()=>{return props.caseID.slice(-2)}); //校正件編號
+const nowCaseAppDate = ref(""); // 申請日期
+const appDateStr = computed(()=>{
+	let dateArray = nowCaseAppDate.value.split("-");
+	return dateArray[0]-1911 + "年" + dateArray[1] + "月" + dateArray[1] + "日"
+})
+const nowCaseOperatorName = ref("");// 校正人員名稱
 const nowCaseCalTypeCode = ref(""); //校正項目代碼
+
+const nowCaseCustOrgName = ref("");// 顧客名稱
+const nowCaseCustTaxID = ref(""); //統一編號
+const nowCaseCustName = ref(""); //聯絡人
+const nowCaseCustTel = ref(""); //聯絡電話
+const nowCaseCustFax = ref(""); //傳真
+const nowCaseCustAddress = ref(""); //聯絡地址
+const nowCaseTitle = ref(""); //報告抬頭
+const nowCaseAddress = ref(""); //報告地址
+const nowCasePurpose = ref(""); //校正目的
+const nowCaseCamTypeID = ref(""); // 像機類型
+// 校正件
 const nowCaseItemChop = ref("");// 廠牌
 const nowCaseItemModel = ref("");// 型號
 const nowCaseItemSN = ref("");// 序號
-const nowCaseCustOrgName = ref("");// 顧客名稱
-const nowCaseOperatorName = ref("");// 校正人員名稱
+const nowCaseFocal = ref("");// 序號
+const nowCasePPAx = ref("");// 像主點坐標
+const nowCasePPAy = ref("");// 像主點坐標
+const nowCasePXh = ref("");// 感測器像元數量
+const nowCasePXw = ref("");// 感測器像元數量
+const nowCasePxSizeX = ref("");// 像元尺寸
+const nowCasePxSizeY = ref("");// 像元尺寸
+const nowCaseSizeX = ref("");// 感測器元件尺寸
+const nowCaseSizeY = ref("");// 感測器元件尺寸
+const nowCaseDistSoft = ref("");// DistSoft
+const nowCaseDistVer = ref("");// DistVer
+// 飛航規劃
+const nowCasePlanY = ref("");// DistVer
+const nowCasePlanM = ref("");// DistVer
+const nowCaseGSD = ref("");// DistVer
+const nowCaseStripsNS = ref("");// DistVer
+const nowCaseStripsEW = ref("");// DistVer
+const nowCaseEndLap = ref("");// DistVer
+const nowCaseSideLap = ref("");// DistVer
+const nowCaseEllH = ref("");// DistVer
+const nowCaseAGL = ref("");// DistVer
+// 檢附資料
+const nowCaseCamReport = ref("");// DistVer
+const nowCasePlanMap = ref("");// DistVer
+// 收費
+const nowCaseCharge = ref("");
+const nowCaseChargeF = computed(()=>{
+	return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(nowCaseCharge.value)
+})
+
 // 查詢Case_Record資料
 const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
   CaseGQL.GETFULLCASEBYID,
@@ -28,17 +74,56 @@ const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetc
 getNowCaseF(result => {
   if (!result.loading && result && result.data.getCasebyID) {
     // 填入資料
+		let getData = result.data.getCasebyID;
+		let getRecord = result.data.getCasebyID.case_record_01;
     let getCust = result.data.getCasebyID.cus;
     let getItem = result.data.getCasebyID.item_base;
 		let getOpt = result.data.getCasebyID.employee_case_base_operators_idToemployee;
 		(result.data.getCasebyID.cal_type === 3) ? isSMCam.value = true : isSMCam.value = false;
-    // 校正件資料
-    nowCaseCalTypeCode.value = (result.data.getCasebyID.cal_type_cal_typeTocase_base)?result.data.getCasebyID.cal_type_cal_typeTocase_base.code:"";
+		nowCaseAppDate.value = (getData.app_date)?getData.app_date.split("T")[0]:""; // 申請日期
+		nowCaseCalTypeCode.value = (result.data.getCasebyID.cal_type_cal_typeTocase_base)?result.data.getCasebyID.cal_type_cal_typeTocase_base.code:"";
+		nowCaseOperatorName.value = (getOpt)?getOpt.name:"";
+		// 顧客資料
+		nowCaseCustOrgName.value = (getCust) ? getCust.cus_org.name : "";
+		nowCaseCustTaxID.value = (getCust) ?getCust.cus_org.tax_id:""; //統一編號
+		nowCaseCustName.value = (getCust) ?getCust.name:"";
+		nowCaseCustTel.value = (getCust) ?getCust.tel:"";
+		nowCaseCustFax.value = (getCust) ?getCust.fax:"";
+		nowCaseCustAddress.value = (getCust) ?getCust.address:"";
+		nowCaseTitle.value = getData.title;
+		nowCaseAddress.value = getData.address;
+		nowCasePurpose.value = getData.purpose;
+		nowCaseCamTypeID.value = getRecord.cam_type;
+		// 校正件資料
     nowCaseItemChop.value = (getItem)?getItem.chop:"";
     nowCaseItemModel.value = (getItem) ? getItem.model : "";
     nowCaseItemSN.value = (getItem) ? getItem.serial_number : "";
-		nowCaseCustOrgName.value = (getCust) ? getCust.cus_org.name : "";
-		nowCaseOperatorName.value = (getOpt)?getOpt.name:"";
+		nowCaseFocal.value = getRecord.focal;
+		nowCasePPAx.value = getRecord.ppa_x.toFixed(4);
+    nowCasePPAy.value = getRecord.ppa_y.toFixed(4);
+    nowCasePXh.value = getRecord.px_h;
+    nowCasePXw.value = getRecord.px_w;
+    nowCasePxSizeX.value = getRecord.px_size_x.toFixed(2);
+    nowCasePxSizeY.value = getRecord.px_size_y.toFixed(2);
+    nowCaseSizeX.value = getRecord.size_x.toFixed(4);
+    nowCaseSizeY.value = getRecord.size_y.toFixed(4);
+    nowCaseDistSoft.value = getRecord.distor_corr_soft;
+    nowCaseDistVer.value = getRecord.distor_corr_ver;
+    // 飛航規劃
+		nowCasePlanY.value = getRecord.plan_year;
+    nowCasePlanM.value = getRecord.plan_month;
+    nowCaseGSD.value = getRecord.gsd;
+    nowCaseStripsNS.value = getRecord.strips_ns;
+    nowCaseStripsEW.value = getRecord.strips_ew;
+    nowCaseEndLap.value = getRecord.end_lap;
+    nowCaseSideLap.value = getRecord.side_lap;
+    nowCaseEllH.value = getRecord.ell_height;
+    nowCaseAGL.value = getRecord.agl;
+		// 檢附資料
+		nowCaseCamReport.value = (getRecord.cam_report)?getRecord.cam_report:"";
+    nowCasePlanMap.value = (getRecord.plan_map)?getRecord.plan_map:"";
+		// 收費
+		nowCaseCharge.value = getData.charge;
   }
 });
 refgetNowCaseF();
@@ -85,7 +170,7 @@ refgetNowCaseF();
 						<div>Item Number</div>
 					</td>
 					<td scope="col" width="38%" class="fstyle02">
-						<div>申請日期：年月日</div>
+						<div>申請日期：{{appDateStr}}</div>
 						<div>Application Date</div>
 					</td>
 				</tr>
@@ -102,39 +187,39 @@ refgetNowCaseF();
 									<div>Name</div>
 								</td>
 								<td scope="col" class="fstyle02">
-									<div>統一編號：</div>
+									<div>統一編號：{{nowCaseCustTaxID}}</div>
 									<div>tax ID Number</div>
 								</td>
 							</tr>
 							<tr>
-								<td width="30%" scope="col" class="fstyle02">
-									<div>聯絡人：</div>
+								<td width="28%" scope="col" class="fstyle02 nowrap">
+									<div>聯絡人：{{nowCaseCustName}}</div>
 									<div>Contact person</div>
 								</td>
-								<td width="30%" scope="col" class="fstyle02">
-									<div>聯絡電話：</div>
+								<td width="28%" scope="col" class="fstyle02 nowrap">
+									<div>聯絡電話：{{nowCaseCustTel}}</div>
 									<div>Phone Number</div>
 								</td>
-								<td scope="col" class="fstyle02">
-									<div>傳真：</div>
+								<td scope="col" class="fstyle02 nowrap">
+									<div>傳真：{{nowCaseCustFax}}</div>
 									<div>FAX</div>
 								</td>
 							</tr>
 							<tr>
-								<td colspan="3" scope="col" class="fstyle02">
-									<div>聯絡地址：</div>
+								<td colspan="3" scope="col" class="fstyle02 nowrap">
+									<div>聯絡地址：{{nowCaseCustAddress}}</div>
 									<div>Contact Address</div>
 								</td>
 							</tr>
 							<tr>
 								<td colspan="3" scope="col" class="fstyle02">
-									<div>報告抬頭：</div>
+									<div>報告抬頭：{{nowCaseTitle}}</div>
 									<div>Report Title</div>
 								</td>
 							</tr>
 							<tr>
 								<td colspan="3" scope="col" class="fstyle02">
-									<div>報告地址：</div>
+									<div>報告地址：{{nowCaseAddress}}</div>
 									<div>Report Address</div>
 								</td>
 							</tr>
@@ -151,7 +236,7 @@ refgetNowCaseF();
 									<div>Calibration purpose</div>
 								</td>
 								<td scope="col" class="fstyle02">
-									<div>校正目的</div>
+									<div>{{nowCasePurpose}}</div>
 								</td>
 							</tr>
 						</table>
@@ -165,9 +250,9 @@ refgetNowCaseF();
 				</tr>
 				<tr>
 					<td colspan="3" class="fstyle02">
-						<div><span style="font-family:標楷體;">□</span> 大像幅：感測器元件尺寸大於60 mm × 90 mm (適用大校正場)</div>
+						<div><span v-if="nowCaseCamTypeID === 1" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span> 大像幅：感測器元件尺寸大於60 mm × 90 mm (適用大校正場)</div>
 						<div style="padding-left: 25px;">Large-format: Sensor size bigger than 60 mm × 90 mm (suitable for big calibration field)</div>
-						<div><span style="font-family:標楷體;">□</span> 中像幅：感測器元件尺寸介於24 mm × 36 mm to 60 mm × 90 mm (適用小校正場)</div>
+						<div><span v-if="nowCaseCamTypeID === 2" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span> 中像幅：感測器元件尺寸介於24 mm × 36 mm to 60 mm × 90 mm (適用小校正場)</div>
 						<div style="padding-left: 25px;">Medium-format: Sensor size between 60 mm × 90 mm and 60 mm × 90 mm<br/>(Suitable for small calibration field)</div>
 					</td>
 				</tr>
@@ -194,27 +279,27 @@ refgetNowCaseF();
 							</tr>
 							<tr>
 								<td width="46%" colspan="2" scope="col" class="fstyle02">
-									<div>攝影機焦距：</div>
+									<div>攝影機焦距：{{nowCaseFocal}}mm</div>
 									<div>Focal length</div>
 								</td>
 								<td width="46%" colspan="2" scope="col" class="fstyle02" style="border-left: hidden;">
-									<div>像主點坐標：</div>
+									<div>像主點坐標：{{nowCasePPAx}} mm × {{nowCasePPAy}} mm</div>
 									<div>Principal point offset</div>
 								</td>
 							</tr>
 							<tr>
 								<td width="46%" colspan="2" scope="col" class="fstyle02">
-									<div>感測器像元數量：</div>
+									<div>感測器像元數量：{{nowCasePXh}} × {{nowCasePXw}}</div>
 									<div>Number of pixels</div>
 								</td>
 								<td width="46%" colspan="2" scope="col" class="fstyle02" style="border-left: hidden;">
-									<div>像元尺寸：</div>
+									<div>像元尺寸：{{nowCasePxSizeX}} um × {{nowCasePxSizeY}} um</div>
 									<div>Pixel size</div>
 								</td>
 							</tr>
 							<tr>
 								<td colspan="4" scope="col" class="fstyle02">
-									<div>感測器元件尺寸：</div>
+									<div>感測器元件尺寸：{{nowCaseSizeX}} mm × {{nowCaseSizeY}} mm</div>
 									<div>Sensor size</div>
 								</td>
 							</tr>
@@ -230,41 +315,41 @@ refgetNowCaseF();
 									<div class="fstyle02V">飛航拍攝規劃<br/>Flight plan</div>
 								</td>
 								<td width="46%" scope="col" class="fstyle02">
-									<div>預定航拍期間：</div>
+									<div>預定航拍期間：{{nowCasePlanY}} 年{{nowCasePlanM}} 月</div>
 									<div>Scheduled flight date</div>
 								</td>
 								<td scope="col" class="fstyle02">
-									<div>影像地面像素解析度：</div>
+									<div>影像地面像素解析度：{{nowCaseGSD}} cm</div>
 									<div>GSD (Ground Sample Distance)</div>
 								</td>
 							</tr>
 							<tr>
 								<td width="46%" scope="col" class="fstyle02">
-									<div>南北向航線：</div>
+									<div>南北向航線：{{nowCaseStripsNS}} 條</div>
 									<div>Number of North-south strips</div>
 								</td>
 								<td scope="col" class="fstyle02">
-									<div>東西向航線：</div>
+									<div>東西向航線：{{nowCaseStripsEW}} 條</div>
 									<div>Number of East-west strips</div>
 								</td>
 							</tr>
 							<tr>
 								<td width="46%" scope="col" class="fstyle02">
-									<div>前後重疊率：</div>
+									<div>前後重疊率：{{nowCaseEndLap}} %</div>
 									<div>End Lap</div>
 								</td>
 								<td scope="col" class="fstyle02">
-									<div>側向重疊率：</div>
+									<div>側向重疊率：{{nowCaseSideLap}} %</div>
 									<div>Side Lap</div>
 								</td>
 							</tr>
 							<tr>
 								<td width="46%" scope="col" class="fstyle02">
-									<div>飛航橢球高：</div>
+									<div>飛航橢球高：{{nowCaseEllH}} m</div>
 									<div>Ellipsoidal Height</div>
 								</td>
 								<td scope="col" class="fstyle02">
-									<div>飛航離地高：</div>
+									<div>飛航離地高：{{nowCaseAGL}} m</div>
 									<div>AGL (Above Ground Level)</div>
 								</td>
 							</tr>
@@ -286,7 +371,7 @@ refgetNowCaseF();
 			</tr>
 			<tr>
 				<td colspan="3" class="fstyle02" style="border-bottom: 2px dashed;">
-					<div><span style="font-family:標楷體;">□</span> 攝影機原廠規格書或率定報告，檔名：</div>
+					<div><span v-if="nowCaseCamReport !== ''" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span> 攝影機原廠規格書或率定報告，檔名：{{nowCaseCamReport}}</div>
 					<div style="padding-left: 25px;">OEM specification or calibration report of camera, filename</div>
 					<div style="padding-left: 25px;">※所附資料應含攝影機鏡頭畸變差糾正相關資訊，倘無法提供相關糾正資訊，則視為無鏡頭畸變差無影響，相關糾正參數均為零。</div>
 					<div style="padding-left: 25px;">※The attached information should contain information on camera lens distortion correction. If the relevant correction information cannot be provided, it will be considered as no distortion of the lens distortion, and the relevant correction parameter is zero.</div>
@@ -294,7 +379,7 @@ refgetNowCaseF();
 			</tr>
 			<tr>
 				<td colspan="3" class="fstyle02">
-					<div><span style="font-family:標楷體;">□</span> 飛行航線規劃圖(dwg或shp檔)，檔名：</div>
+					<div><span v-if="nowCasePlanMap !== ''" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span> 飛行航線規劃圖(dwg或shp檔)，檔名：{{nowCasePlanMap}}</div>
 					<div style="padding-left: 25px;">Flight planning map (dwg or shp), filename</div>
 				</td>
 			</tr>
@@ -305,7 +390,7 @@ refgetNowCaseF();
 					<div>校正人員</div>
 					<div>Calibration Person</div>
 				</td>
-				<td>
+				<td class="fstyle02mid">{{nowCaseOperatorName}}
 				</td>
 			</tr>
 		</table>
@@ -320,8 +405,8 @@ refgetNowCaseF();
 					<div>Price</div>
 				</td>
 				<td colspan="3" class="fstyle03">
-					<div>費用合計新臺幣????元整，領取校正報告前請先繳費。</div>
-					<div>Total amount of payment （NT dollars）????，Please complete payment before receiving the calibration report.</div>
+					<div>費用合計新臺幣{{nowCaseChargeF}}元整，領取校正報告前請先繳費。</div>
+					<div>Total amount of payment （NT dollars）{{nowCaseChargeF}}，Please complete payment before receiving the calibration report.</div>
 				</td>
 			</tr>
 			<!-- 注意事項 -->
@@ -401,8 +486,6 @@ refgetNowCaseF();
 
 </template>
 <style>
-
-
 @media screen {
 	html, body{
 		width: 210mm;
@@ -432,7 +515,9 @@ refgetNowCaseF();
 	}
 	tr,td {
 		border: 1px solid;
-		page-break-inside: avoid
+		page-break-inside: avoid;
+		/* white-space:nowrap; */
+		/* overflow: hidden; */
 		/* height: 30px; */
 	}
 
@@ -489,11 +574,21 @@ refgetNowCaseF();
 	}
 	tr,td {
 		border: 1.5px solid;
-		page-break-inside: avoid
+		page-break-inside: avoid;
+		/* white-space:nowrap; */
+		/* overflow: hidden; */
 		/* height: 30px; */
 	}
+	
 }
-
+.wingdings2{
+		font-family: 'Wingdings 2';
+		font-size: 16pt;
+		vertical-align:middle;
+	}
+.nowrap{
+	white-space:nowrap;
+}
 .sicltab01 {
   /* border: 1px solid; */
   border-collapse: collapse;
