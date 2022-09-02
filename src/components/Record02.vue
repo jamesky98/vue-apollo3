@@ -32,6 +32,8 @@ import {
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../graphql/Cases";
 import ItemGQL from "../graphql/Item";
+import PrjGQL from "../graphql/Prj";
+import SelectPs from "./SelectPs.vue";
 
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
@@ -404,7 +406,109 @@ function showItemFromBtn(x){
 }
 
 // 校正件列表=========end
+// 參考值列表=========start
+let dtPrj;
+const tablePrj = ref();
+const dataPrj = ref([]);
+const showPrjFrom = ref(false);
+const prjTabId = ref("prjFilter");
 
+const seletPrjID = ref("");
+const seletPrjCode = ref("");
+const seletPrjPublishDate = ref("");
+
+const filterPrjCode = ref("");
+
+const filterPrjPubDateStart = ref("");
+const filterPrjPubDateStartDOM = ref();
+
+const filterPrjPubDateEnd = ref("");
+const filterPrjPubDateEndDOM = ref();
+
+// 設定表格tablePrj
+const columnsPrj = [
+  { data: "id", title: "編號", defaultContent: "-" },
+  { data: "project_code", title: "作業編號", defaultContent: "-" },
+  { data: "cal_type.name", title: "校正項目", defaultContent: "-" },
+  { data: "publish_date", title: "發布日", defaultContent: "-", render: (data) => {return toTWDate(data);} },
+  { data: "method", title: "方式", defaultContent: "-" },
+  { data: "year", title: "作業年", defaultContent: "-" },
+  { data: "month", title: "月", defaultContent: "-" },
+  { data: "organizer", title: "作業機關", defaultContent: "-" },
+  { data: "start_date", title: "開始日", defaultContent: "-", render: (data) => {return toTWDate(data);}},
+  { data: "end_date", title: "結束日", defaultContent: "-", render: (data) => {return toTWDate(data);}},
+];
+const tboptionPrj = {
+  dom: 'ti',
+  select: {
+    style: 'single',
+    info: false
+  },
+  order: [[1, 'desc']],
+  scrollY: '22vh',
+  scrollX: true,
+  lengthChange: false,
+  searching: false,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  }
+};
+
+// 查詢量測作業資料
+const { result: allPrj, loading: lodingAllPrj, variables: varAllPrj, onResult: getAllPrj, refetch: refgetAllPrj } = useQuery(
+  PrjGQL.GETALLPRJ,
+);
+getAllPrj(result => {
+  // 加入量測作業資料
+  if (!result.loading && result.data.getAllPrj) {
+    dataPrj.value = result.data.getAllPrj;
+  }
+});
+
+function shownPrjModal() {
+  dtPrj = tablePrj.value.dt();
+  dtPrj.on('select', function (e, dt, type, indexes) {
+    let getData = dt.rows(indexes).data()[0];
+    seletPrjID.value = getData.id;
+    seletPrjCode.value = getData.project_code;
+    seletPrjPublishDate.value = getData.publish_date.split("T")[0];
+  });
+  refgetAllPrj();
+}
+
+// 更多編輯=>引導至校正件管理
+function gotoPrjMG(){
+  router.push('/prjs');
+}
+
+// 清除校正件篩選條件
+function clearPrjFilter() {
+  filterPrjCode.value = "";
+  filterPrjPubDateStart.value = "";
+  filterPrjPubDateEnd.value = "";
+}
+
+// 執行量測作業篩選
+function doPrjFilter() {
+  let where = {};
+  if (filterPrjCode.value !== "") where.projectCode = filterPrjCode.value;
+  if (filterPrjPubDateStart.value !== "") where.pubdateStart = filterPrjPubDateStart.value;
+  if (filterPrjPubDateEnd.value !== "") where.pubdateEnd = filterPrjPubDateEnd.value;
+
+  varAllPrj.value = where;
+}
+
+// 案加入後回填量測作業id
+function setPrjBtn() {
+  nowCaseRefPrjID.value = seletPrjID.value;
+  nowCaseRefPrjCode.value = seletPrjCode.value;
+  nowCaseRefPrjPublishDate.value = seletPrjPublishDate.value;
+  showPrjFrom.value = false;
+}
+
+// 參考值列表=========end
 
 defineExpose({
   nowCaseItemID,
@@ -493,6 +597,63 @@ defineExpose({
         <MDBBtn color="primary" @click="setItemBtn">加入</MDBBtn>
       </MDBModalFooter>
     </MDBModal>
+    <!-- 選擇參考值量測作業 -->
+    <MDBModal style="left: 66%;" @shown="shownPrjModal" v-model="showPrjFrom" staticBackdrop scrollable>
+      <MDBModalHeader>
+        <MDBModalTitle>請選擇參考值量測作業</MDBModalTitle>
+      </MDBModalHeader>
+      <MDBModalBody>
+        <MDBContainer fluid>
+          <MDBRow>
+            <!-- 量測作業列表 -->
+            <MDBCol col="12">
+              <DataTable :data=" dataPrj" :columns="columnsPrj" :options="tboptionPrj" ref="tablePrj"
+                style="font-size: smaller" class="display w-100 compact" />
+            </MDBCol>
+            <!-- 篩選 或 編輯 -->
+            <MDBCol col="12" class="border">
+              <MDBTabs v-model="prjTabId">
+                <MDBTabNav tabsClasses="">
+                  <MDBTabItem tabId="prjFilter" href="prjFilter">條件篩選</MDBTabItem>
+                </MDBTabNav>
+                <MDBTabContent>
+                  <!-- 篩選表單 -->
+                  <MDBTabPane tabId="prjFilter">
+                    <!-- 功能列 -->
+                    <div class="mt-2">
+                      <MDBBtn size="sm" color="primary" @click="doPrjFilter">篩選</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="clearPrjFilter">清除</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="gotoPrjMG">量測作業管理</MDBBtn>
+                    </div>
+                    <!-- 條件欄位 -->
+                    <MDBRow>
+                      <MDBCol col="6" class="mb-2">
+                        目前：{{seletPrjID}}-{{seletPrjCode}}
+                      </MDBCol>
+                      <MDBCol col="6" class="mb-2">
+                        <MDBInput size="sm" type="text" label="作業編號" v-model="filterPrjCode" />
+                      </MDBCol>
+                      <div></div>
+                      <MDBCol col="6" class="mb-3">
+                        <MDBDatepicker size="sm" v-model="filterPrjPubDateStart" format="YYYY-MM-DD" label="發布日(起)"
+                          ref="filterPrjPubDateStartDOM" />
+                      </MDBCol>
+                      <MDBCol col="6" class="mb-3">
+                        <MDBDatepicker size="sm" v-model="filterPrjPubDateEnd" format="YYYY-MM-DD" label="發布日(迄)"
+                          ref="filterPrjPubDateEndDOM" />
+                      </MDBCol>
+                    </MDBRow>
+                  </MDBTabPane>
+                </MDBTabContent>
+              </MDBTabs>
+            </MDBCol>
+          </MDBRow>
+        </MDBContainer>
+      </MDBModalBody>
+      <MDBModalFooter>
+        <MDBBtn color="primary" @click="setPrjBtn">加入</MDBBtn>
+      </MDBModalFooter>
+    </MDBModal>
     <!-- record02表單 -->
     <MDBStepper>
       <MDBStepperForm>
@@ -513,6 +674,9 @@ defineExpose({
                       <MDBBtn size="sm" color="primary">
                       列印管理表
                       </MDBBtn>
+                    </RouterLink>
+                    <RouterLink target="_blank" :to="{ path: '/sicltab04' ,query:{ caseID: props.caseID }}">
+                      <MDBBtn size="sm" color="primary">列印申請單</MDBBtn>
                     </RouterLink>
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">

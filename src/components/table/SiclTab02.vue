@@ -2,14 +2,13 @@
 import {ref} from 'vue';
 import { computed } from "@vue/reactivity";
 import { useQuery } from '@vue/apollo-composable';
-import CaseGQL from "../graphql/Cases";
+import CaseGQL from "../../graphql/Cases";
 
 // 引入案件編號
 const props = defineProps({
   caseID: String
 });
 
-const isSMCam = ref(false); //是否為小像幅
 const tableID = computed(()=>{return props.caseID.slice(0,-2)}); //申請單編號
 const itemID = computed(()=>{return props.caseID.slice(-2)}); //校正件編號
 const nowCaseAppDate = ref(""); // 申請日期
@@ -75,11 +74,11 @@ getNowCaseF(result => {
   if (!result.loading && result && result.data.getCasebyID) {
     // 填入資料
 		let getData = result.data.getCasebyID;
-		let getRecord = result.data.getCasebyID.case_record_01;
+		let getRecord01 = result.data.getCasebyID.case_record_01;
     let getCust = result.data.getCasebyID.cus;
     let getItem = result.data.getCasebyID.item_base;
 		let getOpt = result.data.getCasebyID.employee_case_base_operators_idToemployee;
-		(result.data.getCasebyID.cal_type === 3) ? isSMCam.value = true : isSMCam.value = false;
+		
 		nowCaseAppDate.value = (getData.app_date)?getData.app_date.split("T")[0]:""; // 申請日期
 		nowCaseCalTypeCode.value = (result.data.getCasebyID.cal_type_cal_typeTocase_base)?result.data.getCasebyID.cal_type_cal_typeTocase_base.code:"";
 		nowCaseOperatorName.value = (getOpt)?getOpt.name:"";
@@ -93,35 +92,38 @@ getNowCaseF(result => {
 		nowCaseTitle.value = getData.title;
 		nowCaseAddress.value = getData.address;
 		nowCasePurpose.value = getData.purpose;
-		nowCaseCamTypeID.value = getRecord.cam_type;
+		
 		// 校正件資料
     nowCaseItemChop.value = (getItem)?getItem.chop:"";
     nowCaseItemModel.value = (getItem) ? getItem.model : "";
     nowCaseItemSN.value = (getItem) ? getItem.serial_number : "";
-		nowCaseFocal.value = getRecord.focal;
-		nowCasePPAx.value = getRecord.ppa_x.toFixed(4);
-    nowCasePPAy.value = getRecord.ppa_y.toFixed(4);
-    nowCasePXh.value = getRecord.px_h;
-    nowCasePXw.value = getRecord.px_w;
-    nowCasePxSizeX.value = getRecord.px_size_x.toFixed(2);
-    nowCasePxSizeY.value = getRecord.px_size_y.toFixed(2);
-    nowCaseSizeX.value = getRecord.size_x.toFixed(4);
-    nowCaseSizeY.value = getRecord.size_y.toFixed(4);
-    nowCaseDistSoft.value = getRecord.distor_corr_soft;
-    nowCaseDistVer.value = getRecord.distor_corr_ver;
-    // 飛航規劃
-		nowCasePlanY.value = getRecord.plan_year;
-    nowCasePlanM.value = getRecord.plan_month;
-    nowCaseGSD.value = getRecord.gsd;
-    nowCaseStripsNS.value = getRecord.strips_ns;
-    nowCaseStripsEW.value = getRecord.strips_ew;
-    nowCaseEndLap.value = getRecord.end_lap;
-    nowCaseSideLap.value = getRecord.side_lap;
-    nowCaseEllH.value = getRecord.ell_height;
-    nowCaseAGL.value = getRecord.agl;
+
+		nowCaseCamTypeID.value = getRecord01.cam_type;
+		nowCaseFocal.value = getRecord01.focal;
+		nowCasePPAx.value = getRecord01.ppa_x.toFixed(4);
+		nowCasePPAy.value = getRecord01.ppa_y.toFixed(4);
+		nowCasePXh.value = getRecord01.px_h;
+		nowCasePXw.value = getRecord01.px_w;
+		nowCasePxSizeX.value = getRecord01.px_size_x.toFixed(2);
+		nowCasePxSizeY.value = getRecord01.px_size_y.toFixed(2);
+		nowCaseSizeX.value = getRecord01.size_x.toFixed(4);
+		nowCaseSizeY.value = getRecord01.size_y.toFixed(4);
+		nowCaseDistSoft.value = getRecord01.distor_corr_soft;
+		nowCaseDistVer.value = getRecord01.distor_corr_ver;
+		// 飛航規劃
+		nowCasePlanY.value = getRecord01.plan_year;
+		nowCasePlanM.value = getRecord01.plan_month;
+		nowCaseGSD.value = getRecord01.gsd;
+		nowCaseStripsNS.value = getRecord01.strips_ns;
+		nowCaseStripsEW.value = getRecord01.strips_ew;
+		nowCaseEndLap.value = getRecord01.end_lap;
+		nowCaseSideLap.value = getRecord01.side_lap;
+		nowCaseEllH.value = getRecord01.ell_height;
+		nowCaseAGL.value = getRecord01.agl;
 		// 檢附資料
-		nowCaseCamReport.value = (getRecord.cam_report)?getRecord.cam_report:"";
-    nowCasePlanMap.value = (getRecord.plan_map)?getRecord.plan_map:"";
+		nowCaseCamReport.value = (getRecord01.cam_report)?getRecord01.cam_report:"";
+		nowCasePlanMap.value = (getRecord01.plan_map)?getRecord01.plan_map:"";
+
 		// 收費
 		nowCaseCharge.value = getData.charge;
   }
@@ -148,12 +150,7 @@ refgetNowCaseF();
 	<div class="page">
 		<table width="100%">
 			<!-- 表單名稱 -->
-			<div v-if="isSMCam" class="fstyle01">
-				<div class="fstyle01C">校正申請表(適用小像幅航拍攝影機)</div>
-				<div>Calibration Application Form</div>
-				<div style="margin-bottom: 20px;">(apply for small-format airborne camera)</div>
-			</div>
-			<div v-else class="fstyle01">
+			<div class="fstyle01">
 				<div class="fstyle01C">校正申請表(適用航空測量攝影機)</div>
 				<div>Calibration Application Form</div>
 				<div style="margin-bottom: 20px;">(apply for aerial photogrammetric camera)</div>
@@ -283,7 +280,7 @@ refgetNowCaseF();
 									<div>Focal length</div>
 								</td>
 								<td width="46%" colspan="2" scope="col" class="fstyle02" style="border-left: hidden;">
-									<div>像主點坐標：{{nowCasePPAx}} mm × {{nowCasePPAy}} mm</div>
+									<div>像主點坐標：{{nowCasePPAx}} × {{nowCasePPAy}}</div>
 									<div>Principal point offset</div>
 								</td>
 							</tr>
@@ -364,13 +361,13 @@ refgetNowCaseF();
 		<table width="100%" cellspacing=0 cellpadding=0 class="sicltab01">
 			<!-- 應檢附資料 -->
 			<tr>
-				<td colspan="3" class="fstyle02" style="border-bottom: 2px dashed;">
+				<td colspan="3" class="fstyle02 bggray" style="border-bottom: 2px dashed;">
 					<div>應檢附資料：</div>
 					<div>Attach information</div>
 				</td>
 			</tr>
 			<tr>
-				<td colspan="3" class="fstyle02" style="border-bottom: 2px dashed;">
+				<td colspan="3" class="fstyle02 bggray" style="border-bottom: 2px dashed;">
 					<div><span v-if="nowCaseCamReport !== ''" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span> 攝影機原廠規格書或率定報告，檔名：{{nowCaseCamReport}}</div>
 					<div style="padding-left: 25px;">OEM specification or calibration report of camera, filename</div>
 					<div style="padding-left: 25px;">※所附資料應含攝影機鏡頭畸變差糾正相關資訊，倘無法提供相關糾正資訊，則視為無鏡頭畸變差無影響，相關糾正參數均為零。</div>
@@ -378,7 +375,7 @@ refgetNowCaseF();
 				</td>
 			</tr>
 			<tr>
-				<td colspan="3" class="fstyle02">
+				<td colspan="3" class="fstyle02 bggray">
 					<div><span v-if="nowCasePlanMap !== ''" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span> 飛行航線規劃圖(dwg或shp檔)，檔名：{{nowCasePlanMap}}</div>
 					<div style="padding-left: 25px;">Flight planning map (dwg or shp), filename</div>
 				</td>
@@ -425,7 +422,7 @@ refgetNowCaseF();
 							<div>Specify the program operator and perform its capability assessment and authorization before going to calibration field for aerial photograph. The results should recorded in detail in calibrate aerial photograph results table. The aerial photograph results will be inspected on delivering day. If it is found to be inconsistent with the calibration requirements, the customer will be requested to replenish or return data.</div>		
 						</li>
 						<li>
-							<div>顧客案件經申請審核通過後，應於三個月內完成航拍作業，並將航拍成果送至本實驗室辦理校正作業；超出期限時，本實驗室將通知顧客並予以退件。</div>
+							<div class="fbolder">顧客案件經申請審核通過後，應於三個月內完成航拍作業，並將航拍成果送至本實驗室辦理校正作業；超出期限時，本實驗室將通知顧客並予以退件。</div>
 							<div>After the customer's case has been approved by the application, the aerial photography should be completed in three months, and the aerial photography results should be sent to the laboratory for calibration work; when the time limit is exceeded, the laboratory will notify the customer and return the case.</div>
 						</li>
 						<li>
@@ -523,7 +520,6 @@ refgetNowCaseF();
 
 }
 @page {
-  size: portrait; /* 直向 */
   size: A4 portrait; /* 混合使用 */
   margin: 1cm 2cm; /* 邊界與內容的距離 */
 	orphans:0;
@@ -589,95 +585,80 @@ refgetNowCaseF();
 .nowrap{
 	white-space:nowrap;
 }
+
+.bggray{
+	background-color: #f3f3f3;
+}
+
 .sicltab01 {
   /* border: 1px solid; */
   border-collapse: collapse;
 }
 
-.print-pageFooter {
-	position: absolute;
-	top: 277mm;
-	width: 170mm;
-}
-.fstyle01{
+.fstyle01, .fstyle01C, .fstyle02, .fstyle02mid, .fstyle02V, .fstyle02Vleft, .fstyle03, .fstyle03mid{
 	font-family: "Times New Roman", 標楷體;
-  text-align: center;
+}
+
+.fbolder{
+	font-weight:bolder;
+}
+
+.fstyle01, .fstyle01C{
+	text-align: center;
   font-size: 24pt;
   font-weight:bold;
-	line-height: 1.2;
+	line-height: 1;
 }
+
 .fstyle01C{
-	font-family: "Times New Roman", 標楷體;
-  text-align: center;
-  font-size: 24pt;
-  font-weight:bold;
-	line-height: 1.2;
 	letter-spacing: 5px;
 }
-.fstyle02{
+
+.fstyle02, .fstyle02mid{
 	padding: 3px 10px 3px 10px;
   font-size: 12pt;
-  font-family: "Times New Roman", 標楷體;
+	line-height: 1;
+	font-weight:normal;
+}
+
+.fstyle02{
 	text-align: left;
-  font-weight:normal;
-	line-height: 1.2;
 }
 .fstyle02mid{
-	padding: 3px 0px 3px 0px;
-  font-size: 12pt;
-  font-family: "Times New Roman", 標楷體;
 	text-align: center;
-  font-weight:normal;
-	line-height: 1.2;
 }
-.fstyle02V{
+
+.fstyle02V, .fstyle02Vleft{
 	margin-left: auto;
 	margin-right: auto;
-	margin: auto;
   font-size: 12pt;
-  font-family: "Times New Roman", 標楷體;
-	text-align: center;
-  font-weight:normal;
+	font-weight:normal;
 	line-height: 1.2;
 	writing-mode: vertical-lr;
   text-orientation: mixed;
 	white-space:nowrap;
 }
+
+.fstyle02V{
+	text-align: center;
+}
+
 .fstyle02Vleft{
-  font-size: 12pt;
-  font-family: "Times New Roman", 標楷體;
 	text-align: left;
   padding-top: 10px;
-  font-weight:normal;
-	line-height: 1.2;
-	writing-mode: vertical-lr;
-  text-orientation: mixed;
-	white-space:nowrap;
 }
-.fstyle03{
+
+.fstyle03, .fstyle03mid{
 	padding: 3px 10px 3px 10px;
   font-size: 10pt;
-  font-family: "Times New Roman", 標楷體;
-	text-align: left;
   font-weight:normal;
 	line-height: 1.3;
+}
+
+.fstyle03{
+	text-align: left;
 }
 .fstyle03mid{
-	padding: 3px 10px 3px 10px;
-  font-size: 10pt;
-  font-family: "Times New Roman", 標楷體;
 	text-align: center;
-  font-weight:normal;
-	line-height: 1.3;
 }
-.pageheader{
-	line-height: 1.2;
-	font-size: 12pt;
-	font-family: "Times New Roman", 標楷體;
-	font-weight:normal;
-	text-align: left;
-	margin-bottom: 10px;
-}
-
-
 </style>

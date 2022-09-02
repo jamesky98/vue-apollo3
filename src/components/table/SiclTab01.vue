@@ -2,7 +2,7 @@
 import {ref} from 'vue';
 import { computed } from "@vue/reactivity";
 import { useQuery } from '@vue/apollo-composable';
-import CaseGQL from "../graphql/Cases";
+import CaseGQL from "../../graphql/Cases";
 
 // 引入案件編號
 const props = defineProps({
@@ -239,7 +239,6 @@ refgetNowCaseF();
 } */
 
 @page {
-  size: portrait; /* 直向 */
   size: A4 portrait; /* 混合使用 */
   margin: 0; /* 邊界與內容的距離 */
 }
@@ -283,16 +282,6 @@ refgetNowCaseF();
     padding: 5mm 15mm 5mm 15mm;
     box-shadow: none;
 	}
-	/*.tpage::after {
-		content: counter(page-number); 
-		counter-increment: page-number 1; 
-		position: absolute;
-		right: 0;
-		bottom: 5mm;
-		left: 0;
-		font-size: 12px;
-		text-align: center;
-	}*/
 }
 
 .bgyellow {

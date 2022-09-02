@@ -1445,7 +1445,10 @@ defineExpose({
                       <RouterLink target="_blank" :to="{ path: '/sicltab01' ,query:{ caseID: props.caseID }}">
                         <MDBBtn size="sm" color="primary">列印管理表</MDBBtn>
                       </RouterLink>
-                      <RouterLink target="_blank" :to="{ path: '/sicltab02' ,query:{ caseID: props.caseID }}">
+                      <RouterLink v-if="!isSMCam" target="_blank" :to="{ path: '/sicltab02' ,query:{ caseID: props.caseID }}">
+                        <MDBBtn size="sm" color="primary">列印申請單</MDBBtn>
+                      </RouterLink>
+                      <RouterLink v-else target="_blank" :to="{ path: '/sicltab03' ,query:{ caseID: props.caseID }}">
                         <MDBBtn size="sm" color="primary">列印申請單</MDBBtn>
                       </RouterLink>
                   </MDBCol>
@@ -1459,7 +1462,7 @@ defineExpose({
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="序號" v-model="nowCaseItemSN" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required size="sm" type="text" label="焦距" v-model="nowCaseFocal" />
+                    <MDBInput tooltipFeedback required size="sm" type="text" label="焦距(mm)" v-model="nowCaseFocal" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required size="sm" type="text" label="像主點_X" v-model="nowCasePPAx" />
@@ -1727,17 +1730,20 @@ defineExpose({
               </MDBCol>
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
-                  <MDBCol col="4" class="my-3">
+                  <MDBCol col="12" class="my-3">
+                    <MDBBtn size="sm" color="primary" @click="showPrjFrom = true">查詢量測作業</MDBBtn>
+                    <MDBBtn size="sm" color="primary" @click="">產生參考值檔</MDBBtn>
+                  </MDBCol>
+                  <div></div>
+                  <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="量測作業編號" v-model="nowCaseRefPrjCode" />
                   </MDBCol>
-                  <MDBCol col="4" class="my-3">
+                  <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="發布日期" v-model="nowCaseRefPrjPublishDate" />
                   </MDBCol>
-                  <MDBCol col="4" class="px-0 my-3">
-                    <MDBBtn size="sm" color="primary" @click="showPrjFrom = true">查詢量測作業</MDBBtn>
-                  </MDBCol>
+                  
                   <!-- 參考值檔 -->
-                  <MDBCol col="8" class="mb-3">
+                  <!-- <MDBCol col="8" class="mb-3">
                     <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="參考值檔"
                       v-model="nowCaseREFUpload">
                       <MDBBtnClose @click.prevent="nowCaseREFUpload =''" class="btn-upload-close" />
@@ -1747,7 +1753,7 @@ defineExpose({
                     <input type="file" id="REFUpload" @change="uploadChenge" style="display: none;" />
                     <MDBBtn size="sm" color="primary" @click="uploadBtn('REFUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseREFUploadDL" download size="sm" color="secondary">下載</MDBBtn>
-                  </MDBCol>
+                  </MDBCol> -->
                 </MDBRow>
               </MDBCol>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
@@ -1755,26 +1761,14 @@ defineExpose({
               </MDBCol>
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
-                  <MDBCol col="4" class="my-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="使用影像數" v-model="nowCaseImgNo" />
-                  </MDBCol>
-                  <MDBCol v-if="isSMCam" col="4" class="my-3">
+                  <MDBCol v-if="isSMCam" col="4" class="mt-3">
                     <MDBCheckbox label="是否已糾正影像" v-model="nowCaseUndist" />
                   </MDBCol>
                   <div></div>
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="總點數" v-model="nowCaseTotPt" />
-                  </MDBCol>
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="量測點數" v-model="nowCaseMeaPt" />
-                  </MDBCol>
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="刪除點數" v-model="nowCaseDelPt" />
-                  </MDBCol>
-                  <MDBCol col="6" class="mb-3">
+                  <MDBCol col="6" class="my-3">
                     <MDBTextarea size="sm" label="刪除註記" rows="4" v-model="nowCaseDelCommt" />
                   </MDBCol>
-                  <MDBCol col="6" class="mb-3">
+                  <MDBCol col="6" class="my-3">
                     <MDBTextarea required size="sm" label="畸變差參數" rows="4" v-model="nowCaseDist" />
                   </MDBCol>
                 </MDBRow>
@@ -1815,7 +1809,7 @@ defineExpose({
                     <MDBBtn tag="a" :href="nowCaseFixUploadDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <!-- 控制點檔 -->
-                  <MDBCol col="8" class="mb-3">
+                  <!-- <MDBCol col="8" class="mb-3">
                     <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="控制點檔"
                       v-model="nowCaseGCPUpload">
                       <MDBBtnClose @click.prevent="nowCaseGCPUpload =''" class="btn-upload-close" />
@@ -1825,7 +1819,7 @@ defineExpose({
                     <input type="file" id="GCPUpload" @change="uploadChenge" style="display: none;" />
                     <MDBBtn size="sm" color="primary" @click="uploadBtn('GCPUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseGCPUploadDL" download size="sm" color="secondary">下載</MDBBtn>
-                  </MDBCol>
+                  </MDBCol> -->
                   <!-- 空三報表檔 -->
                   <MDBCol col="8" class="mb-3">
                     <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="空三報表檔"
@@ -1838,6 +1832,25 @@ defineExpose({
                     <MDBBtn size="sm" color="primary" @click="uploadBtn('ATreportUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseATreportDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="使用影像數" v-model="nowCaseImgNo" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <RouterLink v-if="!isSMCam" target="_blank" :to="{ path: '/sicltab05' ,query:{ caseID: props.caseID }}">
+                      <MDBBtn size="sm" color="primary">列印計算成果</MDBBtn>
+                    </RouterLink>
+                  </MDBCol>
+                  <div></div>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="總點數" v-model="nowCaseTotPt" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="量測點數" v-model="nowCaseMeaPt" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="刪除點數" v-model="nowCaseDelPt" />
+                  </MDBCol>
+                  <div></div>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="控制點數" v-model="nowCaseCrtNo" />
                   </MDBCol>
@@ -1871,14 +1884,14 @@ defineExpose({
                   </MDBCol>
                   <div></div>
                   <!-- 計算成果表 -->
-                  <MDBCol col="8" class="mb-3">
+                  <!-- <MDBCol col="8" class="mb-3">
                     <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="計算成果表"
                       v-model="nowCaseRsultFile">
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
                     <MDBBtn tag="a" :href="nowCaseRsultFileDL" download size="sm" color="secondary">下載</MDBBtn>
-                  </MDBCol>
+                  </MDBCol> -->
                 </MDBRow>
               </MDBCol>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">

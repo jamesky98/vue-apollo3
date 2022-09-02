@@ -65,7 +65,7 @@ const router = createRouter({
     {
       path: "/sicltab01",
       name: "sicltab01",
-      component: () => import("../views/SiclTab01.vue"),
+      component: () => import("../components/table/SiclTab01.vue"),
       props: (route) => route.query,
       meta: {
         title: "校正作業管理表",
@@ -74,10 +74,37 @@ const router = createRouter({
     {
       path: "/sicltab02",
       name: "sicltab02",
-      component: () => import("../views/SiclTab02.vue"),
+      component: () => import("../components/table/SiclTab02.vue"),
       props: (route) => route.query,
       meta: {
         title: "校正申請表",
+      },
+    },
+    {
+      path: "/sicltab03",
+      name: "sicltab03",
+      component: () => import("../components/table/SiclTab03.vue"),
+      props: (route) => route.query,
+      meta: {
+        title: "校正申請表",
+      },
+    },
+    {
+      path: "/sicltab04",
+      name: "sicltab04",
+      component: () => import("../components/table/SiclTab04.vue"),
+      props: (route) => route.query,
+      meta: {
+        title: "校正申請表",
+      },
+    },
+    {
+      path: "/sicltab05",
+      name: "sicltab05",
+      component: () => import("../components/table/SiclTab05.vue"),
+      props: (route) => route.query,
+      meta: {
+        title: "計算成果表",
       },
     },
   ],
