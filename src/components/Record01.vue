@@ -36,6 +36,7 @@ import CaseGQL from "../graphql/Cases";
 import ItemGQL from "../graphql/Item";
 import PrjGQL from "../graphql/Prj";
 import SelectPs from "./SelectPs.vue";
+import SelectUc from "./SelectUc.vue";
 
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
@@ -59,6 +60,7 @@ const props = defineProps({
   const updateKey = ref(0);
   const isSMCam = ref(true);
   const nowCaseCalType = ref(""); //校正項目
+  const nowCaseCalTypeCode = ref(""); //校正項目
   const nowCaseCamTypeID = ref(""); // 像機類型
   const nowCaseItemID = inject('nowCaseItemID'); // 校正件索引
   const nowCaseItemChop = ref(""); // 像機廠牌
@@ -261,6 +263,14 @@ const props = defineProps({
   const nowCaseRecTemp = ref(""); //作業紀錄表範本
   const nowCaseCalResult = ref(""); //計算成果表
   const nowCaseUcResult = ref(""); //不確定度計算表
+  const nowCaseUcModel = ref(""); //不確定度選用模組
+  provide('nowCaseUcModel',nowCaseUcModel);
+  const selectUcModel = ref("");
+  provide('selectUcModel',selectUcModel);
+  const nowCaseUcModelMU = ref([]);
+  provide('nowCaseUcModelMU',nowCaseUcModelMU);
+  const selectUcData = ref();
+
   // 出具報告
   const nowCaseHasLOGO = ref(true); //列印TAF LOGO
   const nowCaseReportTemp = ref(""); //校正報告範本
@@ -307,7 +317,6 @@ const props = defineProps({
   const nowCasePDFPath = ref("pdfjs-dist/web/viewer.html"); //校正報告掃描檔路徑
 
 
-
   // 查詢Record01資料
 const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
   CaseGQL.GETFULLCASEBYID,
@@ -323,6 +332,7 @@ getNowCaseF(result => {
     (result.data.getCasebyID.cal_type === 3) ? isSMCam.value = true : isSMCam.value = false;
     // 校正件資料
     nowCaseCalType.value = result.data.getCasebyID.cal_type;
+    nowCaseCalTypeCode.value = result.data.getCasebyID.cal_type_cal_typeTocase_base.code;
     nowCaseCamTypeID.value = getData.cam_type + "";
     nowCaseItemID.value = (getItem) ? getItem.id : "";
     nowCaseItemChop.value = (getItem)?getItem.chop:"";
@@ -1138,9 +1148,9 @@ async function readPrintOut(POfile){
                 i=i+1
                 pt_Data[pt_Name] = {
                   type: pt_Type,
-                  x: pt_X,
-                  y: pt_Y,
-                  z: pt_Z,
+                  sx: pt_X,
+                  sy: pt_Y,
+                  sz: pt_Z,
                 };
                 pt_F=pt_F+1;
               }
@@ -1264,6 +1274,16 @@ async function readPrintOut(POfile){
 // 讀取PrintOut.0 並填入資料====End
 
 // 呼叫計算不確定度=======Start
+
+// 取得不確定度列表
+const { mutate: getUcList, onDone: getUcListOnDone, onError: getUcListError } = useMutation(
+  CaseGQL.GETUCLIST
+);
+getUcListOnDone(result=>{
+  // 填入uclist選單
+  
+});
+getUcList();
 const { mutate: computeUc, onDone: computeUcOnDone, onError: computeUcError } = useMutation(
   CaseGQL.COMPUTEUC,
   () => ({
@@ -1741,7 +1761,7 @@ defineExpose({
                   <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="發布日期" v-model="nowCaseRefPrjPublishDate" />
                   </MDBCol>
-                  
+                  <SelectUc ref="selectUcData"/>
                   <!-- 參考值檔 -->
                   <!-- <MDBCol col="8" class="mb-3">
                     <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="參考值檔"
@@ -1832,6 +1852,7 @@ defineExpose({
                     <MDBBtn size="sm" color="primary" @click="uploadBtn('ATreportUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseATreportDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
+                  <div></div>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="使用影像數" v-model="nowCaseImgNo" />
                   </MDBCol>
@@ -1883,15 +1904,13 @@ defineExpose({
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="高程不確定度(mm)" v-model="nowCaseSTDv" />
                   </MDBCol>
                   <div></div>
-                  <!-- 計算成果表 -->
-                  <!-- <MDBCol col="8" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="計算成果表"
-                      v-model="nowCaseRsultFile">
-                    </MDBInput>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="水平涵蓋因子" v-model="nowCaseKh" />
                   </MDBCol>
-                  <MDBCol col="3" class="px-0 mb-3">
-                    <MDBBtn tag="a" :href="nowCaseRsultFileDL" download size="sm" color="secondary">下載</MDBBtn>
-                  </MDBCol> -->
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="高程涵蓋因子" v-model="nowCaseKv" />
+                  </MDBCol>
+                  <!-- 計算成果表 -->
                 </MDBRow>
               </MDBCol>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
@@ -1923,27 +1942,8 @@ defineExpose({
                     <MDBBtn size="sm" color="primary" @click="uploadBtn('GCPGraphUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseGCPGraphDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
-
-                  <!-- 不確定度計算表 -->
-                  <MDBCol col="8" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="不確定度計算表"
-                      v-model="nowCaseSTDExl">
-                      <MDBBtnClose @click.prevent="nowCaseSTDExl =''" class="btn-upload-close" />
-                    </MDBInput>
-                  </MDBCol>
-                  <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" id="STDExlUpload" @change="uploadChenge" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="uploadBtn('STDExlUpload')">上傳</MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseSTDExlDL" download size="sm" color="secondary">下載</MDBBtn>
-                  </MDBCol>
-
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="水平涵蓋因子" v-model="nowCaseKh" />
-                  </MDBCol>
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="高程涵蓋因子" v-model="nowCaseKv" />
-                  </MDBCol>
-                  <div></div>
+                  
+                  
                   <!-- 產生作業紀錄表 -->
                   <MDBCol col="8" class="mb-3">
                     <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="作業紀錄表範本"

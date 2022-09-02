@@ -28,12 +28,14 @@ const nowCaseSTDv = ref("");
 const nowCaseCalResult = ref(""); //計算成果表
 const nowCaseCalArray = computed(()=>{
 	let myarray=[];
-	let jsonObj = JSON.parse(nowCaseCalResult.value);
-	for (let key in jsonObj){
-		myarray.push({
-			ptname:key,
-			...jsonObj[key],
-		})
+	if(nowCaseCalResult.value){
+		let jsonObj = JSON.parse(nowCaseCalResult.value);
+		for (let key in jsonObj){
+			myarray.push({
+				ptname:key,
+				...jsonObj[key],
+			})
+		}
 	}
 	return myarray;
 })
@@ -102,8 +104,8 @@ refgetNowCaseF();
 			<div>器差RMS_V：{{nowCaseSTDv}} mm</div>
 		</div>
 		
-		<table width="100%">
-			<tr class="fstyle02 tbheader">
+		<table cellspacing=0 cellpadding=0 width="100%">
+			<tr class="fstyle02 tbheader bggray2">
 				<th>類型</th>
 				<th>點號</th>
 				<th>E_ref(m)</th>
@@ -132,9 +134,6 @@ refgetNowCaseF();
 			<tbody></tbody>
 		</table>
 	</div>
-
-
-
 </template>
 <style>
 @media screen {
@@ -151,7 +150,7 @@ refgetNowCaseF();
 		display: none;
 	}
 	.page{
-		/* border: 1px solid; */
+		/* border: 2px solid red; */
 		/* box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.6); */
 		position: relative;
 		width: 297mm;
@@ -160,27 +159,21 @@ refgetNowCaseF();
 		padding-bottom: 1.5cm;
 		padding-left: 2cm;
 		padding-right: 2cm;
+		/* z-index: 1; */
 	}
 	.page-gap{
 		height: 20px;
 	}
-	tr,td,th {
-		border: 1px solid;
-		page-break-inside: avoid;
-		/* white-space:nowrap; */
-		/* overflow: hidden; */
-		/* height: 30px; */
-	}
-
 }
 @page {
   size: A4 landscape; /* 混合使用 */
   margin: 2cm 1cm; /* 邊界與內容的距離 */
-	orphans:0;
-  widows:0;
+	orphans:2;
+  widows:2;
 }
 @media print{
 	html, body{
+		width: 100%;
 		height: 100%;
 		margin: 0;
 		counter-reset: page-number;
@@ -196,14 +189,10 @@ refgetNowCaseF();
 		bottom: 0;
 	}
 	.page{
-		/* border: 1px solid blue; */
+		/* border: 2px solid red; */
 		position: relative;
 		width: 100%;
-		height: 100%;
-		padding-top: 1.5cm;
-		padding-bottom: 1.5cm;
-		page-break-inside: avoid;
-		page-break-before: always;
+		/* z-index: 10; */
 	}
 	/* .page::after{
 		counter-increment: page-number;
@@ -226,13 +215,16 @@ refgetNowCaseF();
 	.tbheader{
 		display: table-header-group;
 	}
-	tr,td,th {
-		border: 1.5px solid;
-		page-break-inside: avoid;
-	}
-	
 }
 
+tr, td, th {
+	border: 1px solid;
+	padding: 3px 3px 3px 10px;
+	page-break-inside: avoid;
+}
+th{
+	border-top: none;
+}
 .titlediv{
 	width: 6cm;
 	border-style: double;

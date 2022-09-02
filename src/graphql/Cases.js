@@ -748,6 +748,12 @@ const COMPUTEUC = gql`
   }
 `;
 
+const GETUCLIST = gql`
+  mutation Getuclist {
+    getUclist
+  }
+`;
+
 export default {
   GETALLCASE,
   GETCASESTATUS,
@@ -763,5 +769,6 @@ export default {
   SAVECASERECORD01,
   UPLOADFILE,
   COMPUTEUC,
+  GETUCLIST,
   // SAVECASERECORD02,
 };

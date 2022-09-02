@@ -1,16 +1,11 @@
 <script setup>
 import { ref, onMounted, inject } from "vue";
-import path from "path-browserify";
 import {
-  MDBInput,
-  MDBSwitch,
   MDBCol,
   MDBRow,
   MDBContainer,
   MDBSelect,
   MDBDatepicker,
-  MDBBtn,
-  MDBBtnClose,
 } from 'mdb-vue-ui-kit';
 
   // 出具報告
