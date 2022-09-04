@@ -19,6 +19,6 @@ onMounted(()=>{
 
 </script>
 <template>
-  <MDBSelect filter size="sm" class="mb-3 col-4" label="不確定度選用模組" v-model:options="nowCaseUcModelMU"
+  <MDBSelect size="sm" class="mb-3 col-4" label="不確定度選用模組" v-model:options="nowCaseUcModelMU"
     v-model:selected="selectUcModel" ref="nowCaseUcModelDOM" />
 </template>

@@ -273,6 +273,7 @@ const GETFULLCASEBYID = gql`
         eo_file
         recal_table
         uccal_table
+        uc_model
       }
       case_record_02 {
         id
@@ -387,6 +388,9 @@ const GETFULLCASEBYID = gql`
         has_logo
         report_template
         record_tamplate
+        recal_table
+        uccal_table
+        uc_model
       }
       status_code
       case_status {
@@ -634,6 +638,7 @@ const SAVECASERECORD01 = gql`
     $eoFile: String
     $recalTable: String
     $uccalTable: String
+    $ucModel: String
   ) {
     updateRecord01(
       id: $updateRecord01Id
@@ -721,6 +726,7 @@ const SAVECASERECORD01 = gql`
       eo_file: $eoFile
       recal_table: $recalTable
       uccal_table: $uccalTable
+      uc_model: $ucModel
     ) {
       id
     }
@@ -743,14 +749,40 @@ const UPLOADFILE = gql`
 `;
 
 const COMPUTEUC = gql`
-  mutation ComputeUc($parm: String) {
-    computeUc(parm: $parm)
+  mutation ComputeUc($parm: String, $ucModel: String) {
+    computeUc(parm: $parm, uc_model: $ucModel) {
+      ucH
+      freeH
+      tinvH
+      ucV
+      freeV
+      tinvV
+      calType
+      prjcode
+      ver
+      minUcH
+      minUcV
+      data {
+        section
+        type
+        comment
+        data {
+          name
+          x
+          fr
+          fa
+          ux
+          freedom
+          factor
+        }
+      }
+    }
   }
 `;
 
 const GETUCLIST = gql`
-  mutation Getuclist {
-    getUclist
+  mutation Getuclist($caltypecode: String, $refprjcode: String) {
+    getUclist(caltypecode: $caltypecode, refprjcode: $refprjcode)
   }
 `;
 

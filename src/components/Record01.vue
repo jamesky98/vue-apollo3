@@ -418,6 +418,7 @@ getNowCaseF(result => {
     nowCaseRecTemp.value = getData.report_edit;
     nowCaseCalResult.value = getData.recal_table;
     nowCaseUcResult.value = getData.uccal_table;
+    nowCaseUcModel.value = getData.uc_model;
     // 出具報告
     nowCaseHasLOGO.value = getData.has_logo;
     nowCaseReportTemp.value = getData.report_template;
@@ -438,6 +439,8 @@ getNowCaseF(result => {
     }else{
       nowCasePDFPath.value = "pdfjs-dist/web/viewer.html?file=../../../06_Case/"+ props.caseID + "/" + getData.report_scan;
     }
+    // 取得不確定度模組清單，並填入下拉選單
+    getUcList();
   }
 });
 refgetNowCaseF();
@@ -791,6 +794,7 @@ function setPrjBtn() {
   nowCaseRefPrjID.value = seletPrjID.value;
   nowCaseRefPrjCode.value = seletPrjCode.value;
   nowCaseRefPrjPublishDate.value = seletPrjPublishDate.value;
+  getUcList();
   showPrjFrom.value = false;
 }
 
@@ -887,6 +891,7 @@ const { mutate: saveRecord01, onDone: saveRecord01OnDone, onError: saveRecord01E
       eoFile: nowCaseEO.value,
       recalTable: nowCaseCalResult.value,
       uccalTable: nowCaseUcResult.value,
+      ucModel: selectUcModel.value,
     }
   })
 );
@@ -962,7 +967,6 @@ uploadFileOnDone(result=>{
       break;
     case 'ATreportUpload':
       nowCaseATreport.value = result.data.uploadFile.filename;
-      saveRecord01()
       break;
     case 'NetGraphUpload':
       nowCaseNetGraph.value = result.data.uploadFile.filename;
@@ -1153,6 +1157,7 @@ async function readPrintOut(POfile){
                   sz: pt_Z,
                 };
                 pt_F=pt_F+1;
+                pt_T=pt_T+1;
               }
             }
 
@@ -1252,19 +1257,17 @@ async function readPrintOut(POfile){
             // 將pt_Data寫入nowCaseCalResult
             nowCaseCalResult.value = JSON.stringify(pt_Data);
             // console.log(nowCaseCalResult.value);
-
+            pramJson={
+              sx:nowCaseRMSx.value,
+              sy:nowCaseRMSy.value,
+              sz:nowCaseRMSz.value,
+              redundancy:nowCaseRedundancy.value,
+              gsd:nowCaseGSDac.value,
+            }
+            pramJsonStr.value = JSON.stringify(pramJson);
+            computeUc();
           }
         });
-        
-        pramJson={
-          sx:nowCaseRMSx.value,
-          sy:nowCaseRMSy.value,
-          sz:nowCaseRMSz.value,
-          redundancy:nowCaseRedundancy.value,
-          gsd:nowCaseGSDac.value,
-        }
-        pramJsonStr.value = JSON.stringify(pramJson);
-        computeUc();
       };
     };
     //真正執行以文字方式載入檔案
@@ -1277,26 +1280,40 @@ async function readPrintOut(POfile){
 
 // 取得不確定度列表
 const { mutate: getUcList, onDone: getUcListOnDone, onError: getUcListError } = useMutation(
-  CaseGQL.GETUCLIST
+  CaseGQL.GETUCLIST,
+  () => ({
+    variables: {
+      caltypecode:nowCaseCalTypeCode.value,
+      refprjcode:nowCaseRefPrjCode.value,
+    }
+  })
 );
 getUcListOnDone(result=>{
   // 填入uclist選單
-  
+  nowCaseUcModelMU.value = result.data.getUclist.map(x => {
+      return { text: x, value: x }
+    });
 });
-getUcList();
+
+
+// 計算不確定度(return 不確定度H V、有效位置及計算表)
 const { mutate: computeUc, onDone: computeUcOnDone, onError: computeUcError } = useMutation(
   CaseGQL.COMPUTEUC,
   () => ({
     variables: {
       parm:pramJsonStr.value,
+      ucModel: nowCaseUcModel.value,
     }
   })
 );
 computeUcOnDone(result=>{
-  nowCaseSTDh.value = result.data.computeUc[0];
-  nowCaseSTDv.value = result.data.computeUc[3];
-  nowCaseKh.value = result.data.computeUc[2].toFixed(2);
-  nowCaseKv.value = result.data.computeUc[5].toFixed(2);
+  console.log(result.data.computeUc);
+  nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
+  nowCaseSTDh.value = result.data.computeUc.ucH;
+  nowCaseSTDv.value = result.data.computeUc.ucV;
+  nowCaseKh.value = result.data.computeUc.tinvH.toFixed(2);
+  nowCaseKv.value = result.data.computeUc.tinvV.toFixed(2);
+  saveRecord01();
 });
 // 呼叫計算不確定度=======End
 
@@ -1798,17 +1815,26 @@ defineExpose({
               </MDBCol>
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
-                  <MDBCol col="4" class="my-3">
+                  <MDBCol col="12" class="my-3">
+                    <RouterLink target="_blank" :to="{ path: '/sicltab05' ,query:{ caseID: props.caseID }}">
+                      <MDBBtn size="sm" color="primary">列印計算成果</MDBBtn>
+                    </RouterLink>
+                    <RouterLink target="_blank" :to="{ path: '/sicltab05' ,query:{ caseID: props.caseID }}">
+                      <MDBBtn size="sm" color="primary">列印不確定度計算表</MDBBtn>
+                    </RouterLink>
+                  </MDBCol>
+                  <div></div>
+                  <MDBCol col="4" class="mb-3">
                     <MDBInput required size="sm" type="text" label="自由網中誤差(um)" v-model="nowCaseFreeStd" />
                   </MDBCol>
                   <!-- 自由網專案檔 -->
-                  <MDBCol col="5" class="my-3">
+                  <MDBCol col="5" class="mb-3">
                     <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="自由網專案檔"
                       v-model="nowCaseFreeUpload">
                       <MDBBtnClose @click.prevent="nowCaseFreeUpload =''" class="btn-upload-close" />
                     </MDBInput>
                   </MDBCol>
-                  <MDBCol col="3" class="px-0 my-3">
+                  <MDBCol col="3" class="px-0 mb-3">
                     <input type="file" id="FreeUpload" @change="uploadChenge" style="display: none;" />
                     <MDBBtn size="sm" color="primary" @click="uploadBtn('FreeUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseFreeUploadDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -1855,11 +1881,6 @@ defineExpose({
                   <div></div>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="使用影像數" v-model="nowCaseImgNo" />
-                  </MDBCol>
-                  <MDBCol col="4" class="mb-3">
-                    <RouterLink v-if="!isSMCam" target="_blank" :to="{ path: '/sicltab05' ,query:{ caseID: props.caseID }}">
-                      <MDBBtn size="sm" color="primary">列印計算成果</MDBBtn>
-                    </RouterLink>
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">

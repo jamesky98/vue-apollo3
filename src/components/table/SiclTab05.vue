@@ -30,12 +30,22 @@ const nowCaseCalArray = computed(()=>{
 	let myarray=[];
 	if(nowCaseCalResult.value){
 		let jsonObj = JSON.parse(nowCaseCalResult.value);
+		console.log(jsonObj);
 		for (let key in jsonObj){
 			myarray.push({
 				ptname:key,
 				...jsonObj[key],
 			})
 		}
+		myarray.sort(function(a, b) {
+			if(a.type === "F" && b.type === "T"){
+				return -1
+			}else if(a.type === "T" && b.type === "F"){
+				return 1
+			}else{
+				return (a.ptname > b.ptname)?1:-1
+			}
+		});
 	}
 	return myarray;
 })
