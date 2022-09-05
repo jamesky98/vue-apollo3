@@ -30,6 +30,8 @@ import {
   MDBTabContent,
   MDBTabItem,
   MDBTabPane,
+  MDBLightbox, 
+  MDBLightboxItem,
 } from 'mdb-vue-ui-kit';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../graphql/Cases";
@@ -416,8 +418,8 @@ getNowCaseF(result => {
     nowCaseKv.value = getData.k_v;
     nowCaseSTDExl.value = getData.std_file;
     nowCaseRecTemp.value = getData.report_edit;
-    nowCaseCalResult.value = getData.recal_table;
-    nowCaseUcResult.value = getData.uccal_table;
+    nowCaseCalResult.value = (getData.recal_table)?getData.recal_table:"";
+    nowCaseUcResult.value = (getData.uccal_table)?getData.uccal_table:"";
     nowCaseUcModel.value = getData.uc_model;
     // 出具報告
     nowCaseHasLOGO.value = getData.has_logo;
@@ -918,72 +920,103 @@ function uploadBtn(inputId){
 // 上傳檔案
 const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(CaseGQL.UPLOADFILE);
 uploadFileOnDone(result=>{
-  console.log("uploadFile")
+  // console.log("uploadFile")
+  let inputDOM;
   // 儲存(更新)上傳紀錄資料
   if(!uploadType.value){return}
   switch (uploadType.value){
     case 'itemCamReportUpload':
       nowCaseCamReport.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("itemCamReportUpload");
+      inputDOM.value="";
       break;
     case 'planMapUpload':
       nowCasePlanMap.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("planMapUpload");
+      inputDOM.value="";
       break;
     case 'CamUploadUpload':
       nowCaseCamUpload.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("CamUploadUpload");
+      inputDOM.value="";
       break;
     case 'FlyMapAcUpload':
       nowCaseFlyMapAc.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("FlyMapAcUpload");
+      inputDOM.value="";
       break;
     case 'RecTableUpload':
       nowCaseRecTable.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("RecTableUpload");
+      inputDOM.value="";
       break;
     case 'EOUpload':
       nowCaseEO.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("EOUpload");
+      inputDOM.value="";
       break;
     case 'OtherUpload':
       nowCaseOther.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("OtherUpload");
+      inputDOM.value="";
       break;
     case 'REFUpload':
       nowCaseREFUpload.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("REFUpload");
+      inputDOM.value="";
       break;
     case 'FreeUpload':
       nowCaseFreeUpload.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("FreeUpload");
+      inputDOM.value="";
       break;
     case 'FixUpload':
       nowCaseFixUpload.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("FixUpload");
+      inputDOM.value="";
       break;
     case 'GCPUpload':
       nowCaseGCPUpload.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("GCPUpload");
+      inputDOM.value="";
       break;
     case 'ATreportUpload':
       nowCaseATreport.value = result.data.uploadFile.filename;
       break;
     case 'NetGraphUpload':
       nowCaseNetGraph.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("NetGraphUpload");
+      inputDOM.value="";
       break;
     case 'GCPGraphUpload':
       nowCaseGCPGraph.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("GCPGraphUpload");
+      inputDOM.value="";
       break;
     case 'STDExlUpload':
       nowCaseSTDExl.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("STDExlUpload");
+      inputDOM.value="";
       break;
     case 'ReportScanUpload':
       nowCaseReportScan.value = result.data.uploadFile.filename;
-      saveRecord01()
+      saveRecord01();
+      inputDOM = document.getElementById("ReportScanUpload");
+      inputDOM.value="";
       break;
   }
 });
@@ -1056,17 +1089,71 @@ async function uploadChenge(e){
 
 
 // 讀取PrintOut.0 並填入資料====Start
-const { result: refPtData, variables: varRefPtData, onResult: getRefPtData, refetch: refgetRefPtData } = useQuery(
-  PrjGQL.GETGCPRECBYPRJ,
+const { mutate: calRefGcp, onDone: calRefGcpOnDone } = useMutation(
+  PrjGQL.CALREFGCP,
+  () => ({
+    variables: {
+      projectId: parseInt(nowCaseRefPrjID.value),
+      status: "正常",
+      calTypeId: parseInt(nowCaseCamTypeID.value),
+    }
+  })
 );
+
+calRefGcpOnDone(result=>{
+  // console.log("calRefGcpOnDone");
+  // console.log(nowCaseCalResult.value);
+  if(!result.loading && result.data.calRefGcp && nowCaseCalResult.value){
+    let refData = result.data.calRefGcp;
+    let pt_Ref = 0;    //校正標數(參考值數量)
+    let pt_C = 0;     //檢核點數(Check points)
+    let pt_F = 0;     //控制點數(Full control points)
+    let dx=0.0;
+    let dy=0.0;
+    let dz=0.0;
+    let pt_Data = JSON.parse(nowCaseCalResult.value);
+
+    refData.forEach((x,i)=>{
+      if(pt_Data[x.gcp_id]){
+        if(pt_Data[x.gcp_id].type==="T"){
+          pt_Data[x.gcp_id].sx = x.coor_E;
+          pt_Data[x.gcp_id].dx = floatify(pt_Data[x.gcp_id].x - x.coor_E);
+          dx = dx + pt_Data[x.gcp_id].dx ** 2;
+
+          pt_Data[x.gcp_id].sy = x.coor_N;
+          pt_Data[x.gcp_id].dy = floatify(pt_Data[x.gcp_id].y - x.coor_N);
+          dy = dy + pt_Data[x.gcp_id].dy ** 2;
+
+          pt_Data[x.gcp_id].sz = x.coor_h;
+          pt_Data[x.gcp_id].dz = floatify(pt_Data[x.gcp_id].z - x.coor_h);
+          dz = dz + pt_Data[x.gcp_id].dz ** 2;
+          pt_C=pt_C+1;
+        }else if(pt_Data[x.gcp_id].type==="F"){
+          pt_F=pt_F+1
+        }
+      }
+    });
+
+    // 填入資料
+    pt_Ref = refData.length;
+    nowCaseTotPt.value = pt_Ref;
+    nowCaseMeaPt.value = pt_F + pt_C;
+    nowCaseDelPt.value = pt_Ref - (pt_F + pt_C);
+    nowCaseCrtNo.value = pt_F;
+    nowCaseChkNo.value = pt_C;
+    nowCaseCalResult.value = JSON.stringify(pt_Data);
+    computeUc();
+  }
+});
+
 const pramJsonStr = ref("");
 async function readPrintOut(POfile){
-  console.log("readPrintOut");
+  // console.log("readPrintOut");
   let total_Img = 0; //像片總數
   
   let pt_F = 0;     //控制點數(Full control points)
   let pt_T = 0;     //連接點數(Tie points)
-  let pt_C = 0;     //檢核點數(Check points)
+  
 
   let total_Obs = 0;//總連結數(總觀測量)
   let redundancy = 0;//多餘觀測數
@@ -1090,7 +1177,7 @@ async function readPrintOut(POfile){
   let pt_temp_pos=0;
   let pramJson={};
 
-  console.log(POfile);
+  // console.log(POfile);
   if (POfile) { 
     //確認有檔案存在
     //建立檔案讀取器
@@ -1098,9 +1185,9 @@ async function readPrintOut(POfile){
     
     //檔案載入後要執行的事
     fReader.onloadend = function(evt) {
-      console.log("fReader.onloadend");
+      // console.log("fReader.onloadend");
       if (evt.target.readyState == FileReader.DONE) { // DONE == 2
-        console.log("FileReader.DONE");
+        // console.log("FileReader.DONE");
         // 全文件轉換成行
         let allTextLines = evt.target.result.split(/\r\n|\n/);
         // 逐行解析
@@ -1226,53 +1313,12 @@ async function readPrintOut(POfile){
 
         // 比對參考值檔找出檢核點
         // 同時計算RMSE及檢核點數量
-        refgetRefPtData({ 
-          projectId: parseInt(nowCaseRefPrjID.value),
-          status: "正常",
-          calTypeId: parseInt(nowCaseCamTypeID.value),
-        });
-        getRefPtData(result=>{
-          if(!result.loading && result.data.getGcpRecordsByPrj && pt_Data){
-            let refData = result.data.getGcpRecordsByPrj;
-            let pt_Ref = 0;    //校正標數(參考值數量)
-            let dx=0.0;
-            let dy=0.0;
-            let dz=0.0;
-            refData.forEach((x,i)=>{
-              if(pt_Data[x.gcp_id]){
-                if(pt_Data[x.gcp_id].type==="T"){
-                  pt_Data[x.gcp_id].sx = x.coor_E;
-                  pt_Data[x.gcp_id].dx = floatify(pt_Data[x.gcp_id].x - x.coor_E);
-                  dx = dx + pt_Data[x.gcp_id].dx ** 2;
-
-                  pt_Data[x.gcp_id].sy = x.coor_N;
-                  pt_Data[x.gcp_id].dy = floatify(pt_Data[x.gcp_id].y - x.coor_N);
-                  dy = dy + pt_Data[x.gcp_id].dy ** 2;
-
-                  pt_Data[x.gcp_id].sz = x.coor_h;
-                  pt_Data[x.gcp_id].dz = floatify(pt_Data[x.gcp_id].z - x.coor_h);
-                  dz = dz + pt_Data[x.gcp_id].dz ** 2;
-                  pt_C=pt_C+1;
-                }
-              }
-            });
-
-            // 填入資料
-            pt_Ref = refData.length;
-            nowCaseTotPt.value = pt_Ref;
-            nowCaseMeaPt.value = pt_F + pt_C;
-            nowCaseDelPt.value = pt_Ref - (pt_F + pt_C);
-            nowCaseCrtNo.value = pt_F;
-            nowCaseChkNo.value = pt_C;
-            computeUc();
-          }
-        });
-        
+        calRefGcp();
       };
     };
     //真正執行以文字方式載入檔案
     fReader.readAsText(POfile);
-    console.log("readAsText");
+    // console.log("readAsText");
   }
 }
 // 讀取PrintOut.0 並填入資料====End
@@ -1308,9 +1354,9 @@ const { mutate: computeUc, onDone: computeUcOnDone, onError: computeUcError } = 
   })
 );
 computeUcOnDone(result=>{
-  console.log("nowcase",nowCaseUcModel.value);
-  console.log("select",selectUcModel.value);
-  console.log(result.data.computeUc);
+  // console.log("nowcase",nowCaseUcModel.value);
+  // console.log("select",selectUcModel.value);
+  // console.log(result.data.computeUc);
   nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
   nowCaseSTDh.value = result.data.computeUc.ucH;
   nowCaseSTDv.value = result.data.computeUc.ucV;
@@ -1821,12 +1867,17 @@ defineExpose({
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
-                    <RouterLink target="_blank" :to="{ path: '/sicltab05' ,query:{ caseID: props.caseID }}">
-                      <MDBBtn size="sm" color="primary">列印計算成果</MDBBtn>
-                    </RouterLink>
-                    <RouterLink target="_blank" :to="{ path: '/sicltab06' ,query:{ caseID: props.caseID }}">
-                      <MDBBtn size="sm" color="primary">列印不確定度計算表</MDBBtn>
-                    </RouterLink>
+                    <MDBBtn :disabled="nowCaseCalResult===''" size="sm" color="primary">
+                      <RouterLink target="_blank" :to="{ path: '/sicltab05' ,query:{ caseID: props.caseID }}">
+                        <span class="btn-primary">列印計算成果</span>
+                      </RouterLink>
+                    </MDBBtn>
+                    <MDBBtn :disabled="nowCaseUcResult===''" size="sm" color="primary">
+                      <RouterLink target="_blank" :to="{ path: '/sicltab06' ,query:{ caseID: props.caseID }}">
+                        <span class="btn-primary">列印不確定度計算表</span>
+                      </RouterLink>
+                    </MDBBtn>
+                    
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
@@ -1943,6 +1994,29 @@ defineExpose({
                 作業紀錄
               </MDBCol>
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                  <MDBLightbox zoomLevel="0.25">
+                    <MDBRow>
+                      <MDBCol lg="4">
+                        <MDBLightboxItem
+                          src="https://mdbootstrap.com/img/Photos/Thumbnails/Slides/1.webp"
+                          fullScreenSrc="https://mdbootstrap.com/img/Photos/Slides/1.webp"
+                          alt="Lightbox image 1"
+                          class="w-100"
+                        />
+                      </MDBCol>
+                      <MDBCol lg="4">
+                        <MDBLightboxItem
+                          src="https://mdbootstrap.com/img/Photos/Thumbnails/Slides/2.webp"
+                          fullScreenSrc="https://mdbootstrap.com/img/Photos/Slides/2.webp"
+                          alt="Lightbox image 2"
+                          class="w-100"
+                        />
+                      </MDBCol>
+                    </MDBRow>
+                  </MDBLightbox>
+
+
+
                 <MDBRow>
                   <!-- 網形圖 -->
                   <MDBCol col="8" class="my-3">
@@ -1971,7 +2045,7 @@ defineExpose({
                   
                   
                   <!-- 產生作業紀錄表 -->
-                  <MDBCol col="8" class="mb-3">
+                  <!-- <MDBCol col="8" class="mb-3">
                     <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="作業紀錄表範本"
                       v-model="nowCaseRecTemp">
                       <MDBBtnClose @click.prevent="nowCaseRecTemp =''" class="btn-upload-close" />
@@ -1980,6 +2054,13 @@ defineExpose({
                   <MDBCol col="3" class="px-0 mb-3">
                     <input type="file" id="RecTemp" @change="" style="display: none;" />
                     <MDBBtn size="sm" color="primary" @click="">產生作業紀錄表</MDBBtn>
+                  </MDBCol> -->
+                  <MDBCol col="12" class="mb-3">
+                    <MDBBtn size="sm" color="primary">
+                      <RouterLink target="_blank" :to="{ path: '/sicltab07' ,query:{ caseID: props.caseID }}">
+                        <span class="btn-primary">列印作業紀錄表</span>
+                      </RouterLink>
+                    </MDBBtn>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>

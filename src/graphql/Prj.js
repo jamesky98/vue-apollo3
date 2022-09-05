@@ -50,9 +50,9 @@ const GETPRJBYID = gql`
   }
 `;
 
-const GETGCPRECBYPRJ = gql`
-  query GetGcpRecordsByPrj($projectId: Int, $status: String, $calTypeId: Int) {
-    getGcpRecordsByPrj(
+const CALREFGCP = gql`
+  mutation CalRefGcp($projectId: Int, $status: String, $calTypeId: Int) {
+    calRefGcp(
       project_id: $projectId
       status: $status
       cal_type_id: $calTypeId
@@ -86,6 +86,6 @@ const GETGCPRECBYPRJ = gql`
 export default {
   GETALLPRJ,
   GETPRJBYID,
-  GETGCPRECBYPRJ,
+  CALREFGCP,
   // SAVEPRJ,
 };
