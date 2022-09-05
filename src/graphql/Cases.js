@@ -766,11 +766,17 @@ const COMPUTEUC = gql`
         section
         type
         comment
+        combUx
+        combFr
         data {
           name
+          frequency
           x
+          x_title
           fr
+          fr_title
           fa
+          fa_title
           ux
           freedom
           factor

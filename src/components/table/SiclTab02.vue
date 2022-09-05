@@ -1,4 +1,5 @@
 <script setup>
+	// 校正申請表(適用航空測量攝影機)
 import {ref} from 'vue';
 import { computed } from "@vue/reactivity";
 import { useQuery } from '@vue/apollo-composable';

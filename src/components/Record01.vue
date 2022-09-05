@@ -911,13 +911,14 @@ const uploadType = ref("");
 function uploadBtn(inputId){
   // 由按鈕啟動檔案選擇器
   uploadType.value = inputId;
-  document.getElementById(inputId).click();
+  const inputDOM = document.getElementById(inputId);
+  inputDOM.click();
 }
 
 // 上傳檔案
 const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(CaseGQL.UPLOADFILE);
-
 uploadFileOnDone(result=>{
+  console.log("uploadFile")
   // 儲存(更新)上傳紀錄資料
   if(!uploadType.value){return}
   switch (uploadType.value){
@@ -1029,7 +1030,7 @@ async function uploadChenge(e){
       newName = "08_GCP" + path.extname(e.target.value);
       break;
     case 'ATreportUpload':
-      await readPrintOut(e.target.files[0]);
+      await readPrintOut(upFile.value);
       newName = "11_Printout" + path.extname(e.target.value);
       break;
     case 'NetGraphUpload':
@@ -1051,7 +1052,6 @@ async function uploadChenge(e){
     newfilename: newName,
   });
 }
-
 // 檔案上傳==========End
 
 
@@ -1059,12 +1059,11 @@ async function uploadChenge(e){
 const { result: refPtData, variables: varRefPtData, onResult: getRefPtData, refetch: refgetRefPtData } = useQuery(
   PrjGQL.GETGCPRECBYPRJ,
 );
-
 const pramJsonStr = ref("");
-
 async function readPrintOut(POfile){
+  console.log("readPrintOut");
   let total_Img = 0; //像片總數
-  let pt_Ref = 0;    //校正標數(參考值數量)
+  
   let pt_F = 0;     //控制點數(Full control points)
   let pt_T = 0;     //連接點數(Tie points)
   let pt_C = 0;     //檢核點數(Check points)
@@ -1075,8 +1074,6 @@ async function readPrintOut(POfile){
   let rms_X = 0.0;
   let rms_Y = 0.0;
   let rms_Z = 0.0;
-  let rmse_H = 0.0;
-  let rmse_V = 0.0;
 
   let isBlunderFlag = false;
   let isContrlPtFlag = false;
@@ -1093,6 +1090,7 @@ async function readPrintOut(POfile){
   let pt_temp_pos=0;
   let pramJson={};
 
+  console.log(POfile);
   if (POfile) { 
     //確認有檔案存在
     //建立檔案讀取器
@@ -1100,7 +1098,9 @@ async function readPrintOut(POfile){
     
     //檔案載入後要執行的事
     fReader.onloadend = function(evt) {
+      console.log("fReader.onloadend");
       if (evt.target.readyState == FileReader.DONE) { // DONE == 2
+        console.log("FileReader.DONE");
         // 全文件轉換成行
         let allTextLines = evt.target.result.split(/\r\n|\n/);
         // 逐行解析
@@ -1204,17 +1204,37 @@ async function readPrintOut(POfile){
 
           i = i + 1;
         } while (i < allTextLines.length);
+        // 填入printout.0 摘錄資料
+        nowCaseImgNo.value = total_Img;
+        nowCaseObsNo.value = total_Obs;
+        nowCaseRedundancy.value = redundancy;
+        nowCaseFixStd.value = sig_0 * 1000.0;
+        nowCaseRMSx.value = floatify(rms_X * 1000);
+        nowCaseRMSy.value = floatify(rms_Y * 1000);
+        nowCaseRMSz.value = floatify(rms_Z * 1000);
+        nowCaseConnectNo.value = pt_T;
+        nowCaseCalResult.value = JSON.stringify(pt_Data);
+
+        pramJson={
+          sx:nowCaseRMSx.value,
+          sy:nowCaseRMSy.value,
+          sz:nowCaseRMSz.value,
+          redundancy:nowCaseRedundancy.value,
+          gsd:nowCaseGSDac.value,
+        }
+        pramJsonStr.value = JSON.stringify(pramJson);
 
         // 比對參考值檔找出檢核點
         // 同時計算RMSE及檢核點數量
-        varRefPtData.value = {
+        refgetRefPtData({ 
           projectId: parseInt(nowCaseRefPrjID.value),
           status: "正常",
           calTypeId: parseInt(nowCaseCamTypeID.value),
-        }
+        });
         getRefPtData(result=>{
           if(!result.loading && result.data.getGcpRecordsByPrj && pt_Data){
             let refData = result.data.getGcpRecordsByPrj;
+            let pt_Ref = 0;    //校正標數(參考值數量)
             let dx=0.0;
             let dy=0.0;
             let dz=0.0;
@@ -1239,39 +1259,20 @@ async function readPrintOut(POfile){
 
             // 填入資料
             pt_Ref = refData.length;
-            nowCaseImgNo.value = total_Img;
-            nowCaseObsNo.value = total_Obs;
-            nowCaseRedundancy.value = redundancy;
-            nowCaseFixStd.value = sig_0 * 1000.0;
-            nowCaseRMSx.value = floatify(rms_X * 1000);
-            nowCaseRMSy.value = floatify(rms_Y * 1000);
-            nowCaseRMSz.value = floatify(rms_Z * 1000);
             nowCaseTotPt.value = pt_Ref;
             nowCaseMeaPt.value = pt_F + pt_C;
             nowCaseDelPt.value = pt_Ref - (pt_F + pt_C);
             nowCaseCrtNo.value = pt_F;
             nowCaseChkNo.value = pt_C;
-            nowCaseConnectNo.value = pt_T;
-
-            // console.log("pt_Data",pt_Data);
-            // 將pt_Data寫入nowCaseCalResult
-            nowCaseCalResult.value = JSON.stringify(pt_Data);
-            // console.log(nowCaseCalResult.value);
-            pramJson={
-              sx:nowCaseRMSx.value,
-              sy:nowCaseRMSy.value,
-              sz:nowCaseRMSz.value,
-              redundancy:nowCaseRedundancy.value,
-              gsd:nowCaseGSDac.value,
-            }
-            pramJsonStr.value = JSON.stringify(pramJson);
             computeUc();
           }
         });
+        
       };
     };
     //真正執行以文字方式載入檔案
-    fReader.readAsText(POfile); 
+    fReader.readAsText(POfile);
+    console.log("readAsText");
   }
 }
 // 讀取PrintOut.0 並填入資料====End
@@ -1307,12 +1308,16 @@ const { mutate: computeUc, onDone: computeUcOnDone, onError: computeUcError } = 
   })
 );
 computeUcOnDone(result=>{
+  console.log("nowcase",nowCaseUcModel.value);
+  console.log("select",selectUcModel.value);
   console.log(result.data.computeUc);
   nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
   nowCaseSTDh.value = result.data.computeUc.ucH;
   nowCaseSTDv.value = result.data.computeUc.ucV;
   nowCaseKh.value = result.data.computeUc.tinvH.toFixed(2);
   nowCaseKv.value = result.data.computeUc.tinvV.toFixed(2);
+  const inputDOM = document.getElementById("ATreportUpload");
+  inputDOM.value="";
   saveRecord01();
 });
 // 呼叫計算不確定度=======End
@@ -1689,7 +1694,7 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".dwg" id="FlyMapAcUpload" @change="uploadChenge" style="display: none;" />
+                    <input type="file" accept=".dwg" id="FlyMapAcUpload" @change="uploadChenge" style="display: none" />
                     <MDBBtn size="sm" color="primary" @click="uploadBtn('FlyMapAcUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseFlyMapAcDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
@@ -1701,7 +1706,7 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".pdf" id="RecTableUpload" @change="uploadChenge" style="display: none;" />
+                    <input type="file" accept=".pdf" id="RecTableUpload" @change="uploadChenge" style="display: none" />
                     <MDBBtn size="sm" color="primary" @click="uploadBtn('RecTableUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseRecTableDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
@@ -1819,7 +1824,7 @@ defineExpose({
                     <RouterLink target="_blank" :to="{ path: '/sicltab05' ,query:{ caseID: props.caseID }}">
                       <MDBBtn size="sm" color="primary">列印計算成果</MDBBtn>
                     </RouterLink>
-                    <RouterLink target="_blank" :to="{ path: '/sicltab05' ,query:{ caseID: props.caseID }}">
+                    <RouterLink target="_blank" :to="{ path: '/sicltab06' ,query:{ caseID: props.caseID }}">
                       <MDBBtn size="sm" color="primary">列印不確定度計算表</MDBBtn>
                     </RouterLink>
                   </MDBCol>

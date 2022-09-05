@@ -1,4 +1,5 @@
 <script setup>
+// 空三報表摘要資訊
 import {ref} from 'vue';
 import { computed } from "@vue/reactivity";
 import { useQuery } from '@vue/apollo-composable';
@@ -79,8 +80,6 @@ getNowCaseF(result => {
 		nowCaseSTDh.value = getRecord01.std_h;
     nowCaseSTDv.value = getRecord01.std_v;
 		nowCaseCalResult.value = getRecord01.recal_table;
-		let temp =JSON.parse(nowCaseCalResult.value);
-		console.log(temp);
   }
 });
 refgetNowCaseF();

@@ -1,4 +1,5 @@
 <script setup>
+	// 校正作業管理表
 import {ref} from 'vue';
 import { computed } from "@vue/reactivity";
 import { useQuery } from '@vue/apollo-composable';
