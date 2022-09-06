@@ -762,6 +762,12 @@ const COMPUTEUC = gql`
       ver
       minUcH
       minUcV
+      confLevel
+      uom
+      digPosH
+      digPosV
+      fixUcH
+      fixUcV
       data {
         section
         type

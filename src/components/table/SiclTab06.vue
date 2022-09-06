@@ -1,7 +1,7 @@
 <script setup>
 // 航測不確定度計算表
 import {ref} from 'vue';
-import { computed } from "@vue/reactivity";
+// import { computed } from "@vue/reactivity";
 import { useQuery } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
 
@@ -59,10 +59,14 @@ refgetNowCaseF();
 
 <template>
 	<div class="page">
-		<div class="fstyle01C">不確定度計算表</div>
-		<div class="fstyle02">
-			版本 V.{{nowUcVer}}_{{nowUcPrjCode}}
+		<div class="fstyle03 my-2">
+			不確定度計算表
+			<span class="fstyle02">
+				版本 V.{{nowUcVer}}_{{nowUcPrjCode}}
+			</span>
 		</div>
+		<div class="fstyle01">案件編號：{{props.caseID}}</div>
+		
 		<table cellspacing=0 cellpadding=0>
 			<tr class="fstyle02mid">
 				<td colspan="2" class="bglightGreen">平面</td>
@@ -113,16 +117,16 @@ refgetNowCaseF();
 				<tfoot>
 					<tr class="fstyle02"><td colspan="99">{{UcItem.comment}}</td></tr>
 				</tfoot>
-				<tbody>
+				<tbody width="100%">
 					<tr class="bggray1 fstyle02">
-						<th>項次</th>
-						<th>因子</th>
-						<th>ux(mm)</th>
-						<th>自由度</th>
-						<th>靈敏係數</th>
-						<th>uc<sup>2</sup></th>
-						<th>v_eff</th>
-						<th>變動時機</th>
+						<th width="6%">項次</th>
+						<th width="10%">因子</th>
+						<th width="8%">ux(mm)</th>
+						<th width="8%">自由度</th>
+						<th width="6%">靈敏係數</th>
+						<th width="10%">uc<sup>2</sup></th>
+						<th width="10%">v_eff</th>
+						<th width="10%">變動時機</th>
 						<th>參數項</th>
 					</tr>
 					<tr class="fstyle02right" v-for="(subItem, subindex) in UcItem.data" :key="subindex" :type="UcItem.type">
@@ -134,7 +138,7 @@ refgetNowCaseF();
 						<td>{{((subItem.ux**2)*subItem.factor).toFixed(viewDigsub)}}</td>
 						<td>{{((subItem.ux**4)*subItem.factor).toFixed(viewDigsub)}}</td>
 						<td class="fstyle02 nowrap" :frequency="subItem.frequency">{{subItem.frequency}}</td>
-						<td class="fstyle02 nowrap bgWrite">
+						<td class="fstyle02 bgWrite">
 							<span v-for="(x, xindex) in subItem.x" style="margin-right: 10px;">
 								{{subItem.x_title[xindex]}}:{{x.toFixed(viewDig)}}</span>
 							<span v-for="(fr, frindex) in subItem.fr" style="margin-right: 10px;">
@@ -144,7 +148,7 @@ refgetNowCaseF();
 						</td>
 					</tr>
 					<tr class="fstyle02right">
-						<td colspan="5">組合</td>
+						<td colspan="2">組合</td>
 						<td>{{UcItem.combUx.toFixed(viewDigsub)}}</td>
 						<td>{{UcItem.combFr.toFixed(viewDigsub)}}</td>
 					</tr>
@@ -200,7 +204,7 @@ refgetNowCaseF();
 	html, body{
 		width: 100%;
 		height: 100%;
-		margin: 0;
+		/* margin: 0; */
 		counter-reset: page-number;
 		print-color-adjust: exact;
 		-webkit-print-color-adjust: exact;
@@ -296,7 +300,7 @@ table{
 	border-color: black;
 }
 
-td[frequency="每年量測時"]{
+td[frequency="每年量測"]{
 	background-color: #cc99ff;
 }
 td[frequency="每次校正"]{
@@ -335,7 +339,6 @@ td[frequency="每次校正"]{
 .fstyle01C{
 	font-family: "Times New Roman", 標楷體;
 	text-align: center;
-	font-size: 24pt;
 	letter-spacing: 5px;
 }
 .fstyle02, .fstyle02mid, .fstyle02right{
@@ -375,8 +378,8 @@ td[frequency="每次校正"]{
 }
 
 .fstyle03, .fstyle03mid{
-	padding: 3px 10px 3px 10px;
-  font-size: 10pt;
+	/* padding: 3px 10px 3px 10px; */
+  font-size: 24pt;
   font-weight:normal;
 	line-height: 1;
 }

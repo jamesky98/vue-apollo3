@@ -31,7 +31,6 @@ const nowCaseCalArray = computed(()=>{
 	let myarray=[];
 	if(nowCaseCalResult.value){
 		let jsonObj = JSON.parse(nowCaseCalResult.value);
-		console.log(jsonObj);
 		for (let key in jsonObj){
 			myarray.push({
 				ptname:key,
@@ -77,12 +76,34 @@ getNowCaseF(result => {
 		nowCaseRMSx.value = getRecord01.RMS_x;
     nowCaseRMSy.value = getRecord01.RMS_y;
     nowCaseRMSz.value = getRecord01.RMS_z;
-		nowCaseSTDh.value = getRecord01.std_h;
-    nowCaseSTDv.value = getRecord01.std_v;
+		// nowCaseSTDh.value = getRecord01.std_h;
+    // nowCaseSTDv.value = getRecord01.std_v;
 		nowCaseCalResult.value = getRecord01.recal_table;
+		computeRMSE();
   }
 });
 refgetNowCaseF();
+
+function computeRMSE(){
+	let dx = 0.0;
+	let dy = 0.0;
+	let dz = 0.0;
+	let count = 0;
+	if(nowCaseCalResult.value){
+		let jsonObj = JSON.parse(nowCaseCalResult.value);
+		for (let key in jsonObj){
+			if(jsonObj[key].type==="T"){
+				dx = dx + (jsonObj[key].sx - jsonObj[key].x) ** 2
+				dy = dy + (jsonObj[key].sy - jsonObj[key].y) ** 2
+				dz = dz + (jsonObj[key].sz - jsonObj[key].z) ** 2
+				count = count + 1;
+			}
+		}
+		nowCaseSTDh.value = ((((dx+dy)/count) ** 0.5)*1000).toFixed(3);
+		nowCaseSTDv.value = (((dz/count) ** 0.5)*1000).toFixed(3);
+	}
+}
+
 </script>
 
 <template>
@@ -130,15 +151,15 @@ refgetNowCaseF();
 			<tr v-for="(item, index) in nowCaseCalArray" :key="index" class="fstyle02">
 				<td>{{ item.type }}</td>
 				<td>{{ item.ptname }}</td>
-				<td>{{ (item.sx)?item.sx.toFixed(4):"" }}</td>
-				<td>{{ (item.sy)?item.sy.toFixed(4):"" }}</td>
-				<td>{{ (item.sz)?item.sz.toFixed(4):"" }}</td>
-				<td>{{ (item.x)?item.x.toFixed(4):"" }}</td>
-				<td>{{ (item.y)?item.y.toFixed(4):"" }}</td>
-				<td>{{ (item.z)?item.z.toFixed(4):"" }}</td>
-				<td>{{ (item.dx)?(item.dx * 1000).toFixed(2):"" }}</td>
-				<td>{{ (item.dy)?(item.dy * 1000).toFixed(2):"" }}</td>
-				<td>{{ (item.dz)?(item.dz * 1000).toFixed(2):"" }}</td>
+				<td class="fstyle02right">{{ (item.sx)?item.sx.toFixed(4):"" }}</td>
+				<td class="fstyle02right">{{ (item.sy)?item.sy.toFixed(4):"" }}</td>
+				<td class="fstyle02right">{{ (item.sz)?item.sz.toFixed(4):"" }}</td>
+				<td class="fstyle02right">{{ (item.x)?item.x.toFixed(4):"" }}</td>
+				<td class="fstyle02right">{{ (item.y)?item.y.toFixed(4):"" }}</td>
+				<td class="fstyle02right">{{ (item.z)?item.z.toFixed(4):"" }}</td>
+				<td class="fstyle02right">{{ (item.dx || item.dx===0)?(item.dx * 1000).toFixed(1):item.dx }}</td>
+				<td class="fstyle02right">{{ (item.dy || item.dy===0)?(item.dy * 1000).toFixed(1):item.dy }}</td>
+				<td class="fstyle02right">{{ (item.dz || item.dz===0)?(item.dz * 1000).toFixed(1):item.dz }}</td>
 			</tr>
 			<tbody></tbody>
 		</table>
@@ -184,7 +205,7 @@ refgetNowCaseF();
 	html, body{
 		width: 100%;
 		height: 100%;
-		margin: 0;
+		/* margin: 0; */
 		counter-reset: page-number;
 		print-color-adjust: exact;
 		-webkit-print-color-adjust: exact;
@@ -260,7 +281,7 @@ th{
   border-collapse: collapse;
 }
 
-.fstyle01, .fstyle01C, .fstyle02, .fstyle02mid, .fstyle02V, .fstyle02Vleft, .fstyle03, .fstyle03mid{
+.fstyle01, .fstyle01C, .fstyle02, .fstyle02mid, .fstyle02right, .fstyle02V, .fstyle02Vleft, .fstyle03, .fstyle03mid{
 	font-family: "Times New Roman", 標楷體;
 }
 
@@ -279,7 +300,7 @@ th{
 	letter-spacing: 5px;
 }
 
-.fstyle02, .fstyle02mid{
+.fstyle02, .fstyle02mid, .fstyle02right{
 	padding: 3px 10px 3px 10px;
   font-size: 12pt;
 	line-height: 1;
@@ -291,6 +312,9 @@ th{
 }
 .fstyle02mid{
 	text-align: center;
+}
+.fstyle02right{
+	text-align: right;
 }
 
 .fstyle02V, .fstyle02Vleft{

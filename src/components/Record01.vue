@@ -1118,15 +1118,12 @@ calRefGcpOnDone(result=>{
         if(pt_Data[x.gcp_id].type==="T"){
           pt_Data[x.gcp_id].sx = x.coor_E;
           pt_Data[x.gcp_id].dx = floatify(pt_Data[x.gcp_id].x - x.coor_E);
-          dx = dx + pt_Data[x.gcp_id].dx ** 2;
 
           pt_Data[x.gcp_id].sy = x.coor_N;
           pt_Data[x.gcp_id].dy = floatify(pt_Data[x.gcp_id].y - x.coor_N);
-          dy = dy + pt_Data[x.gcp_id].dy ** 2;
 
           pt_Data[x.gcp_id].sz = x.coor_h;
           pt_Data[x.gcp_id].dz = floatify(pt_Data[x.gcp_id].z - x.coor_h);
-          dz = dz + pt_Data[x.gcp_id].dz ** 2;
           pt_C=pt_C+1;
         }else if(pt_Data[x.gcp_id].type==="F"){
           pt_F=pt_F+1
@@ -1356,7 +1353,7 @@ const { mutate: computeUc, onDone: computeUcOnDone, onError: computeUcError } = 
 computeUcOnDone(result=>{
   // console.log("nowcase",nowCaseUcModel.value);
   // console.log("select",selectUcModel.value);
-  // console.log(result.data.computeUc);
+  console.log(result.data.computeUc);
   nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
   nowCaseSTDh.value = result.data.computeUc.ucH;
   nowCaseSTDv.value = result.data.computeUc.ucV;
@@ -1996,73 +1993,66 @@ defineExpose({
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                   <MDBLightbox zoomLevel="0.25">
                     <MDBRow>
-                      <MDBCol lg="4">
-                        <MDBLightboxItem
-                          src="https://mdbootstrap.com/img/Photos/Thumbnails/Slides/1.webp"
-                          fullScreenSrc="https://mdbootstrap.com/img/Photos/Slides/1.webp"
-                          alt="Lightbox image 1"
-                          class="w-100"
-                        />
+                      <MDBCol lg="6">
+                        <MDBRow>
+                          <MDBCol class="text-center">
+                            <MDBLightboxItem
+                              :src="'06_Case/'+ props.caseID + '/' + nowCaseNetGraph"
+                              :fullScreenSrc="'06_Case/'+ props.caseID + '/' + nowCaseNetGraph"
+                              alt="網形圖"
+                              class="lightboxImg img-thumbnail"
+                            />
+                          </MDBCol>
+                          <div></div>
+                          <!-- 網形圖 -->
+                          <MDBCol col="8" class="my-3">
+                            <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="網形圖"
+                              v-model="nowCaseNetGraph">
+                              <MDBBtnClose @click.prevent="nowCaseNetGraph =''" class="btn-upload-close" />
+                            </MDBInput>
+                          </MDBCol>
+                          <MDBCol col="4" class="px-0 my-3">
+                            <input type="file" id="NetGraphUpload" @change="uploadChenge" style="display: none;" />
+                            <MDBBtn size="sm" color="primary" @click="uploadBtn('NetGraphUpload')">上傳</MDBBtn>
+                            <MDBBtn tag="a" :href="nowCaseNetGraphDL" download size="sm" color="secondary">下載</MDBBtn>
+                          </MDBCol>
+                        </MDBRow>
                       </MDBCol>
-                      <MDBCol lg="4">
-                        <MDBLightboxItem
-                          src="https://mdbootstrap.com/img/Photos/Thumbnails/Slides/2.webp"
-                          fullScreenSrc="https://mdbootstrap.com/img/Photos/Slides/2.webp"
-                          alt="Lightbox image 2"
-                          class="w-100"
-                        />
+                      <MDBCol lg="6" class="text-center">
+                        <MDBRow>
+                          <MDBCol class="text-center">
+                            <MDBLightboxItem
+                              :src="'06_Case/'+ props.caseID + '/' + nowCaseGCPGraph"
+                              :fullScreenSrc="'06_Case/'+ props.caseID + '/' + nowCaseGCPGraph"
+                              alt="點位分布圖"
+                              class="lightboxImg img-thumbnail"
+                            />
+                          </MDBCol>
+                          <div></div>
+                          <!-- 點位分布圖 -->
+                          <MDBCol col="8" class="my-3">
+                            <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="點位分布圖"
+                              v-model="nowCaseGCPGraph">
+                              <MDBBtnClose @click.prevent="nowCaseGCPGraph =''" class="btn-upload-close" />
+                            </MDBInput>
+                          </MDBCol>
+                          <MDBCol col="4" class="px-0 my-3">
+                            <input type="file" id="GCPGraphUpload" @change="uploadChenge" style="display: none;" />
+                            <MDBBtn size="sm" color="primary" @click="uploadBtn('GCPGraphUpload')">上傳</MDBBtn>
+                            <MDBBtn tag="a" :href="nowCaseGCPGraphDL" download size="sm" color="secondary">下載</MDBBtn>
+                          </MDBCol>
+                        </MDBRow>
                       </MDBCol>
                     </MDBRow>
                   </MDBLightbox>
-
-
-
-                <MDBRow>
-                  <!-- 網形圖 -->
-                  <MDBCol col="8" class="my-3">
-                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="網形圖"
-                      v-model="nowCaseNetGraph">
-                      <MDBBtnClose @click.prevent="nowCaseNetGraph =''" class="btn-upload-close" />
-                    </MDBInput>
-                  </MDBCol>
-                  <MDBCol col="3" class="px-0 my-3">
-                    <input type="file" id="NetGraphUpload" @change="uploadChenge" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="uploadBtn('NetGraphUpload')">上傳</MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseNetGraphDL" download size="sm" color="secondary">下載</MDBBtn>
-                  </MDBCol>
-                  <!-- 點位分布圖 -->
-                  <MDBCol col="8" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="點位分布圖"
-                      v-model="nowCaseGCPGraph">
-                      <MDBBtnClose @click.prevent="nowCaseGCPGraph =''" class="btn-upload-close" />
-                    </MDBInput>
-                  </MDBCol>
-                  <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" id="GCPGraphUpload" @change="uploadChenge" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="uploadBtn('GCPGraphUpload')">上傳</MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseGCPGraphDL" download size="sm" color="secondary">下載</MDBBtn>
-                  </MDBCol>
-                  
-                  
-                  <!-- 產生作業紀錄表 -->
-                  <!-- <MDBCol col="8" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="作業紀錄表範本"
-                      v-model="nowCaseRecTemp">
-                      <MDBBtnClose @click.prevent="nowCaseRecTemp =''" class="btn-upload-close" />
-                    </MDBInput>
-                  </MDBCol>
-                  <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" id="RecTemp" @change="" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="">產生作業紀錄表</MDBBtn>
-                  </MDBCol> -->
-                  <MDBCol col="12" class="mb-3">
-                    <MDBBtn size="sm" color="primary">
-                      <RouterLink target="_blank" :to="{ path: '/sicltab07' ,query:{ caseID: props.caseID }}">
-                        <span class="btn-primary">列印作業紀錄表</span>
-                      </RouterLink>
-                    </MDBBtn>
-                  </MDBCol>
-                </MDBRow>
+              </MDBCol>
+              <!-- 產生作業紀錄表 -->
+              <MDBCol col="12" class="mb-3">
+                <MDBBtn size="sm" color="primary">
+                  <RouterLink target="_blank" :to="{ path: '/sicltab07' ,query:{ caseID: props.caseID }}">
+                    <span class="btn-primary">列印作業紀錄表</span>
+                  </RouterLink>
+                </MDBBtn>
               </MDBCol>
             </MDBRow>
           </MDBStepperContent>
@@ -2203,5 +2193,9 @@ defineExpose({
 .was-validated .form-check-input:valid~.form-check-label, .form-check-input.is-valid~.form-check-label {
     color: #00b74a;
     margin-bottom: 0rem;
+}
+.lightboxImg{
+  max-width: 100%;
+  height: 200px;
 }
 </style>

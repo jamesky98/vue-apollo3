@@ -28,6 +28,7 @@ getchecktoken(result => {
 @import 'datatables.net-dt';
 @import 'datatables.net-bs5';
 @import 'datatables.net-searchbuilder-bs5';
+@import "@fortawesome/fontawesome-free/css/all.min.css";
 html, body, #app{
   height: 100%;
 }
