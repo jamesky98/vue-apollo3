@@ -341,8 +341,8 @@ getNowCaseF(result => {
     nowCaseItemModel.value = (getItem) ? getItem.model : "";
     nowCaseItemSN.value = (getItem) ? getItem.serial_number : "";
     nowCaseFocal.value = getData.focal;
-    nowCasePPAx.value = getData.ppa_x;
-    nowCasePPAy.value = getData.ppa_y;
+    nowCasePPAx.value = getData.ppa_x.toString();
+    nowCasePPAy.value = getData.ppa_y.toString();
     nowCasePXh.value = getData.px_h;
     nowCasePXw.value = getData.px_w;
     nowCasePxSizeX.value = getData.px_size_x;
@@ -389,9 +389,9 @@ getNowCaseF(result => {
     nowCaseRefPrjPublishDate.value = (getData.ref_project) ?getData.ref_project.publish_date.split("T")[0]:"";
     nowCaseREFUpload.value = getData.ref_file;
     nowCaseGCPUpload.value = getData.gcp_file;
-    nowCaseTotPt.value = getData.total_pt;
-    nowCaseMeaPt.value = getData.meas_pt;
-    nowCaseDelPt.value = getData.del_pt;
+    nowCaseTotPt.value = getData.total_pt.toString();
+    nowCaseMeaPt.value = getData.meas_pt.toString();
+    nowCaseDelPt.value = getData.del_pt.toString();
     nowCaseDelCommt.value = getData.del_comt;
     nowCaseDist.value = getData.distrotion;
     nowCaseFreeStd.value = getData.free_std;
@@ -1111,19 +1111,23 @@ calRefGcpOnDone(result=>{
     let dx=0.0;
     let dy=0.0;
     let dz=0.0;
-    let pt_Data = JSON.parse(nowCaseCalResult.value);
+    let pt_Data = JSON.parse(nowCaseCalResult.value).data;
 
     refData.forEach((x,i)=>{
       if(pt_Data[x.gcp_id]){
         if(pt_Data[x.gcp_id].type==="T"){
           pt_Data[x.gcp_id].sx = x.coor_E;
-          pt_Data[x.gcp_id].dx = floatify(pt_Data[x.gcp_id].x - x.coor_E);
+          pt_Data[x.gcp_id].dx = pt_Data[x.gcp_id].x - x.coor_E;
+          dx = dx + (pt_Data[x.gcp_id].dx) ** 2
 
           pt_Data[x.gcp_id].sy = x.coor_N;
-          pt_Data[x.gcp_id].dy = floatify(pt_Data[x.gcp_id].y - x.coor_N);
+          pt_Data[x.gcp_id].dy = pt_Data[x.gcp_id].y - x.coor_N;
+          dy = dy + (pt_Data[x.gcp_id].dy) ** 2
 
           pt_Data[x.gcp_id].sz = x.coor_h;
-          pt_Data[x.gcp_id].dz = floatify(pt_Data[x.gcp_id].z - x.coor_h);
+          pt_Data[x.gcp_id].dz = pt_Data[x.gcp_id].z - x.coor_h;
+          dz = dz + (pt_Data[x.gcp_id].dz) ** 2
+
           pt_C=pt_C+1;
         }else if(pt_Data[x.gcp_id].type==="F"){
           pt_F=pt_F+1
@@ -1132,13 +1136,18 @@ calRefGcpOnDone(result=>{
     });
 
     // 填入資料
+    let calTable = {};
+    calTable.data = pt_Data;
+    calTable.rmseH = ((((dx+dy)/pt_C) ** 0.5)*1000);
+    calTable.rmseV = (((dz/pt_C) ** 0.5)*1000);
+
     pt_Ref = refData.length;
     nowCaseTotPt.value = pt_Ref;
     nowCaseMeaPt.value = pt_F + pt_C;
     nowCaseDelPt.value = pt_Ref - (pt_F + pt_C);
     nowCaseCrtNo.value = pt_F;
     nowCaseChkNo.value = pt_C;
-    nowCaseCalResult.value = JSON.stringify(pt_Data);
+    nowCaseCalResult.value = JSON.stringify(calTable);
     computeUc();
   }
 });
@@ -1297,7 +1306,9 @@ async function readPrintOut(POfile){
         nowCaseRMSy.value = floatify(rms_Y * 1000);
         nowCaseRMSz.value = floatify(rms_Z * 1000);
         nowCaseConnectNo.value = pt_T;
-        nowCaseCalResult.value = JSON.stringify(pt_Data);
+        let calTable = {};
+        calTable.data = pt_Data;
+        nowCaseCalResult.value = JSON.stringify(calTable);
 
         pramJson={
           sx:nowCaseRMSx.value,
@@ -1354,6 +1365,7 @@ computeUcOnDone(result=>{
   // console.log("nowcase",nowCaseUcModel.value);
   // console.log("select",selectUcModel.value);
   console.log(result.data.computeUc);
+  console.log(nowCaseCalResult.value);
   nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
   nowCaseSTDh.value = result.data.computeUc.ucH;
   nowCaseSTDv.value = result.data.computeUc.ucV;
@@ -1636,7 +1648,7 @@ defineExpose({
                   <MDBCol col="9" class="my-3">
                     <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="像機率定報告"
                       v-model="nowCaseCamReport">
-                      <MDBBtnClose @click.prevent="nowCaseCamReport =''" class="btn-upload-close" />
+                      <MDBBtnClose @click.prevent="nowCaseCamReport ='';" class="btn-upload-close" />
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 my-3">
@@ -1827,18 +1839,6 @@ defineExpose({
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="發布日期" v-model="nowCaseRefPrjPublishDate" />
                   </MDBCol>
                   <SelectUc ref="selectUcData"/>
-                  <!-- 參考值檔 -->
-                  <!-- <MDBCol col="8" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="參考值檔"
-                      v-model="nowCaseREFUpload">
-                      <MDBBtnClose @click.prevent="nowCaseREFUpload =''" class="btn-upload-close" />
-                    </MDBInput>
-                  </MDBCol>
-                  <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" id="REFUpload" @change="uploadChenge" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="uploadBtn('REFUpload')">上傳</MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseREFUploadDL" download size="sm" color="secondary">下載</MDBBtn>
-                  </MDBCol> -->
                 </MDBRow>
               </MDBCol>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
@@ -1907,18 +1907,6 @@ defineExpose({
                     <MDBBtn size="sm" color="primary" @click="uploadBtn('FixUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseFixUploadDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
-                  <!-- 控制點檔 -->
-                  <!-- <MDBCol col="8" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="控制點檔"
-                      v-model="nowCaseGCPUpload">
-                      <MDBBtnClose @click.prevent="nowCaseGCPUpload =''" class="btn-upload-close" />
-                    </MDBInput>
-                  </MDBCol>
-                  <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" id="GCPUpload" @change="uploadChenge" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="uploadBtn('GCPUpload')">上傳</MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseGCPUploadDL" download size="sm" color="secondary">下載</MDBBtn>
-                  </MDBCol> -->
                   <!-- 空三報表檔 -->
                   <MDBCol col="8" class="mb-3">
                     <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="空三報表檔"
@@ -1995,48 +1983,48 @@ defineExpose({
                     <MDBRow>
                       <MDBCol lg="6">
                         <MDBRow>
-                          <MDBCol class="text-center">
+                          <MDBCol class="text-center img-thumbnail lightboxImg mx-2 my-3">
                             <MDBLightboxItem
                               :src="'06_Case/'+ props.caseID + '/' + nowCaseNetGraph"
                               :fullScreenSrc="'06_Case/'+ props.caseID + '/' + nowCaseNetGraph"
                               alt="網形圖"
-                              class="lightboxImg img-thumbnail"
+                              class="lightboxImg"
                             />
                           </MDBCol>
                           <div></div>
                           <!-- 網形圖 -->
-                          <MDBCol col="8" class="my-3">
+                          <MDBCol col="8" class="mb-3">
                             <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="網形圖"
                               v-model="nowCaseNetGraph">
                               <MDBBtnClose @click.prevent="nowCaseNetGraph =''" class="btn-upload-close" />
                             </MDBInput>
                           </MDBCol>
-                          <MDBCol col="4" class="px-0 my-3">
+                          <MDBCol col="4" class="px-0 mb-3">
                             <input type="file" id="NetGraphUpload" @change="uploadChenge" style="display: none;" />
                             <MDBBtn size="sm" color="primary" @click="uploadBtn('NetGraphUpload')">上傳</MDBBtn>
                             <MDBBtn tag="a" :href="nowCaseNetGraphDL" download size="sm" color="secondary">下載</MDBBtn>
                           </MDBCol>
                         </MDBRow>
                       </MDBCol>
-                      <MDBCol lg="6" class="text-center">
+                      <MDBCol lg="6">
                         <MDBRow>
-                          <MDBCol class="text-center">
+                          <MDBCol class="text-center img-thumbnail lightboxImg mx-2 my-3">
                             <MDBLightboxItem
                               :src="'06_Case/'+ props.caseID + '/' + nowCaseGCPGraph"
                               :fullScreenSrc="'06_Case/'+ props.caseID + '/' + nowCaseGCPGraph"
                               alt="點位分布圖"
-                              class="lightboxImg img-thumbnail"
+                              class="lightboxImg"
                             />
                           </MDBCol>
                           <div></div>
                           <!-- 點位分布圖 -->
-                          <MDBCol col="8" class="my-3">
+                          <MDBCol col="8" class="mb-3">
                             <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="點位分布圖"
                               v-model="nowCaseGCPGraph">
                               <MDBBtnClose @click.prevent="nowCaseGCPGraph =''" class="btn-upload-close" />
                             </MDBInput>
                           </MDBCol>
-                          <MDBCol col="4" class="px-0 my-3">
+                          <MDBCol col="4" class="px-0 mb-3">
                             <input type="file" id="GCPGraphUpload" @change="uploadChenge" style="display: none;" />
                             <MDBBtn size="sm" color="primary" @click="uploadBtn('GCPGraphUpload')">上傳</MDBBtn>
                             <MDBBtn tag="a" :href="nowCaseGCPGraphDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -2074,16 +2062,15 @@ defineExpose({
                         <MDBSwitch label="具TAF-LOGO" v-model="nowCaseHasLOGO" />
                       </MDBCol>
                       <!-- 選擇報告範本 -->
-                      <MDBCol col="8" class="mb-3">
+                      <MDBCol col="12" class="mb-3">
                         <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text" label="報告範本"
                           v-model="nowCaseReportTemp">
                           <MDBBtnClose @click.prevent="nowCaseReportTemp =''" class="btn-upload-close" />
                         </MDBInput>
                       </MDBCol>
-                      <MDBCol col="3" class="px-0 mb-3">
-                        <input type="file" id="RecTemp" @change="" style="display: none;" />
+                      <MDBCol col="12" class="mb-3">
                         <MDBBtn size="sm" color="primary" @click="">選擇範本</MDBBtn>
-                        <MDBBtn size="sm" color="primary" @click="">產生報告</MDBBtn>
+                        <MDBBtn size="sm" color="secondary" @click="">產生報告</MDBBtn>
                       </MDBCol>
 
                       <!-- 報告編輯檔 -->

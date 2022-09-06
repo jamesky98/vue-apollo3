@@ -48,9 +48,36 @@ const refPubDateStr = computed(()=>{
 	return dateArray[0]-1911 + "年" + dateArray[1] + "月" + dateArray[2] + "日"
 })
 
+const nowCaseTotPt = ref(""); //總點數(自動計算)
+const nowCaseMeaPt = ref(""); //量測點數(自動計算)
+const nowCaseDelPt = ref(""); //刪除點數
+const nowCaseDelCommt = ref(""); //刪除註記
 
+const nowCaseConnectNo = ref(""); // 連結點數(自動計算)
+const nowCaseObsNo = ref(""); // 觀測量(自動計算)
+const nowCaseRedundancy = ref(""); // 多餘觀測量(自動計算)
 
+const nowCaseFreeStd = ref(""); //自由網中誤差
+const nowCaseFixStd = ref(""); // 強制網中誤差
 
+const nowCaseCrtNo = ref(""); // 控制點數(自動計算)
+const nowCaseChkNo = ref(""); // 檢核點數(自動計算)
+
+const nowCaseNetGraph = ref(""); //網形圖(上傳)
+const nowCaseNetGraphDL = computed(()=>{
+	if(nowCaseNetGraph.value && nowCaseNetGraph.value !== ""){
+		return "06_Case/"+ props.caseID + "/" + nowCaseNetGraph.value
+	}else{
+		return undefined
+	}});
+
+const nowCaseGCPGraph = ref(""); //點位分布圖(上傳)
+const nowCaseGCPGraphDL = computed(()=>{
+	if(nowCaseGCPGraph.value && nowCaseGCPGraph.value !== ""){
+		return "06_Case/"+ props.caseID + "/" + nowCaseGCPGraph.value
+	}else{
+		return ""
+	}});
 
 // 查詢Case_Record資料
 const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
@@ -86,6 +113,23 @@ getNowCaseF(result => {
 		nowCaseRefPrjCode.value = (getRecord01.ref_project)?getRecord01.ref_project.project_code:"";
 		nowCaseRefPrjPublishDate.value = (getRecord01.ref_project) ?getRecord01.ref_project.publish_date.split("T")[0]:"";
 
+		nowCaseTotPt.value = getRecord01.total_pt;
+    nowCaseMeaPt.value = getRecord01.meas_pt;
+    nowCaseDelPt.value = getRecord01.del_pt;
+		nowCaseDelCommt.value = getRecord01.del_comt;
+
+		nowCaseConnectNo.value = getRecord01.connect_no;
+    nowCaseObsNo.value = getRecord01.obs_no;
+    nowCaseRedundancy.value = getRecord01.redundancy;
+
+		nowCaseFreeStd.value = getRecord01.free_std;
+    nowCaseFixStd.value = getRecord01.fix_std;
+
+		nowCaseCrtNo.value = getRecord01.ctr_no;
+    nowCaseChkNo.value = getRecord01.chk_no;
+
+		nowCaseNetGraph.value = getRecord01.net_graph;
+    nowCaseGCPGraph.value = getRecord01.gcp_graph;
   }
 });
 refgetNowCaseF();
@@ -123,13 +167,13 @@ refgetNowCaseF();
 				<!-- 申請表資料 -->
 				<tr style="border-bottom: 3px solid;">
 					<td scope="col" width="38%" class="fstyle02 nowrap">
-						<div>申請單編號：{{tableID}}</div>
+						申請單編號：{{tableID}}
 					</td>
 					<td scope="col" class="fstyle02 nowrap" style="border-right: 3px solid;">
-						<div>校正件編號：{{itemID}}</div>
+						校正件編號：{{itemID}}
 					</td>
 					<td scope="col" width="38%" class="fstyle02 nowrap" style="border-top: hidden; border-right:hidden;">
-						<div>作業開始日期：{{startDateStr}}</div>
+						作業開始日期：{{startDateStr}}
 					</td>
 				</tr>
 				<!-- 基本資料 -->
@@ -141,31 +185,31 @@ refgetNowCaseF();
 									<div class="fstyle02V">基本資料</div>
 								</td>
 								<td width="47%" scope="col" class="fstyle02 nowrap">
-									<div>（1）航拍日期：{{flyDateStr}}</div>
+									（1）航拍日期：{{flyDateStr}}
 								</td>
 								<td scope="col" class="fstyle02 nowrap">
-									<div>（2）總航帶數：{{nowCaseStrTotle}} 條</div>
+									（2）總航帶數：{{nowCaseStrTotle}} 條
 								</td>
 							</tr>
 							<tr>
 								<td width="46%" scope="col" class="fstyle02 nowrap">
-									<div>（3）影像重疊：前後 {{nowCaseEndLapAc}} %，側向 {{nowCaseSideLapAc}} %</div>
+									（3）影像重疊：前後 {{nowCaseEndLapAc}} %，側向 {{nowCaseSideLapAc}} %
 								</td>
 								<td scope="col" class="fstyle02 nowrap">
-									<div>（4）飛航離地高（AGL）：{{nowCaseAGLac}} m</div>
+									（4）飛航離地高（AGL）：{{nowCaseAGLac}} m
 								</td>
 							</tr>
 							<tr>
 								<td width="46%" scope="col" class="fstyle02 nowrap">
-									<div>（5）地面像素解析度：{{nowCaseGSDac}} cm</div>
+									（5）地面像素解析度：{{nowCaseGSDac}} cm
 								</td>
 								<td scope="col" class="fstyle02 nowrap">
-									<div>（6）使用影像數：{{nowCaseImgNo}} 片</div>
+									（6）使用影像數：{{nowCaseImgNo}} 片
 								</td>
 							</tr>
 							<tr v-if="nowCaseCalTypeCode===3">
 								<td colspan="2" scope="col" class="fstyle02 nowrap">
-									<div>（7）是否為畸變差已糾正影像(Undistortion)：{{idUndist}}</div>
+									（7）是否為畸變差已糾正影像(Undistortion)：{{idUndist}}
 								</td>
 							</tr>
 						</table>
@@ -182,60 +226,64 @@ refgetNowCaseF();
 							</tr>
 							<tr>
 								<td colspan="2" scope="col" class="fstyle02">
-									<div>（1）引用參考值之作業編號：{{nowCaseRefPrjCode}}，發布日期：{{refPubDateStr}}</div>
+									（1）引用參考值之作業編號：{{nowCaseRefPrjCode}}，發布日期：{{refPubDateStr}}
 								</td>
 							</tr>
 							<tr>
 								<td colspan="2" scope="col" class="fstyle02">
-									<div>（2）校正標數量    個，實際量測    個，剔除    個 </div>
+									（2）校正標數量 {{nowCaseTotPt}} 個，實際量測 {{nowCaseMeaPt}} 個，剔除 {{nowCaseDelPt}} 個
+								</td>
+							</tr>
+							<tr>
+								<td height="60px" colspan="2" scope="col" class="fstyle02" style="vertical-align: top;">
+									剔除點號及原因：{{nowCaseDelCommt}}
 								</td>
 							</tr>
 							<tr>
 								<td colspan="2" scope="col" class="fstyle02">
-									<div>剔除點號及原因：</div>
+									（3）量測結果：連結點數目 {{nowCaseConnectNo}} ，觀測量 {{nowCaseObsNo}} ，多餘觀測量 {{nowCaseRedundancy}}
 								</td>
 							</tr>
 							<tr>
 								<td colspan="2" scope="col" class="fstyle02">
-									<div>（3）量測結果：連結點數目    ，觀測量    ，多餘觀測量</div>
+									（4）平差結果（驗後單位權中誤差），自由網： {{nowCaseFreeStd}} um，強制附合網： {{nowCaseFixStd}} um
 								</td>
 							</tr>
 							<tr>
 								<td colspan="2" scope="col" class="fstyle02">
-									<div>（4）平差結果（驗後單位權中誤差），自由網：    um，強制附合網：    um</div>
+									（5）作為 <strong>控制點</strong> 數量應為 10 個，實際使用 {{nowCaseCrtNo}} 個。
 								</td>
 							</tr>
 							<tr>
 								<td colspan="2" scope="col" class="fstyle02">
-									<div>（5）作為 <strong>控制點</strong> 數量應為 10 個，實際使用    個。 </div>
-								</td>
-							</tr>
-							<tr>
-								<td colspan="2" scope="col" class="fstyle02">
-									<div>（6）作為 <strong>檢核點</strong> 數量，實際使用    個。 </div>
+									（6）作為 <strong>檢核點</strong> 數量，實際使用 {{nowCaseChkNo}} 個。
 								</td>
 							</tr>
 							<tr>
 								<td width="50%" scope="col" class="fstyle02">
-									<div>（7）6 重光束以上連結點之網形圖： </div>
-									<img class="lightboxImg"/>
+									<div>（7）6 重光束以上連結點之網形圖：</div>
+									<div class="lightboxImg">
+										<img :src="nowCaseNetGraphDL" height="150"/>
+									</div>
 								</td>
 								<td scope="col" class="fstyle02">
 									<div>（8）控制點及檢核點分布圖：  </div>
-									<img class="lightboxImg"/>
+									<div class="lightboxImg">
+										<img :src="nowCaseGCPGraphDL" height="150"/>
+									</div>
 								</td>
 							</tr>
 							<tr>
 								<td scope="col" class="fstyle02">
-									<div>（9）檢附<strong class="bggray2">報表摘要資訊</strong>，如附件 1。</div>
+									（9）檢附<strong class="bggray2">報表摘要資訊</strong>，如附件 1。
 								</td>
 								<td scope="col" class="fstyle02">
-									<div>（10）檢附<strong class="bggray2">不確定度計算表</strong>，如附件 2。</div>
+									（10）檢附<strong class="bggray2">不確定度計算表</strong>，如附件 2。
 								</td>
 							</tr>
 							<tr>
 								<td colspan="2" scope="col" class="fstyle02">
-									<div>（11）檢附符合性使用之<strong class="bggray2">規範標準及決定規則</strong>，如附件 3。(顧客有要求符合性聲明時檢附)</div>
+									（11）檢附符合性使用之<strong class="bggray2">規範標準及決定規則</strong>，如附件 3。(顧客有要求符合性聲明時檢附)
 								</td>
 							</tr>
 						</table>
@@ -251,8 +299,8 @@ refgetNowCaseF();
 								<td scope="col">
 									<div>
 										<table width="60px" style="float: right; margin-right: 20px;">
-											<tr class="fstyle03mid"><td style="color: #b3b3b3;border-left: hidden;border-right: hidden;border-top: hidden;border-color: black;">日期</td></tr>
-											<tr class="fstyle03mid"><td style="color: #b3b3b3;border-left: hidden;border-right: hidden;border-bottom: hidden;border-color: black;">時間</td></tr>
+											<tr class="fstyle03mid"><td style="color: #d9d9d9;border-left: hidden;border-right: hidden;border-top: hidden;border-color: black;">日期</td></tr>
+											<tr class="fstyle03mid"><td style="color: #d9d9d9;border-left: hidden;border-right: hidden;border-bottom: hidden;border-color: black;">時間</td></tr>
 										</table>
 									</div>
 								</td>
@@ -262,8 +310,8 @@ refgetNowCaseF();
 								<td scope="col">
 									<div>
 										<table width="60px" style="float: right; margin-right: 20px;">
-											<tr class="fstyle03mid"><td style="color: #b3b3b3;border-left: hidden;border-right: hidden;border-top: hidden;border-color: black;">日期</td></tr>
-											<tr class="fstyle03mid"><td style="color: #b3b3b3;border-left: hidden;border-right: hidden;border-bottom: hidden;border-color: black;">時間</td></tr>
+											<tr class="fstyle03mid"><td style="color: #d9d9d9;border-left: hidden;border-right: hidden;border-top: hidden;border-color: black;">日期</td></tr>
+											<tr class="fstyle03mid"><td style="color: #d9d9d9;border-left: hidden;border-right: hidden;border-bottom: hidden;border-color: black;">時間</td></tr>
 										</table>
 									</div>
 								</td>
@@ -350,8 +398,8 @@ refgetNowCaseF();
 		content: counter(page-number);
 		position: absolute;
 		right: 88mm;
-		bottom: 0;
-		font-size: 12pt;
+		bottom: 1.8mm;
+		font-size: 11pt;
 		font-family: "Times New Roman", 標楷體;
 		font-weight:normal;
 		text-align: right;

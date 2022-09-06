@@ -26,15 +26,15 @@ const nowCaseRMSy = ref("");
 const nowCaseRMSz = ref("");
 const nowCaseSTDh = ref("");
 const nowCaseSTDv = ref("");
-const nowCaseCalResult = ref(""); //計算成果表
+const nowCaseCalResult = ref(); //計算成果表
 const nowCaseCalArray = computed(()=>{
 	let myarray=[];
 	if(nowCaseCalResult.value){
-		let jsonObj = JSON.parse(nowCaseCalResult.value);
-		for (let key in jsonObj){
+		// let jsonObj = JSON.parse(nowCaseCalResult.value);
+		for (let key in nowCaseCalResult.value){
 			myarray.push({
 				ptname:key,
-				...jsonObj[key],
+				...nowCaseCalResult.value[key],
 			})
 		}
 		myarray.sort(function(a, b) {
@@ -76,33 +76,34 @@ getNowCaseF(result => {
 		nowCaseRMSx.value = getRecord01.RMS_x;
     nowCaseRMSy.value = getRecord01.RMS_y;
     nowCaseRMSz.value = getRecord01.RMS_z;
-		// nowCaseSTDh.value = getRecord01.std_h;
-    // nowCaseSTDv.value = getRecord01.std_v;
-		nowCaseCalResult.value = getRecord01.recal_table;
-		computeRMSE();
+		let calTable = JSON.parse(getRecord01.recal_table);
+		nowCaseSTDh.value = calTable.rmseH.toFixed(3);
+    nowCaseSTDv.value = calTable.rmseV.toFixed(3);
+		nowCaseCalResult.value = calTable.data;
+		// computeRMSE();
   }
 });
 refgetNowCaseF();
 
-function computeRMSE(){
-	let dx = 0.0;
-	let dy = 0.0;
-	let dz = 0.0;
-	let count = 0;
-	if(nowCaseCalResult.value){
-		let jsonObj = JSON.parse(nowCaseCalResult.value);
-		for (let key in jsonObj){
-			if(jsonObj[key].type==="T"){
-				dx = dx + (jsonObj[key].sx - jsonObj[key].x) ** 2
-				dy = dy + (jsonObj[key].sy - jsonObj[key].y) ** 2
-				dz = dz + (jsonObj[key].sz - jsonObj[key].z) ** 2
-				count = count + 1;
-			}
-		}
-		nowCaseSTDh.value = ((((dx+dy)/count) ** 0.5)*1000).toFixed(3);
-		nowCaseSTDv.value = (((dz/count) ** 0.5)*1000).toFixed(3);
-	}
-}
+// function computeRMSE(){
+// 	let dx = 0.0;
+// 	let dy = 0.0;
+// 	let dz = 0.0;
+// 	let count = 0;
+// 	if(nowCaseCalResult.value){
+// 		let jsonObj = JSON.parse(nowCaseCalResult.value);
+// 		for (let key in jsonObj){
+// 			if(jsonObj[key].type==="T"){
+// 				dx = dx + (jsonObj[key].sx - jsonObj[key].x) ** 2
+// 				dy = dy + (jsonObj[key].sy - jsonObj[key].y) ** 2
+// 				dz = dz + (jsonObj[key].sz - jsonObj[key].z) ** 2
+// 				count = count + 1;
+// 			}
+// 		}
+// 		nowCaseSTDh.value = ((((dx+dy)/count) ** 0.5)*1000).toFixed(3);
+// 		nowCaseSTDv.value = (((dz/count) ** 0.5)*1000).toFixed(3);
+// 	}
+// }
 
 </script>
 
