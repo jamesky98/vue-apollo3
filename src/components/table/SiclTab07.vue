@@ -262,15 +262,14 @@ refgetNowCaseF();
 							<tr>
 								<td width="50%" scope="col" class="fstyle02">
 									<div>（7）6 重光束以上連結點之網形圖：</div>
-									<div class="lightboxImg">
-										<img :src="nowCaseNetGraphDL" height="150"/>
-									</div>
+									<img :src="nowCaseNetGraphDL" class="lightboxImg"/>
+									<!-- <div class="lightboxImg">
+										
+									</div> -->
 								</td>
 								<td scope="col" class="fstyle02">
 									<div>（8）控制點及檢核點分布圖：  </div>
-									<div class="lightboxImg">
-										<img :src="nowCaseGCPGraphDL" height="150"/>
-									</div>
+									<img :src="nowCaseGCPGraphDL" class="lightboxImg"/>
 								</td>
 							</tr>
 							<tr>
@@ -509,6 +508,8 @@ refgetNowCaseF();
 	text-align: center;
 }
 .lightboxImg{
+	display:block; 
+	margin:auto;
   max-width: 100%;
   height: 150px;
 }

@@ -80,31 +80,9 @@ getNowCaseF(result => {
 		nowCaseSTDh.value = calTable.rmseH.toFixed(3);
     nowCaseSTDv.value = calTable.rmseV.toFixed(3);
 		nowCaseCalResult.value = calTable.data;
-		// computeRMSE();
   }
 });
 refgetNowCaseF();
-
-// function computeRMSE(){
-// 	let dx = 0.0;
-// 	let dy = 0.0;
-// 	let dz = 0.0;
-// 	let count = 0;
-// 	if(nowCaseCalResult.value){
-// 		let jsonObj = JSON.parse(nowCaseCalResult.value);
-// 		for (let key in jsonObj){
-// 			if(jsonObj[key].type==="T"){
-// 				dx = dx + (jsonObj[key].sx - jsonObj[key].x) ** 2
-// 				dy = dy + (jsonObj[key].sy - jsonObj[key].y) ** 2
-// 				dz = dz + (jsonObj[key].sz - jsonObj[key].z) ** 2
-// 				count = count + 1;
-// 			}
-// 		}
-// 		nowCaseSTDh.value = ((((dx+dy)/count) ** 0.5)*1000).toFixed(3);
-// 		nowCaseSTDv.value = (((dz/count) ** 0.5)*1000).toFixed(3);
-// 	}
-// }
-
 </script>
 
 <template>

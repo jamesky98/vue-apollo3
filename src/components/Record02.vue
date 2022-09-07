@@ -521,7 +521,7 @@ defineExpose({
 <template>
   <div class="h-100 overflow-auto">
     <!-- 選擇校正件 -->
-    <MDBModal style="left: 66%;" @shown="shownItemModal" v-model="showItemFrom" staticBackdrop scrollable>
+    <MDBModal style="left: 66%;" @shown="shownItemModal()" v-model="showItemFrom" staticBackdrop scrollable>
       <MDBModalHeader>
         <MDBModalTitle>請選擇校正件</MDBModalTitle>
       </MDBModalHeader>
@@ -545,8 +545,8 @@ defineExpose({
                   <MDBTabPane class="h-100" tabId="itemEditor">
                     <!-- 功能列 -->
                     <div class="mt-2">
-                      <MDBBtn size="sm" color="primary" @click="saveItem">儲存</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="gotoItemMG">校正件管理</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="saveItem()">儲存</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="gotoItemMG()">校正件管理</MDBBtn>
                     </div>
                     <MDBRow>
                       <MDBSelect filter size="sm" class="my-3  col-6" label="儀器類型" v-model:options="selItemTypeMU"
@@ -570,8 +570,8 @@ defineExpose({
                   <MDBTabPane tabId="itemFilter">
                     <!-- 功能列 -->
                     <div class="mt-2">
-                      <MDBBtn size="sm" color="primary" @click="doItemFilter">篩選</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="clearItemFilter">清除</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="doItemFilter()">篩選</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="clearItemFilter()">清除</MDBBtn>
                     </div>
                     <!-- 條件欄位 -->
                     <MDBRow>
@@ -594,11 +594,11 @@ defineExpose({
         </MDBContainer>
       </MDBModalBody>
       <MDBModalFooter>
-        <MDBBtn color="primary" @click="setItemBtn">加入</MDBBtn>
+        <MDBBtn color="primary" @click="setItemBtn()">加入</MDBBtn>
       </MDBModalFooter>
     </MDBModal>
     <!-- 選擇參考值量測作業 -->
-    <MDBModal style="left: 66%;" @shown="shownPrjModal" v-model="showPrjFrom" staticBackdrop scrollable>
+    <MDBModal style="left: 66%;" @shown="shownPrjModal()" v-model="showPrjFrom" staticBackdrop scrollable>
       <MDBModalHeader>
         <MDBModalTitle>請選擇參考值量測作業</MDBModalTitle>
       </MDBModalHeader>
@@ -621,9 +621,9 @@ defineExpose({
                   <MDBTabPane tabId="prjFilter">
                     <!-- 功能列 -->
                     <div class="mt-2">
-                      <MDBBtn size="sm" color="primary" @click="doPrjFilter">篩選</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="clearPrjFilter">清除</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="gotoPrjMG">量測作業管理</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="doPrjFilter()">篩選</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="clearPrjFilter()">清除</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="gotoPrjMG()">量測作業管理</MDBBtn>
                     </div>
                     <!-- 條件欄位 -->
                     <MDBRow>
@@ -651,7 +651,7 @@ defineExpose({
         </MDBContainer>
       </MDBModalBody>
       <MDBModalFooter>
-        <MDBBtn color="primary" @click="setPrjBtn">加入</MDBBtn>
+        <MDBBtn color="primary" @click="setPrjBtn()">加入</MDBBtn>
       </MDBModalFooter>
     </MDBModal>
     <!-- record02表單 -->
