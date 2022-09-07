@@ -5,11 +5,15 @@ const GETALLPRJ = gql`
     $projectCode: String
     $pubdateStart: String
     $pubdateEnd: String
+    $method: String
+    $calTypeId: Int
   ) {
     getAllPrj(
       project_code: $projectCode
       pubdate_start: $pubdateStart
       pubdate_end: $pubdateEnd
+      method: $method
+      cal_type_id: $calTypeId
     ) {
       id
       project_code

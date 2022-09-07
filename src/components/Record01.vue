@@ -39,6 +39,7 @@ import ItemGQL from "../graphql/Item";
 import PrjGQL from "../graphql/Prj";
 import SelectPs from "./SelectPs.vue";
 import SelectUc from "./SelectUc.vue";
+import SelectRptTemp from "./SelectRptTemp.vue";
 
 import DataTable from "datatables.net-vue3";
 import DataTableBs5 from "datatables.net-bs5";
@@ -173,6 +174,7 @@ const nowCaseStartDateDOM = ref();
 const nowCaseRefPrjID = ref(""); // 量測作業索引
 const nowCaseRefPrjCode = ref(""); // 量測作業編號編號
 const nowCaseRefPrjPublishDate = ref(""); // 參考值發布日期
+const nowCaseRefEqpt = ref(); // 使用標準件
 const nowCaseREFUpload = ref(""); // 參考值檔
 const nowCaseREFUploadDL = computed(() => {
   if (nowCaseREFUpload.value && nowCaseREFUpload.value !== "") {
@@ -287,11 +289,18 @@ const selectUcModel = ref("");
 provide("selectUcModel", selectUcModel);
 const nowCaseUcModelMU = ref([]);
 provide("nowCaseUcModelMU", nowCaseUcModelMU);
-const selectUcData = ref();
 
 // 出具報告
 const nowCaseHasLOGO = ref(true); //列印TAF LOGO
 const nowCaseReportTemp = ref(""); //校正報告範本
+provide("nowCaseReportTemp", nowCaseReportTemp);
+const selectReportTemp = ref("");
+provide("selectReportTemp", selectReportTemp);
+const nowCaseReportTempMU = ref([]);
+provide("nowCaseReportTempMU", nowCaseReportTempMU);
+
+
+
 const nowCaseReportEdit = ref(""); //校正報告編輯檔
 const nowCaseReportEditDL = computed(() => {
   if (nowCaseReportEdit.value && nowCaseReportEdit.value !== "") {
@@ -419,6 +428,7 @@ getNowCaseF((result) => {
     nowCaseRefPrjPublishDate.value = getData.ref_project
       ? getData.ref_project.publish_date.split("T")[0]
       : "";
+    nowCaseRefEqpt.value = getData.ref_project.ref_use_eqpt;
     nowCaseREFUpload.value = getData.ref_file;
     nowCaseGCPUpload.value = getData.gcp_file;
     nowCaseTotPt.value = getData.total_pt.toString();
@@ -482,8 +492,9 @@ getNowCaseF((result) => {
         "/" +
         getData.report_scan;
     }
-    // 取得不確定度模組清單，並填入下拉選單
-    getUcList();
+    
+    getUcList(); // 取得不確定度模組清單，並填入下拉選單
+    getRptList(); // 取得報告範本清單，並填入下拉選單
   }
 });
 refgetNowCaseF();
@@ -845,7 +856,10 @@ const {
   variables: varAllPrj,
   onResult: getAllPrj,
   refetch: refgetAllPrj,
-} = useQuery(PrjGQL.GETALLPRJ);
+} = useQuery(PrjGQL.GETALLPRJ,() => ({
+  calTypeId: (nowCaseCalType.value===3)?1:nowCaseCalType.value,
+  method: "量測",
+}));
 getAllPrj((result) => {
   // 加入量測作業資料
   if (!result.loading && result.data.getAllPrj) {
@@ -864,12 +878,12 @@ function shownPrjModal() {
   refgetAllPrj();
 }
 
-// 更多編輯=>引導至校正件管理
+// 更多編輯=>引導至量測作業管理
 function gotoPrjMG() {
   router.push("/prjs");
 }
 
-// 清除校正件篩選條件
+// 清除量測作業篩選條件
 function clearPrjFilter() {
   filterPrjCode.value = "";
   filterPrjPubDateStart.value = "";
@@ -888,7 +902,7 @@ function doPrjFilter() {
   varAllPrj.value = where;
 }
 
-// 案加入後回填量測作業id
+// 按加入後回填量測作業id
 function setPrjBtn() {
   nowCaseRefPrjID.value = seletPrjID.value;
   nowCaseRefPrjCode.value = seletPrjCode.value;
@@ -1007,7 +1021,7 @@ const {
         : parseInt(selectSignPersonID.value),
     reportScan: nowCaseReportScan.value,
     hasLogo: nowCaseHasLOGO.value,
-    reportTemplate: nowCaseReportTemp.value,
+    reportTemplate: selectReportTemp.value,
     distrotion: nowCaseDist.value,
     recordTamplate: nowCaseRecTemp.value,
     eoFile: nowCaseEO.value,
@@ -1135,6 +1149,12 @@ uploadFileOnDone((result) => {
       inputDOM = document.getElementById("STDExlUpload");
       inputDOM.value = "";
       break;
+    case "ReportEditUpload":
+      nowCaseReportEdit.value = result.data.uploadFile.filename;
+      saveRecord01();
+      inputDOM = document.getElementById("ReportEditUpload");
+      inputDOM.value = "";
+      break;
     case "ReportScanUpload":
       nowCaseReportScan.value = result.data.uploadFile.filename;
       saveRecord01();
@@ -1199,6 +1219,9 @@ async function uploadChenge(e) {
       break;
     case "STDExlUpload":
       newName = "13_UncertaintyCal" + path.extname(e.target.value);
+      break;
+    case "ReportEditUpload":
+      newName = props.caseID + path.extname(e.target.value)
       break;
     case "ReportScanUpload":
       newName = "17_ReportScan" + path.extname(e.target.value);
@@ -1520,7 +1543,7 @@ const {
   },
 }));
 computeUcOnDone((result) => {
-  console.log(result.data.computeUc);
+  // console.log(result.data.computeUc);
   // console.log(nowCaseCalResult.value);
   if (!result.loading && result.data.computeUc) {
     nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
@@ -1624,7 +1647,43 @@ function buildReportBtn(){
   parms.nowCaseSizeY = nowCaseSizeY.value;
 
   let calTable = JSON.parse(nowCaseCalResult.value);
+  // console.log("calTable",calTable);
   let ucTable = JSON.parse(nowCaseUcResult.value);
+  // console.log("ucTable",ucTable);
+
+  let defVerH = [];
+  let defVerV = [];
+  let fixDigPosH = parseInt(ucTable.digPosH);
+  let fixDigPosV = parseInt(ucTable.digPosV);
+
+  for(let key in calTable.data){
+    if (calTable.data[key].type==='T'){
+      defVerH.push({
+        ptName: key,
+        dx: fixDataDigPos(calTable.data[key].dx * 1000,fixDigPosH),
+        dy: fixDataDigPos(calTable.data[key].dy * 1000,fixDigPosH),
+        dxy: fixDataDigPos(((calTable.data[key].dx ** 2+calTable.data[key].dy ** 2)**0.5) * 1000,fixDigPosH),
+        fixUcH: ucTable.fixUcH
+      });
+
+      defVerV.push({
+        ptName: key,
+        dz: fixDataDigPos(calTable.data[key].dz * 1000,fixDigPosV),
+        fixUcV: ucTable.fixUcV
+      });
+    }
+  }
+  
+  defVerH.sort((a,b)=>{(a.pt_name > b.pt_name)?1:-1});
+  defVerV.sort((a,b)=>{(a.pt_name > b.pt_name)?1:-1});
+  
+  for(let i=0; i < defVerH.length; i++){
+    defVerH[i].index = i + 1;
+    defVerV[i].index = i + 1;
+  }
+
+  parms.defVerH = defVerH;
+  parms.defVerV = defVerV;
 
   parms.nowCaseRmseH = fixDataDigPos(parseFloat(calTable.rmseH),parseInt(ucTable.digPosH));
   parms.nowCaseRmseV = fixDataDigPos(parseFloat(calTable.rmseV),parseInt(ucTable.digPosH));
@@ -1655,6 +1714,26 @@ function buildReportBtn(){
   parms.nowCaseChkNo = nowCaseChkNo.value;
   parms.nowCaseKh = nowCaseKh.value;
   parms.nowCaseKv = nowCaseKv.value;
+  parms.confLevel = (ucTable.confLevel*100).toFixed(0);
+  
+  let eqData = [];
+  let eqptCount = 0;
+  nowCaseRefEqpt.value.forEach((x,i)=>{
+    let chkDateArray = (x.ref_eqpt_check.check_date.split("T")[0]).split("-");
+    eqptCount = eqptCount + 1;
+    eqData.push({
+      index: eqptCount,
+      itemChop: x.ref_eqpt_check.ref_eqpt.chop,
+      itemModel: x.ref_eqpt_check.ref_eqpt.model,
+      itemSN: x.ref_eqpt_check.ref_eqpt.serial_number,
+      rptID: x.ref_eqpt_check.report_id,
+      chkDate: (chkDateArray[0]-1911) + "/" + chkDateArray[1] + "/" + chkDateArray[2],
+      ferq: x.ref_eqpt_check.ref_eqpt.cal_cycle,
+      org: x.ref_eqpt_check.cal_org + "(" + x.ref_eqpt_check.cal_org_id + ")"
+    })
+  });
+
+  parms.eqData = eqData;
 
   pramRptStr.value = JSON.stringify(parms);
   buildRpt();
@@ -1675,16 +1754,38 @@ const {
 } = useMutation(CaseGQL.BUILDREPORT01, () => ({
   variables: {
     parm: pramRptStr.value,
-    reportSample: "F_4.2_1110421.docx",
+    reportSample: selectReportTemp.value,
   },
 }));
 buildRptOnDone(result=>{
   // 報告產生完成
   // 回填編輯檔欄位
+  nowCaseReportEdit.value = result.data.buildReport01;
   // 儲存Record01
+  saveRecord01();
   // 觸發下載編輯檔
+  let btnDOM = document.getElementById("ReportEditDownload");
+  btnDOM.click();
 });
 
+// 取得報告範本列表
+const {
+  mutate: getRptList,
+  onDone: getRptListOnDone,
+  onError: getRptListError,
+} = useMutation(CaseGQL.GETRPTLIST, () => ({
+  variables: {
+    caltypecode: nowCaseCalTypeCode.value,
+  },
+}));
+getRptListOnDone((result) => {
+  // 填入rptlist選單
+  if (!result.loading && result.data.getRptlist) {
+    nowCaseReportTempMU.value = result.data.getRptlist.map((x) => {
+      return { text: x, value: x };
+    });
+  }
+});
 
 // 產生報告==========End
 
@@ -2762,7 +2863,7 @@ defineExpose({
                       v-model="nowCaseRefPrjPublishDate"
                     />
                   </MDBCol>
-                  <SelectUc ref="selectUcData" />
+                  <SelectUc/>
                 </MDBRow>
               </MDBCol>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
@@ -3317,27 +3418,8 @@ defineExpose({
                         />
                       </MDBCol>
                       <!-- 選擇報告範本 -->
+                      <SelectRptTemp/>
                       <MDBCol col="12" class="mb-3">
-                        <MDBInput
-                          tooltipFeedback
-                          required
-                          readonly
-                          style="padding-right: 2.2em"
-                          size="sm"
-                          type="text"
-                          label="報告範本"
-                          v-model="nowCaseReportTemp"
-                        >
-                          <MDBBtnClose
-                            @click.prevent="nowCaseReportTemp = ''"
-                            class="btn-upload-close"
-                          />
-                        </MDBInput>
-                      </MDBCol>
-                      <MDBCol col="12" class="mb-3">
-                        <MDBBtn size="sm" color="primary" @click=""
-                          >選擇範本</MDBBtn
-                        >
                         <MDBBtn size="sm" color="secondary" @click="buildReportBtn()"
                           >產生報告</MDBBtn
                         >
@@ -3364,14 +3446,15 @@ defineExpose({
                       <MDBCol col="3" class="px-0 mb-3">
                         <input
                           type="file"
-                          id="REFUpload"
+                          id="ReportEditUpload"
                           @change=""
                           style="display: none"
                         />
-                        <MDBBtn size="sm" color="primary" @click=""
+                        <MDBBtn size="sm" color="primary" @click="uploadBtn('ReportEditUpload')"
                           >上傳</MDBBtn
                         >
                         <MDBBtn
+                          id="ReportEditDownload"
                           tag="a"
                           :href="nowCaseReportEditDL"
                           download

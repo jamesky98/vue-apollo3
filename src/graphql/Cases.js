@@ -804,6 +804,12 @@ const BUILDREPORT01 = gql`
   }
 `;
 
+const GETRPTLIST = gql`
+  mutation GetRptlist($caltypecode: String) {
+    getRptlist(caltypecode: $caltypecode)
+  }
+`;
+
 export default {
   GETALLCASE,
   GETCASESTATUS,
@@ -821,5 +827,6 @@ export default {
   COMPUTEUC,
   GETUCLIST,
   BUILDREPORT01,
+  GETRPTLIST,
   // SAVECASERECORD02,
 };
