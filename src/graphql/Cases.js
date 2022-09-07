@@ -798,6 +798,12 @@ const GETUCLIST = gql`
   }
 `;
 
+const BUILDREPORT01 = gql`
+  mutation BuildReport01($parm: String, $reportSample: String) {
+    buildReport01(parm: $parm, report_sample: $reportSample)
+  }
+`;
+
 export default {
   GETALLCASE,
   GETCASESTATUS,
@@ -814,5 +820,6 @@ export default {
   UPLOADFILE,
   COMPUTEUC,
   GETUCLIST,
+  BUILDREPORT01,
   // SAVECASERECORD02,
 };

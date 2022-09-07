@@ -58,6 +58,8 @@ const props = defineProps({
 
 // 案件詳細編輯資料==========start
 // 案件之詳細資料
+const nowCaseTitle = inject("nowCaseTitle"); //報告抬頭
+const nowCaseAddress = inject("nowCaseAddress"); //報告地址
 // 申請
 const updateKey = ref(0);
 const isSMCam = ref(true);
@@ -1514,11 +1516,11 @@ const {
 } = useMutation(CaseGQL.COMPUTEUC, () => ({
   variables: {
     parm: pramJsonStr.value,
-    ucModel: nowCaseUcModel.value,
+    ucModel: selectUcModel.value,
   },
 }));
 computeUcOnDone((result) => {
-  // console.log(result.data.computeUc);
+  console.log(result.data.computeUc);
   // console.log(nowCaseCalResult.value);
   if (!result.loading && result.data.computeUc) {
     nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
@@ -1581,8 +1583,110 @@ getRefGcpOnDone((result) => {
     document.body.removeChild(link);
   }
 });
-
 // 下載參考值==========End
+
+// 產生報告==========Start
+const pramRptStr = ref("");
+// 按鈕觸發動作
+function buildReportBtn(){
+  // 查詢報告資料=>載入時已查詢
+  // 填入參數
+  let parms={};
+
+  let CompleteDateAy = nowCaseCompleteDate.value.split("-");
+  parms.nowCaseCompleteDateY = (parseInt(CompleteDateAy[0]) - 1911).toString();
+  parms.nowCaseCompleteDateM = CompleteDateAy[1];
+  parms.nowCaseCompleteDateD = CompleteDateAy[2];
+  parms.nowCaseID = props.caseID;
+  parms.nowCaseItemChop = nowCaseItemChop.value;
+  parms.nowCaseItemModel = nowCaseItemModel.value;
+  parms.nowCaseItemSN = nowCaseItemSN.value;
+  parms.nowCaseTitle = nowCaseTitle.value;
+  parms.nowCaseAddress = nowCaseAddress.value;
+
+  let nowCaseRecDateAy = nowCaseRecDate.value.split("-");
+  parms.nowCaseRecDateY = (parseInt(nowCaseRecDateAy[0]) - 1911).toString();
+  parms.nowCaseRecDateM = nowCaseRecDateAy[1];
+  parms.nowCaseRecDateD = nowCaseRecDateAy[2];
+
+  let nowCaseFlyDateAy = nowCaseFlyDate.value.split("-");
+  parms.nowCaseFlyDateY = (parseInt(nowCaseFlyDateAy[0]) - 1911).toString();
+  parms.nowCaseFlyDateM = nowCaseFlyDateAy[1];
+  parms.nowCaseFlyDateD = nowCaseFlyDateAy[2];
+
+  parms.nowCaseRefPrjCode = nowCaseRefPrjCode.value;
+  let prjPubDateAy = nowCaseRefPrjPublishDate.value.split("-");
+  parms.nowCaseRefPrjPublishDateY = (parseInt(prjPubDateAy[0]) - 1911).toString();
+  parms.nowCaseRefPrjPublishDateM = prjPubDateAy[1];
+  parms.nowCaseRefPrjPublishDateD = prjPubDateAy[2];
+
+  parms.nowCaseSizeX = nowCaseSizeX.value;
+  parms.nowCaseSizeY = nowCaseSizeY.value;
+
+  let calTable = JSON.parse(nowCaseCalResult.value);
+  let ucTable = JSON.parse(nowCaseUcResult.value);
+
+  parms.nowCaseRmseH = fixDataDigPos(parseFloat(calTable.rmseH),parseInt(ucTable.digPosH));
+  parms.nowCaseRmseV = fixDataDigPos(parseFloat(calTable.rmseV),parseInt(ucTable.digPosH));
+
+
+  parms.nowCaseStr = parseInt(nowCaseStrNSac.value) + parseInt(nowCaseStrEWac.value)
+  parms.nowCaseStrNSac = nowCaseStrNSac.value;
+  parms.nowCaseStrEWac = nowCaseStrEWac.value;
+
+  parms.nowCaseEndLapAc = nowCaseEndLapAc.value
+  parms.nowCaseSideLapAc = nowCaseSideLapAc.value
+
+  parms.nowCaseEllHac = nowCaseEllHac.value;
+  parms.nowCaseAGLac = nowCaseAGLac.value;
+  parms.nowCaseGSDac = nowCaseGSDac.value;
+
+  parms.nowCaseFocal = nowCaseFocal.value;
+  parms.nowCasePPAx = nowCasePPAx.value;
+  parms.nowCasePPAy = nowCasePPAy.value;
+  parms.nowCaseDist = nowCaseDist.value;
+
+  parms.nowCasePxSizeX = nowCasePxSizeX.value;
+  parms.nowCasePxSizeY = nowCasePxSizeY.value;
+
+  parms.nowCaseImgNo = nowCaseImgNo.value;
+  parms.nowCaseMeaPt = nowCaseMeaPt.value;
+  parms.nowCaseCrtNo = nowCaseCrtNo.value;
+  parms.nowCaseChkNo = nowCaseChkNo.value;
+  parms.nowCaseKh = nowCaseKh.value;
+  parms.nowCaseKv = nowCaseKv.value;
+
+  pramRptStr.value = JSON.stringify(parms);
+  buildRpt();
+}
+
+// 對資料作有效位數修整
+function fixDataDigPos(data, pos) {
+  // 四捨五入
+  return Math.round(data / 10 ** pos)*10**pos;
+  ;
+}
+
+// 產生報告動作發送
+const {
+  mutate: buildRpt,
+  onDone: buildRptOnDone,
+  onError: buildRptError,
+} = useMutation(CaseGQL.BUILDREPORT01, () => ({
+  variables: {
+    parm: pramRptStr.value,
+    reportSample: "F_4.2_1110421.docx",
+  },
+}));
+buildRptOnDone(result=>{
+  // 報告產生完成
+  // 回填編輯檔欄位
+  // 儲存Record01
+  // 觸發下載編輯檔
+});
+
+
+// 產生報告==========End
 
 defineExpose({
   saveRecord01,
@@ -1631,10 +1735,10 @@ defineExpose({
                   <MDBTabPane class="h-100" tabId="itemEditor">
                     <!-- 功能列 -->
                     <div class="mt-2">
-                      <MDBBtn size="sm" color="primary" @click="saveItem()"
+                      <MDBBtn size="sm" color="primary" @click="saveItem"
                         >儲存</MDBBtn
                       >
-                      <MDBBtn size="sm" color="primary" @click="gotoItemMG()"
+                      <MDBBtn size="sm" color="primary" @click="gotoItemMG"
                         >校正件管理</MDBBtn
                       >
                     </div>
@@ -1682,13 +1786,10 @@ defineExpose({
                   <MDBTabPane tabId="itemFilter">
                     <!-- 功能列 -->
                     <div class="mt-2">
-                      <MDBBtn size="sm" color="primary" @click="doItemFilter()"
+                      <MDBBtn size="sm" color="primary" @click="doItemFilter"
                         >篩選</MDBBtn
                       >
-                      <MDBBtn
-                        size="sm"
-                        color="primary"
-                        @click="clearItemFilter()"
+                      <MDBBtn size="sm" color="primary" @click="clearItemFilter"
                         >清除</MDBBtn
                       >
                     </div>
@@ -1739,13 +1840,13 @@ defineExpose({
         </MDBContainer>
       </MDBModalBody>
       <MDBModalFooter>
-        <MDBBtn color="primary" @click="setItemBtn()">加入</MDBBtn>
+        <MDBBtn color="primary" @click="setItemBtn">加入</MDBBtn>
       </MDBModalFooter>
     </MDBModal>
     <!-- 選擇參考值量測作業 -->
     <MDBModal
       style="left: 66%"
-      @shown="shownPrjModal()"
+      @shown="shownPrjModal"
       v-model="showPrjFrom"
       staticBackdrop
       scrollable
@@ -1780,7 +1881,7 @@ defineExpose({
                   <MDBTabPane tabId="prjFilter">
                     <!-- 功能列 -->
                     <div class="mt-2">
-                      <MDBBtn size="sm" color="primary" @click="doPrjFilter()"
+                      <MDBBtn size="sm" color="primary" @click="doPrjFilter"
                         >篩選</MDBBtn
                       >
                       <MDBBtn
@@ -1789,7 +1890,7 @@ defineExpose({
                         @click="clearPrjFilter()"
                         >清除</MDBBtn
                       >
-                      <MDBBtn size="sm" color="primary" @click="gotoPrjMG()"
+                      <MDBBtn size="sm" color="primary" @click="gotoPrjMG"
                         >量測作業管理</MDBBtn
                       >
                     </div>
@@ -1834,7 +1935,7 @@ defineExpose({
         </MDBContainer>
       </MDBModalBody>
       <MDBModalFooter>
-        <MDBBtn color="primary" @click="setPrjBtn()">加入</MDBBtn>
+        <MDBBtn color="primary" @click="setPrjBtn">加入</MDBBtn>
       </MDBModalFooter>
     </MDBModal>
     <!-- record01表單 linear -->
@@ -2031,7 +2132,7 @@ defineExpose({
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3 ps-0">
-                    <MDBBtn size="sm" color="primary" @click="comSensorSize()"
+                    <MDBBtn size="sm" color="primary" @click="comSensorSize"
                       >計算尺寸</MDBBtn
                     >
                   </MDBCol>
@@ -2634,7 +2735,7 @@ defineExpose({
                       @click="showPrjFrom = true"
                       >查詢量測作業</MDBBtn
                     >
-                    <MDBBtn size="sm" color="primary" @click="getRefGcp()"
+                    <MDBBtn size="sm" color="primary" @click="getRefGcp"
                       >產生參考值檔</MDBBtn
                     >
                   </MDBCol>
@@ -3237,7 +3338,7 @@ defineExpose({
                         <MDBBtn size="sm" color="primary" @click=""
                           >選擇範本</MDBBtn
                         >
-                        <MDBBtn size="sm" color="secondary" @click=""
+                        <MDBBtn size="sm" color="secondary" @click="buildReportBtn()"
                           >產生報告</MDBBtn
                         >
                       </MDBCol>
@@ -3338,6 +3439,7 @@ defineExpose({
                           >下載</MDBBtn
                         >
                       </MDBCol>
+                      
                     </MDBRow>
                   </MDBCol>
                 </MDBRow>

@@ -142,7 +142,7 @@ refgetNowCaseF();
 	</div>
 	<div class="footer fstyle02 w-100">
 		<table  width="100%" style="border: hidden;">
-			<tr v-if="nowCaseCalTypeCode===3">
+			<tr v-if="nowCaseCalTypeCode === 'J'">
 				<td width="33%" style="text-align: left;border: hidden;">文件編號：SICL-4-68-0</td>
 				<td width="33%" style="text-align: center;border: hidden;">/1</td>
 				<td style="text-align: right;border: hidden;">版次：1.2</td>
@@ -159,7 +159,7 @@ refgetNowCaseF();
 		<table width="100%">
 			<!-- 表單名稱 -->
 			<div class="fstyle01">
-				<div v-if="nowCaseCalTypeCode===3" class="fstyle01C" style="margin-bottom: 10px;">小像幅攝影機校正作業紀錄表</div>
+				<div v-if="nowCaseCalTypeCode === 'J'" class="fstyle01C" style="margin-bottom: 10px;">小像幅攝影機校正作業紀錄表</div>
 				<div v-else class="fstyle01C" style="margin-bottom: 10px;">航空測量攝影機校正作業紀錄表</div>
 			</div>
 			<div class="fstyle02">編號：</div>
@@ -207,7 +207,7 @@ refgetNowCaseF();
 									（6）使用影像數：{{nowCaseImgNo}} 片
 								</td>
 							</tr>
-							<tr v-if="nowCaseCalTypeCode===3">
+							<tr v-if="nowCaseCalTypeCode === 'J'">
 								<td colspan="2" scope="col" class="fstyle02 nowrap">
 									（7）是否為畸變差已糾正影像(Undistortion)：{{idUndist}}
 								</td>
