@@ -175,14 +175,6 @@ const nowCaseRefPrjID = ref(""); // 量測作業索引
 const nowCaseRefPrjCode = ref(""); // 量測作業編號編號
 const nowCaseRefPrjPublishDate = ref(""); // 參考值發布日期
 const nowCaseRefEqpt = ref(); // 使用標準件
-const nowCaseREFUpload = ref(""); // 參考值檔
-const nowCaseREFUploadDL = computed(() => {
-  if (nowCaseREFUpload.value && nowCaseREFUpload.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseREFUpload.value;
-  } else {
-    return undefined;
-  }
-});
 
 const nowCaseImgNo = ref(""); // 使用影像數
 const nowCaseUndist = ref(false); // 是否已糾正影像
@@ -372,8 +364,8 @@ getNowCaseF((result) => {
     nowCaseItemModel.value = getItem ? getItem.model : "";
     nowCaseItemSN.value = getItem ? getItem.serial_number : "";
     nowCaseFocal.value = getData.focal;
-    nowCasePPAx.value = getData.ppa_x.toString();
-    nowCasePPAy.value = getData.ppa_y.toString();
+    nowCasePPAx.value = (getData.ppa_x || getData.ppa_x===0)?getData.ppa_x.toString():null;
+    nowCasePPAy.value = (getData.ppa_y || getData.ppa_y===0)?getData.ppa_y.toString():null;
     nowCasePXh.value = getData.px_h;
     nowCasePXw.value = getData.px_w;
     nowCasePxSizeX.value = getData.px_size_x;
@@ -428,12 +420,10 @@ getNowCaseF((result) => {
     nowCaseRefPrjPublishDate.value = getData.ref_project
       ? getData.ref_project.publish_date.split("T")[0]
       : "";
-    nowCaseRefEqpt.value = getData.ref_project.ref_use_eqpt;
-    nowCaseREFUpload.value = getData.ref_file;
-    nowCaseGCPUpload.value = getData.gcp_file;
-    nowCaseTotPt.value = getData.total_pt.toString();
-    nowCaseMeaPt.value = getData.meas_pt.toString();
-    nowCaseDelPt.value = getData.del_pt.toString();
+    nowCaseRefEqpt.value = (getData.ref_project)?getData.ref_project.ref_use_eqpt:null;
+    nowCaseTotPt.value = (getData.total_pt || getData.total_pt===0)?getData.total_pt.toString():null;
+    nowCaseMeaPt.value = (getData.meas_pt || getData.meas_pt===0)?getData.meas_pt.toString():null;
+    nowCaseDelPt.value = (getData.del_pt || getData.del_pt===0)?getData.del_pt.toString():null;
     nowCaseDelCommt.value = getData.del_comt;
     nowCaseDist.value = getData.distrotion;
     nowCaseFreeStd.value = getData.free_std;
@@ -458,8 +448,6 @@ getNowCaseF((result) => {
     nowCaseSTDv.value = getData.std_v;
     nowCaseKh.value = getData.k_h;
     nowCaseKv.value = getData.k_v;
-    nowCaseSTDExl.value = getData.std_file;
-    nowCaseRecTemp.value = getData.report_edit;
     nowCaseCalResult.value = getData.recal_table ? getData.recal_table : "";
     nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table : "";
     nowCaseUcModel.value = getData.uc_model;
@@ -567,7 +555,6 @@ const seletItemId = ref("");
 const selItemTypeID = ref("");
 const selItemTypeMU = ref([]);
 const selItemTypeDOM = ref();
-const selItemList = ref([]);
 
 const selItemChop = ref("");
 const selItemModel = ref("");
@@ -849,6 +836,15 @@ const tboptionPrj = {
   },
 };
 
+const getPrjCalTypeId = computed(()=>{
+  if(nowCaseCalType.value===''){
+    return null
+  }else if(nowCaseCalType.value===3){
+    return 1
+  }else{
+    return nowCaseCalType.value
+  }
+})
 // 查詢量測作業資料
 const {
   result: allPrj,
@@ -857,7 +853,7 @@ const {
   onResult: getAllPrj,
   refetch: refgetAllPrj,
 } = useQuery(PrjGQL.GETALLPRJ,() => ({
-  calTypeId: (nowCaseCalType.value===3)?1:nowCaseCalType.value,
+  calTypeId: getPrjCalTypeId.value,
   method: "量測",
 }));
 getAllPrj((result) => {
@@ -972,8 +968,6 @@ const {
         ? null
         : nowCaseStartDate.value.trim() + "T00:00:00.000Z",
     refId: parseInt(nowCaseRefPrjID.value),
-    refFile: nowCaseREFUpload.value,
-    gcpFile: nowCaseGCPUpload.value,
     totalPt: parseInt(nowCaseTotPt.value),
     measPt: parseInt(nowCaseMeaPt.value),
     delPt: parseInt(nowCaseDelPt.value),
@@ -1102,12 +1096,6 @@ uploadFileOnDone((result) => {
       nowCaseOther.value = result.data.uploadFile.filename;
       saveRecord01();
       inputDOM = document.getElementById("OtherUpload");
-      inputDOM.value = "";
-      break;
-    case "REFUpload":
-      nowCaseREFUpload.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("REFUpload");
       inputDOM.value = "";
       break;
     case "FreeUpload":
@@ -2409,7 +2397,6 @@ defineExpose({
                       download
                       size="sm"
                       color="secondary"
-                      @click=""
                       >下載
                     </MDBBtn>
                   </MDBCol>
@@ -2452,7 +2439,6 @@ defineExpose({
                       download
                       size="sm"
                       color="secondary"
-                      @click=""
                       >下載</MDBBtn
                     >
                   </MDBCol>
@@ -2791,7 +2777,7 @@ defineExpose({
                   <MDBCol col="12" class="my-3">
                     <MDBTextarea
                       size="sm"
-                      label="資料異常註記"
+                      label="文件異常註記"
                       rows="2"
                       v-model="nowCaseErrData"
                     />

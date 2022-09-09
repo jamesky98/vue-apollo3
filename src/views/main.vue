@@ -118,6 +118,12 @@ const dropdown1 = ref(false);
                     <MDBIcon far icon="handshake" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />顧客管理
                   </RouterLink>
                 </MDBCol>
+                <MDBCol class="px-2 p-3 border w-100">
+                  <RouterLink :to="{ name: 'ucedit'}">
+                    <MDBIcon icon="project-diagram" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />
+                    不確定度管理
+                  </RouterLink>
+                </MDBCol>
               </MDBRow>
             </MDBCol>
             <MDBCol col="9" class="border h-100">

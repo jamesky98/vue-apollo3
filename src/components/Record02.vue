@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, reactive, provide, inject } from "vue";
 import path from "path-browserify";
 import {
   MDBInput,
@@ -34,12 +34,16 @@ import CaseGQL from "../graphql/Cases";
 import ItemGQL from "../graphql/Item";
 import PrjGQL from "../graphql/Prj";
 import SelectPs from "./SelectPs.vue";
+import SelectUc from "./SelectUc.vue";
+import SelectRptTemp from "./SelectRptTemp.vue";
 
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
 import router from '../router'
+import { logIn, logOut, toTWDate } from "../methods/User";
+import { floatify } from "../methods/mathpor";
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
@@ -50,16 +54,20 @@ const props = defineProps({
 });
 // 案件詳細編輯資料==========start
   // 案件之詳細資料
-  const isFullPara = ref(true);
-  const switchLabel = computed(() => {
-    return (isFullPara.value)?"具完整規格":"具整合精度";
-  });
-  const nowCaseItemID = ref(""); // 校正件索引
+  // 申請
+  const updateKey = ref(0);
+  const nowCaseCalType = ref(""); //校正項目
+  const nowCaseCalTypeCode = ref(""); //校正項目
+  const nowCaseItemID = inject("nowCaseItemID"); // 校正件索引
   const nowCaseItemChop = ref(""); // 光達廠牌
   const nowCaseItemModel = ref(""); // 光達型號
   const nowCaseItemSN = ref(""); // 光達序號
 
   const nowCaseParaType = ref("");  // 規格參數類型1:各項均有 2:整合精度
+  const isFullPara = ref(true);
+  const switchLabel = computed(() => {
+    return (isFullPara.value)?"具完整規格":"具整合精度";
+  });
 
   const nowCaseLrDisPrs = ref("");  // LIDAR設備測距精度
   const nowCaseLrAngResol = ref("");  // LIDAR設備掃描角解析度
@@ -86,13 +94,171 @@ const props = defineProps({
   const nowCaseStrips = ref(""); // 航帶總數
   const nowCaseEllH = ref(""); // 飛航橢球高
   const nowCaseAGL = ref(""); // 飛航離地高
-
   const nowCasePtDensity = ref(""); // 單航帶點雲密度
   const nowCaseFOV = ref(""); // 最大掃描角FOV
 
   const nowCaseLrReport = ref(""); // LiDAR規格
+  const nowCaseLrReportDL = computed(() => {
+    if (nowCaseLrReport.value && nowCaseLrReport.value !== "") {
+      return "06_Case/" + props.caseID + "/" + nowCaseLrReport.value;
+    } else {
+      return undefined;
+    }
+  });
+
   const nowCasePosReport = ref(""); // POS規格
+  const nowCasePosReportDL = computed(() => {
+    if (nowCasePosReport.value && nowCasePosReport.value !== "") {
+      return "06_Case/" + props.caseID + "/" + nowCasePosReport.value;
+    } else {
+      return undefined;
+    }
+  });
+
   const nowCasePlanMap = ref(""); // 航線規劃圖
+  const nowCasePlanMapDL = computed(() => {
+    if (nowCasePlanMap.value && nowCasePlanMap.value !== "") {
+      return "06_Case/" + props.caseID + "/" + nowCasePlanMap.value;
+    } else {
+      return undefined;
+    }
+  });
+
+
+// 送校
+const nowCaseRecDate = ref(""); // 送校日期
+const nowCaseRecDateDOM = ref();
+
+const nowCaseFlyDate = ref(""); // 掃描日期
+const nowCaseFlyDateDOM = ref();
+
+const nowCaseStripsAc = ref(""); // 實際航帶總數
+const nowCaseEllHac = ref(""); // 實際橢球高
+const nowCaseAGLac = ref(""); // 實際離地高AGL
+
+const nowCasePtDensityac = ref(""); // 單航帶點雲密度
+const nowCaseFOVac = ref(""); // 最大掃描角FOV
+
+const nowCaseFlyMapAc = ref(""); // 實際航線圖
+const nowCaseFlyMapAcDL = computed(() => {
+  if (nowCaseFlyMapAc.value && nowCaseFlyMapAc.value !== "") {
+    return "06_Case/" + props.caseID + "/" + nowCaseFlyMapAc.value;
+  } else {
+    return undefined;
+  }
+});
+
+const nowCaseRecTable = ref(""); // 掃描紀錄表
+const nowCaseRecTableDL = computed(() => {
+  if (nowCaseRecTable.value && nowCaseRecTable.value !== "") {
+    return "06_Case/" + props.caseID + "/" + nowCaseRecTable.value;
+  } else {
+    return undefined;
+  }
+});
+
+const nowCaseLASNo = ref(""); // 點雲檔案數
+const nowCaseOther = ref(""); // 設備佐證照片
+const nowCaseOtherDL = computed(() => {
+  if (nowCaseOther.value && nowCaseOther.value !== "") {
+    return "06_Case/" + props.caseID + "/" + nowCaseOther.value;
+  } else {
+    return undefined;
+  }
+});
+
+const nowCaseErrData = ref(""); // 文件異常註記
+const nowCaseErrLAS = ref(""); // 點雲異常註記
+
+
+// 校正
+const nowCaseStartDate = ref(""); //開始校正日
+const nowCaseStartDateDOM = ref();
+
+const nowCaseRefPrjID = ref(""); // 量測作業索引
+const nowCaseRefPrjCode = ref(""); // 量測作業編號編號
+const nowCaseRefPrjPublishDate = ref(""); // 參考值發布日期
+const nowCaseRefEqpt = ref(); // 使用標準件
+
+
+// 作業紀錄
+const nowCaseSTDh = ref(""); //水平不確定度(自動計算)
+const nowCaseSTDv = ref(""); //高程不確定度(自動計算)
+
+const nowCaseKh = ref(""); //水平涵蓋因子(自動計算)
+const nowCaseKv = ref(""); //高程涵蓋因子(自動計算)
+
+const nowCaseCalResult = ref(""); //計算成果表
+const nowCaseUcResult = ref(""); //不確定度計算表
+const nowCaseUcModel = ref(""); //不確定度選用模組
+provide("nowCaseUcModel", nowCaseUcModel);
+const selectUcModel = ref("");
+provide("selectUcModel", selectUcModel);
+const nowCaseUcModelMU = ref([]);
+provide("nowCaseUcModelMU", nowCaseUcModelMU);
+
+
+// 出具報告
+const nowCaseHasLOGO = ref(true); //列印TAF LOGO
+const nowCaseReportTemp = ref(""); //校正報告範本
+provide("nowCaseReportTemp", nowCaseReportTemp);
+const selectReportTemp = ref("");
+provide("selectReportTemp", selectReportTemp);
+const nowCaseReportTempMU = ref([]);
+provide("nowCaseReportTempMU", nowCaseReportTempMU);
+
+const nowCaseReportEdit = ref(""); //校正報告編輯檔
+const nowCaseReportEditDL = computed(() => {
+  if (nowCaseReportEdit.value && nowCaseReportEdit.value !== "") {
+    return "06_Case/" + props.caseID + "/" + nowCaseReportEdit.value;
+  } else {
+    return undefined;
+  }
+});
+
+const nowCaseCompleteDate = ref(""); //報告(列印)日期
+const nowCaseCompleteDateDOM = ref();
+
+const nowCaseChkDate = ref(""); // 數據檢核日
+provide("nowCaseChkDate", nowCaseChkDate);
+
+const nowCaseChkPersonID = ref(""); //數據檢核人
+provide("nowCaseChkPersonID", nowCaseChkPersonID);
+const selectChkPersonID = ref("");
+provide("selectChkPersonID", selectChkPersonID);
+const nowCaseChkPersonMU = ref([]);
+provide("nowCaseChkPersonMU", nowCaseChkPersonMU);
+
+const nowCaseSignDate = ref(""); // 報告簽署日
+provide("nowCaseSignDate", nowCaseSignDate);
+
+const nowCaseSignPersonID = ref(""); // 報告簽署人
+provide("nowCaseSignPersonID", nowCaseSignPersonID);
+const selectSignPersonID = ref("");
+provide("selectSignPersonID", selectSignPersonID);
+const nowCaseSignPersonMU = ref([]);
+provide("nowCaseSignPersonMU", nowCaseSignPersonMU);
+
+const nowCaseReportScan = ref(""); //校正報告掃描檔
+const nowCaseReportScanDL = computed(() => {
+  if (nowCaseReportScan.value && nowCaseReportScan.value !== "") {
+    return "06_Case/" + props.caseID + "/" + nowCaseReportScan.value;
+  } else {
+    return undefined;
+  }
+});
+
+// const nowCasePDFPath = ref("pdfjs-dist/web/viewer.html"); //校正報告掃描檔路徑
+const nowCasePDFPath = computed(()=>{
+  if(!nowCaseReportScan.value || nowCaseReportScan.value===''){
+    return "pdfjs-dist/web/viewer.html"
+  }else{
+    return "pdfjs-dist/web/viewer.html?file=../../../06_Case/" +
+        props.caseID + "/" + nowCaseReportScan.value;
+  }
+});
+
+  // 案件之詳細資料^^^
 
   // 查詢Record02資料
 const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
@@ -103,12 +269,18 @@ const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetc
 );
 getNowCaseF(result => {
   if (!result.loading && result && result.data.getCasebyID.case_record_02) {
+    console.log(result.data.getCasebyID);
     // 填入資料
     let getData = result.data.getCasebyID.case_record_02;
     let getItem = result.data.getCasebyID.item_base;
     let getGNSS = result.data.getCasebyID.case_record_02.item_base_case_record_02_gnss_idToitem_base;
     let getIMU = result.data.getCasebyID.case_record_02.item_base_case_record_02_imu_idToitem_base;
+    
     // 校正件資料
+    nowCaseCalType.value = result.data.getCasebyID.cal_type;
+    nowCaseCalTypeCode.value =
+      result.data.getCasebyID.cal_type_cal_typeTocase_base.code;
+    nowCaseItemID.value = getItem ? getItem.id : "";
     nowCaseItemChop.value = (getItem) ? getItem.chop : "";
     nowCaseItemModel.value = (getItem) ? getItem.model : "";
     nowCaseItemSN.value = (getItem) ? getItem.serial_number : "";
@@ -121,12 +293,14 @@ getNowCaseF(result => {
     nowCaseLrAngResol.value = getData.ang_resolution;
     nowCaseLrBeam.value = getData.beam;
     // GNSS規格
+    nowCaseGnssID.value = getData.gnss_id;
     nowCaseGnssChop.value = (getGNSS) ? getGNSS.chop:"";
     nowCaseGnssModel.value = (getGNSS) ? getGNSS.model : "";
     nowCaseGnssSN.value = (getGNSS) ? getGNSS.serial_number : "";
     nowCaseGnssPrcH.value = getData.prec_h; // 等同整合型平面精度
     nowCaseGnssPrcV.value = getData.prec_v; // 等同整合型高程精度
     // IMU規格
+    nowCaseImuID.value = getData.imu_id;
     nowCaseImuChop.value = (getIMU) ? getIMU.chop:"";
     nowCaseImuModel.value = (getIMU) ? getIMU.model : "";
     nowCaseImuSN.value = (getIMU) ? getIMU.serial_number : "";
@@ -146,9 +320,127 @@ getNowCaseF(result => {
     nowCaseLrReport.value = getData.lidar_report;
     nowCasePosReport.value = getData.pos_report;
     nowCasePlanMap.value = getData.plan_map;
+    // 送件
+    nowCaseRecDate.value = getData.receive_date
+      ? getData.receive_date.split("T")[0]
+      : "";
+    nowCaseFlyDate.value = getData.fly_date
+      ? getData.fly_date.split("T")[0]
+      : "";
+    nowCaseStripsAc.value = getData.strips_no_ac;
+    nowCaseEllHac.value = getData.ell_height_ac;
+    nowCaseAGLac.value = getData.agl_ac;
+    nowCasePtDensityac.value = getData.cloud_density_ac;
+    nowCaseFOVac.value = getData.fov_ac;
+
+    nowCaseFlyMapAc.value = getData.fly_map;
+    nowCaseRecTable.value = getData.rec_table;
+    nowCaseLASNo.value = getData.files_no;
+    nowCaseOther.value = getData.others;
+    nowCaseErrData.value = getData.err_data;
+    nowCaseErrLAS.value = getData.err_cloud;
+
+    // 校正
+    nowCaseStartDate.value = getData.start_Date
+      ? getData.start_Date.split("T")[0]
+      : "";
+    nowCaseRefPrjID.value = getData.ref_id;
+    nowCaseRefPrjCode.value = getData.ref_project
+      ? getData.ref_project.project_code
+      : "";
+    nowCaseRefPrjPublishDate.value = getData.ref_project
+      ? getData.ref_project.publish_date.split("T")[0]
+      : "";
+    nowCaseRefEqpt.value = (getData.ref_project)?getData.ref_project.ref_use_eqpt:null;
+
+    nowCaseSTDh.value = getData.std_h;
+    nowCaseSTDv.value = getData.std_v;
+    nowCaseKh.value = getData.k_h;
+    nowCaseKv.value = getData.k_v;
+    nowCaseCalResult.value = getData.recal_table ? getData.recal_table : "";
+    nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table : "";
+    nowCaseUcModel.value = getData.uc_model;
+
+    // 出具報告
+    nowCaseHasLOGO.value = getData.has_logo;
+    nowCaseReportTemp.value = getData.report_template;
+    nowCaseReportEdit.value = getData.report_edit;
+    nowCaseCompleteDate.value = getData.complete_date
+      ? getData.complete_date.split("T")[0]
+      : "";
+    nowCaseChkDate.value = getData.chk_date
+      ? getData.chk_date.split("T")[0]
+      : "";
+    nowCaseChkPersonID.value = getData.chk_person_id;
+    selectChkPersonID.value = getData.chk_person_id;
+
+    nowCaseSignDate.value = getData.sign_date
+      ? getData.sign_date.split("T")[0]
+      : "";
+    nowCaseSignPersonID.value = getData.sign_person_id;
+    selectSignPersonID.value = getData.sign_person_id;
+
+    nowCaseReportScan.value = getData.report_scan;
+    // if (!getData.report_scan) {
+    //   nowCasePDFPath.value = "pdfjs-dist/web/viewer.html";
+    // } else {
+    //   nowCasePDFPath.value =
+    //     "pdfjs-dist/web/viewer.html?file=../../../06_Case/" +
+    //     props.caseID +
+    //     "/" +
+    //     getData.report_scan;
+    // }
+
+    getUcList(); // 取得不確定度模組清單，並填入下拉選單
+    getRptList(); // 取得報告範本清單，並填入下拉選單
   }
 });
 refgetNowCaseF();
+
+function onChangeStep() {
+  updateKey.value += 1;
+}
+
+// 查詢報告簽署人列表
+const {
+  result: allSignPson,
+  onResult: getAllSignPson,
+  refetch: refgetAllSignPson,
+} = useQuery(CaseGQL.GETOPERATOR, () => ({
+  calType: nowCaseCalType.value === "" ? null : nowCaseCalType.value,
+  roleType: "報告簽署人",
+}));
+getAllSignPson((result) => {
+  // 加入報告簽署人選單資料
+  if (!result.loading && result.data.getEmpByRole) {
+    // 資料區
+    nowCaseSignPersonMU.value = result.data.getEmpByRole.map((x) => {
+      return { text: x.name, value: parseInt(x.person_id) };
+    });
+    nowCaseSignPersonMU.value.unshift({ text: "", value: "" });
+  }
+});
+// 查詢數據檢核人列表
+const {
+  result: allChkPson,
+  onResult: getAllChkPson,
+  refetch: refgetAllChkPson,
+} = useQuery(CaseGQL.GETOPERATOR, () => ({
+  calType: nowCaseCalType.value === "" ? null : nowCaseCalType.value,
+  roleType: null,
+}));
+getAllChkPson((result) => {
+  // 加入數據檢核人選單資料
+  if (!result.loading && result.data.getEmpByRole) {
+    // 資料區
+    nowCaseChkPersonMU.value = result.data.getEmpByRole.map((x) => {
+      return { text: x.name, value: parseInt(x.person_id) };
+    });
+    nowCaseChkPersonMU.value.unshift({ text: "", value: "" });
+  }
+});
+
+
 // 案件詳細編輯資料==========end
 
 // 校正件列表=========start
@@ -165,13 +457,6 @@ const seletItemId = ref("");
 const selItemTypeID = ref("");
 const selItemTypeMU = ref([]);
 const selItemTypeDOM = ref();
-const selItemList = ref([]);
-// const selItemTypeName = computed(() => {
-//   let getData = selItemList.value.filter((x) => {
-//     return parseInt(x.id) === selItemTypeID.value;
-//   })[0];
-//   return (getData) ? getData.type : "";
-// });
 
 const selItemChop = ref("");
 const selItemModel = ref("");
@@ -406,6 +691,7 @@ function showItemFromBtn(x){
 }
 
 // 校正件列表=========end
+
 // 參考值列表=========start
 let dtPrj;
 const tablePrj = ref();
@@ -456,9 +742,21 @@ const tboptionPrj = {
   }
 };
 
+const getPrjCalTypeId = computed(()=>{
+  if(nowCaseCalType.value===''){
+    return null
+  }else if(nowCaseCalType.value===3){
+    return 1
+  }else{
+    return nowCaseCalType.value
+  }
+})
 // 查詢量測作業資料
 const { result: allPrj, loading: lodingAllPrj, variables: varAllPrj, onResult: getAllPrj, refetch: refgetAllPrj } = useQuery(
-  PrjGQL.GETALLPRJ,
+  PrjGQL.GETALLPRJ,() => ({
+  calTypeId: getPrjCalTypeId.value,
+  method: "量測",
+})
 );
 getAllPrj(result => {
   // 加入量測作業資料
@@ -505,23 +803,532 @@ function setPrjBtn() {
   nowCaseRefPrjID.value = seletPrjID.value;
   nowCaseRefPrjCode.value = seletPrjCode.value;
   nowCaseRefPrjPublishDate.value = seletPrjPublishDate.value;
+  getUcList();
   showPrjFrom.value = false;
 }
 
 // 參考值列表=========end
 
-defineExpose({
-  nowCaseItemID,
-  saveRecord02 (){
+// 儲存Record02
+const {
+  mutate: saveRecord02,
+  onDone: saveRecord02OnDone,
+  onError: saveRecord02Error,
+} = useMutation(CaseGQL.SAVECASERECORD02, () => ({
+  variables: {
+    updateRecord02Id: props.caseID,
+    type: parseInt(nowCaseParaType.value),
+    gnssId: parseInt(nowCaseGnssID.value),
+    imuId: parseInt(nowCaseImuID.value),
+    disPresision: parseFloat(nowCaseLrDisPrs.value),
+    angResolution: parseFloat(nowCaseLrAngResol.value),
+    beam: parseFloat(nowCaseLrBeam.value),
+    precH: parseFloat(nowCaseGnssPrcH.value),
+    precV: parseFloat(nowCaseGnssPrcV.value),
+    omega: parseFloat(nowCaseImuOmg.value),
+    phi: parseFloat(nowCaseImuPhi.value),
+    kappa: parseFloat(nowCaseImuKap.value),
+    precOri: parseFloat(nowCaseImuPrcO.value),
+    planYear: parseInt(nowCasePlanY.value),
+    planMonth: parseInt(nowCasePlanM.value),
+    stripsNo: parseInt(nowCaseStrips.value),
+    ellHeight: parseFloat(nowCaseEllH.value),
+    agl: parseFloat(nowCaseAGL.value),
+    cloudDensity: parseFloat(nowCasePtDensity.value),
+    fov: parseFloat(nowCaseFOV.value),
+    lidarReport: nowCaseLrReport.value,
+    posReport: nowCasePosReport.value,
+    planMap: nowCasePlanMap.value,
+    receiveDate: nowCaseRecDate.value === ""
+        ? null
+        : nowCaseRecDate.value.trim() + "T00:00:00.000Z",
+    flyDate: nowCaseFlyDate.value === ""
+        ? null
+        : nowCaseFlyDate.value.trim() + "T00:00:00.000Z",
+    stripsNoAc: parseInt(nowCaseStripsAc.value),
+    ellHeightAc: parseFloat(nowCaseEllHac.value),
+    aglAc: parseFloat(nowCaseAGLac.value),
+    cloudDensityAc: parseFloat(nowCasePtDensityac.value),
+    fovAc: parseFloat(nowCaseFOVac.value),
+    flyMap: nowCaseFlyMapAc.value,
+    recTable: nowCaseRecTable.value,
+    filesNo: parseInt(nowCaseLASNo.value),
+    others: nowCaseOther.value,
+    errData: nowCaseErrData.value,
+    errCloud: nowCaseErrLAS.value,
+    startDate: nowCaseStartDate.value === ""
+        ? null
+        : nowCaseStartDate.value.trim() + "T00:00:00.000Z",
+    refId: parseInt(nowCaseRefPrjID.value),
+    totalPt: parseInt(0),
+    gcpFile: "",
+    measFile: "",
+    resultFile: "",
+    stdH: parseFloat(nowCaseSTDh.value),
+    stdV: parseFloat(nowCaseSTDv.value),
+    kH: parseFloat(nowCaseKh.value),
+    kV: parseFloat(nowCaseKv.value),
+    stdFile: "",
+    reportEdit: nowCaseReportEdit.value,
+    chkDate: nowCaseChkDate.value === ""
+        ? null
+        : nowCaseChkDate.value.trim() + "T00:00:00.000Z",
+    chkPersonId: selectChkPersonID.value === "" ? null : parseInt(selectChkPersonID.value),
+    completeDate: nowCaseCompleteDate.value === ""
+        ? null
+        : nowCaseCompleteDate.value.trim() + "T00:00:00.000Z",
+    signDate: nowCaseSignDate.value === ""
+        ? null
+        : nowCaseSignDate.value.trim() + "T00:00:00.000Z",
+    signPersonId:
+      selectSignPersonID.value === ""
+        ? null
+        : parseInt(selectSignPersonID.value),
+    reportScan: nowCaseReportScan.value,
+    hasLogo: nowCaseHasLOGO.value,
+    reportTemplate: selectReportTemp.value,
+    recordTamplate: "",
+    recalTable: nowCaseCalResult.value,
+    uccalTable: nowCaseUcResult.value,
+    ucModel: nowCaseUcModel.value,
+  },
+}));
+saveRecord02Error((error) => {
+  console.log(error);
+});
+saveRecord02OnDone(() => {
+  // console.log(nowCaseCalResult.value)
+  // console.log('nowCaseChkPersonID: ',nowCaseChkPersonID.value);
+  // console.log('selectChkPersonID: ',selectChkPersonID.value);
+  // infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
+  // alert1.value = true;
+});
 
+// 檔案上傳==========Start
+const uploadType = ref("");
+function uploadBtn(inputId) {
+  // 由按鈕啟動檔案選擇器
+  uploadType.value = inputId;
+  const inputDOM = document.getElementById(inputId);
+  inputDOM.click();
+}
+
+// 上傳檔案
+const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
+  CaseGQL.UPLOADFILE
+);
+uploadFileOnDone((result) => {
+  // console.log("uploadFile")
+  let inputDOM;
+  // 儲存(更新)上傳紀錄資料
+  if (!uploadType.value) {
+    return;
   }
+  switch (uploadType.value) {
+    case "itemLrReportUpload":
+      nowCaseLrReport.value = result.data.uploadFile.filename;
+      saveRecord02();
+      inputDOM = document.getElementById("itemLrReportUpload");
+      inputDOM.value = "";
+      break;
+    case "itemPOSReportUpload":
+      nowCasePosReport.value = result.data.uploadFile.filename;
+      saveRecord02();
+      inputDOM = document.getElementById("itemPOSReportUpload");
+      inputDOM.value = "";
+      break;
+    case "itemLrPlanUpload":
+      nowCasePlanMap.value = result.data.uploadFile.filename;
+      saveRecord02();
+      inputDOM = document.getElementById("itemLrPlanUpload");
+      inputDOM.value = "";
+      break;
+    case "FlyMapAcUpload":
+      nowCaseFlyMapAc.value = result.data.uploadFile.filename;
+      saveRecord02();
+      inputDOM = document.getElementById("FlyMapAcUpload");
+      inputDOM.value = "";
+      break;
+    case "RecTableUpload":
+      nowCaseRecTable.value = result.data.uploadFile.filename;
+      saveRecord02();
+      inputDOM = document.getElementById("RecTableUpload");
+      inputDOM.value = "";
+      break;
+    case "OtherUpload":
+      nowCaseOther.value = result.data.uploadFile.filename;
+      saveRecord02();
+      inputDOM = document.getElementById("OtherUpload");
+      inputDOM.value = "";
+      break;
+    // case "REFUpload":
+    //   nowCaseREFUpload.value = result.data.uploadFile.filename;
+    //   saveRecord01();
+    //   inputDOM = document.getElementById("REFUpload");
+    //   inputDOM.value = "";
+    //   break;
+    // case "FreeUpload":
+    //   nowCaseFreeUpload.value = result.data.uploadFile.filename;
+    //   saveRecord01();
+    //   inputDOM = document.getElementById("FreeUpload");
+    //   inputDOM.value = "";
+    //   break;
+    // case "FixUpload":
+    //   nowCaseFixUpload.value = result.data.uploadFile.filename;
+    //   saveRecord01();
+    //   inputDOM = document.getElementById("FixUpload");
+    //   inputDOM.value = "";
+    //   break;
+    // case "GCPUpload":
+    //   nowCaseGCPUpload.value = result.data.uploadFile.filename;
+    //   saveRecord01();
+    //   inputDOM = document.getElementById("GCPUpload");
+    //   inputDOM.value = "";
+    //   break;
+    // case "ATreportUpload":
+    //   nowCaseATreport.value = result.data.uploadFile.filename;
+    //   break;
+    // case "NetGraphUpload":
+    //   nowCaseNetGraph.value = result.data.uploadFile.filename;
+    //   saveRecord01();
+    //   inputDOM = document.getElementById("NetGraphUpload");
+    //   inputDOM.value = "";
+    //   break;
+    // case "GCPGraphUpload":
+    //   nowCaseGCPGraph.value = result.data.uploadFile.filename;
+    //   saveRecord01();
+    //   inputDOM = document.getElementById("GCPGraphUpload");
+    //   inputDOM.value = "";
+    //   break;
+    // case "STDExlUpload":
+    //   nowCaseSTDExl.value = result.data.uploadFile.filename;
+    //   saveRecord01();
+    //   inputDOM = document.getElementById("STDExlUpload");
+    //   inputDOM.value = "";
+    //   break;
+    // case "ReportEditUpload":
+    //   nowCaseReportEdit.value = result.data.uploadFile.filename;
+    //   saveRecord01();
+    //   inputDOM = document.getElementById("ReportEditUpload");
+    //   inputDOM.value = "";
+    //   break;
+    // case "ReportScanUpload":
+    //   nowCaseReportScan.value = result.data.uploadFile.filename;
+    //   saveRecord01();
+    //   inputDOM = document.getElementById("ReportScanUpload");
+    //   inputDOM.value = "";
+    //   break;
+  }
+});
+
+// 檔案選擇器選擇事件
+const upFile = ref();
+async function uploadChenge(e) {
+  upFile.value = e.target.files[0];
+  let subpath = "06_Case/" + props.caseID;
+  let newName = "";
+  if (!uploadType.value) {
+    return;
+  }
+  switch (uploadType.value) {
+    case "itemLrReportUpload":
+      newName = "01_LrReport" + path.extname(e.target.value);
+      break;
+    case "itemPOSReportUpload":
+      newName = "02_POSReport" + path.extname(e.target.value);
+      break;
+    case "itemLrPlanUpload":
+      newName = "03_LrPlan" + path.extname(e.target.value);
+      break;
+    case "FlyMapAcUpload":
+      newName = "04_FlyMapAc" + path.extname(e.target.value);
+      break;
+    case "RecTableUpload":
+      newName = "05_RecForm" + path.extname(e.target.value);
+      break;
+    case "OtherUpload":
+      newName = "06_Other" + path.extname(e.target.value);
+      break;
+    // case "REFUpload":
+    //   newName = "07_Ref" + path.extname(e.target.value);
+    //   break;
+    // case "FreeUpload":
+    //   newName = "09_FreeWeb" + path.extname(e.target.value);
+    //   break;
+    // case "FixUpload":
+    //   newName = "10_FixWeb" + path.extname(e.target.value);
+    //   break;
+    // case "GCPUpload":
+    //   newName = "08_GCP" + path.extname(e.target.value);
+    //   break;
+    // case "ATreportUpload":
+    //   await readPrintOut(upFile.value);
+    //   newName = "11_Printout" + path.extname(e.target.value);
+    //   break;
+    // case "NetGraphUpload":
+    //   newName = "14_NetworkDiag" + path.extname(e.target.value);
+    //   break;
+    // case "GCPGraphUpload":
+    //   newName = "15_PtDistribution" + path.extname(e.target.value);
+    //   break;
+    // case "STDExlUpload":
+    //   newName = "13_UncertaintyCal" + path.extname(e.target.value);
+    //   break;
+    // case "ReportEditUpload":
+    //   newName = props.caseID + path.extname(e.target.value)
+    //   break;
+    // case "ReportScanUpload":
+    //   newName = "17_ReportScan" + path.extname(e.target.value);
+    //   break;
+  }
+  await uploadFile({
+    file: upFile.value,
+    subpath: subpath,
+    newfilename: newName,
+  });
+}
+// 檔案上傳==========End
+
+
+// 呼叫計算不確定度=======Start
+
+// 取得不確定度列表
+const {
+  mutate: getUcList,
+  onDone: getUcListOnDone,
+  onError: getUcListError,
+} = useMutation(CaseGQL.GETUCLIST, () => ({
+  variables: {
+    caltypecode: nowCaseCalTypeCode.value,
+    refprjcode: nowCaseRefPrjCode.value,
+  },
+}));
+getUcListOnDone((result) => {
+  // 填入uclist選單
+  if (!result.loading && result.data.getUclist) {
+    nowCaseUcModelMU.value = result.data.getUclist.map((x) => {
+      return { text: x, value: x };
+    });
+  }
+});
+
+// 計算不確定度(return 不確定度H V、有效位置及計算表)
+const {
+  mutate: computeUc,
+  onDone: computeUcOnDone,
+  onError: computeUcError,
+} = useMutation(CaseGQL.COMPUTEUC, () => ({
+  variables: {
+    parm: pramJsonStr.value,
+    ucModel: selectUcModel.value,
+  },
+}));
+computeUcOnDone((result) => {
+  // console.log(result.data.computeUc);
+  // console.log(nowCaseCalResult.value);
+  if (!result.loading && result.data.computeUc) {
+    nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
+    nowCaseSTDh.value = result.data.computeUc.ucH;
+    nowCaseSTDv.value = result.data.computeUc.ucV;
+    nowCaseKh.value = result.data.computeUc.tinvH.toFixed(2);
+    nowCaseKv.value = result.data.computeUc.tinvV.toFixed(2);
+    // const inputDOM = document.getElementById("ATreportUpload");
+    // inputDOM.value = "";
+    // saveRecord02();
+  }
+});
+// 呼叫計算不確定度=======End
+
+// 產生報告==========Start
+const pramRptStr = ref("");
+// 按鈕觸發動作
+function buildReportBtn(){
+  // 查詢報告資料=>載入時已查詢
+  // 填入參數
+  let parms={};
+
+  let CompleteDateAy = nowCaseCompleteDate.value.split("-");
+  parms.nowCaseCompleteDateY = (parseInt(CompleteDateAy[0]) - 1911).toString();
+  parms.nowCaseCompleteDateM = CompleteDateAy[1];
+  parms.nowCaseCompleteDateD = CompleteDateAy[2];
+  parms.nowCaseID = props.caseID;
+  parms.nowCaseItemChop = nowCaseItemChop.value;
+  parms.nowCaseItemModel = nowCaseItemModel.value;
+  parms.nowCaseItemSN = nowCaseItemSN.value;
+  parms.nowCaseTitle = nowCaseTitle.value;
+  parms.nowCaseAddress = nowCaseAddress.value;
+
+  let nowCaseRecDateAy = nowCaseRecDate.value.split("-");
+  parms.nowCaseRecDateY = (parseInt(nowCaseRecDateAy[0]) - 1911).toString();
+  parms.nowCaseRecDateM = nowCaseRecDateAy[1];
+  parms.nowCaseRecDateD = nowCaseRecDateAy[2];
+
+  let nowCaseFlyDateAy = nowCaseFlyDate.value.split("-");
+  parms.nowCaseFlyDateY = (parseInt(nowCaseFlyDateAy[0]) - 1911).toString();
+  parms.nowCaseFlyDateM = nowCaseFlyDateAy[1];
+  parms.nowCaseFlyDateD = nowCaseFlyDateAy[2];
+
+  parms.nowCaseRefPrjCode = nowCaseRefPrjCode.value;
+  let prjPubDateAy = nowCaseRefPrjPublishDate.value.split("-");
+  parms.nowCaseRefPrjPublishDateY = (parseInt(prjPubDateAy[0]) - 1911).toString();
+  parms.nowCaseRefPrjPublishDateM = prjPubDateAy[1];
+  parms.nowCaseRefPrjPublishDateD = prjPubDateAy[2];
+
+  parms.nowCaseSizeX = nowCaseSizeX.value;
+  parms.nowCaseSizeY = nowCaseSizeY.value;
+
+  let calTable = JSON.parse(nowCaseCalResult.value);
+  // console.log("calTable",calTable);
+  let ucTable = JSON.parse(nowCaseUcResult.value);
+  // console.log("ucTable",ucTable);
+
+  let defVerH = [];
+  let defVerV = [];
+  let fixDigPosH = parseInt(ucTable.digPosH);
+  let fixDigPosV = parseInt(ucTable.digPosV);
+
+  for(let key in calTable.data){
+    if (calTable.data[key].type==='T'){
+      defVerH.push({
+        ptName: key,
+        dx: fixDataDigPos(calTable.data[key].dx * 1000,fixDigPosH),
+        dy: fixDataDigPos(calTable.data[key].dy * 1000,fixDigPosH),
+        dxy: fixDataDigPos(((calTable.data[key].dx ** 2+calTable.data[key].dy ** 2)**0.5) * 1000,fixDigPosH),
+        fixUcH: ucTable.fixUcH
+      });
+
+      defVerV.push({
+        ptName: key,
+        dz: fixDataDigPos(calTable.data[key].dz * 1000,fixDigPosV),
+        fixUcV: ucTable.fixUcV
+      });
+    }
+  }
+  
+  defVerH.sort((a,b)=>{(a.pt_name > b.pt_name)?1:-1});
+  defVerV.sort((a,b)=>{(a.pt_name > b.pt_name)?1:-1});
+  
+  for(let i=0; i < defVerH.length; i++){
+    defVerH[i].index = i + 1;
+    defVerV[i].index = i + 1;
+  }
+
+  parms.defVerH = defVerH;
+  parms.defVerV = defVerV;
+
+  parms.nowCaseRmseH = fixDataDigPos(parseFloat(calTable.rmseH),parseInt(ucTable.digPosH));
+  parms.nowCaseRmseV = fixDataDigPos(parseFloat(calTable.rmseV),parseInt(ucTable.digPosH));
+
+
+  parms.nowCaseStr = parseInt(nowCaseStrNSac.value) + parseInt(nowCaseStrEWac.value)
+  parms.nowCaseStrNSac = nowCaseStrNSac.value;
+  parms.nowCaseStrEWac = nowCaseStrEWac.value;
+
+  parms.nowCaseEndLapAc = nowCaseEndLapAc.value
+  parms.nowCaseSideLapAc = nowCaseSideLapAc.value
+
+  parms.nowCaseEllHac = nowCaseEllHac.value;
+  parms.nowCaseAGLac = nowCaseAGLac.value;
+  parms.nowCaseGSDac = nowCaseGSDac.value;
+
+  parms.nowCaseFocal = nowCaseFocal.value;
+  parms.nowCasePPAx = nowCasePPAx.value;
+  parms.nowCasePPAy = nowCasePPAy.value;
+  parms.nowCaseDist = nowCaseDist.value;
+
+  parms.nowCasePxSizeX = nowCasePxSizeX.value;
+  parms.nowCasePxSizeY = nowCasePxSizeY.value;
+
+  parms.nowCaseImgNo = nowCaseImgNo.value;
+  parms.nowCaseMeaPt = nowCaseMeaPt.value;
+  parms.nowCaseCrtNo = nowCaseCrtNo.value;
+  parms.nowCaseChkNo = nowCaseChkNo.value;
+  parms.nowCaseKh = nowCaseKh.value;
+  parms.nowCaseKv = nowCaseKv.value;
+  parms.confLevel = (ucTable.confLevel*100).toFixed(0);
+  
+  let eqData = [];
+  let eqptCount = 0;
+  nowCaseRefEqpt.value.forEach((x,i)=>{
+    let chkDateArray = (x.ref_eqpt_check.check_date.split("T")[0]).split("-");
+    eqptCount = eqptCount + 1;
+    eqData.push({
+      index: eqptCount,
+      itemChop: x.ref_eqpt_check.ref_eqpt.chop,
+      itemModel: x.ref_eqpt_check.ref_eqpt.model,
+      itemSN: x.ref_eqpt_check.ref_eqpt.serial_number,
+      rptID: x.ref_eqpt_check.report_id,
+      chkDate: (chkDateArray[0]-1911) + "/" + chkDateArray[1] + "/" + chkDateArray[2],
+      ferq: x.ref_eqpt_check.ref_eqpt.cal_cycle,
+      org: x.ref_eqpt_check.cal_org + "(" + x.ref_eqpt_check.cal_org_id + ")"
+    })
+  });
+
+  parms.eqData = eqData;
+
+  pramRptStr.value = JSON.stringify(parms);
+  buildRpt();
+}
+
+// 對資料作有效位數修整
+function fixDataDigPos(data, pos) {
+  // 四捨五入
+  return Math.round(data / 10 ** pos)*10**pos;
+  ;
+}
+
+// 產生報告動作發送
+const {
+  mutate: buildRpt,
+  onDone: buildRptOnDone,
+  onError: buildRptError,
+} = useMutation(CaseGQL.BUILDREPORT01, () => ({
+  variables: {
+    parm: pramRptStr.value,
+    reportSample: selectReportTemp.value,
+  },
+}));
+buildRptOnDone(result=>{
+  // 報告產生完成
+  // 回填編輯檔欄位
+  nowCaseReportEdit.value = result.data.buildReport01;
+  // 儲存Record02
+  saveRecord02();
+  // 觸發下載編輯檔
+  let btnDOM = document.getElementById("ReportEditDownload");
+  btnDOM.click();
+});
+
+// 取得報告範本列表
+const {
+  mutate: getRptList,
+  onDone: getRptListOnDone,
+  onError: getRptListError,
+} = useMutation(CaseGQL.GETRPTLIST, () => ({
+  variables: {
+    caltypecode: nowCaseCalTypeCode.value,
+  },
+}));
+getRptListOnDone((result) => {
+  // 填入rptlist選單
+  if (!result.loading && result.data.getRptlist) {
+    nowCaseReportTempMU.value = result.data.getRptlist.map((x) => {
+      return { text: x, value: x };
+    });
+  }
+});
+
+// 產生報告==========End
+
+defineExpose({
+  saveRecord02,
 });
 
 </script>
 <template>
   <div class="h-100 overflow-auto">
     <!-- 選擇校正件 -->
-    <MDBModal style="left: 66%;" @shown="shownItemModal()" v-model="showItemFrom" staticBackdrop scrollable>
+    <MDBModal style="left: 66%;" @shown="shownItemModal" v-model="showItemFrom" staticBackdrop scrollable>
       <MDBModalHeader>
         <MDBModalTitle>請選擇校正件</MDBModalTitle>
       </MDBModalHeader>
@@ -545,8 +1352,8 @@ defineExpose({
                   <MDBTabPane class="h-100" tabId="itemEditor">
                     <!-- 功能列 -->
                     <div class="mt-2">
-                      <MDBBtn size="sm" color="primary" @click="saveItem()">儲存</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="gotoItemMG()">校正件管理</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="saveItem">儲存</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="gotoItemMG">校正件管理</MDBBtn>
                     </div>
                     <MDBRow>
                       <MDBSelect filter size="sm" class="my-3  col-6" label="儀器類型" v-model:options="selItemTypeMU"
@@ -570,8 +1377,8 @@ defineExpose({
                   <MDBTabPane tabId="itemFilter">
                     <!-- 功能列 -->
                     <div class="mt-2">
-                      <MDBBtn size="sm" color="primary" @click="doItemFilter()">篩選</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="clearItemFilter()">清除</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="doItemFilter">篩選</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="clearItemFilter">清除</MDBBtn>
                     </div>
                     <!-- 條件欄位 -->
                     <MDBRow>
@@ -594,11 +1401,11 @@ defineExpose({
         </MDBContainer>
       </MDBModalBody>
       <MDBModalFooter>
-        <MDBBtn color="primary" @click="setItemBtn()">加入</MDBBtn>
+        <MDBBtn color="primary" @click="setItemBtn">加入</MDBBtn>
       </MDBModalFooter>
     </MDBModal>
     <!-- 選擇參考值量測作業 -->
-    <MDBModal style="left: 66%;" @shown="shownPrjModal()" v-model="showPrjFrom" staticBackdrop scrollable>
+    <MDBModal style="left: 66%;" @shown="shownPrjModal" v-model="showPrjFrom" staticBackdrop scrollable>
       <MDBModalHeader>
         <MDBModalTitle>請選擇參考值量測作業</MDBModalTitle>
       </MDBModalHeader>
@@ -621,9 +1428,9 @@ defineExpose({
                   <MDBTabPane tabId="prjFilter">
                     <!-- 功能列 -->
                     <div class="mt-2">
-                      <MDBBtn size="sm" color="primary" @click="doPrjFilter()">篩選</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="clearPrjFilter()">清除</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="gotoPrjMG()">量測作業管理</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="doPrjFilter">篩選</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="clearPrjFilter">清除</MDBBtn>
+                      <MDBBtn size="sm" color="primary" @click="gotoPrjMG">量測作業管理</MDBBtn>
                     </div>
                     <!-- 條件欄位 -->
                     <MDBRow>
@@ -651,17 +1458,17 @@ defineExpose({
         </MDBContainer>
       </MDBModalBody>
       <MDBModalFooter>
-        <MDBBtn color="primary" @click="setPrjBtn()">加入</MDBBtn>
+        <MDBBtn color="primary" @click="setPrjBtn">加入</MDBBtn>
       </MDBModalFooter>
     </MDBModal>
     <!-- record02表單 -->
-    <MDBStepper>
+    <MDBStepper linear @onChangeStep="onChangeStep">
       <MDBStepperForm>
         <MDBStepperStep active>
           <MDBStepperHead icon="1">
             申請
           </MDBStepperHead>
-          <MDBStepperContent>
+          <MDBStepperContent :key="updateKey">
             <MDBRow>
               <MDBCol col="12" class="mt-3 rounded-top-5 bg-info text-white">
                 校正件
@@ -690,7 +1497,7 @@ defineExpose({
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
-              <MDBCol col="12">
+              <MDBCol col="12" class="my-2">
                 <MDBSwitch :label="switchLabel" v-model="isFullPara" />
               </MDBCol>
               <MDBCol v-show="isFullPara">
@@ -700,7 +1507,7 @@ defineExpose({
                   </MDBCol>
                   <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                     <MDBRow>
-                      <MDBCol col="4" class="mb-3">
+                      <MDBCol col="12" class="mb-3">
                         LiDAR規格
                       </MDBCol>
                       <div></div>
@@ -713,10 +1520,11 @@ defineExpose({
                       <MDBCol col="4" class="mb-3">
                         <MDBInput size="sm" type="text" label='掃描發散角Beam(")' v-model="nowCaseLrBeam" />
                       </MDBCol>
-                      <MDBCol col="4" class="mb-3">
+                      <div></div>
+                      <MDBCol col="12" class="mb-3">
                         <MDBRow>
-                          <MDBCol col="6">GNSS規格</MDBCol>
-                          <MDBCol col="6">
+                          <MDBCol col="4">GNSS規格</MDBCol>
+                          <MDBCol col="8">
                             <MDBBtn size="sm" color="primary" @click="showItemFromBtn(3)">查詢GNSS</MDBBtn>
                           </MDBCol>
                         </MDBRow>
@@ -738,10 +1546,10 @@ defineExpose({
                         <MDBInput size="sm" type="text" label="高程定位精度(mm)" v-model="nowCaseGnssPrcV" />
                       </MDBCol>
                       <div></div>
-                      <MDBCol col="4" class="mb-3">
+                      <MDBCol col="12" class="mb-3">
                         <MDBRow>
-                          <MDBCol col="6">IMU規格</MDBCol>
-                          <MDBCol col="6">
+                          <MDBCol col="4">IMU規格</MDBCol>
+                          <MDBCol col="8">
                             <MDBBtn size="sm" color="primary" @click="showItemFromBtn(4)">查詢GNSS</MDBBtn>
                           </MDBCol>
                         </MDBRow>
@@ -779,8 +1587,12 @@ defineExpose({
                   </MDBCol>
                   <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                     <MDBRow>
-
-
+                      <MDBCol col="4" class="my-3">
+                        <MDBInput size="sm" type="text" label="平面定位精度(mm)" v-model="nowCaseGnssPrcH" />
+                      </MDBCol>
+                      <MDBCol col="4" class="my-3">
+                        <MDBInput size="sm" type="text" label="高程定位精度(mm)" v-model="nowCaseGnssPrcV" />
+                      </MDBCol>
                     </MDBRow>
                   </MDBCol>
                 </MDBRow>
@@ -796,11 +1608,9 @@ defineExpose({
                   <MDBCol col="4" class="my-3">
                     <MDBInput size="sm" type="text" label="預定拍攝月" v-model="nowCasePlanM" />
                   </MDBCol>
-
                   <MDBCol col="4" class="my-3">
                     <MDBInput size="sm" type="text" label="航帶總數" v-model="nowCaseStrips" />
                   </MDBCol>
-
                   <div></div>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput size="sm" type="text" label="飛航橢球高" v-model="nowCaseEllH" />
@@ -826,41 +1636,47 @@ defineExpose({
                 <MDBRow>
                   <!-- 光達規格 -->
                   <MDBCol col="9" class="my-3">
-                    <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="光達規格"
+                    <MDBInput tooltipFeedback
+                      required
+                      readonly style="padding-right: 2.2em;" size="sm" type="text" label="光達規格"
                       v-model="nowCaseLrReport">
                       <MDBBtnClose @click.prevent="nowCaseLrReport =''" class="btn-upload-close" />
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 my-3">
-                    <input type="file" accept=".pdf" id="itemLrReportUpload" @change="" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
-                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                    <input type="file" accept=".pdf" id="itemLrReportUpload" @change="uploadChenge($event)" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="uploadBtn('itemLrReportUpload')">上傳</MDBBtn>
+                    <MDBBtn tag="a" size="sm" :href="nowCaseLrReportDL" download color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <div></div>
                   <!-- POS規格 -->
                   <MDBCol col="9" class="mb-3">
-                    <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="POS規格"
+                    <MDBInput tooltipFeedback
+                      required
+                      readonly style="padding-right: 2.2em;" size="sm" type="text" label="POS規格"
                       v-model="nowCasePosReport">
                       <MDBBtnClose @click.prevent="nowCasePosReport =''" class="btn-upload-close" />
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".pdf" id="itemPOSReportUpload" @change="" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
-                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                    <input type="file" accept=".pdf" id="itemPOSReportUpload" @change="uploadChenge($event)" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="uploadBtn('itemPOSReportUpload')">上傳</MDBBtn>
+                    <MDBBtn tag="a" size="sm" :href="nowCasePosReportDL" download color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <div></div>
                   <!-- 規劃圖 -->
                   <MDBCol col="9" class="mb-3">
-                    <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="航線規劃圖"
+                    <MDBInput tooltipFeedback
+                      required
+                      readonly style="padding-right: 2.2em;" size="sm" type="text" label="航線規劃圖"
                       v-model="nowCasePlanMap">
                       <MDBBtnClose @click.prevent="nowCasePlanMap =''" class="btn-upload-close" />
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".pdf" id="itemLrPlanUpload" @change="" style="display: none;" />
-                    <MDBBtn size="sm" color="primary" @click="">上傳</MDBBtn>
-                    <MDBBtn size="sm" color="secondary" @click="">下載</MDBBtn>
+                    <input type="file" accept=".dwg" id="itemLrPlanUpload" @change="uploadChenge($event)" style="display: none;" />
+                    <MDBBtn size="sm" color="primary" @click="uploadBtn('itemLrPlanUpload')">上傳</MDBBtn>
+                    <MDBBtn tag="a" size="sm" :href="nowCasePlanMapDL" download color="secondary">下載</MDBBtn>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -871,24 +1687,568 @@ defineExpose({
           <MDBStepperHead icon="2">
             送校
           </MDBStepperHead>
-          <MDBStepperContent>
-            送校內容02
+          <MDBStepperContent :key="updateKey">
+            <MDBRow>
+              <MDBCol col="4" class="my-3">
+                <MDBDatepicker
+                  required
+                  size="sm"
+                  v-model="nowCaseRecDate"
+                  format="YYYY-MM-DD"
+                  label="送件日"
+                  ref="nowCaseRecDateDOM"
+                />
+              </MDBCol>
+              <div></div>
+              <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                掃描資料
+              </MDBCol>
+              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                <MDBRow>
+                  <MDBCol col="4" class="my-3">
+                    <MDBDatepicker
+                      required
+                      size="sm"
+                      v-model="nowCaseFlyDate"
+                      format="YYYY-MM-DD "
+                      label="掃描日"
+                      ref="nowCaseFlyDateDOM"
+                    />
+                  </MDBCol>
+                  <MDBCol col="4" class="my-3">
+                    <MDBInput
+                      required
+                      size="sm"
+                      type="text"
+                      label="航帶總數(條)"
+                      v-model="nowCaseStripsAc"
+                    />
+                  </MDBCol>
+                  <div></div>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput
+                      required
+                      size="sm"
+                      type="text"
+                      label="實際橢球高(m)"
+                      v-model="nowCaseEllHac"
+                    />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput
+                      required
+                      size="sm"
+                      type="text"
+                      label="實際離地高AGL(m)"
+                      v-model="nowCaseAGLac"
+                    />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <div style="color: red" class="border border-danger">
+                      ※AGL = 橢球高 - 195 m
+                    </div>
+                  </MDBCol>
+                  <div></div>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput
+                      required
+                      size="sm"
+                      type="text"
+                      label="單航帶點雲密度(pt/m2)"
+                      v-model="nowCasePtDensityac"
+                    />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput
+                      required
+                      size="sm"
+                      type="text"
+                      label="最大掃描角FOV(°)"
+                      v-model="nowCaseFOVac"
+                    />
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                檢附資料
+              </MDBCol>
+              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                <MDBRow>
+                  <!-- 航線圖 -->
+                  <MDBCol col="9" class="my-3">
+                    <MDBInput
+                      tooltipFeedback
+                      required
+                      readonly
+                      style="padding-right: 2.2em"
+                      size="sm"
+                      type="text"
+                      label="實際航線圖"
+                      v-model="nowCaseFlyMapAc"
+                    >
+                      <MDBBtnClose
+                        @click.prevent="nowCaseFlyMapAc = ''"
+                        class="btn-upload-close"
+                      />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 my-3">
+                    <input
+                      type="file"
+                      accept=".dwg"
+                      id="FlyMapAcUpload"
+                      @change="uploadChenge($event)"
+                      style="display: none"
+                    />
+                    <MDBBtn
+                      size="sm"
+                      color="primary"
+                      @click="uploadBtn('FlyMapAcUpload')"
+                      >上傳</MDBBtn
+                    >
+                    <MDBBtn
+                      tag="a"
+                      :href="nowCaseFlyMapAcDL"
+                      download
+                      size="sm"
+                      color="secondary"
+                      >下載</MDBBtn
+                    >
+                  </MDBCol>
+                  <!-- 掃描紀錄表 -->
+                  <MDBCol col="9" class="mb-3">
+                    <MDBInput
+                      tooltipFeedback
+                      required
+                      readonly
+                      style="padding-right: 2.2em"
+                      size="sm"
+                      type="text"
+                      label="航拍紀錄表"
+                      v-model="nowCaseRecTable"
+                    >
+                      <MDBBtnClose
+                        @click.prevent="nowCaseRecTable = ''"
+                        class="btn-upload-close"
+                      />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 mb-3">
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      id="RecTableUpload"
+                      @change="uploadChenge($event)"
+                      style="display: none"
+                    />
+                    <MDBBtn
+                      size="sm"
+                      color="primary"
+                      @click="uploadBtn('RecTableUpload')"
+                      >上傳</MDBBtn
+                    >
+                    <MDBBtn
+                      tag="a"
+                      :href="nowCaseRecTableDL"
+                      download
+                      size="sm"
+                      color="secondary"
+                      >下載</MDBBtn
+                    >
+                  </MDBCol>
+                  <div></div>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput
+                      size="sm"
+                      type="text"
+                      label="點雲檔案數"
+                      v-model="nowCaseLASNo"
+                    />
+                  </MDBCol>
+                  <div></div>
+                  <!-- 設備佐證照片 -->
+                  <MDBCol col="9" class="mb-3">
+                    <MDBInput
+                      tooltipFeedback
+                      required
+                      readonly
+                      style="padding-right: 2.2em"
+                      size="sm"
+                      type="text"
+                      label="設備佐證照片"
+                      v-model="nowCaseOther"
+                    >
+                      <MDBBtnClose
+                        @click.prevent="nowCaseOther = ''"
+                        class="btn-upload-close"
+                      />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 mb-3">
+                    <input
+                      type="file"
+                      id="OtherUpload"
+                      @change="uploadChenge($event)"
+                      style="display: none"
+                    />
+                    <MDBBtn
+                      size="sm"
+                      color="primary"
+                      @click="uploadBtn('OtherUpload')"
+                      >上傳</MDBBtn
+                    >
+                    <MDBBtn
+                      tag="a"
+                      :href="nowCaseOtherDL"
+                      download
+                      size="sm"
+                      color="secondary"
+                      >下載</MDBBtn
+                    >
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                異常註記
+              </MDBCol>
+              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                <MDBRow>
+                  <MDBCol col="12" class="my-3">
+                    <MDBTextarea
+                      size="sm"
+                      label="文件異常註記"
+                      rows="2"
+                      v-model="nowCaseErrData"
+                    />
+                  </MDBCol>
+                  <MDBCol col="12" class="mb-3">
+                    <MDBTextarea
+                      size="sm"
+                      label="點雲異常註記"
+                      rows="2"
+                      v-model="nowCaseErrLAS"
+                    />
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+            </MDBRow>
           </MDBStepperContent>
         </MDBStepperStep>
         <MDBStepperStep>
           <MDBStepperHead icon="3">
             校正
           </MDBStepperHead>
-          <MDBStepperContent>
-            校正內容02
+          <MDBStepperContent :key="updateKey">
+            <MDBRow>
+              <MDBCol col="4" class="my-3">
+                <MDBDatepicker
+                  required
+                  size="sm"
+                  v-model="nowCaseStartDate"
+                  format="YYYY-MM-DD"
+                  label="校正開始日"
+                  ref="nowCaseStartDateDOM"
+                />
+              </MDBCol>
+              <div></div>
+              <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                參考值
+              </MDBCol>
+              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                <MDBRow>
+                  <MDBCol col="12" class="my-3">
+                    <MDBBtn
+                      size="sm"
+                      color="primary"
+                      @click="showPrjFrom = true"
+                      >查詢量測作業</MDBBtn
+                    >
+                  </MDBCol>
+                  <div></div>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput
+                      tooltipFeedback
+                      required
+                      readonly
+                      size="sm"
+                      type="text"
+                      label="量測作業編號"
+                      v-model="nowCaseRefPrjCode"
+                    />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput
+                      tooltipFeedback
+                      required
+                      readonly
+                      size="sm"
+                      type="text"
+                      label="發布日期"
+                      v-model="nowCaseRefPrjPublishDate"
+                    />
+                  </MDBCol>
+                  <SelectUc/>
+                </MDBRow>
+              </MDBCol>
+              <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                量測紀錄
+              </MDBCol>
+              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                <MDBRow>
+                  XXX
+                </MDBRow>
+              </MDBCol>
+              <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                作業紀錄
+              </MDBCol>
+              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                <MDBRow>
+                  <MDBCol col="12" class="my-3">
+                    <MDBBtn
+                      :disabled="nowCaseCalResult === ''"
+                      size="sm"
+                      color="primary"
+                    >
+                      <RouterLink
+                        target="_blank"
+                        :to="{
+                          path: '/sicltab05',
+                          query: { caseID: props.caseID },
+                        }"
+                      >
+                        <span class="btn-primary">列印計算成果</span>
+                      </RouterLink>
+                    </MDBBtn>
+                    <MDBBtn
+                      :disabled="nowCaseUcResult === ''"
+                      size="sm"
+                      color="primary"
+                    >
+                      <RouterLink
+                        target="_blank"
+                        :to="{
+                          path: '/sicltab06',
+                          query: { caseID: props.caseID },
+                        }"
+                      >
+                        <span class="btn-primary">列印不確定度計算表</span>
+                      </RouterLink>
+                    </MDBBtn>
+                  </MDBCol>
+                  <div></div>
+
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput
+                      tooltipFeedback
+                      required
+                      readonly
+                      size="sm"
+                      type="text"
+                      label="水平不確定度(mm)"
+                      v-model="nowCaseSTDh"
+                    />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput
+                      tooltipFeedback
+                      required
+                      readonly
+                      size="sm"
+                      type="text"
+                      label="高程不確定度(mm)"
+                      v-model="nowCaseSTDv"
+                    />
+                  </MDBCol>
+                  <div></div>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput
+                      tooltipFeedback
+                      required
+                      readonly
+                      size="sm"
+                      type="text"
+                      label="水平涵蓋因子"
+                      v-model="nowCaseKh"
+                    />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput
+                      tooltipFeedback
+                      required
+                      readonly
+                      size="sm"
+                      type="text"
+                      label="高程涵蓋因子"
+                      v-model="nowCaseKv"
+                    />
+                  </MDBCol>
+                  <!-- 產生作業紀錄表 -->
+                  <MDBCol col="12" class="mb-3">
+                    <MDBBtn size="sm" color="primary">
+                      <RouterLink
+                        target="_blank"
+                        :to="{
+                          path: '/sicltab07',
+                          query: { caseID: props.caseID },
+                        }"
+                      >
+                        <span class="btn-primary">列印作業紀錄表</span>
+                      </RouterLink>
+                    </MDBBtn>
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              
+            </MDBRow>
           </MDBStepperContent>
         </MDBStepperStep>
         <MDBStepperStep>
           <MDBStepperHead icon="4">
             出具報告
           </MDBStepperHead>
-          <MDBStepperContent>
-            報告內容02
+          <MDBStepperContent :key="updateKey">
+            <MDBRow>
+              <MDBCol col="6">
+                <MDBRow>
+                  <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                    報告設定
+                  </MDBCol>
+                  <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                    <MDBRow>
+                      <MDBCol col="12" class="my-3">
+                        <MDBSwitch
+                          label="具TAF-LOGO"
+                          v-model="nowCaseHasLOGO"
+                        />
+                      </MDBCol>
+                      <!-- 選擇報告範本 -->
+                      <SelectRptTemp/>
+                      <MDBCol col="12" class="mb-3">
+                        <MDBBtn size="sm" color="secondary" @click="buildReportBtn()"
+                          >產生報告</MDBBtn
+                        >
+                      </MDBCol>
+
+                      <!-- 報告編輯檔 -->
+                      <MDBCol col="8" class="mb-3">
+                        <MDBInput
+                          tooltipFeedback
+                          required
+                          readonly
+                          style="padding-right: 2.2em"
+                          size="sm"
+                          type="text"
+                          label="報告編輯檔"
+                          v-model="nowCaseReportEdit"
+                        >
+                          <MDBBtnClose
+                            @click.prevent="nowCaseReportEdit = ''"
+                            class="btn-upload-close"
+                          />
+                        </MDBInput>
+                      </MDBCol>
+                      <MDBCol col="3" class="px-0 mb-3">
+                        <input
+                          type="file"
+                          id="ReportEditUpload"
+                          @change=""
+                          style="display: none"
+                        />
+                        <MDBBtn size="sm" color="primary" @click="uploadBtn('ReportEditUpload')"
+                          >上傳</MDBBtn
+                        >
+                        <MDBBtn
+                          id="ReportEditDownload"
+                          tag="a"
+                          :href="nowCaseReportEditDL"
+                          download
+                          size="sm"
+                          color="secondary"
+                          >下載</MDBBtn
+                        >
+                      </MDBCol>
+
+                      <MDBCol col="4" class="mb-3">
+                        <MDBDatepicker
+                          required
+                          size="sm"
+                          v-model="nowCaseCompleteDate"
+                          format="YYYY-MM-DD"
+                          label="報告完成日"
+                          ref="nowCaseCompleteDateDOM"
+                        />
+                      </MDBCol>
+                    </MDBRow>
+                  </MDBCol>
+                  <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                    檢核與簽署
+                  </MDBCol>
+                  <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                    <MDBRow>
+                      <SelectPs/>
+                      <!-- 校正報告掃描檔 -->
+                      <MDBCol col="8" class="mb-3">
+                        <MDBInput
+                          tooltipFeedback
+                          required
+                          readonly
+                          style="padding-right: 2.2em"
+                          size="sm"
+                          type="text"
+                          label="報告掃描檔"
+                          v-model="nowCaseReportScan"
+                        >
+                          <MDBBtnClose
+                            @click.prevent="nowCaseReportScan = ''"
+                            class="btn-upload-close"
+                          />
+                        </MDBInput>
+                      </MDBCol>
+                      <MDBCol col="3" class="px-0 mb-3">
+                        <input
+                          type="file"
+                          id="ReportScanUpload"
+                          @change="uploadChenge($event)"
+                          style="display: none"
+                        />
+                        <MDBBtn
+                          size="sm"
+                          color="primary"
+                          @click="uploadBtn('ReportScanUpload')"
+                          >上傳</MDBBtn
+                        >
+                        <MDBBtn
+                          tag="a"
+                          :href="nowCaseReportScanDL"
+                          download
+                          size="sm"
+                          color="secondary"
+                          >下載</MDBBtn
+                        >
+                      </MDBCol>
+                      
+                    </MDBRow>
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              <MDBCol col="6">
+                <MDBRow>
+                  <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                    校正報告
+                  </MDBCol>
+                  <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                    <MDBRow>
+                      <iframe
+                        id="nowCasePDF-viewer"
+                        :src="nowCasePDFPath"
+                        style="height: calc(100vh - 16rem)"
+                        class="w-100"
+                      ></iframe>
+                    </MDBRow>
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+            </MDBRow>
           </MDBStepperContent>
         </MDBStepperStep>
       </MDBStepperForm>
@@ -926,5 +2286,38 @@ defineExpose({
 .py-3 {
   padding-top: 0rem !important;
   padding-bottom: 0rem !important;
+}
+
+.was-validated .form-control:invalid,
+.form-control.is-invalid {
+  margin-bottom: 0rem;
+  background-image: none;
+  border-color: #f93154;
+}
+
+.was-validated .form-control:valid,
+.form-control.is-valid {
+  margin-bottom: 0rem;
+  background-image: none;
+  border-color: #00b74a;
+}
+
+.was-validated .form-check-input:invalid ~ .form-check-label,
+.form-check-input.is-invalid ~ .form-check-label {
+  color: #f93154;
+  margin-bottom: 0rem;
+}
+
+.was-validated .form-check-input:valid ~ .form-check-label,
+.form-check-input.is-valid ~ .form-check-label {
+  color: #00b74a;
+  margin-bottom: 0rem;
+}
+
+.lightboxImg {
+  display: block;
+  margin: auto;
+  max-width: 100%;
+  height: 200px;
 }
 </style>

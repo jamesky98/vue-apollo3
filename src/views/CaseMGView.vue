@@ -943,7 +943,7 @@ refgetCaseAllItem();
     </MDBModalFooter>
   </MDBModal>
 
-  <MDBContainer fluid class="h-100 overflow-hidden">
+  <MDBContainer fluid class="h-100">
     <MDBRow class="h-100 flex-column flex-nowrap">
       <!-- 導覽列 -->
       <Navbar1 />

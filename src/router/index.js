@@ -63,6 +63,12 @@ const router = createRouter({
       props: true,
     },
     {
+      path: "/ucedit",
+      name: "ucedit",
+      component: () => import("../views/UcMGView.vue"),
+      props: true,
+    },
+    {
       path: "/sicltab01",
       name: "sicltab01",
       component: () => import("../components/table/SiclTab01.vue"),

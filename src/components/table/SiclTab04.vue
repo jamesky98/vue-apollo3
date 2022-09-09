@@ -86,6 +86,7 @@ const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetc
 );
 getNowCaseF(result => {
   if (!result.loading && result && result.data.getCasebyID) {
+    console.log(result.data.getCasebyID);
     // 填入資料
 		let getData = result.data.getCasebyID;
 		let getRecord02 = result.data.getCasebyID.case_record_02;

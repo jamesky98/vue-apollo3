@@ -52,6 +52,9 @@ const dropdown3 = ref(false);
         <MDBNavbarItem :to="{ name: 'cust'}">
           <MDBIcon far icon="handshake" />顧客管理
         </MDBNavbarItem>
+        <MDBNavbarItem :to="{ name: 'ucedit'}">
+          <MDBIcon far icon="project-diagram" />不確定度管理
+        </MDBNavbarItem>
 
       </MDBNavbarNav>
       <MDBNavbarNav right class="ml-auto mb-xl-0">
