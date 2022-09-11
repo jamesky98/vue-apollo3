@@ -131,6 +131,15 @@ const router = createRouter({
         title: "作業紀錄表",
       },
     },
+    {
+      path: "/sicltab08",
+      name: "sicltab08",
+      component: () => import("../components/table/SiclTab08.vue"),
+      props: (route) => route.query,
+      meta: {
+        title: "不確定度計算表",
+      },
+    },
   ],
 });
 

@@ -881,6 +881,56 @@ const GETUCMODULE = gql`
   }
 `;
 
+const SAVEUCMODULE = gql`
+  mutation SaveUcModule($filename: String,$ucModuleStr: String) {
+    saveUcModule(filename: $filename,ucModuleStr:$ucModuleStr)
+  }
+`;
+
+const GETUCRESULTFORMJSON = gql`
+  mutation GetUcResultformJson($filename: String) {
+    getUcResultformJson(filename: $filename) {
+      ucH
+      freeH
+      tinvH
+      ucV
+      freeV
+      tinvV
+      calType
+      prjcode
+      ver
+      minUcH
+      minUcV
+      confLevel
+      uom
+      digPosH
+      digPosV
+      fixUcH
+      fixUcV
+      data {
+        section
+        type
+        comment
+        combUx
+        combFr
+        data {
+          name
+          frequency
+          x
+          x_title
+          fr
+          fr_title
+          fa
+          fa_title
+          ux
+          freedom
+          factor
+        }
+      }
+    }
+  }
+`;
+
 export default {
   GETALLCASE,
   GETCASESTATUS,
@@ -901,4 +951,6 @@ export default {
   GETRPTLIST,
   SAVECASERECORD02,
   GETUCMODULE,
+  SAVEUCMODULE,
+  GETUCRESULTFORMJSON,
 };

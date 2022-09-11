@@ -28,6 +28,7 @@ import { logIn, logOut, toTWDate } from '../methods/User';
 import router from '../router';
 const { onResult: getchecktoken, refetch: refgetCheckToken } = useQuery(UsersGQL.CHECKTOKEN);
 getchecktoken(result => {
+  console.log(result.data.checktoken);
   if (!result.data.checktoken) {
     logOut();
   }

@@ -15,8 +15,8 @@ function logIn(result) {
     localStorage.setItem("AUTH_TOKEN", result.data.login.token);
     localStorage.setItem("USER_ID", result.data.login.user.user_id);
     localStorage.setItem("USER_NAME", result.data.login.user.user_name);
-    localStorage.removeItem("USER_ROLE", result.data.login.user.role);
-    localStorage.removeItem("USER_AC", result.data.login.user.active);
+    localStorage.setItem("USER_ROLE", result.data.login.user.role);
+    localStorage.setItem("USER_AC", result.data.login.user.active);
     router.push("/main");
   } else {
     logOut();

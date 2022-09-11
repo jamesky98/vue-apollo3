@@ -33,6 +33,7 @@
     "dotenv": "^16.0.1",
     "graphql": "^16.5.0",
     "graphql-tag": "^2.12.6",
+    "jstat": "^1.9.5",
     "maska": "^1.5.0",
     "mdb-ui-kit": "^4.3.0",
     "mdb-vue-ui-kit": "git+https://oauth2:xfmb3NQ7xmmjona5VzHA@git.mdbootstrap.com/mdb/vue/mdb5/prd/mdb5-vue-ui-kit-pro-essential",
