@@ -1154,6 +1154,10 @@ refgetCaseAllItem();
   </MDBContainer>
 </template>
 <style>
+.datatable tbody tr:last-child {
+  border-bottom: rgba(0,0,0,0);
+  height: auto;
+}
 .colAlignRight{
   text-align: right;
 }

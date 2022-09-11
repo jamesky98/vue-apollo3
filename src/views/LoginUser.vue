@@ -58,9 +58,12 @@ loginError(error => {
       alert1.value = true;
       break;
   }
-  localStorage.removeItem('AUTH_TOKEN');
-  localStorage.removeItem('USER_ID');
-  localStorage.removeItem('USER_NAME');
+  localStorage.removeItem("AUTH_TOKEN");
+  localStorage.removeItem("USER_ID");
+  localStorage.removeItem("USER_NAME");
+  localStorage.removeItem("USER_NAME2");
+  localStorage.removeItem("USER_ROLE");
+  localStorage.removeItem("USER_AC");
 });
 
 </script>

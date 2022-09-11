@@ -17,7 +17,8 @@ import { computed } from "@vue/reactivity";
 import router from '../router';
 import { logOut } from '../methods/User';
 
-const username = ref(localStorage.getItem("USER_NAME")) ;
+const username = ref(localStorage.getItem("USER_NAME2")) ;
+const usercode = ref(localStorage.getItem("USER_NAME")) ;
 const collapse1 = ref(false);
 const dropdown3 = ref(false);
 
@@ -66,7 +67,7 @@ const dropdown3 = ref(false);
             </MDBDropdownToggle>
             <MDBDropdownMenu>
               <MDBDropdownItem tag="button">
-                <RouterLink :to="{ path: '/useredit', query: { userName: username }}">
+                <RouterLink :to="{ path: '/useredit', query: { userName: usercode }}">
                   使用者管理
                 </RouterLink>
               </MDBDropdownItem>

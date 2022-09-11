@@ -38,7 +38,8 @@ getchecktoken(result => {
 });
 refgetCheckToken();
 
-const username = ref(localStorage.getItem("USER_NAME"));
+const username = ref(localStorage.getItem("USER_NAME2"));
+const usercode = ref(localStorage.getItem("USER_NAME"));
 const dropdown1 = ref(false);
 
 </script>
@@ -58,7 +59,7 @@ const dropdown1 = ref(false);
                 </MDBDropdownToggle>
                 <MDBDropdownMenu>
                   <MDBDropdownItem tag="button">
-                    <RouterLink :to="{ path: '/useredit', query: { userName: username }}">
+                    <RouterLink :to="{ path: '/useredit', query: { userName: usercode }}">
                       使用者管理
                     </RouterLink>
                   </MDBDropdownItem>

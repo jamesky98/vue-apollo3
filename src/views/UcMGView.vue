@@ -266,16 +266,9 @@ getUcListOnDone((result) => {
   }
 });
 
-let dtSelCount = ref();
 // 加載表格選取事件
 onMounted(function () {
   dt1 = table1.value.dt();
-  // console.log("table1",table1.value);
-  // console.log("dt1",dt1);
-  dtSelCount=computed(()=>{
-    console.log("dt1",dt1);
-    return dt1.rows( { selected: true } ).count()
-  });
   dt1.on('select', function (e, dt, type, indexes) {
     nowUcSection.value = dt.rows(indexes)[0][0];
     data2.value=nowUcModule.uc.data[nowUcSection.value].data;

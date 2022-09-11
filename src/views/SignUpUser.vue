@@ -13,12 +13,11 @@ import { MDBCard,
   MDBContainer, 
   MDBBtn } from 'mdb-vue-ui-kit';
 
-import { logIn } from '../methods/User';
-
 // 傳遞參數
 const user_name = ref('');
 const user_password = ref('');
 const user_mail = ref('');
+const user_name2 = ref('');
 
 // 防止帳號重複建立
 function doSignkup(){
@@ -56,7 +55,8 @@ const { mutate: usersignup, onDone: signupOnDone } = useMutation(
       variables: {
         userName: user_name.value,
         userPassword: user_password.value,
-        userMail: user_mail.value
+        userMail: user_mail.value,
+        userName2: user_name2.value,
       }
     }),
 );
@@ -83,6 +83,10 @@ signupOnDone(result => {
                     <p>註冊新帳號</p>
                     <div class="form-outline mb-4">
                       <MDBInput required type="text" label="員工編號" id="form2Example11" v-model="user_name"
+                        wrapperClass="mb-4" />
+                    </div>
+                    <div class="form-outline mb-4">
+                      <MDBInput required type="text" label="姓名" id="form2Example44" v-model="user_name2"
                         wrapperClass="mb-4" />
                     </div>
                     <div class="form-outline mb-4">
