@@ -13,10 +13,11 @@ import {
   MDBDropdownItem,
 } from 'mdb-vue-ui-kit';
 import { ref } from 'vue';
+import { computed } from "@vue/reactivity";
 import router from '../router';
 import { logOut } from '../methods/User';
 
-const username = localStorage.getItem("USER_NAME");
+const username = ref(localStorage.getItem("USER_NAME")) ;
 const collapse1 = ref(false);
 const dropdown3 = ref(false);
 
@@ -64,8 +65,12 @@ const dropdown3 = ref(false);
               <MDBIcon icon="user" />
             </MDBDropdownToggle>
             <MDBDropdownMenu>
-              <MDBDropdownItem href="#">使用者管理</MDBDropdownItem>
-              <MDBDropdownItem href="#" @click="logOut()">登出</MDBDropdownItem>
+              <MDBDropdownItem tag="button">
+                <RouterLink :to="{ path: '/useredit', query: { userName: username }}">
+                  使用者管理
+                </RouterLink>
+              </MDBDropdownItem>
+              <MDBDropdownItem tag="button" @click="logOut()">登出</MDBDropdownItem>
             </MDBDropdownMenu>
           </MDBDropdown>
         </MDBNavbarItem>

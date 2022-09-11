@@ -69,6 +69,12 @@ const router = createRouter({
       props: true,
     },
     {
+      path: "/useredit",
+      name: "useredit",
+      component: () => import("../views/UserMGView.vue"),
+      props: (route) => route.query,
+    },
+    {
       path: "/sicltab01",
       name: "sicltab01",
       component: () => import("../components/table/SiclTab01.vue"),

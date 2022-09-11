@@ -205,14 +205,6 @@ const nowCaseFixUploadDL = computed(() => {
   }
 });
 
-const nowCaseGCPUpload = ref(""); // 控制點檔(上傳GCP.dat)
-const nowCaseGCPUploadDL = computed(() => {
-  if (nowCaseGCPUpload.value && nowCaseGCPUpload.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseGCPUpload.value;
-  } else {
-    return undefined;
-  }
-});
 
 const nowCaseATreport = ref(""); // 空三報表檔(上傳PrintOut.0)
 const nowCaseATreportDL = computed(() => {

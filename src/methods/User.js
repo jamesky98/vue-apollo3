@@ -41,4 +41,8 @@ function toTWDate(data) {
   return ttdate;
 }
 
+function rolePass(level){
+  
+}
+
 export { logIn, logOut, toTWDate };

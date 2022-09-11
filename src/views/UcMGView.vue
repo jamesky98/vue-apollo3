@@ -120,6 +120,14 @@ const ucModuleTemp = {
     },]
 };
 
+const nowUcModuleDL = computed(() => {
+  if (nowUcModuleName.value && nowUcModuleName.value !== "" && nowUcModuleName.value !== ".json") {
+    return "06_Case/uncertainty/" + nowUcModuleName.value;
+  } else {
+    return undefined;
+  }
+});
+
 // Section表格
 let dt1;
 const table1 = ref(); 
@@ -580,6 +588,7 @@ testUcOnDone(result=>{
                     <span class="btn-primary">列印計算表</span>
                   </RouterLink>
                 </MDBBtn>
+                <MDBBtn tag="a" :href="nowUcModuleDL" download size="sm" color="secondary">下載</MDBBtn>
               </MDBCol>
 
               <MDBCol col="8" class="mb-3">

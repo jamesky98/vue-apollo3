@@ -32,11 +32,29 @@ const GETALLUSERs = gql`
 const GETUSER = gql`
   query getUserById($userId: Int!) {
     getUserById(user_id: $userId) {
+      user_id
       user_name
       user_mail
+      user_password
+      active
+      role
     }
   }
 `;
+
+const GETUSERBYNAME = gql`
+  query GetUserByName($userName: String) {
+    getUserByName(user_name: $userName) {
+      user_id
+      user_name
+      user_mail
+      user_password
+      active
+      role
+    }
+  }
+`;
+
 
 const CHKUSERBYNAME = gql`
   mutation ChkUserByName($userName: String) {
@@ -72,6 +90,7 @@ export default {
   CHECKTOKEN,
   LOGINMU,
   GETUSER,
+  GETUSERBYNAME,
   CHKUSERBYNAME,
   GETALLUSERs,
   SIGNUPMU,
