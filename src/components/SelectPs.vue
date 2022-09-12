@@ -7,7 +7,8 @@ import {
   MDBSelect,
   MDBDatepicker,
 } from 'mdb-vue-ui-kit';
-
+// 取得權限
+const rGroup = inject("rGroup");
   // 出具報告
   const nowCaseChkDate = inject('nowCaseChkDate'); // 數據檢核日
   const nowCaseChkDateDOM = ref();
@@ -39,7 +40,7 @@ onMounted(()=>{
           ref="nowCaseChkDateDOM" />
       </MDBCol>
 
-      <MDBSelect filter size="sm" class="my-3 col-6" label="數據檢核人" v-model:options="nowCaseChkPersonMU"
+      <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="my-3 col-6" label="數據檢核人" v-model:options="nowCaseChkPersonMU"
         v-model:selected="selectChkPersonID" ref="nowCaseChkPersonDOM" />
       <div></div>
       <MDBCol col="4" class="mb-3">
@@ -47,7 +48,7 @@ onMounted(()=>{
           ref="nowCaseSignDateDOM" />
       </MDBCol>
 
-      <MDBSelect filter size="sm" class="mb-3 col-6" label="報告簽署人" v-model:options="nowCaseSignPersonMU"
+      <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mb-3 col-6" label="報告簽署人" v-model:options="nowCaseSignPersonMU"
         v-model:selected="selectSignPersonID" ref="nowCaseSignPersonDOM" />
     </MDBRow>
   </MDBContainer>

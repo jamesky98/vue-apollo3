@@ -35,7 +35,6 @@ import { logIn, logOut, toTWDate } from '../methods/User';
 import router from '../router';
 const { onResult: getchecktoken, refetch: refgetCheckToken } = useQuery(UsersGQL.CHECKTOKEN);
 getchecktoken(result => {
-  console.log(result.data.checktoken);
   if (!result.data.checktoken) {
     logOut();
   }
@@ -44,6 +43,51 @@ refgetCheckToken();
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
+// 取得權限==========Start
+// const myUserId = ref("");
+const myUserName = ref("");
+// const myUserName2 = ref("");
+// const myUserEmail = ref("");
+// const myUserActive = ref(false);
+const myUserRole = ref("");
+
+const { onResult: getNowUser, refetch: refgetNowUser} = useQuery(UsersGQL.GETNOWUSER);
+getNowUser(result=>{
+  if (!result.loading && result && result.data.getNowUser) {
+    let getData = result.data.getNowUser;
+    // myUserId.value = getData.user_id;
+    myUserName.value = getData.user_name;
+    // myUserName2.value = getData.user_name2;
+    // myUserEmail.value = getData.user_mail;
+    // myUserActive.value = (getData.active===1)?true:false;
+    myUserRole.value = getData.role;
+  }
+});
+refgetNowUser();
+const rGroup =computed(()=>{
+  let result=[];
+  // rGroup[0]最高權限
+  // rGroup[1]技術主管專用
+  // rGroup[2]技術人員專用(非己不可改)
+  // rGroup[3]最低權限
+  // rGroup[4]完全開放
+  switch (myUserRole.value){
+    case 0:
+      result = [false,false,false,false,true];
+      break;
+    case 1:
+      result = [false,false,true,true,true];
+      break;
+    case 2:
+      result = [false,true,false,true,true];
+      break;
+    case 3:
+      result = [true,true,true,true,true];
+    break;
+  }
+  return result;
+});
+// 取得權限==========End
 
 // Information
 const infomsg = ref("");
@@ -715,14 +759,14 @@ function saveDocBtn() {
                       <MDBTabPane class="h-100" tabId="editor">
                         <!-- 功能列表 -->
                         <div class="d-flex py-2">
-                          <MDBPopconfirm class="btn-sm btn-danger me-auto" position="top" message="刪除後無法恢復，確定刪除嗎？"
+                          <MDBPopconfirm :disabled="!rGroup[1]" class="btn-sm btn-danger me-auto" position="top" message="刪除後無法恢復，確定刪除嗎？"
                             cancelText="取消" confirmText="確定" @confirm="delDocfun()">
                             刪除
                           </MDBPopconfirm>
                           <!-- <MDBBtn size="sm" class="me-auto" color="danger" @click="delDocfun()">刪除</MDBBtn> -->
-                          <MDBBtn size="sm" color="primary" @click="copyAddDocBtn()">複製並新增</MDBBtn>
-                          <MDBBtn size="sm" color="primary" @click="addDocBtn()">新增</MDBBtn>
-                          <MDBBtn size="sm" color="primary" @click="saveDocBtn()">儲存</MDBBtn>
+                          <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="copyAddDocBtn()">複製並新增</MDBBtn>
+                          <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addDocBtn()">新增</MDBBtn>
+                          <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveDocBtn()">儲存</MDBBtn>
                         </div>
                         <!-- 資料欄位 -->
                         <MDBRow tag="form" md="12" style="height:calc(100% - 3rem) ;"
@@ -730,19 +774,19 @@ function saveDocBtn() {
                           <MDBCol col="6" class="my-3">
                             <MDBInput size="sm" type="text" label="索引" readonly v-model="nowIDed" />
                           </MDBCol>
-                          <MDBSelect size="sm" class="my-3 col-6" label="文件層級" required v-model:options="nowDocLevelmu"
+                          <MDBSelect :disabled="!rGroup[1]" size="sm" class="my-3 col-6" label="文件層級" required v-model:options="nowDocLevelmu"
                             v-model:selected="nowDocLevel" ref="docLevelSelect" />
                           <MDBCol col="6" class="mb-3">
-                            <MDBInput size="sm" type="text" label="文件編號" required v-model="nowDocIDed"
+                            <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="文件編號" required v-model="nowDocIDed"
                               oninput="this.value = this.value.toUpperCase()" />
                           </MDBCol>
-                          <MDBSelect size="sm" class="mb-3 col-6" label="文件類型" required v-model:options="nowDocTypemu"
+                          <MDBSelect :disabled="!rGroup[1]" size="sm" class="mb-3 col-6" label="文件類型" required v-model:options="nowDocTypemu"
                             v-model:selected="nowDocType" ref="docTypeSelect" />
                           <MDBCol col="12" class="mb-3">
-                            <MDBInput size="sm" type="text" label="文件名稱" required v-model="nowDocName" />
+                            <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="文件名稱" required v-model="nowDocName" />
                           </MDBCol>
                           <MDBCol col="6" class="mb-3">
-                            <MDBInput size="sm" type="text" label="版次" required v-model="nowVer" />
+                            <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="版次" required v-model="nowVer" />
                           </MDBCol>
                           <MDBCol col="6" class="mb-3"></MDBCol>
                           <MDBCol col="6" class="mb-3">
@@ -754,39 +798,39 @@ function saveDocBtn() {
                               ref="itemExpDate" />
                           </MDBCol>
                           <MDBCol col="12" class="mb-3">
-                            <MDBInput size="sm" type="text" label="上階文件" v-model="nowParents" />
+                            <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="上階文件" v-model="nowParents" />
                           </MDBCol>
-                          <MDBSelect class="mb-3 col-6" style="padding-right: 0;" filter size="sm" label="加入上階文件"
+                          <MDBSelect v-if="rGroup[1]" class="mb-3 col-6" style="padding-right: 0;" filter size="sm" label="加入上階文件"
                             v-model:options="parentsmu" v-model:selected="parentsel" />
-                          <MDBCol col="6" class="mb-3 px-0">
+                          <MDBCol v-if="rGroup[1]" col="6" class="mb-3 px-0">
                             <MDBBtn size="sm" color="primary" @click="addParentDoc()">加入</MDBBtn>
                           </MDBCol>
                           <MDBCol col="9" class="mb-3">
                             <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="掃描檔"
                               v-model="nowUpload">
-                              <MDBBtnClose @click.prevent="nowUpload=''" class="btn-upload-close" />
+                              <MDBBtnClose :disabled="!rGroup[1]" @click.prevent="nowUpload=''" class="btn-upload-close" />
                             </MDBInput>
                           </MDBCol>
                           <MDBCol col="3" class="px-0 mb-3">
                             <input type="file" accept=".pdf" id="itemUpload" @change="uploadChenge"
                               style="display: none;" />
-                            <MDBBtn size="sm" color="primary" @click="uploadBtn">上傳</MDBBtn>
+                            <MDBBtn v-if="rGroup[1]" size="sm" color="primary" @click="uploadBtn">上傳</MDBBtn>
                             <MDBBtn tag="a" :href="nowDownLoad" download size="sm" color="secondary">下載</MDBBtn>
                           </MDBCol>
                           <MDBCol col="9" class="mb-3">
                             <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="編輯檔"
                               v-model="nowEdUpload">
-                              <MDBBtnClose @click.prevent="nowEdUpload=''" class="btn-upload-close" />
+                              <MDBBtnClose :disabled="!rGroup[1]" @click.prevent="nowEdUpload=''" class="btn-upload-close" />
                             </MDBInput>
                           </MDBCol>
                           <MDBCol col="3" class="px-0 mb-3">
                             <input type="file" accept=".doc,.docx" id="itemExpUpload" @change="uploadChenge"
                               style="display: none;" />
-                            <MDBBtn size="sm" color="primary" @click="expUploadBtn">上傳</MDBBtn>
+                            <MDBBtn v-if="rGroup[1]" size="sm" color="primary" @click="expUploadBtn">上傳</MDBBtn>
                             <MDBBtn tag="a" :href="nowEdDownLoad" download size="sm" color="secondary">下載</MDBBtn>
                           </MDBCol>
                           <MDBCol col="12" class="mb-3">
-                            <MDBTextarea size="sm" label="備註" rows="2" v-model="nowComment" />
+                            <MDBTextarea :disabled="!rGroup[1]" size="sm" label="備註" rows="2" v-model="nowComment" />
                           </MDBCol>
                         </MDBRow>
                       </MDBTabPane>
@@ -819,7 +863,10 @@ function saveDocBtn() {
   </MDBAlert>
 </template>
 <style>
-
+.datatable tbody tr:last-child {
+  border-bottom: rgba(0,0,0,0);
+  height: auto;
+}
 .colnowarp {
   white-space: nowrap;
 }

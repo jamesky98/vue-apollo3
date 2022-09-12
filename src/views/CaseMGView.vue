@@ -44,7 +44,6 @@ import { logIn, logOut, toTWDate } from '../methods/User';
 import router from '../router';
 const { onResult: getchecktoken, refetch: refgetCheckToken } = useQuery(UsersGQL.CHECKTOKEN);
 getchecktoken(result => {
-  console.log(result.data.checktoken);
   if (!result.data.checktoken) {
     logOut();
   }
@@ -53,7 +52,56 @@ refgetCheckToken();
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
+// 取得權限==========Start
+// const myUserId = ref("");
+const myUserName = ref("");
+// const myUserName2 = ref("");
+// const myUserEmail = ref("");
+// const myUserActive = ref(false);
+const myUserRole = ref("");
 
+const { onResult: getNowUser, refetch: refgetNowUser} = useQuery(UsersGQL.GETNOWUSER);
+getNowUser(result=>{
+  if (!result.loading && result && result.data.getNowUser) {
+    let getData = result.data.getNowUser;
+    // myUserId.value = getData.user_id;
+    myUserName.value = getData.user_name;
+    // myUserName2.value = getData.user_name2;
+    // myUserEmail.value = getData.user_mail;
+    // myUserActive.value = (getData.active===1)?true:false;
+    myUserRole.value = getData.role;
+  }
+});
+refgetNowUser();
+const rGroup =computed(()=>{
+  let result=[];
+  // rGroup[0]最高權限
+  // rGroup[1]技術主管專用
+  // rGroup[2]技術人員專用(非己不可改)
+  // rGroup[3]最低權限(訪客不可)
+  // rGroup[4]完全開放
+  switch (myUserRole.value){
+    case 0:
+      result = [false,false,false,false,false];
+      break;
+    case 1:
+      if(myUserName.value===nowCaseOperator.value){
+        result = [false,false,true,true,true];
+      }else{
+        result = [false,false,false,false,false];
+      }
+      break;
+    case 2:
+      result = [false,true,false,true,true];
+      break;
+    case 3:
+      result = [true,true,true,true,true];
+    break;
+  }
+  return result;
+});
+provide("rGroup", rGroup);
+// 取得權限==========End
 // Information
 const infomsg = ref("");
 const alert1 = ref(false);
@@ -1049,21 +1097,21 @@ function getCaseByAPI(){
               class="my-2 bg-light overflow-auto border border-5 rounded-8 shadow-4">
               <div class="px-3">案件資料</div>
               <div class="d-flex p-3">
-                <MDBPopconfirm class="btn-sm btn-light btn-outline-danger me-auto" position="top"
+                <MDBPopconfirm :disabled="!rGroup[2]" class="btn-sm btn-light btn-outline-danger me-auto" position="top"
                   message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delCase">
                   刪除案件
                 </MDBPopconfirm>
-                <MDBBtn size="sm" :disabled="addBtnDisabled" color="primary" @click="openAddCaseForm()">新增</MDBBtn>
-                <MDBBtn size="sm" color="primary" @click="saveNowCaseData()">儲存</MDBBtn>
+                <MDBBtn size="sm" :disabled="addBtnDisabled && !rGroup[3]" color="primary" @click="openAddCaseForm()">新增</MDBBtn>
+                <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveNowCaseData()">儲存</MDBBtn>
                 <MDBBtn size="sm" color="primary" @click="showCaseEdit()" v-html="caseBtnText">
                 </MDBBtn>
               </div>
               <hr>
-              <MDBSelect filter size="sm" class="mb-3  col-6" label="校正人員" v-model:options="nowCaseOperatorMU"
+              <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mb-3  col-6" label="校正人員" v-model:options="nowCaseOperatorMU"
                 v-model:selected="nowCaseOperator" ref="nowCaseOperatorDOM" />
-              <MDBSelect filter size="sm" class="mb-3  col-6" label="技術主管" v-model:options="nowCaseLeaderMU"
+              <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mb-3  col-6" label="技術主管" v-model:options="nowCaseLeaderMU"
                 v-model:selected="nowCaseLeader" ref="nowCaseLeaderDOM" />
-              <MDBSelect size="sm" class="mb-3  col-6" label="案件狀態" v-model:options="nowCaseStatusMU"
+              <MDBSelect :disabled="!rGroup[2]" size="sm" class="mb-3  col-6" label="案件狀態" v-model:options="nowCaseStatusMU"
                 v-model:selected="nowCaseStatus" ref="nowCaseStatusDOM" />
               <div></div>
               <MDBCol col="6" class="mb-3">
@@ -1083,7 +1131,7 @@ function getCaseByAPI(){
                 <MDBInput size="sm" type="text" label="統一編號" v-model="nowCaseCustTaxID" disabled />
               </MDBCol>
               <MDBCol col="6" class="mb-3 ps-0">
-                <MDBBtn size="sm" color="primary" @click="showCustFrom=true">查詢顧客</MDBBtn>
+                <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="showCustFrom=true">查詢顧客</MDBBtn>
               </MDBCol>
               <MDBCol col="6" class="mb-3">
                 <MDBInput size="sm" type="text" label="聯絡人" v-model="nowCaseCustName" disabled />
@@ -1099,26 +1147,26 @@ function getCaseByAPI(){
                 <MDBInput size="sm" type="text" label="聯絡地址" v-model="nowCaseCustAddress" disabled />
               </MDBCol>
               <MDBCol col="12" class="mb-3">
-                <MDBBtn size="sm" color="primary" @click="copyTileAdd()">同上</MDBBtn>
+                <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="copyTileAdd()">同上</MDBBtn>
               </MDBCol>
               <MDBCol col="12" class="mb-3">
-                <MDBInput size="sm" type="text" label="報告抬頭" v-model="nowCaseTitle" />
+                <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="報告抬頭" v-model="nowCaseTitle" />
               </MDBCol>
               <MDBCol col="12" class="mb-3">
-                <MDBInput size="sm" type="text" label="報告地址" v-model="nowCaseAddress" />
+                <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="報告地址" v-model="nowCaseAddress" />
               </MDBCol>
               <MDBCol col="12" class="mb-3">
-                <MDBInput size="sm" type="text" label="校正目的" v-model="nowCasePurpose" />
+                <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="校正目的" v-model="nowCasePurpose" />
               </MDBCol>
               <MDBCol col="6" class="mb-3">
-                <MDBInput size="sm" style="text-align: right" type="text" label="費用" v-model="nowCaseCharge" />
+                <MDBInput :disabled="!rGroup[2]" size="sm" style="text-align: right" type="text" label="費用" v-model="nowCaseCharge" />
               </MDBCol>
               <MDBCol col="6" class="mb-3">
                 <MDBDatepicker size="sm" v-model="nowCasePayDate" format="YYYY-MM-DD" label="繳費日"
                   ref="nowCasePayDateDOM" />
               </MDBCol>
               <MDBCol col="12" class="mb-3">
-                <MDBTextarea size="sm" label="協議事項" rows="2" v-model="nowCaseAgreement" />
+                <MDBTextarea :disabled="!rGroup[2]" size="sm" label="協議事項" rows="2" v-model="nowCaseAgreement" />
               </MDBCol>
             </MDBRow>
           </MDBCol>

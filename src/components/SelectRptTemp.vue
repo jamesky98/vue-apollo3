@@ -6,7 +6,8 @@ import {
   MDBContainer,
   MDBSelect,
 } from 'mdb-vue-ui-kit';
-
+// 取得權限
+const rGroup = inject("rGroup");
   // 不確定度選用模組
   const selectReportTemp = inject('selectReportTemp');
   const nowCaseReportTemp = inject('nowCaseReportTemp');
@@ -19,6 +20,6 @@ onMounted(()=>{
 
 </script>
 <template>
-  <MDBSelect size="sm" class="mb-3 col-12" label="選用報告範本" v-model:options="nowCaseReportTempMU"
+  <MDBSelect :disabled="!rGroup[2]" size="sm" class="mb-3 col-12" label="選用報告範本" v-model:options="nowCaseReportTempMU"
     v-model:selected="selectReportTemp" ref="nowCaseReportTempDOM" />
 </template>

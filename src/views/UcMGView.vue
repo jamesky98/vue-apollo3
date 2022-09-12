@@ -42,7 +42,6 @@ import { logIn, logOut, toTWDate } from '../methods/User';
 import router from '../router';
 const { onResult: getchecktoken, refetch: refgetCheckToken } = useQuery(UsersGQL.CHECKTOKEN);
 getchecktoken(result => {
-  console.log(result.data.checktoken);
   if (!result.data.checktoken) {
     logOut();
   }
@@ -51,6 +50,51 @@ refgetCheckToken();
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
+// 取得權限==========Start
+// const myUserId = ref("");
+const myUserName = ref("");
+// const myUserName2 = ref("");
+// const myUserEmail = ref("");
+// const myUserActive = ref(false);
+const myUserRole = ref("");
+
+const { onResult: getNowUser, refetch: refgetNowUser} = useQuery(UsersGQL.GETNOWUSER);
+getNowUser(result=>{
+  if (!result.loading && result && result.data.getNowUser) {
+    let getData = result.data.getNowUser;
+    // myUserId.value = getData.user_id;
+    myUserName.value = getData.user_name;
+    // myUserName2.value = getData.user_name2;
+    // myUserEmail.value = getData.user_mail;
+    // myUserActive.value = (getData.active===1)?true:false;
+    myUserRole.value = getData.role;
+  }
+});
+refgetNowUser();
+const rGroup =computed(()=>{
+  let result=[];
+  // rGroup[0]最高權限
+  // rGroup[1]技術主管專用
+  // rGroup[2]技術人員專用(非己不可改)
+  // rGroup[3]最低權限
+  // rGroup[4]完全開放
+  switch (myUserRole.value){
+    case 0:
+      result = [false,false,false,false,true];
+      break;
+    case 1:
+      result = [false,false,true,true,true];
+      break;
+    case 2:
+      result = [false,true,false,true,true];
+      break;
+    case 3:
+      result = [true,true,true,true,true];
+    break;
+  }
+  return result;
+});
+// 取得權限==========End
 
 // Information
 const infomsg = ref("");
@@ -573,8 +617,8 @@ testUcOnDone(result=>{
               <MDBSelect size="sm" class="my-3 col-12" label="選擇不確定度模組" v-model:options="nowUcModuleNameMU"
                 v-model:selected="selectUcModuleName" ref="nowUcModuleNameDOM" @close="readUcModule"/>
               <MDBCol col="12" class="mb-3">
-                <MDBBtn v-if="nowUcModuleName===selectUcModuleName" size="sm" color="primary" @click="saveUcModule">儲存</MDBBtn>
-                <MDBBtn v-else size="sm" color="primary" @click="saveUcModule">另存新檔</MDBBtn>
+                <MDBBtn :disabled="!rGroup[1]" v-if="nowUcModuleName===selectUcModuleName" size="sm" color="primary" @click="saveUcModule">儲存</MDBBtn>
+                <MDBBtn :disabled="!rGroup[1]" v-else size="sm" color="primary" @click="saveUcModule">另存新檔</MDBBtn>
                 <MDBBtn size="sm" color="primary" @click="testUc">試算</MDBBtn>
                 <MDBBtn size="sm" color="primary">
                   <RouterLink target="_blank" :to="{ path: '/sicltab08', query: { moduleName: nowUcModuleName },}">
@@ -585,7 +629,7 @@ testUcOnDone(result=>{
               </MDBCol>
 
               <MDBCol col="8" class="mb-3">
-                <MDBInput size="sm" type="text" label="模組名稱" v-model="nowUcModuleName"/>
+                <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="模組名稱" v-model="nowUcModuleName"/>
               </MDBCol>
 
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
@@ -593,24 +637,24 @@ testUcOnDone(result=>{
               </MDBCol>
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
-                  <MDBSelect size="sm" class="my-3 col-8" label="校正項目" v-model:options="nowUcCalTypeMU"
+                  <MDBSelect :disabled="!rGroup[1]" size="sm" class="my-3 col-8" label="校正項目" v-model:options="nowUcCalTypeMU"
                     v-model:selected="selectUcCalType" ref="nowUcCalTypeDOM" @change="updateCalType"/>
 
                   <MDBCol col="8" class="mb-3">
-                    <MDBInput size="sm" type="text" label="量測作業編號" v-model="nowUcModule.uc.prjcode"/>
+                    <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="量測作業編號" v-model="nowUcModule.uc.prjcode"/>
                   </MDBCol>
 
                   <MDBCol col="8" class="mb-3">
-                    <MDBInput size="sm" type="text" label="系統評估版本" v-model="nowUcModule.uc.ver"/>
+                    <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="系統評估版本" v-model="nowUcModule.uc.ver"/>
                   </MDBCol>
                   <MDBCol col="6" class="mb-3">
-                    <MDBInput size="sm" type="text" label="最小不確定度H" v-model="nowUcModule.uc.minUcH"/>
+                    <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="最小不確定度H" v-model="nowUcModule.uc.minUcH"/>
                   </MDBCol>
                   <MDBCol col="6" class="mb-3">
-                    <MDBInput size="sm" type="text" label="最小不確定度V" v-model="nowUcModule.uc.minUcV"/>
+                    <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="最小不確定度V" v-model="nowUcModule.uc.minUcV"/>
                   </MDBCol>
                   <MDBCol col="6" class="mb-3">
-                    <MDBInput size="sm" type="text" label="長度單位" v-model="nowUcModule.uc.uom"/>
+                    <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="長度單位" v-model="nowUcModule.uc.uom"/>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -621,8 +665,8 @@ testUcOnDone(result=>{
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol md="12" class="mt-2">
-                    <MDBBtn size="sm" color="primary" @click="addSection">增加項目</MDBBtn>
-                    <MDBBtn size="sm" color="primary" @click="delSection">刪除項目</MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addSection">增加項目</MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delSection">刪除項目</MDBBtn>
                   </MDBCol>
                   <MDBCol md="12" class="mb-3">
                     <DataTable :data="nowUcModule.uc.data" :columns="columns1" :options="tboption1" ref="table1"
@@ -645,12 +689,12 @@ testUcOnDone(result=>{
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="8" class="my-3">
-                    <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="Section" v-model="nowUcModule.uc.data[nowUcSection].section"/>
+                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="Section" v-model="nowUcModule.uc.data[nowUcSection].section"/>
                   </MDBCol>
-                  <MDBSelect v-if="nowUcModule.uc.data" size="sm" class="mb-3 col-8" label="type" v-model:options="nowUcSecTypeMU"
+                  <MDBSelect :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="mb-3 col-8" label="type" v-model:options="nowUcSecTypeMU"
                     v-model:selected="selectUcSecType" ref="nowUcSecTypeDOM" @change="updataSecType"/>
                   <MDBCol col="12" class="mb-3">
-                    <MDBTextarea v-if="nowUcModule.uc.data" size="sm" label="comment" rows="2" v-model="nowUcModule.uc.data[nowUcSection].comment"/>
+                    <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" label="comment" rows="2" v-model="nowUcModule.uc.data[nowUcSection].comment"/>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -660,8 +704,8 @@ testUcOnDone(result=>{
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol md="12" class="mt-2">
-                    <MDBBtn size="sm" color="primary" @click="addItem">增加項目</MDBBtn>
-                    <MDBBtn size="sm" color="primary" @click="delItem">刪除項目</MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addItem">增加項目</MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delItem">刪除項目</MDBBtn>
                   </MDBCol>
                   <MDBCol md="12" class="mb-3">
                     <DataTable :data="data2" :columns="columns2" :options="tboption2" ref="table2"
@@ -684,9 +728,9 @@ testUcOnDone(result=>{
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="8" class="my-3">
-                    <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="name" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].name"/>
+                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="name" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].name"/>
                   </MDBCol>
-                  <MDBSelect v-if="nowUcModule.uc.data" size="sm" class="mb-3 col-8" label="變動時機" v-model:options="nowFrequencyMU"
+                  <MDBSelect :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="mb-3 col-8" label="變動時機" v-model:options="nowFrequencyMU"
                     v-model:selected="selectFrequency" ref="nowFrequencyDOM" @change="updataFr"/>
                 </MDBRow>
               </MDBCol>
@@ -697,24 +741,24 @@ testUcOnDone(result=>{
                 <MDBRow>
                   <!-- ux -->
                   <MDBCol md="12" class="mt-2">
-                    <MDBBtn size="sm" color="primary" @click="addUx">增加項目</MDBBtn>
-                    <MDBBtn size="sm" color="primary" @click="delUx">刪除項目</MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addUx">增加項目</MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delUx">刪除項目</MDBBtn>
                   </MDBCol>
                   <MDBCol md="12" class="mb-3">
                     <DataTable :data="data3" :columns="columns3" :options="tboption3" ref="table3"
                       style="font-size: smaller" class="border border-success display w-100 compact" />
                   </MDBCol>
                   <MDBCol col="6" class="mb-0">
-                    <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x_title[nowUcItemX]" @keyup="getItemData"/>
+                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x_title[nowUcItemX]" @keyup="getItemData"/>
                   </MDBCol>
                   <MDBCol col="6" class="mb-0">
-                    <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x[nowUcItemX]" @keyup="getItemData"/>
+                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x[nowUcItemX]" @keyup="getItemData"/>
                   </MDBCol>
                   <MDBCol col="12" class="mb-2">
-                    <MDBBtn size="sm" color="primary" class="addParamBtn" @click="addParam(4)"><i class="fas fa-angle-double-down"></i></MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(4)"><i class="fas fa-angle-double-down"></i></MDBBtn>
                   </MDBCol>
                   <MDBCol col="12" class="mb-3">
-                    <MDBTextarea v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="ux計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].ux"/>
+                    <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="ux計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].ux"/>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -725,24 +769,24 @@ testUcOnDone(result=>{
                 <MDBRow>
                   <!-- freedom -->
                   <MDBCol md="12" class="mt-2">
-                    <MDBBtn size="sm" color="primary" @click="addFr">增加項目</MDBBtn>
-                    <MDBBtn size="sm" color="primary" @click="delFr">刪除項目</MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addFr">增加項目</MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delFr">刪除項目</MDBBtn>
                   </MDBCol>
                   <MDBCol md="12" class="mb-3">
                     <DataTable :data="data4" :columns="columns4" :options="tboption4" ref="table4"
                       style="font-size: smaller" class="border border-success display w-100 compact" />
                   </MDBCol>
                   <MDBCol col="6" class="mb-0">
-                    <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr_title[nowUcItemFr]" @keyup="getItemData"/>
+                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr_title[nowUcItemFr]" @keyup="getItemData"/>
                   </MDBCol>
                   <MDBCol col="6" class="mb-0">
-                    <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr[nowUcItemFr]" @keyup="getItemData"/>
+                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr[nowUcItemFr]" @keyup="getItemData"/>
                   </MDBCol>
                   <MDBCol col="12" class="mb-2">
-                    <MDBBtn size="sm" color="primary" class="addParamBtn" @click="addParam(4)"><i class="fas fa-angle-double-down"></i></MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(4)"><i class="fas fa-angle-double-down"></i></MDBBtn>
                   </MDBCol>
                   <MDBCol col="12" class="mb-3">
-                    <MDBTextarea v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="freedom計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].freedom"/>
+                    <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="freedom計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].freedom"/>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -753,8 +797,8 @@ testUcOnDone(result=>{
                 <MDBRow>
                   <!-- factor -->
                   <MDBCol md="12" class="mt-2">
-                    <MDBBtn size="sm" color="primary" @click="addFa">增加項目</MDBBtn>
-                    <MDBBtn size="sm" color="primary" @click="delFa">刪除項目</MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addFa">增加項目</MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delFa">刪除項目</MDBBtn>
                   </MDBCol>
                   <MDBCol md="12" class="mb-3">
                     <DataTable :data="data5" :columns="columns5" :options="tboption5" ref="table5"
@@ -762,16 +806,16 @@ testUcOnDone(result=>{
                   </MDBCol>
 
                   <MDBCol col="6" class="mb-0">
-                    <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa_title[nowUcItemFa]" @keyup="getItemData"/>
+                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa_title[nowUcItemFa]" @keyup="getItemData"/>
                   </MDBCol>
                   <MDBCol col="6" class="mb-0">
-                    <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa[nowUcItemFa]" @keyup="getItemData"/>
+                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa[nowUcItemFa]" @keyup="getItemData"/>
                   </MDBCol>
                   <MDBCol col="12" class="mb-2">
-                    <MDBBtn size="sm" color="primary" class="addParamBtn" @click="addParam(5)"><i class="fas fa-angle-double-down"></i></MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(5)"><i class="fas fa-angle-double-down"></i></MDBBtn>
                   </MDBCol>
                   <MDBCol col="12" class="mb-3">
-                    <MDBTextarea v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="factor計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].factor"/>
+                    <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="factor計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].factor"/>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>

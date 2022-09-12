@@ -52,6 +52,8 @@ import { floatify } from "../methods/mathpor";
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
 
+// 取得權限
+const rGroup = inject("rGroup");
 // 引入案件編號
 const props = defineProps({
   caseID: String,
@@ -2033,7 +2035,7 @@ defineExpose({
                 <MDBRow>
                   <MDBCol v-if="!isSMCam" col="12" class="border-bottom">
                     像機類型：
-                    <MDBRadio
+                    <MDBRadio :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       label="大像幅"
@@ -2042,7 +2044,7 @@ defineExpose({
                       inline
                       name="caseCamType"
                     />
-                    <MDBRadio
+                    <MDBRadio :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       label="中像幅"
@@ -2053,7 +2055,7 @@ defineExpose({
                     />
                   </MDBCol>
                   <MDBCol col="12" class="my-3">
-                    <MDBBtn
+                    <MDBBtn :disabled="!rGroup[2]"
                       size="sm"
                       color="primary"
                       @click="showItemFrom = true"
@@ -2123,104 +2125,104 @@ defineExpose({
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="焦距(mm)"
                       v-model="nowCaseFocal"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="像主點_X"
                       v-model="nowCasePPAx"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="像主點_Y"
                       v-model="nowCasePPAy"
                     />
                   </MDBCol>
                   <MDBCol col="3" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="像元數(rows)"
                       v-model="nowCasePXh"
                     />
                   </MDBCol>
                   <MDBCol col="3" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="像元數(columns)"
                       v-model="nowCasePXw"
                     />
                   </MDBCol>
                   <MDBCol col="3" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="像元尺寸_x(um)"
                       v-model="nowCasePxSizeX"
                     />
                   </MDBCol>
                   <MDBCol col="3" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="像元尺寸_y(um)"
                       v-model="nowCasePxSizeY"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="感應器尺寸_x(mm)"
                       v-model="nowCaseSizeX"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="感應器尺寸_y(mm)"
                       v-model="nowCaseSizeY"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3 ps-0">
-                    <MDBBtn size="sm" color="primary" @click="comSensorSize"
+                    <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="comSensorSize"
                       >計算尺寸</MDBBtn
                     >
                   </MDBCol>
                   <MDBCol col="12">
                     <MDBRow v-if="isSMCam">
                       <MDBCol col="4" class="mb-3">
-                        <MDBInput
+                        <MDBInput :disabled="!rGroup[2]"
                           tooltipFeedback
                           required
                           size="sm"
@@ -2230,7 +2232,7 @@ defineExpose({
                         />
                       </MDBCol>
                       <MDBCol col="4" class="mb-3">
-                        <MDBInput
+                        <MDBInput :disabled="!rGroup[2]"
                           tooltipFeedback
                           required
                           size="sm"
@@ -2249,93 +2251,93 @@ defineExpose({
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="4" class="my-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="預定拍攝年(民國)"
                       v-model="nowCasePlanY"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="my-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="預定拍攝月"
                       v-model="nowCasePlanM"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="my-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="地元尺寸GSD"
                       v-model="nowCaseGSD"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="南北航線數"
                       v-model="nowCaseStripsNS"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="東西航線數"
                       v-model="nowCaseStripsEW"
                     />
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="前後重疊率 %"
                       v-model="nowCaseEndLap"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="側向重疊率 %"
                       v-model="nowCaseSideLap"
                     />
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="飛航橢球高(m)"
                       v-model="nowCaseEllH"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       tooltipFeedback
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="飛航離地高AGL(m)"
                       v-model="nowCaseAGL"
                     />
@@ -2364,7 +2366,7 @@ defineExpose({
                       label="像機率定報告"
                       v-model="nowCaseCamReport"
                     >
-                      <MDBBtnClose
+                      <MDBBtnClose :disabled="!rGroup[2]"
                         @click.prevent="nowCaseCamReport = ''"
                         class="btn-upload-close"
                       />
@@ -2377,7 +2379,7 @@ defineExpose({
                       @change="uploadChenge($event)"
                       style="display: none"
                     />
-                    <MDBBtn
+                    <MDBBtn :disabled="!rGroup[2]"
                       size="sm"
                       color="primary"
                       @click="uploadBtn('itemCamReportUpload')"
@@ -2405,7 +2407,7 @@ defineExpose({
                       label="航線規劃圖"
                       v-model="nowCasePlanMap"
                     >
-                      <MDBBtnClose
+                      <MDBBtnClose :disabled="!rGroup[2]"
                         @click.prevent="nowCasePlanMap = ''"
                         class="btn-upload-close"
                       />
@@ -2419,7 +2421,7 @@ defineExpose({
                       @change="uploadChenge($event)"
                       style="display: none"
                     />
-                    <MDBBtn
+                    <MDBBtn :disabled="!rGroup[2]"
                       size="sm"
                       color="primary"
                       @click="uploadBtn('planMapUpload')"
@@ -2470,67 +2472,67 @@ defineExpose({
                     />
                   </MDBCol>
                   <MDBCol col="4" class="my-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="實際GSD(cm)"
                       v-model="nowCaseGSDac"
                     />
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="實際南北航線數"
                       v-model="nowCaseStrNSac"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="實際東西航線數"
                       v-model="nowCaseStrEWac"
                     />
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="實際前後重疊率(%)"
                       v-model="nowCaseEndLapAc"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="實際側向重疊率(%)"
                       v-model="nowCaseSideLapAc"
                     />
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="實際橢球高(m)"
                       v-model="nowCaseEllHac"
                     />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="實際離地高AGL(m)"
                       v-model="nowCaseAGLac"
                     />
@@ -2559,7 +2561,7 @@ defineExpose({
                       label="像機參數"
                       v-model="nowCaseCamUpload"
                     >
-                      <MDBBtnClose
+                      <MDBBtnClose :disabled="!rGroup[2]"
                         @click.prevent="nowCaseCamUpload = ''"
                         class="btn-upload-close"
                       />
@@ -2572,7 +2574,7 @@ defineExpose({
                       @change="uploadChenge($event)"
                       style="display: none"
                     />
-                    <MDBBtn
+                    <MDBBtn :disabled="!rGroup[2]"
                       size="sm"
                       color="primary"
                       @click="uploadBtn('CamUploadUpload')"
@@ -2600,7 +2602,7 @@ defineExpose({
                       label="實際航線圖"
                       v-model="nowCaseFlyMapAc"
                     >
-                      <MDBBtnClose
+                      <MDBBtnClose :disabled="!rGroup[2]"
                         @click.prevent="nowCaseFlyMapAc = ''"
                         class="btn-upload-close"
                       />
@@ -2614,7 +2616,7 @@ defineExpose({
                       @change="uploadChenge($event)"
                       style="display: none"
                     />
-                    <MDBBtn
+                    <MDBBtn :disabled="!rGroup[2]"
                       size="sm"
                       color="primary"
                       @click="uploadBtn('FlyMapAcUpload')"
@@ -2641,7 +2643,7 @@ defineExpose({
                       label="航拍紀錄表"
                       v-model="nowCaseRecTable"
                     >
-                      <MDBBtnClose
+                      <MDBBtnClose :disabled="!rGroup[2]"
                         @click.prevent="nowCaseRecTable = ''"
                         class="btn-upload-close"
                       />
@@ -2655,7 +2657,7 @@ defineExpose({
                       @change="uploadChenge($event)"
                       style="display: none"
                     />
-                    <MDBBtn
+                    <MDBBtn :disabled="!rGroup[2]"
                       size="sm"
                       color="primary"
                       @click="uploadBtn('RecTableUpload')"
@@ -2682,7 +2684,7 @@ defineExpose({
                       label="外方位紀錄檔"
                       v-model="nowCaseEO"
                     >
-                      <MDBBtnClose
+                      <MDBBtnClose :disabled="!rGroup[2]"
                         @click.prevent="nowCaseEO = ''"
                         class="btn-upload-close"
                       />
@@ -2695,7 +2697,7 @@ defineExpose({
                       @change="uploadChenge($event)"
                       style="display: none"
                     />
-                    <MDBBtn
+                    <MDBBtn :disabled="!rGroup[2]"
                       size="sm"
                       color="primary"
                       @click="uploadBtn('EOUpload')"
@@ -2711,9 +2713,9 @@ defineExpose({
                     >
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       size="sm"
-                      type="number"
+                      type="text"
                       label="送校影像數"
                       v-model="nowCasePhotoNo"
                     />
@@ -2731,7 +2733,7 @@ defineExpose({
                       label="設備佐證照片"
                       v-model="nowCaseOther"
                     >
-                      <MDBBtnClose
+                      <MDBBtnClose :disabled="!rGroup[2]"
                         @click.prevent="nowCaseOther = ''"
                         class="btn-upload-close"
                       />
@@ -2744,7 +2746,7 @@ defineExpose({
                       @change="uploadChenge($event)"
                       style="display: none"
                     />
-                    <MDBBtn
+                    <MDBBtn :disabled="!rGroup[2]"
                       size="sm"
                       color="primary"
                       @click="uploadBtn('OtherUpload')"
@@ -2767,7 +2769,7 @@ defineExpose({
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
-                    <MDBTextarea
+                    <MDBTextarea :disabled="!rGroup[2]"
                       size="sm"
                       label="文件異常註記"
                       rows="2"
@@ -2775,7 +2777,7 @@ defineExpose({
                     />
                   </MDBCol>
                   <MDBCol col="12" class="mb-3">
-                    <MDBTextarea
+                    <MDBTextarea :disabled="!rGroup[2]"
                       size="sm"
                       label="影像異常註記"
                       rows="2"
@@ -2808,13 +2810,13 @@ defineExpose({
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
-                    <MDBBtn
+                    <MDBBtn :disabled="!rGroup[2]"
                       size="sm"
                       color="primary"
                       @click="showPrjFrom = true"
                       >查詢量測作業</MDBBtn
                     >
-                    <MDBBtn size="sm" color="primary" @click="getRefGcp"
+                    <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="getRefGcp"
                       >產生參考值檔</MDBBtn
                     >
                   </MDBCol>
@@ -2849,7 +2851,7 @@ defineExpose({
               </MDBCol>
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
-                  <MDBCol v-if="isSMCam" col="4" class="mt-3">
+                  <MDBCol :disabled="!rGroup[2]" v-if="isSMCam" col="4" class="mt-3">
                     <MDBCheckbox
                       label="是否已糾正影像"
                       v-model="nowCaseUndist"
@@ -2857,7 +2859,7 @@ defineExpose({
                   </MDBCol>
                   <div></div>
                   <MDBCol col="6" class="my-3">
-                    <MDBTextarea
+                    <MDBTextarea :disabled="!rGroup[2]"
                       size="sm"
                       label="刪除註記"
                       rows="4"
@@ -2865,7 +2867,7 @@ defineExpose({
                     />
                   </MDBCol>
                   <MDBCol col="6" class="my-3">
-                    <MDBTextarea
+                    <MDBTextarea :disabled="!rGroup[2]"
                       required
                       size="sm"
                       label="畸變差參數"
@@ -2914,10 +2916,10 @@ defineExpose({
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput
+                    <MDBInput :disabled="!rGroup[2]"
                       required
                       size="sm"
-                      type="number"
+                      type="text"
                       label="自由網中誤差(um)"
                       v-model="nowCaseFreeStd"
                     />
@@ -2934,7 +2936,7 @@ defineExpose({
                       label="自由網專案檔"
                       v-model="nowCaseFreeUpload"
                     >
-                      <MDBBtnClose
+                      <MDBBtnClose :disabled="!rGroup[2]"
                         @click.prevent="nowCaseFreeUpload = ''"
                         class="btn-upload-close"
                       />
@@ -2947,7 +2949,7 @@ defineExpose({
                       @change="uploadChenge($event)"
                       style="display: none"
                     />
-                    <MDBBtn
+                    <MDBBtn :disabled="!rGroup[2]"
                       size="sm"
                       color="primary"
                       @click="uploadBtn('FreeUpload')"
@@ -2985,7 +2987,7 @@ defineExpose({
                       label="強制網專案檔"
                       v-model="nowCaseFixUpload"
                     >
-                      <MDBBtnClose
+                      <MDBBtnClose :disabled="!rGroup[2]"
                         @click.prevent="nowCaseFixUpload = ''"
                         class="btn-upload-close"
                       />
@@ -2998,7 +3000,7 @@ defineExpose({
                       @change="uploadChenge($event)"
                       style="display: none"
                     />
-                    <MDBBtn
+                    <MDBBtn :disabled="!rGroup[2]"
                       size="sm"
                       color="primary"
                       @click="uploadBtn('FixUpload')"
@@ -3025,7 +3027,7 @@ defineExpose({
                       label="空三報表檔"
                       v-model="nowCaseATreport"
                     >
-                      <MDBBtnClose
+                      <MDBBtnClose :disabled="!rGroup[2]"
                         @click.prevent="nowCaseATreport = ''"
                         class="btn-upload-close"
                       />
@@ -3041,7 +3043,7 @@ defineExpose({
                     <MDBBtn
                       size="sm"
                       color="primary"
-                      :disabled="selectUcModel === ''"
+                      :disabled="selectUcModel === '' && !rGroup[2]"
                       @click="uploadBtn('ATreportUpload')"
                       >上傳</MDBBtn
                     >
@@ -3271,7 +3273,7 @@ defineExpose({
                             label="網形圖"
                             v-model="nowCaseNetGraph"
                           >
-                            <MDBBtnClose
+                            <MDBBtnClose :disabled="!rGroup[2]"
                               @click.prevent="nowCaseNetGraph = ''"
                               class="btn-upload-close"
                             />
@@ -3284,7 +3286,7 @@ defineExpose({
                             @change="uploadChenge($event)"
                             style="display: none"
                           />
-                          <MDBBtn
+                          <MDBBtn :disabled="!rGroup[2]"
                             size="sm"
                             color="primary"
                             @click="uploadBtn('NetGraphUpload')"
@@ -3328,7 +3330,7 @@ defineExpose({
                             label="點位分布圖"
                             v-model="nowCaseGCPGraph"
                           >
-                            <MDBBtnClose
+                            <MDBBtnClose :disabled="!rGroup[2]"
                               @click.prevent="nowCaseGCPGraph = ''"
                               class="btn-upload-close"
                             />
@@ -3341,7 +3343,7 @@ defineExpose({
                             @change="uploadChenge($event)"
                             style="display: none"
                           />
-                          <MDBBtn
+                          <MDBBtn :disabled="!rGroup[2]"
                             size="sm"
                             color="primary"
                             @click="uploadBtn('GCPGraphUpload')"
@@ -3390,7 +3392,7 @@ defineExpose({
                   <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                     <MDBRow>
                       <MDBCol col="12" class="my-3">
-                        <MDBSwitch
+                        <MDBSwitch :disabled="!rGroup[2]"
                           label="具TAF-LOGO"
                           v-model="nowCaseHasLOGO"
                         />
@@ -3398,7 +3400,7 @@ defineExpose({
                       <!-- 選擇報告範本 -->
                       <SelectRptTemp/>
                       <MDBCol col="12" class="mb-3">
-                        <MDBBtn size="sm" color="secondary" @click="buildReportBtn()"
+                        <MDBBtn :disabled="!rGroup[2]" size="sm" color="secondary" @click="buildReportBtn()"
                           >產生報告</MDBBtn
                         >
                       </MDBCol>
@@ -3415,7 +3417,7 @@ defineExpose({
                           label="報告編輯檔"
                           v-model="nowCaseReportEdit"
                         >
-                          <MDBBtnClose
+                          <MDBBtnClose :disabled="!rGroup[2]"
                             @click.prevent="nowCaseReportEdit = ''"
                             class="btn-upload-close"
                           />
@@ -3428,7 +3430,7 @@ defineExpose({
                           @change=""
                           style="display: none"
                         />
-                        <MDBBtn size="sm" color="primary" @click="uploadBtn('ReportEditUpload')"
+                        <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('ReportEditUpload')"
                           >上傳</MDBBtn
                         >
                         <MDBBtn
@@ -3472,7 +3474,7 @@ defineExpose({
                           label="報告掃描檔"
                           v-model="nowCaseReportScan"
                         >
-                          <MDBBtnClose
+                          <MDBBtnClose :disabled="!rGroup[2]"
                             @click.prevent="nowCaseReportScan = ''"
                             class="btn-upload-close"
                           />
@@ -3485,7 +3487,7 @@ defineExpose({
                           @change="uploadChenge($event)"
                           style="display: none"
                         />
-                        <MDBBtn
+                        <MDBBtn :disabled="!rGroup[2]"
                           size="sm"
                           color="primary"
                           @click="uploadBtn('ReportScanUpload')"

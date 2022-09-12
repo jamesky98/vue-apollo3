@@ -98,7 +98,7 @@ signupOnDone(result => {
                         wrapperClass="mb-4" />
                     </div>
                     <div class="text-center pt-1 mb-5 pb-1">
-                      <MDBBtn color="primary" block class="fa-lg gradient-custom-2 col-12" type="submit">註冊
+                      <MDBBtn color="primary" block class="fs-6 gradient-custom-2 col-12" type="submit">註冊
                       </MDBBtn>
                     </div>
 

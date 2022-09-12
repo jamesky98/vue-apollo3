@@ -15,8 +15,6 @@ import {
   MDBAlert,
   MDBSwitch,
 } from 'mdb-vue-ui-kit';
-import CaseGQL from "../graphql/Cases";
-import jStat from "jstat";
 
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
@@ -26,11 +24,9 @@ import { computed } from "@vue/reactivity";
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { logIn, logOut, toTWDate } from '../methods/User';
-import router from '../router';
+import { logOut } from '../methods/User';
 const { onResult: getchecktoken, refetch: refgetCheckToken } = useQuery(UsersGQL.CHECKTOKEN);
 getchecktoken(result => {
-  console.log(result.data.checktoken);
   if (!result.data.checktoken) {
     logOut();
   }
@@ -39,7 +35,60 @@ refgetCheckToken();
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
-  
+// 取得權限==========Start
+// const myUserId = ref("");
+const myUserName = ref("");
+// const myUserName2 = ref("");
+// const myUserEmail = ref("");
+// const myUserActive = ref(false);
+const myUserRole = ref("");
+
+const { onResult: getNowUser, refetch: refgetNowUser} = useQuery(UsersGQL.GETNOWUSER);
+getNowUser(result=>{
+  if (!result.loading && result && result.data.getNowUser) {
+    let getData = result.data.getNowUser;
+    // myUserId.value = getData.user_id;
+    myUserName.value = getData.user_name;
+    // myUserName2.value = getData.user_name2;
+    // myUserEmail.value = getData.user_mail;
+    // myUserActive.value = (getData.active===1)?true:false;
+    myUserRole.value = getData.role;
+  }
+});
+refgetNowUser();
+const rGroup =computed(()=>{
+  let result=[];
+  // rGroup[0]最高權限
+  // rGroup[1]技術主管專用
+  // rGroup[2]技術人員專用(非己不可改)
+  // rGroup[3]最低權限
+  // rGroup[4]完全開放
+  switch (myUserRole.value){
+    case 0:
+      if(myUserName.value===nowUserName.value){
+        result = [false,false,false,false,true];
+      }else{
+        result = [false,false,false,false,false];
+      }
+      break;
+    case 1:
+      if(myUserName.value===nowUserName.value){
+        result = [false,false,true,true,true];
+      }else{
+        result = [false,false,false,false,false];
+      }
+      break;
+    case 2:
+      result = [false,true,false,true,true];
+      break;
+    case 3:
+      result = [true,true,true,true,true];
+    break;
+  }
+  return result;
+});
+// 取得權限==========End
+
 // 引入案件編號
 const props = defineProps({
   userName: String,
@@ -194,50 +243,6 @@ changePassOnDone(result=>{
   infomsg.value = result.data.changePASSWord;
 });
 
-// 取得權限
-const myUserId = ref("");
-const myUserName = ref("");
-const myUserName2 = ref("");
-const myUserEmail = ref("");
-const myUserActive = ref(false);
-const myUserRole = ref("");
-
-const rightGroup = ref([false,false]);
-const { onResult: getNowUser, refetch: refgetNowUser} = useQuery(UsersGQL.GETNOWUSER);
-getNowUser(result=>{
-  if (!result.loading && result && result.data.getNowUser) {
-    let getData = result.data.getNowUser;
-    myUserId.value = getData.user_id;
-    myUserName.value = getData.user_name;
-    myUserName2.value = getData.user_name2;
-    myUserEmail.value = getData.user_mail;
-    myUserActive.value = (getData.active===1)?true:false;
-    myUserRole.value = getData.role;
-  }
-});
-refgetNowUser();
-
-function setRightGroup(){
-  switch (myUserRole.value){
-    case 0:
-      rightGroup.value=[false,false];
-      break;
-    case 1:
-      if(myUserName.value===nowUserName.value){
-        rightGroup.value=[true,true];
-      }else{
-        rightGroup.value=[false,false];
-      }
-      break;
-    case 2:
-      rightGroup.value=[false,true];
-      break;
-    case 3:
-      rightGroup.value=[true,true];
-    break;
-  }
-}
-
 </script>
 <template>
   <MDBAlert dismiss v-model="alert1" id="alert-primary" :color="alertColor" position="top-right" stacking width="535px"
@@ -269,12 +274,12 @@ function setRightGroup(){
                     <MDBInput readonly size="sm" type="number" label="員工編號" v-model="nowUserName"/>
                   </MDBCol>
                   <MDBCol col="12" class="mb-3">
-                    <MDBInput size="sm" type="text" label="姓名" v-model="nowUserName2"/>
+                    <MDBInput :readonly="!rGroup[4]" size="sm" type="text" label="姓名" v-model="nowUserName2"/>
                   </MDBCol>
                   <MDBCol col="12" class="mb-3">
-                    <MDBInput size="sm" type="email" label="E-mail" v-model="nowUserEmail"/>
+                    <MDBInput :readonly="!rGroup[4]" size="sm" type="email" label="E-mail" v-model="nowUserEmail"/>
                   </MDBCol>
-                  <MDBSelect size="sm" class="mb-3 col-12" label="權限" v-model:options="nowUserRoleMU"
+                  <MDBSelect :disabled="!rGroup[1]" size="sm" class="mb-3 col-12" label="權限" v-model:options="nowUserRoleMU"
                     v-model:selected="selectUserRole" ref="nowUserRoleDOM"/>
                   <MDBCol col="12" class="mb-3">
                     <MDBBtn size="sm" color="primary" @click="saveUser">
@@ -288,20 +293,20 @@ function setRightGroup(){
               </MDBCol>
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
-                  <MDBCol col="12" class="my-3">
+                  <MDBCol v-if="!rGroup[0]" col="12" class="mt-3">
                     <MDBInput size="sm" type="password" label="舊密碼" v-model="oldPassWord"/>
                   </MDBCol>
-                  <MDBCol col="12" class="mb-3">
+                  <MDBCol col="12" class="mt-3">
                     <MDBInput size="sm" type="password" label="變更密碼" v-model="newPassWord"/>
                   </MDBCol>
-                  <MDBCol col="12" class="mb-3">
+                  <MDBCol col="12" class="mt-3">
                     <MDBInput size="sm" type="password" label="再次確認密碼" v-model="chkPassWord"/>
                   </MDBCol>
-                  <MDBCol col="12" class="mb-3">
-                    <MDBBtn size="sm" color="primary" @click="changePassWord(false)">
+                  <MDBCol col="12" class="my-3">
+                    <MDBBtn v-if="!rGroup[0]" size="sm" color="primary" @click="changePassWord(false)">
                       變更密碼
                     </MDBBtn>
-                    <MDBBtn v-if="myUserRole===3" size="sm" color="primary" @click="changePassWord(true)">
+                    <MDBBtn v-if="rGroup[0]" size="sm" color="primary" @click="changePassWord(true)">
                       逕行變更
                     </MDBBtn>
                   </MDBCol>
