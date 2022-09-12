@@ -100,7 +100,6 @@ const SIGNUPMU = gql`
 const UPDATEUSER = gql`
   mutation UpdateUser(
     $userId: Int!
-    $userName: String
     $userName2: String
     $userPassword: String
     $userMail: String
@@ -109,7 +108,6 @@ const UPDATEUSER = gql`
   ) {
     updateUser(
       user_id: $userId
-      user_name: $userName
       user_name2: $userName2
       user_password: $userPassword
       user_mail: $userMail
@@ -127,7 +125,36 @@ const UPDATEUSER = gql`
   }
 `;
 
+const CHANGEPASSWORD = gql`
+  mutation ChangePASSWord(
+    $userId: Int!
+    $oldpass: String!
+    $newpass: String!
+    $chkpass: String!
+    $enforce: Boolean
+  ) {
+    changePASSWord(
+      user_id: $userId
+      oldpass: $oldpass
+      newpass: $newpass
+      chkpass: $chkpass
+      enforce: $enforce)
+  }
+`;
 
+const GETNOWUSER = gql`
+  query GetNowUser {
+    getNowUser {
+      user_id
+      user_name
+      user_mail
+      user_password
+      active
+      role
+      user_name2
+    }
+  }
+`;
 export default {
   CHECKTOKEN,
   LOGINMU,
@@ -137,4 +164,6 @@ export default {
   GETALLUSERs,
   SIGNUPMU,
   UPDATEUSER,
+  CHANGEPASSWORD,
+  GETNOWUSER,
 };

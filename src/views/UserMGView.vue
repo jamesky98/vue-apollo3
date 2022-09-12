@@ -51,14 +51,6 @@ const alert1 = ref(false);
 const alertColor = ref("primary");
 const updateKey = ref(0);
 
-
-const myUserId = ref("");
-const myUserName = ref("");
-const myUserName2 = ref("");
-const myUserEmail = ref("");
-const myUserActive = ref(false);
-const myUserRole = ref("");
-
 const nowUserId = ref("");
 const nowUserName = ref("");
 const nowUserName2 = ref("");
@@ -73,6 +65,10 @@ const nowUserRoleMU = ref([
   {text:"系統負責人",value:3},
 ]);
 const nowUserRoleDOM = ref();
+
+const oldPassWord = ref("");
+const newPassWord = ref("");
+const chkPassWord = ref("");
 
 // 人員表格
 let dt1;
@@ -146,14 +142,6 @@ const { onResult: getUserbyName, refetch: refgetUserbyName} = useQuery(
 getUserbyName(result=>{
   if (!result.loading && result && result.data.getUserByName) {
     let getData = result.data.getUserByName;
-
-    myUserId.value = getData.user_id;
-    myUserName.value = getData.user_name;
-    myUserName2.value = getData.user_name2;
-    myUserEmail.value = getData.user_mail;
-    myUserActive.value = (getData.active===1)?true:false;
-    myUserRole.value = getData.role;
-
     nowUserId.value = getData.user_id;
     nowUserName.value = getData.user_name;
     nowUserName2.value = getData.user_name2;
@@ -171,7 +159,6 @@ const { mutate: saveUser, onDone: saveUserOnDone, onError: saveUserError } = use
   () => ({
     variables: {
       userId: parseInt(nowUserId.value),
-      userName: nowUserName.value,
       userName2: nowUserName2.value,
       userMail: nowUserEmail.value,
       active: (nowUserActive.value)?1:0,
@@ -182,6 +169,74 @@ const { mutate: saveUser, onDone: saveUserOnDone, onError: saveUserError } = use
 saveUserOnDone(result=>{
   refgetAllUser();
 });
+
+// 儲存使用者
+function changePassWord(enforce){
+  if(enforce){
+    changePass({enforce: true});
+  }else{
+    changePass({enforce: false});
+  }
+}
+
+const { mutate: changePass, onDone: changePassOnDone, onError: changePassError } = useMutation(
+  UsersGQL.CHANGEPASSWORD,
+  () => ({
+    variables: {
+      userId: parseInt(nowUserId.value),
+      oldpass: oldPassWord.value,
+      newpass: newPassWord.value,
+      chkpass: chkPassWord.value,
+    }
+  })
+);
+changePassOnDone(result=>{
+  infomsg.value = result.data.changePASSWord;
+});
+
+// 取得權限
+const myUserId = ref("");
+const myUserName = ref("");
+const myUserName2 = ref("");
+const myUserEmail = ref("");
+const myUserActive = ref(false);
+const myUserRole = ref("");
+
+const rightGroup = ref([false,false]);
+const { onResult: getNowUser, refetch: refgetNowUser} = useQuery(UsersGQL.GETNOWUSER);
+getNowUser(result=>{
+  if (!result.loading && result && result.data.getNowUser) {
+    let getData = result.data.getNowUser;
+    myUserId.value = getData.user_id;
+    myUserName.value = getData.user_name;
+    myUserName2.value = getData.user_name2;
+    myUserEmail.value = getData.user_mail;
+    myUserActive.value = (getData.active===1)?true:false;
+    myUserRole.value = getData.role;
+  }
+});
+refgetNowUser();
+
+function setRightGroup(){
+  switch (myUserRole.value){
+    case 0:
+      rightGroup.value=[false,false];
+      break;
+    case 1:
+      if(myUserName.value===nowUserName.value){
+        rightGroup.value=[true,true];
+      }else{
+        rightGroup.value=[false,false];
+      }
+      break;
+    case 2:
+      rightGroup.value=[false,true];
+      break;
+    case 3:
+      rightGroup.value=[true,true];
+    break;
+  }
+}
 
 </script>
 <template>
@@ -211,13 +266,13 @@ saveUserOnDone(result=>{
                     <MDBSwitch label="啟用狀態" v-model="nowUserActive"/>
                   </MDBCol>
                   <MDBCol col="12" class="mb-3">
-                    <MDBInput size="sm" type="text" label="員工編號" v-model="nowUserName"/>
+                    <MDBInput readonly size="sm" type="number" label="員工編號" v-model="nowUserName"/>
                   </MDBCol>
                   <MDBCol col="12" class="mb-3">
                     <MDBInput size="sm" type="text" label="姓名" v-model="nowUserName2"/>
                   </MDBCol>
                   <MDBCol col="12" class="mb-3">
-                    <MDBInput size="sm" type="text" label="E-mail" v-model="nowUserEmail"/>
+                    <MDBInput size="sm" type="email" label="E-mail" v-model="nowUserEmail"/>
                   </MDBCol>
                   <MDBSelect size="sm" class="mb-3 col-12" label="權限" v-model:options="nowUserRoleMU"
                     v-model:selected="selectUserRole" ref="nowUserRoleDOM"/>
@@ -234,17 +289,20 @@ saveUserOnDone(result=>{
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
-                    <MDBInput size="sm" type="text" label="舊密碼"/>
+                    <MDBInput size="sm" type="password" label="舊密碼" v-model="oldPassWord"/>
                   </MDBCol>
                   <MDBCol col="12" class="mb-3">
-                    <MDBInput size="sm" type="text" label="變更密碼"/>
+                    <MDBInput size="sm" type="password" label="變更密碼" v-model="newPassWord"/>
                   </MDBCol>
                   <MDBCol col="12" class="mb-3">
-                    <MDBInput size="sm" type="text" label="再次確認密碼"/>
+                    <MDBInput size="sm" type="password" label="再次確認密碼" v-model="chkPassWord"/>
                   </MDBCol>
                   <MDBCol col="12" class="mb-3">
-                    <MDBBtn size="sm" color="primary" @click="">
+                    <MDBBtn size="sm" color="primary" @click="changePassWord(false)">
                       變更密碼
+                    </MDBBtn>
+                    <MDBBtn v-if="myUserRole===3" size="sm" color="primary" @click="changePassWord(true)">
+                      逕行變更
                     </MDBBtn>
                   </MDBCol>
                 </MDBRow>

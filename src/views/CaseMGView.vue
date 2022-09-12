@@ -858,6 +858,39 @@ refgetCaseAllItem();
   }
 // 新增案件表單==========end
 
+// 連線取得案件
+function getCaseByAPI(){
+  // const uuid = xxxxx
+  const token = "xxxxx"
+  const url = "https://sicl.kingspread.com.tw/api/DataExchange/CalibrationApplication"
+
+  let headers = {
+      // "Content-Type": "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Accept": "*/*",
+      // "Accept": "application/json",
+      // "Authorization": `Bearer ${token}`,
+  }
+
+  //以下是API文件中提及必寫的主體参數。而以下這個產品資料是六角學院提供的。
+  let body = {
+    "code": "F",
+    // "startDate": "2022/06/01",
+    // "endDate": "2022/09/12"
+  }
+
+  fetch(url,{
+    method: "POST",
+    mode: 'cors',
+    headers: headers,
+    //別忘了把主體参數轉成字串，否則資料會變成[object Object]，它無法被成功儲存在後台
+    body: JSON.stringify(body),
+  })
+  .then(response => console.log(response))
+  // .then(json => console.log(json))
+  .catch(err => console.log(err));
+}
+
 </script>
 <template>
   <MDBAlert dismiss v-model="alert1" id="alert-primary" :color="alertColor" position="top-right" stacking width="535px"
@@ -1098,9 +1131,10 @@ refgetCaseAllItem();
                 <div class="d-flex mb-3 justify-content-end">
                   <MDBBtn size="sm" color="warning" @click="AddCaseCancel()">取消</MDBBtn>
                   <MDBBtn size="sm" color="primary" type="submit">確認</MDBBtn>
+                  <MDBBtn size="sm" color="warning" @click="getCaseByAPI">連線取得</MDBBtn>
                 </div>
                 <MDBCol col="6" class="mb-4">
-                  <MDBInput required counter :maxlength="12" size="sm" type="text" label="案件編號" v-model="addCaseID" />
+                  <MDBInput required counter :maxlength="12" size="sm" type="number" label="案件編號" v-model="addCaseID" />
                 </MDBCol>
                 <div></div>
                 <MDBCol style="font-size: 0.8rem" class="mx-3 mb-3 p-2 border">

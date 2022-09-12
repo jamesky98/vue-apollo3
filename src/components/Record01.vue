@@ -2127,7 +2127,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="焦距(mm)"
                       v-model="nowCaseFocal"
                     />
@@ -2137,7 +2137,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="像主點_X"
                       v-model="nowCasePPAx"
                     />
@@ -2147,7 +2147,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="像主點_Y"
                       v-model="nowCasePPAy"
                     />
@@ -2157,7 +2157,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="像元數(rows)"
                       v-model="nowCasePXh"
                     />
@@ -2167,7 +2167,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="像元數(columns)"
                       v-model="nowCasePXw"
                     />
@@ -2177,7 +2177,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="像元尺寸_x(um)"
                       v-model="nowCasePxSizeX"
                     />
@@ -2187,7 +2187,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="像元尺寸_y(um)"
                       v-model="nowCasePxSizeY"
                     />
@@ -2197,7 +2197,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="感應器尺寸_x(mm)"
                       v-model="nowCaseSizeX"
                     />
@@ -2207,7 +2207,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="感應器尺寸_y(mm)"
                       v-model="nowCaseSizeY"
                     />
@@ -2253,7 +2253,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="預定拍攝年(民國)"
                       v-model="nowCasePlanY"
                     />
@@ -2263,7 +2263,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="預定拍攝月"
                       v-model="nowCasePlanM"
                     />
@@ -2273,7 +2273,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="地元尺寸GSD"
                       v-model="nowCaseGSD"
                     />
@@ -2283,7 +2283,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="南北航線數"
                       v-model="nowCaseStripsNS"
                     />
@@ -2293,7 +2293,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="東西航線數"
                       v-model="nowCaseStripsEW"
                     />
@@ -2304,7 +2304,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="前後重疊率 %"
                       v-model="nowCaseEndLap"
                     />
@@ -2314,7 +2314,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="側向重疊率 %"
                       v-model="nowCaseSideLap"
                     />
@@ -2325,7 +2325,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="飛航橢球高(m)"
                       v-model="nowCaseEllH"
                     />
@@ -2335,7 +2335,7 @@ defineExpose({
                       tooltipFeedback
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="飛航離地高AGL(m)"
                       v-model="nowCaseAGL"
                     />
@@ -2473,7 +2473,7 @@ defineExpose({
                     <MDBInput
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="實際GSD(cm)"
                       v-model="nowCaseGSDac"
                     />
@@ -2483,7 +2483,7 @@ defineExpose({
                     <MDBInput
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="實際南北航線數"
                       v-model="nowCaseStrNSac"
                     />
@@ -2492,7 +2492,7 @@ defineExpose({
                     <MDBInput
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="實際東西航線數"
                       v-model="nowCaseStrEWac"
                     />
@@ -2502,7 +2502,7 @@ defineExpose({
                     <MDBInput
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="實際前後重疊率(%)"
                       v-model="nowCaseEndLapAc"
                     />
@@ -2511,7 +2511,7 @@ defineExpose({
                     <MDBInput
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="實際側向重疊率(%)"
                       v-model="nowCaseSideLapAc"
                     />
@@ -2521,7 +2521,7 @@ defineExpose({
                     <MDBInput
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="實際橢球高(m)"
                       v-model="nowCaseEllHac"
                     />
@@ -2530,7 +2530,7 @@ defineExpose({
                     <MDBInput
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="實際離地高AGL(m)"
                       v-model="nowCaseAGLac"
                     />
@@ -2713,7 +2713,7 @@ defineExpose({
                   <MDBCol col="4" class="mb-3">
                     <MDBInput
                       size="sm"
-                      type="text"
+                      type="number"
                       label="送校影像數"
                       v-model="nowCasePhotoNo"
                     />
@@ -2917,7 +2917,7 @@ defineExpose({
                     <MDBInput
                       required
                       size="sm"
-                      type="text"
+                      type="number"
                       label="自由網中誤差(um)"
                       v-model="nowCaseFreeStd"
                     />
