@@ -226,7 +226,7 @@ const updateKey = ref(0);
     { data: "agreement", title: "協議事項", defaultContent: "-", visible: true },
   ];
   const tboption1 = {
-    dom: 'ti',
+    dom: 'tif',
     select: {
       style: 'single',
       info: false
@@ -235,7 +235,7 @@ const updateKey = ref(0);
     scrollY: '53vh',
     scrollX: true,
     lengthChange: false,
-    searching: false,
+    searching: true,
     paging: false,
     responsive: true,
     language: {
@@ -1239,6 +1239,9 @@ function getCaseByAPI(){
 .datatable tbody tr:last-child {
   border-bottom: rgba(0,0,0,0);
   height: auto;
+}
+div.dataTables_filter{
+  padding-top: 0.85em;
 }
 .colAlignRight{
   text-align: right;

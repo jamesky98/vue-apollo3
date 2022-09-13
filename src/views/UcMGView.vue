@@ -290,6 +290,7 @@ getCaseCalType(result => {
     }); nowUcCalTypeMU.value.unshift({ text: "", value: "" });
   }
 });
+refgetCaseCalType();
 
 // 取得不確定度列表
 const {
@@ -439,8 +440,11 @@ saveUcModuleOnDone(result=>{
   // console.log(nowUcModule.uc);
   // 更新狀態訊息
   infomsg.value = "模組 "+ nowUcModuleName.value + "儲存完畢";
-  alertColor.value = "primary";
-  alert1.value = true;
+  // alertColor.value = "primary";
+  // alert1.value = true;
+  getUcList().then(res=>{
+    nowUcModuleNameDOM.value.setValue(result.data.saveUcModule);
+  });
 });
 
 // 增加Section
@@ -592,9 +596,9 @@ const { mutate: testUc, onDone: testUcOnDone, onError: testUcError } = useMutati
 );
 testUcOnDone(result=>{
   // 更新狀態訊息
-  infomsg.value = "試算結果 ucH: "+ result.data.getUcResultformJson.ucH + " ucV: " + result.data.getUcResultformJson.ucV;
-  alertColor.value = "primary";
-  alert1.value = true;
+  infomsg.value = "試算結果 ucH: "+ result.data.getUcResultformJson.ucH_o + " ucV: " + result.data.getUcResultformJson.ucV_o;
+  // alertColor.value = "primary";
+  // alert1.value = true;
 });
 
 
@@ -755,7 +759,7 @@ testUcOnDone(result=>{
                     <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x[nowUcItemX]" @keyup="getItemData"/>
                   </MDBCol>
                   <MDBCol col="12" class="mb-2">
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(4)"><i class="fas fa-angle-double-down"></i></MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(3)"><i class="fas fa-angle-double-down"></i></MDBBtn>
                   </MDBCol>
                   <MDBCol col="12" class="mb-3">
                     <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="ux計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].ux"/>

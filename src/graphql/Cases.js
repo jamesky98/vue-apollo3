@@ -891,9 +891,13 @@ const GETUCRESULTFORMJSON = gql`
   mutation GetUcResultformJson($filename: String) {
     getUcResultformJson(filename: $filename) {
       ucH
+      ucH_s
+      ucH_o
       freeH
       tinvH
       ucV
+      ucV_s
+      ucV_o
       freeV
       tinvV
       calType

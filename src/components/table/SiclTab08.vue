@@ -24,6 +24,7 @@ const nowUcminUcH = ref("");
 const nowUcminUcV = ref("");
 const nowUcCombUxH = ref("");
 const nowUcCombUxV = ref("");
+const nowUcConfLevel = ref("");
 const nowUcData = ref([]);
 
 // 查詢GetUcResultformJsom
@@ -44,14 +45,15 @@ testUcOnDone(result => {
 		nowUcPrjCode.value = nowUcResult.prjcode;
 		nowUcfreeH.value = nowUcResult.freeH.toFixed(viewDig);
 		nowUcfreeV.value = nowUcResult.freeV.toFixed(viewDig);
-		nowUctinvH.value = nowUcResult.tinvH.toFixed(viewDig);
-		nowUctinvV.value = nowUcResult.tinvV.toFixed(viewDig);
-		nowUcH.value = nowUcResult.ucH.toFixed(viewDig);
-		nowUcV.value = nowUcResult.ucV.toFixed(viewDig);
+		nowUctinvH.value = nowUcResult.tinvH.toFixed(viewDigsub);
+		nowUctinvV.value = nowUcResult.tinvV.toFixed(viewDigsub);
+		nowUcH.value = nowUcResult.ucH_o.toFixed(viewDig);
+		nowUcV.value = nowUcResult.ucV_o.toFixed(viewDig);
 		nowUcminUcH.value = nowUcResult.minUcH.toFixed(viewDig);
 		nowUcminUcV.value = nowUcResult.minUcV.toFixed(viewDig);
-		nowUcCombUxH.value = (nowUcResult.ucH / nowUcResult.tinvH).toFixed(viewDig);
-		nowUcCombUxV.value = (nowUcResult.ucV / nowUcResult.tinvV).toFixed(viewDig);
+		nowUcCombUxH.value = nowUcResult.ucH_s.toFixed(viewDigsub);
+		nowUcCombUxV.value = nowUcResult.ucV_s.toFixed(viewDigsub);
+		nowUcConfLevel.value = nowUcResult.confLevel.toFixed(viewDig);
 		nowUcData.value = nowUcResult.data;
   }
 });
@@ -75,39 +77,39 @@ testUc();
 			</tr>
 			<tr class="fstyle02">
 				<td class="bglightGreen">組合不確定度</td>
-				<td class="bglightGreen">{{nowUcCombUxH}}</td>
+				<td class="fstyle02right bglightGreen">{{nowUcCombUxH}}</td>
 				<td class="bglightBlue">組合不確定度</td>
-				<td class="bglightBlue">{{nowUcCombUxV}}</td>
+				<td class="fstyle02right bglightBlue">{{nowUcCombUxV}}</td>
 			</tr>
 			<tr class="fstyle02">
 				<td class="bglightGreen">有效自由度</td>
-				<td class="bglightGreen">{{nowUcfreeH}}</td>
+				<td class="fstyle02right bglightGreen">{{nowUcfreeH}}</td>
 				<td class="bglightBlue">有效自由度</td>
-				<td class="bglightBlue">{{nowUcfreeV}}</td>
+				<td class="fstyle02right bglightBlue">{{nowUcfreeV}}</td>
 			</tr>
 			<tr class="fstyle02">
 				<td class="bglightGreen">信賴水準</td>
-				<td class="bglightGreen">95%</td>
+				<td class="fstyle02right bglightGreen">{{nowUcConfLevel*100}} %</td>
 				<td class="bglightBlue">信賴水準</td>
-				<td class="bglightBlue">95%</td>
+				<td class="fstyle02right bglightBlue">{{nowUcConfLevel*100}} %</td>
 			</tr>
 			<tr class="fstyle02">
 				<td class="bglightGreen">涵蓋因子</td>
-				<td class="bglightGreen">{{nowUctinvH}}</td>
+				<td class="fstyle02right bglightGreen">{{nowUctinvH}}</td>
 				<td class="bglightBlue">涵蓋因子</td>
-				<td class="bglightBlue">{{nowUctinvV}}</td>
+				<td class="fstyle02right bglightBlue">{{nowUctinvV}}</td>
 			</tr>
 			<tr class="fstyle02">
 				<td class="bglightGreen">擴充不確定度</td>
-				<td class="bgGreen1">{{nowUcH}}</td>
+				<td class="fstyle02right bgGreen1">{{nowUcH}}</td>
 				<td class="bglightBlue">擴充不確定度</td>
-				<td class="bgBlue1">{{nowUcV}}</td>
+				<td class="fstyle02right bgBlue1">{{nowUcV}}</td>
 			</tr>
 			<tr class="fstyle02">
 				<td class="bgGreen2 fontYellow">最小不確定度</td>
-				<td class="bgGreen2 fontYellow">{{nowUcminUcH}}</td>
+				<td class="fstyle02right bgGreen2 fontYellow">{{nowUcminUcH}}</td>
 				<td class="bgBlue2 fontYellow">最小不確定度</td>
-				<td class="bgBlue2 fontYellow">{{nowUcminUcV}}</td>
+				<td class="fstyle02right bgBlue2 fontYellow">{{nowUcminUcV}}</td>
 			</tr>
 		</table>
 		<div v-for="(UcItem, index) in nowUcData" :key="index" style="width: 100%;">
@@ -137,7 +139,7 @@ testUc();
 						<td>{{subItem.freedom.toFixed(viewDig)}}</td>
 						<td>{{subItem.factor.toFixed(viewDig)}}</td>
 						<td>{{((subItem.ux**2)*subItem.factor).toFixed(viewDigsub)}}</td>
-						<td>{{((subItem.ux**4)*subItem.factor).toFixed(viewDigsub)}}</td>
+						<td>{{(((subItem.ux**4)*subItem.factor)/subItem.freedom).toFixed(viewDigsub)}}</td>
 						<td class="fstyle02 nowrap" :frequency="subItem.frequency">{{subItem.frequency}}</td>
 						<td class="fstyle02 bgWrite">
 							<span v-for="(x, xindex) in subItem.x" style="margin-right: 10px;">
