@@ -10,22 +10,8 @@ import {
   MDBRow,
   MDBContainer,
   MDBSelect,
-  MDBDatepicker,
   MDBBtn,
-  MDBPopconfirm,
-  MDBIcon,
-  MDBAnimation,
   MDBAlert,
-  MDBModal,
-  MDBModalHeader,
-  MDBModalTitle,
-  MDBModalBody,
-  MDBModalFooter,
-  MDBTabs,
-  MDBTabNav,
-  MDBTabContent,
-  MDBTabItem,
-  MDBTabPane,
 } from 'mdb-vue-ui-kit';
 import CaseGQL from "../graphql/Cases";
 import jStat from "jstat";
