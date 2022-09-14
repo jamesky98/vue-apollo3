@@ -332,8 +332,6 @@ changePassOnDone(result=>{
             </MDBRow>
           </MDBCol>
         </MDBRow>
-        
-
       </div>
       <!-- 頁腳 -->
       <Footer1 :msg="infomsg" />

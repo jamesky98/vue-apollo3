@@ -139,7 +139,7 @@ testUc();
 						<td>{{subItem.freedom.toFixed(viewDig)}}</td>
 						<td>{{subItem.factor.toFixed(viewDig)}}</td>
 						<td>{{((subItem.ux * subItem.factor)**2).toFixed(viewDigsub)}}</td>
-						<td>{{(((subItem.ux**4)*subItem.factor)/subItem.freedom).toFixed(viewDigsub)}}</td>
+						<td>{{(((subItem.ux * subItem.factor)**4)/subItem.freedom).toFixed(viewDigsub)}}</td>
 						<td class="fstyle02 nowrap" :frequency="subItem.frequency">{{subItem.frequency}}</td>
 						<td class="fstyle02 bgWrite">
 							<span v-for="(x, xindex) in subItem.x" style="margin-right: 10px;">
