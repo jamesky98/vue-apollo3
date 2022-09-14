@@ -112,13 +112,13 @@ const updateKey = ref(0);
   const table1 = ref(); 
   const data1 = ref([]);
 
-  // 加載表格選取事件
-  onMounted(function () {
-    dt1 = table1.value.dt();
-    dt1.on('select', function (e, dt, type, indexes) {
-      nowCaseID.value = dt.rows(indexes).data()[0].id
-    });
+// 加載表格選取事件
+onMounted(function () {
+  dt1 = table1.value.dt();
+  dt1.on('select', function (e, dt, type, indexes) {
+    nowCaseID.value = dt.rows(indexes).data()[0].id
   });
+});
 
   // 設定表格table1
   const columns1 = [
@@ -232,7 +232,7 @@ const updateKey = ref(0);
       info: false
     },
     order: [[1, 'desc']],
-    scrollY: '53vh',
+    scrollY: '52vh',
     scrollX: true,
     lengthChange: false,
     searching: true,
@@ -1101,7 +1101,7 @@ function getCaseByAPI(){
                   message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delCase">
                   刪除案件
                 </MDBPopconfirm>
-                <MDBBtn size="sm" :disabled="addBtnDisabled && !rGroup[3]" color="primary" @click="openAddCaseForm()">新增</MDBBtn>
+                <MDBBtn size="sm" :disabled="addBtnDisabled || !rGroup[3]" color="primary" @click="openAddCaseForm()">新增</MDBBtn>
                 <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveNowCaseData()">儲存</MDBBtn>
                 <MDBBtn size="sm" color="primary" @click="showCaseEdit()" v-html="caseBtnText">
                 </MDBBtn>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, provide, inject } from "vue";
+import { ref, onMounted, onUpdated, provide, inject } from "vue";
 import path from "path-browserify";
 import {
   MDBInput,
@@ -272,7 +272,7 @@ const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetc
 );
 getNowCaseF(result => {
   if (!result.loading && result && result.data.getCasebyID.case_record_02) {
-    console.log(result.data.getCasebyID);
+    // console.log(result.data.getCasebyID);
     // 填入資料
     let getData = result.data.getCasebyID.case_record_02;
     let getItem = result.data.getCasebyID.item_base;
@@ -391,10 +391,6 @@ getNowCaseF(result => {
   }
 });
 refgetNowCaseF();
-
-function onChangeStep() {
-  updateKey.value += 1;
-}
 
 // 查詢報告簽署人列表
 const {
@@ -1184,7 +1180,7 @@ const table1 = ref();
 const data1 = ref([]);
 const columns1 = [
   { title: "序號", render: (data, type, row, meta) => { return meta.row; }, width: "30px" },
-  { title: "量測資料", render: (data, type, row, meta) => { return '<button class="btn btn-primary btn-sm ripple-surface" onclick="$setup.uploadCloudPt()">上傳</button>' } },
+  { title: "量測資料", render: (data, type, row, meta) => { return '<span class="btn btn-primary btn-sm ripple-surface uploadCP">上傳</span>' } },
   { title: "點號", data: "gcp_id" },
   { title: "E_ref", data: "coor_E", className: 'dt-right' },
   { title: "N_ref", data: "coor_N", className: 'dt-right' },
@@ -1208,6 +1204,22 @@ const tboption1 = {
   paging: false,
   responsive: true,
 };
+
+// 加載表格選取事件
+function onChangeStep() {
+  updateKey.value += 1;
+}
+
+function loadtable(){
+  dt1 = table1.value.dt();
+  dt1.on('click', '.uploadCP', function (e, dt, type, indexes) {
+    let ptDataIndex = parseInt(e.target.parentElement.previousSibling.innerText);
+    let upPtName = e.target.parentElement.nextSibling.innerText;
+    console.log(ptDataIndex,upPtName);
+    uploadCloudPt();
+    e.stopPropagation()
+  });
+}
 
 // 計算成果匯入表格
 function calResultToData1(){
@@ -1261,13 +1273,18 @@ function data1ToCalResult(){
     rmseN = rmseN + parseFloat(data1.value[i].d_N)**2;
     rmseV = rmseV + parseFloat(data1.value[i].d_N)**2;
   }
-  rmseE = (rmseE/data1.value.length)**0.5;
-  rmseN = (rmseN/data1.value.length)**0.5;
-  myCalResult.rmseH = (rmseE**2 + rmseE**2)**0.5;
-  myCalResult.rmseV = (rmseV/data1.value.length)**0.5;
-  myCalResult.data = pt_Data;
+  if(data1.value.length > 0){
+    rmseE = (rmseE/data1.value.length)**0.5;
+    rmseN = (rmseN/data1.value.length)**0.5;
+    myCalResult.rmseH = (rmseE**2 + rmseE**2)**0.5;
+    myCalResult.rmseV = (rmseV/data1.value.length)**0.5;
+    myCalResult.data = pt_Data;
+    nowCaseCalResult.value = JSON.stringify(myCalResult)
+    return nowCaseCalResult.value;
+  }else{
+    return "";
+  }
   
-  return JSON.stringify(myCalResult);
 }
 
 // 量測作業表格==========End
@@ -1952,7 +1969,7 @@ defineExpose({
             </MDBRow>
           </MDBStepperContent>
         </MDBStepperStep>
-        <MDBStepperStep>
+        <MDBStepperStep @click="loadtable()">
           <MDBStepperHead icon="3">
             校正
           </MDBStepperHead>
@@ -1990,7 +2007,7 @@ defineExpose({
                 <MDBRow>
                   <MDBCol col="12" class="mb-3">
                     <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1"
-                      style="font-size: smaller" class="display w-100 compact" />
+                      style="font-size: smaller" class="display w-100 compact"/>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
