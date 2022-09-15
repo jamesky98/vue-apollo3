@@ -1035,118 +1035,54 @@ const uploadType = ref("");
 function uploadBtn(inputId) {
   // 由按鈕啟動檔案選擇器
   uploadType.value = inputId;
-  const inputDOM = document.getElementById(inputId);
-  inputDOM.click();
-}
-
-// 上傳檔案
-const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
-  CaseGQL.UPLOADFILE
-);
-uploadFileOnDone((result) => {
-  // console.log("uploadFile")
-  let inputDOM;
-  // 儲存(更新)上傳紀錄資料
-  if (!uploadType.value) {
-    return;
-  }
-  switch (uploadType.value) {
+  const inputDOM = document.getElementById("AllUpload");
+  inputDOM.setAttribute("accept","");
+  switch (inputId) {
     case "itemCamReportUpload":
-      nowCaseCamReport.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("itemCamReportUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".pdf");
       break;
     case "planMapUpload":
-      nowCasePlanMap.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("planMapUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".dwg");
       break;
     case "CamUploadUpload":
-      nowCaseCamUpload.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("CamUploadUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept","");
       break;
     case "FlyMapAcUpload":
-      nowCaseFlyMapAc.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("FlyMapAcUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".dwg");
       break;
     case "RecTableUpload":
-      nowCaseRecTable.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("RecTableUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".pdf");
       break;
     case "EOUpload":
-      nowCaseEO.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("EOUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".pdf");
       break;
     case "OtherUpload":
-      nowCaseOther.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("OtherUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept","");
       break;
     case "FreeUpload":
-      nowCaseFreeUpload.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("FreeUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".zip");
       break;
     case "FixUpload":
-      nowCaseFixUpload.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("FixUpload");
-      inputDOM.value = "";
-      break;
-    case "GCPUpload":
-      nowCaseGCPUpload.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("GCPUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".zip");
       break;
     case "ATreportUpload":
-      nowCaseATreport.value = result.data.uploadFile.filename;
+      inputDOM.setAttribute("accept",".0");
       break;
     case "NetGraphUpload":
-      nowCaseNetGraph.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("NetGraphUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".png");
       break;
     case "GCPGraphUpload":
-      nowCaseGCPGraph.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("GCPGraphUpload");
-      inputDOM.value = "";
-      break;
-    case "STDExlUpload":
-      nowCaseSTDExl.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("STDExlUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".png");
       break;
     case "ReportEditUpload":
-      nowCaseReportEdit.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("ReportEditUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".docx");
       break;
     case "ReportScanUpload":
-      nowCaseReportScan.value = result.data.uploadFile.filename;
-      saveRecord01();
-      inputDOM = document.getElementById("ReportScanUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".pdf");
       break;
   }
-});
-
+  inputDOM.click();
+}
 // 檔案選擇器選擇事件
 const upFile = ref();
 async function uploadChenge(e) {
@@ -1178,17 +1114,11 @@ async function uploadChenge(e) {
     case "OtherUpload":
       newName = "06_Other" + path.extname(e.target.value);
       break;
-    case "REFUpload":
-      newName = "07_Ref" + path.extname(e.target.value);
-      break;
     case "FreeUpload":
       newName = "09_FreeWeb" + path.extname(e.target.value);
       break;
     case "FixUpload":
       newName = "10_FixWeb" + path.extname(e.target.value);
-      break;
-    case "GCPUpload":
-      newName = "08_GCP" + path.extname(e.target.value);
       break;
     case "ATreportUpload":
       await readPrintOut(upFile.value);
@@ -1199,9 +1129,6 @@ async function uploadChenge(e) {
       break;
     case "GCPGraphUpload":
       newName = "15_PtDistribution" + path.extname(e.target.value);
-      break;
-    case "STDExlUpload":
-      newName = "13_UncertaintyCal" + path.extname(e.target.value);
       break;
     case "ReportEditUpload":
       newName = props.caseID + path.extname(e.target.value)
@@ -1216,6 +1143,78 @@ async function uploadChenge(e) {
     newfilename: newName,
   });
 }
+// 上傳檔案
+const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
+  CaseGQL.UPLOADFILE
+);
+uploadFileOnDone((result) => {
+  // console.log("uploadFile")
+  // 儲存(更新)上傳紀錄資料
+  if (!uploadType.value) {
+    return;
+  }
+  switch (uploadType.value) {
+    case "itemCamReportUpload":
+      nowCaseCamReport.value = result.data.uploadFile.filename;
+      saveRecord01();
+      break;
+    case "planMapUpload":
+      nowCasePlanMap.value = result.data.uploadFile.filename;
+      saveRecord01();
+      break;
+    case "CamUploadUpload":
+      nowCaseCamUpload.value = result.data.uploadFile.filename;
+      saveRecord01();
+      break;
+    case "FlyMapAcUpload":
+      nowCaseFlyMapAc.value = result.data.uploadFile.filename;
+      saveRecord01();
+      break;
+    case "RecTableUpload":
+      nowCaseRecTable.value = result.data.uploadFile.filename;
+      saveRecord01();
+      break;
+    case "EOUpload":
+      nowCaseEO.value = result.data.uploadFile.filename;
+      saveRecord01();
+      break;
+    case "OtherUpload":
+      nowCaseOther.value = result.data.uploadFile.filename;
+      saveRecord01();
+      break;
+    case "FreeUpload":
+      nowCaseFreeUpload.value = result.data.uploadFile.filename;
+      saveRecord01();
+      break;
+    case "FixUpload":
+      nowCaseFixUpload.value = result.data.uploadFile.filename;
+      saveRecord01();
+      break;
+    case "ATreportUpload":
+      nowCaseATreport.value = result.data.uploadFile.filename;
+      break;
+    case "NetGraphUpload":
+      nowCaseNetGraph.value = result.data.uploadFile.filename;
+      saveRecord01();
+      break;
+    case "GCPGraphUpload":
+      nowCaseGCPGraph.value = result.data.uploadFile.filename;
+      saveRecord01();
+      break;
+    case "ReportEditUpload":
+      nowCaseReportEdit.value = result.data.uploadFile.filename;
+      saveRecord01();
+      break;
+    case "ReportScanUpload":
+      nowCaseReportScan.value = result.data.uploadFile.filename;
+      saveRecord01();
+      break;
+  }
+  let inputDOM;
+  inputDOM = document.getElementById("AllUpload");
+  inputDOM.value = "";
+});
+
 // 檔案上傳==========End
 
 // 讀取PrintOut.0 並填入資料====Start
@@ -1530,11 +1529,11 @@ computeUcOnDone((result) => {
   // console.log(nowCaseCalResult.value);
   if (!result.loading && result.data.computeUc) {
     nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
-    nowCaseSTDh.value = result.data.computeUc.ucH;
-    nowCaseSTDv.value = result.data.computeUc.ucV;
+    nowCaseSTDh.value = result.data.computeUc.fixUcH;
+    nowCaseSTDv.value = result.data.computeUc.fixUcV;
     nowCaseKh.value = result.data.computeUc.tinvH.toFixed(2);
     nowCaseKv.value = result.data.computeUc.tinvV.toFixed(2);
-    const inputDOM = document.getElementById("ATreportUpload");
+    const inputDOM = document.getElementById("AllUpload");
     inputDOM.value = "";
     saveRecord01();
   }
@@ -1778,6 +1777,7 @@ defineExpose({
 </script>
 <template>
   <div class="h-100 overflow-auto">
+    <input type="file" id="AllUpload" @change="uploadChenge($event)" style="display: none" />
     <!-- 選擇校正件 -->
     <MDBModal style="left: 66%" @shown="shownItemModal" v-model="showItemFrom" staticBackdrop scrollable>
       <MDBModalHeader>
@@ -2081,7 +2081,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 my-3">
-                    <input type="file" id="itemCamReportUpload" @change="uploadChenge($event)" style="display: none" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('itemCamReportUpload')">
                       上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseCamReportDL" download size="sm" color="secondary">下載
@@ -2097,8 +2096,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".dwg" id="planMapUpload" @change="uploadChenge($event)"
-                      style="display: none" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('planMapUpload')">上傳
                     </MDBBtn>
                     <MDBBtn tag="a" :href="nowCasePlanMapDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -2178,7 +2175,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 my-3">
-                    <input type="file" id="CamUploadUpload" @change="uploadChenge($event)" style="display: none" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('CamUploadUpload')">上傳
                     </MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseCamDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -2193,8 +2189,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".dwg" id="FlyMapAcUpload" @change="uploadChenge($event)"
-                      style="display: none" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('FlyMapAcUpload')">上傳
                     </MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseFlyMapAcDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -2208,8 +2202,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".pdf" id="RecTableUpload" @change="uploadChenge($event)"
-                      style="display: none" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('RecTableUpload')">上傳
                     </MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseRecTableDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -2222,7 +2214,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol required col="3" class="px-0 mb-3">
-                    <input type="file" id="EOUpload" @change="uploadChenge($event)" style="display: none" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('EOUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseEODL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
@@ -2238,7 +2229,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" id="OtherUpload" @change="uploadChenge($event)" style="display: none" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('OtherUpload')">上傳
                     </MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseOtherDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -2346,7 +2336,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" id="FreeUpload" @change="uploadChenge($event)" style="display: none" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('FreeUpload')">上傳
                     </MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseFreeUploadDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -2364,7 +2353,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" id="FixUpload" @change="uploadChenge($event)" style="display: none" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('FixUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseFixUploadDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
@@ -2377,7 +2365,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" id="ATreportUpload" @change="uploadChenge($event)" style="display: none" />
                     <MDBBtn size="sm" color="primary" :disabled="selectUcModel === '' && !rGroup[2]"
                       @click="uploadBtn('ATreportUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseATreportDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -2479,7 +2466,6 @@ defineExpose({
                           </MDBInput>
                         </MDBCol>
                         <MDBCol col="4" class="px-0 mb-3">
-                          <input type="file" id="NetGraphUpload" @change="uploadChenge($event)" style="display: none" />
                           <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('NetGraphUpload')">
                             上傳</MDBBtn>
                           <MDBBtn tag="a" :href="nowCaseNetGraphDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -2505,7 +2491,6 @@ defineExpose({
                           </MDBInput>
                         </MDBCol>
                         <MDBCol col="4" class="px-0 mb-3">
-                          <input type="file" id="GCPGraphUpload" @change="uploadChenge($event)" style="display: none" />
                           <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('GCPGraphUpload')">
                             上傳</MDBBtn>
                           <MDBBtn tag="a" :href="nowCaseGCPGraphDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -2549,7 +2534,6 @@ defineExpose({
                         <MDBBtn :disabled="!rGroup[2]" size="sm" color="secondary" @click="buildReportBtn()">產生報告
                         </MDBBtn>
                       </MDBCol>
-
                       <!-- 報告編輯檔 -->
                       <MDBCol col="8" class="mb-3">
                         <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
@@ -2559,13 +2543,11 @@ defineExpose({
                         </MDBInput>
                       </MDBCol>
                       <MDBCol col="3" class="px-0 mb-3">
-                        <input type="file" id="ReportEditUpload" @change="" style="display: none" />
                         <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('ReportEditUpload')">
                           上傳</MDBBtn>
                         <MDBBtn id="ReportEditDownload" tag="a" :href="nowCaseReportEditDL" download size="sm"
                           color="secondary">下載</MDBBtn>
                       </MDBCol>
-
                       <MDBCol col="4" class="mb-3">
                         <MDBDatepicker required size="sm" v-model="nowCaseCompleteDate" format="YYYY-MM-DD"
                           label="報告完成日" ref="nowCaseCompleteDateDOM" />
@@ -2587,7 +2569,6 @@ defineExpose({
                         </MDBInput>
                       </MDBCol>
                       <MDBCol col="3" class="px-0 mb-3">
-                        <input type="file" id="ReportScanUpload" @change="uploadChenge($event)" style="display: none" />
                         <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('ReportScanUpload')">
                           上傳</MDBBtn>
                         <MDBBtn tag="a" :href="nowCaseReportScanDL" download size="sm" color="secondary">下載</MDBBtn>

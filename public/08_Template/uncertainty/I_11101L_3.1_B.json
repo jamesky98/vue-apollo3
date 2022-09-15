@@ -1,1 +1,626 @@
-{"calType":"I","prjcode":"11101","ver":"3.1","minUcH":"130","minUcV":"40","confLevel":0.95,"uom":"mm","data":[{"section":"網形控制點(平面)","type":"平面","comment":"111.01.24更新使用Leica GR50 1832209校正編號D210592A","data":[{"name":"重複性","frequency":"系統評估","x":["4.082","4.025"],"x_title":["σx(mm)","σy(mm)"],"fr":["116"],"fr_title":["觀測量"],"fa":[1],"fa_title":[""],"ux":"((parms[0] ** 2 + parms[1] ** 2) / 2) ** 0.5","freedom":"2*(parms[0]-1)","factor":"parms[0]"},{"name":"儀器整置","frequency":"系統評估","x":[2],"x_title":["量測誤差(mm)"],"fr":[20],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"parms[0] / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"相位中心","frequency":"系統評估","x":[0.3],"x_title":["偏移量(mm)"],"fr":[25],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"parms[0] / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"IGS","frequency":"系統評估","x":[3.5],"x_title":["基線距離(km)"],"fr":[20],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"((0.05 / 20000 / 1000) * parms[0] * 1000000) / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"氣象模式","frequency":"系統評估","x":[3.5],"x_title":["基線距離(km)"],"fr":[20],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"(0.002 * parms[0]) / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"校正追溯","frequency":"每年量測","x":["8.7",2.79],"x_title":["參考值不確定度(mm)","涵蓋因子"],"fr":["10000"],"fr_title":["自由度"],"fa":[1],"fa_title":[""],"ux":"parms[0] / parms[1]","freedom":"parms[0]","factor":"parms[0]"}]},{"section":"基準點(平面)","type":"平面","comment":"111.01.24更新使用TOPCON NET-G3A 61800638校正編號D202109130203","data":[{"name":"重複性","frequency":"系統評估","x":["5.39","3.723"],"x_title":["σx(mm)","σy(mm)"],"fr":["211"],"fr_title":["觀測量"],"fa":[1],"fa_title":[""],"ux":"((parms[0] ** 2 + parms[1] ** 2) / 2) ** 0.5","freedom":"2*(parms[0]-1)","factor":"parms[0]"},{"name":"儀器整置","frequency":"系統評估","x":[2],"x_title":["量測誤差(mm)"],"fr":[20],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"parms[0] / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"相位中心","frequency":"系統評估","x":[0.3],"x_title":["偏移量(mm)"],"fr":[25],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"parms[0] / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"IGS","frequency":"系統評估","x":[3.5],"x_title":["基線距離(km)"],"fr":[20],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"((0.05 / 20000 / 1000) * parms[0] * 1000000) / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"氣象模式","frequency":"系統評估","x":[3.5],"x_title":["基線距離(km)"],"fr":[20],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"(0.002 * parms[0]) / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"校正追溯","frequency":"每年量測","x":["12",2.79],"x_title":["參考值不確定度(mm)","涵蓋因子"],"fr":["10000"],"fr_title":["自由度"],"fa":[1],"fa_title":[""],"ux":"parms[0] / parms[1]","freedom":"parms[0]","factor":"parms[0]"}]},{"section":"電子測距經緯儀(平面)","type":"平面","data":[{"name":"定心定平","frequency":"系統評估","x":["2.0"],"x_title":["量測誤差(mm)"],"fr":["20"],"fr_title":["相對不確定性"],"fa":["4"],"fa_title":["屋角數"],"ux":"parms[0]/3**0.5","freedom":"0.5*(parms[0]/100)**-2","factor":"(1/parms[0])**0.5"},{"name":"量高","frequency":"系統評估","x":["0"],"x_title":["無相關"],"fr":["20"],"fr_title":["相對不確定性"],"fa":["4"],"fa_title":["屋角數"],"ux":"0","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"(1/parms[0])**0.5"},{"name":"量測重複性","frequency":"每年量測","x":["0.27","1.53","1.86 ","1.90 ","2.2","0.12","1.98","1.7","1.96","1","1","45"],"x_title":["重複測距誤差(mm)","重複測角誤差(秒)","重複垂直角誤差(秒)","追溯測距_加常(mm)","追溯測距_乘常(mm)","追溯距離(km)","追溯測距_涵蓋因子","追溯測角_不確定度","追溯測角_涵蓋因子","測距最小刻度(mm)","測角最小刻度(秒)","測角假設值(度)"],"fr":["47","47","47","100","108","20","20"],"fr_title":["重複測距自由度","重複測角自由度","重複垂直角自由度","追溯測距自由度","追溯測角自由度","測距刻度相對性","測角刻度相對性"],"fa":["4"],"fa_title":["屋角數"],"ux":"tsRepeatUcH(parms)[0]","freedom":"tsRepeatUcH(pUx,parms)[1]","factor":"(1/parms[0])**0.5"}],"comment":"111.01.24更新使用Leica TS02 1313670 校正編號A201910150101、C201910150101"},{"section":"屋頂平坦度(平面)","type":"平面","data":[{"name":"平坦度","frequency":"系統評估","x":["0"],"x_title":["無相關"],"fr":["60"],"fr_title":["觀測量"],"fa":["1"],"fa_title":[""],"ux":"parms[0]","freedom":"parms[0]-1","factor":"parms[0]"}]},{"section":"校正件(平面)","type":"平面","data":[{"name":"定位","frequency":"每次校正","x":["15"],"x_title":["平面精度(mm)"],"fr":["20"],"fr_title":["相對不確定性"],"fa":["661"],"fa_title":["點雲個數"],"ux":"parms[0]","freedom":"0.5*(parms[0]/100)**-2","factor":"(1/parms[0])**0.5"}]},{"section":"人工篩選(平面)","type":"平面","data":[{"name":"人工篩選","frequency":"系統評估","x":["60.64"],"x_title":["重複量測中誤差(mm)"],"fr":["179"],"fr_title":["觀測量"],"fa":["1"],"fa_title":[""],"ux":"parms[0]","freedom":"parms[0]-1","factor":"parms[0]"}]},{"section":"網形控制點(高程)","type":"高程","comment":"111.01.24更新使用Leica GR50 1832209校正編號D210592A","data":[{"name":"重複性","frequency":"系統評估","x":["9.592"],"x_title":["σz(mm)"],"fr":["116"],"fr_title":["觀測量"],"fa":[1],"fa_title":[""],"ux":"parms[0]","freedom":"parms[0]-1","factor":"parms[0]"},{"name":"儀器整置","frequency":"系統評估","x":[2],"x_title":["量測誤差(mm)"],"fr":[20],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"parms[0] / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"相位中心","frequency":"系統評估","x":[0.3],"x_title":["偏移量(mm)"],"fr":[25],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"parms[0] / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"IGS","frequency":"系統評估","x":[3.5],"x_title":["基線距離(km)"],"fr":[20],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"((0.05 / 20000 / 1000) * parms[0] * 1000000) / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"氣象模式","frequency":"系統評估","x":[3.5],"x_title":["基線距離(km)"],"fr":[20],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"(0.002 * parms[0]) / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"校正追溯","frequency":"每年量測","x":["8.8",2.79],"x_title":["參考值不確定度(mm)","涵蓋因子"],"fr":["10000"],"fr_title":["自由度"],"fa":[1],"fa_title":[""],"ux":"parms[0] / parms[1]","freedom":"parms[0]","factor":"parms[0]"}]},{"section":"校正標(高程)","type":"高程","comment":"111.01.24更新使用TOPCON NET-G3A 61800638校正編號D202109130203","data":[{"name":"重複性","frequency":"系統評估","x":["11.757"],"x_title":["σz(mm)"],"fr":["211"],"fr_title":["觀測量"],"fa":[1],"fa_title":[""],"ux":"parms[0]","freedom":"parms[0] - 1","factor":"parms[0]"},{"name":"儀器整置","frequency":"系統評估","x":[2],"x_title":["量測誤差(mm)"],"fr":[20],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"parms[0] / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"相位中心","frequency":"系統評估","x":[0.3],"x_title":["偏移量(mm)"],"fr":[25],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"parms[0] / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"IGS","frequency":"系統評估","x":[3.5],"x_title":["基線距離(km)"],"fr":[20],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"((0.05 / 20000 / 1000) * parms[0] * 1000000) / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"氣象模式","frequency":"系統評估","x":[3.5],"x_title":["基線距離(km)"],"fr":[20],"fr_title":["相對不確定性"],"fa":[1],"fa_title":[""],"ux":"(0.002 * parms[0]) / 3 ** 0.5","freedom":"0.5 * (parms[0] / 100) ** -2","factor":"parms[0]"},{"name":"校正追溯","frequency":"每年量測","x":["12",2.79],"x_title":["參考值不確定度(mm)","涵蓋因子"],"fr":["10000"],"fr_title":["自由度"],"fa":[1],"fa_title":[""],"ux":"parms[0] / parms[1]","freedom":"parms[0]","factor":"parms[0]"}]},{"section":"電子測距經緯儀(高程)","type":"高程","data":[{"name":"定心定平","frequency":"系統評估","x":["2"],"x_title":["量測誤差(mm)"],"fr":["20"],"fr_title":["相對不確定性"],"fa":["4"],"fa_title":["屋角數"],"ux":"parms[0]/3**0.5","freedom":"0.5*(parms[0]/100)**-2","factor":"(1/parms[0])**0.5"},{"name":"量高","frequency":"系統評估","x":["2"],"x_title":["估計影響量(mm)"],"fr":["20"],"fr_title":["相對不確定性"],"fa":["4"],"fa_title":["屋角數"],"ux":"(2*(parms[0]/3**0.5)**2)**0.5","freedom":"2*(0.5 * (parms[0] / 100) ** -2)","factor":"(1/parms[0])**0.5"},{"name":"量測重複性","frequency":"每年量測","x":["0.27","1.86","1.9","2.2","0.12","1.98","1.7","1.96","1","1","45"],"x_title":["重複測距誤差(mm)","重複垂直角誤差(秒)","追溯測距_加常(mm)","追溯測距_乘常(mm)","追溯距離(km)","追溯測距_涵蓋因子","追溯測角_不確定度","追溯測角_涵蓋因子","測距最小刻度(mm)","測角最小刻度(秒)","測角假設值(度)"],"fr":["47","47","100","108","20","20"],"fr_title":["重複測距自由度","重複垂直角自由度","追溯測距自由度","追溯測角自由度","測距刻度相對性","測角刻度相對性"],"fa":["4"],"fa_title":["屋角數"],"ux":"tsRepeatUcV(parms)[0]","freedom":"tsRepeatUcV(pUx, parms)[1]","factor":"(1/parms[0])**0.5"}],"comment":"111.01.24更新使用Leica TS02 1313670 校正編號A201910150101、C201910150101"},{"section":"屋頂平坦度(高程)","type":"高程","comment":"","data":[{"name":"平坦度","frequency":"系統評估","x":["8.617"],"x_title":["平坦度"],"fr":["60"],"fr_title":["觀測量"],"fa":["1"],"fa_title":[""],"ux":"parms[0]","freedom":"parms[0]-1","factor":"parms[0]"}]},{"section":"校正件(高程)","type":"高程","comment":"","data":[{"name":"定位","frequency":"每次校正","x":["20"],"x_title":["高程精度(mm)"],"fr":["20"],"fr_title":["相對不確定性"],"fa":["661"],"fa_title":["點雲個數"],"ux":"parms[0]","freedom":"0.5*(parms[0]/100)**-2","factor":"(1/parms[0])**0.5"}]},{"section":"人工篩選(高程)","type":"高程","comment":"","data":[{"name":"人工篩選","frequency":"系統評估","x":["5.69"],"x_title":["重複量測中誤差(mm)"],"fr":["179"],"fr_title":["觀測量"],"fa":["1"],"fa_title":[""],"ux":"parms[0]","freedom":"parms[0]-1","factor":"parms[0]"}]}]}
+{
+  "calType": "I",
+  "parmtype": "B",
+  "prjcode": "11101",
+  "ver": "3.1",
+  "minUcH": "130",
+  "minUcV": "40",
+  "confLevel": 0.95,
+  "uom": "mm",
+  "data": [
+    {
+      "section": "網形控制點(平面)",
+      "type": "平面",
+      "comment": "111.01.24更新使用Leica GR50 1832209校正編號D210592A",
+      "data": [
+        {
+          "name": "重複性",
+          "frequency": "系統評估",
+          "x": ["4.082", "4.025"],
+          "x_title": ["σx(mm)", "σy(mm)"],
+          "fr": ["116"],
+          "fr_title": ["觀測量"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "((parms[0] ** 2 + parms[1] ** 2) / 2) ** 0.5",
+          "freedom": "2*(parms[0]-1)",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "儀器整置",
+          "frequency": "系統評估",
+          "x": [2],
+          "x_title": ["量測誤差(mm)"],
+          "fr": [20],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0] / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "相位中心",
+          "frequency": "系統評估",
+          "x": [0.3],
+          "x_title": ["偏移量(mm)"],
+          "fr": [25],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0] / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "IGS",
+          "frequency": "系統評估",
+          "x": [3.5],
+          "x_title": ["基線距離(km)"],
+          "fr": [20],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "((0.05 / 20000 / 1000) * parms[0] * 1000000) / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "氣象模式",
+          "frequency": "系統評估",
+          "x": [3.5],
+          "x_title": ["基線距離(km)"],
+          "fr": [20],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "(0.002 * parms[0]) / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "校正追溯",
+          "frequency": "每年量測",
+          "x": ["8.7", 2.79],
+          "x_title": ["參考值不確定度(mm)", "涵蓋因子"],
+          "fr": ["10000"],
+          "fr_title": ["自由度"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0] / parms[1]",
+          "freedom": "parms[0]",
+          "factor": "parms[0]"
+        }
+      ]
+    },
+    {
+      "section": "基準點(平面)",
+      "type": "平面",
+      "comment": "111.01.24更新使用TOPCON NET-G3A 61800638校正編號D202109130203",
+      "data": [
+        {
+          "name": "重複性",
+          "frequency": "系統評估",
+          "x": ["5.39", "3.723"],
+          "x_title": ["σx(mm)", "σy(mm)"],
+          "fr": ["211"],
+          "fr_title": ["觀測量"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "((parms[0] ** 2 + parms[1] ** 2) / 2) ** 0.5",
+          "freedom": "2*(parms[0]-1)",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "儀器整置",
+          "frequency": "系統評估",
+          "x": [2],
+          "x_title": ["量測誤差(mm)"],
+          "fr": [20],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0] / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "相位中心",
+          "frequency": "系統評估",
+          "x": [0.3],
+          "x_title": ["偏移量(mm)"],
+          "fr": [25],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0] / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "IGS",
+          "frequency": "系統評估",
+          "x": [3.5],
+          "x_title": ["基線距離(km)"],
+          "fr": [20],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "((0.05 / 20000 / 1000) * parms[0] * 1000000) / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "氣象模式",
+          "frequency": "系統評估",
+          "x": [3.5],
+          "x_title": ["基線距離(km)"],
+          "fr": [20],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "(0.002 * parms[0]) / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "校正追溯",
+          "frequency": "每年量測",
+          "x": ["12", 2.79],
+          "x_title": ["參考值不確定度(mm)", "涵蓋因子"],
+          "fr": ["10000"],
+          "fr_title": ["自由度"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0] / parms[1]",
+          "freedom": "parms[0]",
+          "factor": "parms[0]"
+        }
+      ]
+    },
+    {
+      "section": "電子測距經緯儀(平面)",
+      "type": "平面",
+      "data": [
+        {
+          "name": "定心定平",
+          "frequency": "系統評估",
+          "x": ["2.0"],
+          "x_title": ["量測誤差(mm)"],
+          "fr": ["20"],
+          "fr_title": ["相對不確定性"],
+          "fa": ["4"],
+          "fa_title": ["屋角數"],
+          "ux": "parms[0]/3**0.5",
+          "freedom": "0.5*(parms[0]/100)**-2",
+          "factor": "(1/parms[0])**0.5"
+        },
+        {
+          "name": "量高",
+          "frequency": "系統評估",
+          "x": ["0"],
+          "x_title": ["無相關"],
+          "fr": ["20"],
+          "fr_title": ["相對不確定性"],
+          "fa": ["4"],
+          "fa_title": ["屋角數"],
+          "ux": "0",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "(1/parms[0])**0.5"
+        },
+        {
+          "name": "量測重複性",
+          "frequency": "每年量測",
+          "x": [
+            "0.27",
+            "1.53",
+            "1.86 ",
+            "1.90 ",
+            "2.2",
+            "0.12",
+            "1.98",
+            "1.7",
+            "1.96",
+            "1",
+            "1",
+            "45"
+          ],
+          "x_title": [
+            "重複測距誤差(mm)",
+            "重複測角誤差(秒)",
+            "重複垂直角誤差(秒)",
+            "追溯測距_加常(mm)",
+            "追溯測距_乘常(mm)",
+            "追溯距離(km)",
+            "追溯測距_涵蓋因子",
+            "追溯測角_不確定度",
+            "追溯測角_涵蓋因子",
+            "測距最小刻度(mm)",
+            "測角最小刻度(秒)",
+            "測角假設值(度)"
+          ],
+          "fr": ["47", "47", "47", "100", "108", "20", "20"],
+          "fr_title": [
+            "重複測距自由度",
+            "重複測角自由度",
+            "重複垂直角自由度",
+            "追溯測距自由度",
+            "追溯測角自由度",
+            "測距刻度相對性",
+            "測角刻度相對性"
+          ],
+          "fa": ["4"],
+          "fa_title": ["屋角數"],
+          "ux": "tsRepeatUcH(parms)[0]",
+          "freedom": "tsRepeatUcH(pUx,parms)[1]",
+          "factor": "(1/parms[0])**0.5"
+        }
+      ],
+      "comment": "111.01.24更新使用Leica TS02 1313670 校正編號A201910150101、C201910150101"
+    },
+    {
+      "section": "屋頂平坦度(平面)",
+      "type": "平面",
+      "data": [
+        {
+          "name": "平坦度",
+          "frequency": "系統評估",
+          "x": ["0"],
+          "x_title": ["無相關"],
+          "fr": ["60"],
+          "fr_title": ["觀測量"],
+          "fa": ["1"],
+          "fa_title": [""],
+          "ux": "parms[0]",
+          "freedom": "parms[0]-1",
+          "factor": "parms[0]"
+        }
+      ]
+    },
+    {
+      "section": "校正件(平面)",
+      "type": "平面",
+      "data": [
+        {
+          "name": "定位",
+          "frequency": "每次校正",
+          "x": ["15"],
+          "x_title": ["平面精度(mm)"],
+          "fr": ["20"],
+          "fr_title": ["相對不確定性"],
+          "fa": ["661"],
+          "fa_title": ["點雲個數"],
+          "ux": "parms[0]",
+          "freedom": "0.5*(parms[0]/100)**-2",
+          "factor": "(1/parms[0])**0.5"
+        }
+      ]
+    },
+    {
+      "section": "人工篩選(平面)",
+      "type": "平面",
+      "data": [
+        {
+          "name": "人工篩選",
+          "frequency": "系統評估",
+          "x": ["60.64"],
+          "x_title": ["重複量測中誤差(mm)"],
+          "fr": ["179"],
+          "fr_title": ["觀測量"],
+          "fa": ["1"],
+          "fa_title": [""],
+          "ux": "parms[0]",
+          "freedom": "parms[0]-1",
+          "factor": "parms[0]"
+        }
+      ]
+    },
+    {
+      "section": "網形控制點(高程)",
+      "type": "高程",
+      "comment": "111.01.24更新使用Leica GR50 1832209校正編號D210592A",
+      "data": [
+        {
+          "name": "重複性",
+          "frequency": "系統評估",
+          "x": ["9.592"],
+          "x_title": ["σz(mm)"],
+          "fr": ["116"],
+          "fr_title": ["觀測量"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0]",
+          "freedom": "parms[0]-1",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "儀器整置",
+          "frequency": "系統評估",
+          "x": [2],
+          "x_title": ["量測誤差(mm)"],
+          "fr": [20],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0] / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "相位中心",
+          "frequency": "系統評估",
+          "x": [0.3],
+          "x_title": ["偏移量(mm)"],
+          "fr": [25],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0] / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "IGS",
+          "frequency": "系統評估",
+          "x": [3.5],
+          "x_title": ["基線距離(km)"],
+          "fr": [20],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "((0.05 / 20000 / 1000) * parms[0] * 1000000) / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "氣象模式",
+          "frequency": "系統評估",
+          "x": [3.5],
+          "x_title": ["基線距離(km)"],
+          "fr": [20],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "(0.002 * parms[0]) / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "校正追溯",
+          "frequency": "每年量測",
+          "x": ["8.8", 2.79],
+          "x_title": ["參考值不確定度(mm)", "涵蓋因子"],
+          "fr": ["10000"],
+          "fr_title": ["自由度"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0] / parms[1]",
+          "freedom": "parms[0]",
+          "factor": "parms[0]"
+        }
+      ]
+    },
+    {
+      "section": "校正標(高程)",
+      "type": "高程",
+      "comment": "111.01.24更新使用TOPCON NET-G3A 61800638校正編號D202109130203",
+      "data": [
+        {
+          "name": "重複性",
+          "frequency": "系統評估",
+          "x": ["11.757"],
+          "x_title": ["σz(mm)"],
+          "fr": ["211"],
+          "fr_title": ["觀測量"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0]",
+          "freedom": "parms[0] - 1",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "儀器整置",
+          "frequency": "系統評估",
+          "x": [2],
+          "x_title": ["量測誤差(mm)"],
+          "fr": [20],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0] / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "相位中心",
+          "frequency": "系統評估",
+          "x": [0.3],
+          "x_title": ["偏移量(mm)"],
+          "fr": [25],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0] / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "IGS",
+          "frequency": "系統評估",
+          "x": [3.5],
+          "x_title": ["基線距離(km)"],
+          "fr": [20],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "((0.05 / 20000 / 1000) * parms[0] * 1000000) / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "氣象模式",
+          "frequency": "系統評估",
+          "x": [3.5],
+          "x_title": ["基線距離(km)"],
+          "fr": [20],
+          "fr_title": ["相對不確定性"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "(0.002 * parms[0]) / 3 ** 0.5",
+          "freedom": "0.5 * (parms[0] / 100) ** -2",
+          "factor": "parms[0]"
+        },
+        {
+          "name": "校正追溯",
+          "frequency": "每年量測",
+          "x": ["12", 2.79],
+          "x_title": ["參考值不確定度(mm)", "涵蓋因子"],
+          "fr": ["10000"],
+          "fr_title": ["自由度"],
+          "fa": [1],
+          "fa_title": [""],
+          "ux": "parms[0] / parms[1]",
+          "freedom": "parms[0]",
+          "factor": "parms[0]"
+        }
+      ]
+    },
+    {
+      "section": "電子測距經緯儀(高程)",
+      "type": "高程",
+      "data": [
+        {
+          "name": "定心定平",
+          "frequency": "系統評估",
+          "x": ["2"],
+          "x_title": ["量測誤差(mm)"],
+          "fr": ["20"],
+          "fr_title": ["相對不確定性"],
+          "fa": ["4"],
+          "fa_title": ["屋角數"],
+          "ux": "parms[0]/3**0.5",
+          "freedom": "0.5*(parms[0]/100)**-2",
+          "factor": "(1/parms[0])**0.5"
+        },
+        {
+          "name": "量高",
+          "frequency": "系統評估",
+          "x": ["2"],
+          "x_title": ["估計影響量(mm)"],
+          "fr": ["20"],
+          "fr_title": ["相對不確定性"],
+          "fa": ["4"],
+          "fa_title": ["屋角數"],
+          "ux": "(2*(parms[0]/3**0.5)**2)**0.5",
+          "freedom": "2*(0.5 * (parms[0] / 100) ** -2)",
+          "factor": "(1/parms[0])**0.5"
+        },
+        {
+          "name": "量測重複性",
+          "frequency": "每年量測",
+          "x": [
+            "0.27",
+            "1.86",
+            "1.9",
+            "2.2",
+            "0.12",
+            "1.98",
+            "1.7",
+            "1.96",
+            "1",
+            "1",
+            "45"
+          ],
+          "x_title": [
+            "重複測距誤差(mm)",
+            "重複垂直角誤差(秒)",
+            "追溯測距_加常(mm)",
+            "追溯測距_乘常(mm)",
+            "追溯距離(km)",
+            "追溯測距_涵蓋因子",
+            "追溯測角_不確定度",
+            "追溯測角_涵蓋因子",
+            "測距最小刻度(mm)",
+            "測角最小刻度(秒)",
+            "測角假設值(度)"
+          ],
+          "fr": ["47", "47", "100", "108", "20", "20"],
+          "fr_title": [
+            "重複測距自由度",
+            "重複垂直角自由度",
+            "追溯測距自由度",
+            "追溯測角自由度",
+            "測距刻度相對性",
+            "測角刻度相對性"
+          ],
+          "fa": ["4"],
+          "fa_title": ["屋角數"],
+          "ux": "tsRepeatUcV(parms)[0]",
+          "freedom": "tsRepeatUcV(pUx, parms)[1]",
+          "factor": "(1/parms[0])**0.5"
+        }
+      ],
+      "comment": "111.01.24更新使用Leica TS02 1313670 校正編號A201910150101、C201910150101"
+    },
+    {
+      "section": "屋頂平坦度(高程)",
+      "type": "高程",
+      "comment": "",
+      "data": [
+        {
+          "name": "平坦度",
+          "frequency": "系統評估",
+          "x": ["8.617"],
+          "x_title": ["平坦度"],
+          "fr": ["60"],
+          "fr_title": ["觀測量"],
+          "fa": ["1"],
+          "fa_title": [""],
+          "ux": "parms[0]",
+          "freedom": "parms[0]-1",
+          "factor": "parms[0]"
+        }
+      ]
+    },
+    {
+      "section": "校正件(高程)",
+      "type": "高程",
+      "comment": "",
+      "data": [
+        {
+          "name": "定位",
+          "frequency": "每次校正",
+          "x": ["20"],
+          "x_title": ["高程精度(mm)"],
+          "fr": ["20"],
+          "fr_title": ["相對不確定性"],
+          "fa": ["661"],
+          "fa_title": ["點雲個數"],
+          "ux": "parms[0]",
+          "freedom": "0.5*(parms[0]/100)**-2",
+          "factor": "(1/parms[0])**0.5"
+        }
+      ]
+    },
+    {
+      "section": "人工篩選(高程)",
+      "type": "高程",
+      "comment": "",
+      "data": [
+        {
+          "name": "人工篩選",
+          "frequency": "系統評估",
+          "x": ["5.69"],
+          "x_title": ["重複量測中誤差(mm)"],
+          "fr": ["179"],
+          "fr_title": ["觀測量"],
+          "fa": ["1"],
+          "fa_title": [""],
+          "ux": "parms[0]",
+          "freedom": "parms[0]-1",
+          "factor": "parms[0]"
+        }
+      ]
+    }
+  ]
+}

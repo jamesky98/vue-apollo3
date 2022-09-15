@@ -818,9 +818,13 @@ const COMPUTEUC = gql`
   mutation ComputeUc($parm: String, $ucModel: String) {
     computeUc(parm: $parm, uc_model: $ucModel) {
       ucH
+      ucH_s
+      ucH_o
       freeH
       tinvH
       ucV
+      ucV_s
+      ucV_o
       freeV
       tinvV
       calType

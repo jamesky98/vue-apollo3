@@ -24,6 +24,7 @@ const nowUcminUcH = ref("");
 const nowUcminUcV = ref("");
 const nowUcCombUxH = ref("");
 const nowUcCombUxV = ref("");
+const nowUcConfLevel = ref("");
 const nowUcData = ref([]);
 
 // 查詢Case_Record資料
@@ -34,23 +35,44 @@ const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetc
   })
 );
 getNowCaseF(result => {
+  let getRecord;
   if (!result.loading && result && result.data.getCasebyID) {
+    if(result.data.getCasebyID.case_record_01){
+      getRecord = result.data.getCasebyID.case_record_01;
+    let nowUcResult = JSON.parse(getRecord01.uccal_table);	
+    }else if(result.data.getCasebyID.case_record_02){
+      getRecord = result.data.getCasebyID.case_record_02;
+    }
     // 填入資料
-		let getRecord01 = result.data.getCasebyID.case_record_01;
-		let nowUcResult = JSON.parse(getRecord01.uccal_table);
-		console.log(nowUcResult);
-		nowUcVer.value = nowUcResult.ver;
+    // console.log(getRecord.uccal_table);
+    let nowUcResult = JSON.parse(getRecord.uccal_table);
+    console.log(nowUcResult);
+    // nowUcVer.value = nowUcResult.ver;
+    // nowUcPrjCode.value = nowUcResult.prjcode;
+    // nowUcfreeH.value = nowUcResult.freeH.toFixed(viewDig);
+    // nowUcfreeV.value = nowUcResult.freeV.toFixed(viewDig);
+    // nowUctinvH.value = nowUcResult.tinvH.toFixed(viewDig);
+    // nowUctinvV.value = nowUcResult.tinvV.toFixed(viewDig);
+    // nowUcH.value = nowUcResult.ucH_o.toFixed(viewDig);
+    // nowUcV.value = nowUcResult.ucV_o.toFixed(viewDig);
+    // nowUcminUcH.value = nowUcResult.minUcH.toFixed(viewDig);
+    // nowUcminUcV.value = nowUcResult.minUcV.toFixed(viewDig);
+    // nowUcCombUxH.value = (nowUcResult.ucH / nowUcResult.tinvH).toFixed(viewDig);
+    // nowUcCombUxV.value = (nowUcResult.ucV / nowUcResult.tinvV).toFixed(viewDig);
+    // nowUcData.value = nowUcResult.data;
+    nowUcVer.value = nowUcResult.ver;
 		nowUcPrjCode.value = nowUcResult.prjcode;
-		nowUcfreeH.value = nowUcResult.freeH.toFixed(viewDig);
-		nowUcfreeV.value = nowUcResult.freeV.toFixed(viewDig);
-		nowUctinvH.value = nowUcResult.tinvH.toFixed(viewDig);
-		nowUctinvV.value = nowUcResult.tinvV.toFixed(viewDig);
-		nowUcH.value = nowUcResult.ucH.toFixed(viewDig);
-		nowUcV.value = nowUcResult.ucV.toFixed(viewDig);
-		nowUcminUcH.value = nowUcResult.minUcH.toFixed(viewDig);
-		nowUcminUcV.value = nowUcResult.minUcV.toFixed(viewDig);
-		nowUcCombUxH.value = (nowUcResult.ucH / nowUcResult.tinvH).toFixed(viewDig);
-		nowUcCombUxV.value = (nowUcResult.ucV / nowUcResult.tinvV).toFixed(viewDig);
+		nowUcfreeH.value = parseFloat(nowUcResult.freeH).toFixed(viewDig);
+		nowUcfreeV.value = parseFloat(nowUcResult.freeV).toFixed(viewDig);
+		nowUctinvH.value = parseFloat(nowUcResult.tinvH).toFixed(viewDigsub);
+		nowUctinvV.value = parseFloat(nowUcResult.tinvV).toFixed(viewDigsub);
+		nowUcH.value = parseFloat(nowUcResult.ucH_o).toFixed(viewDig);
+		nowUcV.value = parseFloat(nowUcResult.ucV_o).toFixed(viewDig);
+		nowUcminUcH.value = parseFloat(nowUcResult.minUcH).toFixed(viewDig);
+		nowUcminUcV.value = parseFloat(nowUcResult.minUcV).toFixed(viewDig);
+		nowUcCombUxH.value = parseFloat(nowUcResult.ucH_s).toFixed(viewDigsub);
+		nowUcCombUxV.value = parseFloat(nowUcResult.ucV_s).toFixed(viewDigsub);
+		nowUcConfLevel.value = parseFloat(nowUcResult.confLevel).toFixed(viewDig);
 		nowUcData.value = nowUcResult.data;
   }
 });
@@ -86,9 +108,9 @@ refgetNowCaseF();
 			</tr>
 			<tr class="fstyle02">
 				<td class="bglightGreen">信賴水準</td>
-				<td class="bglightGreen">95%</td>
+				<td class="bglightGreen">{{nowUcConfLevel*100}} %</td>
 				<td class="bglightBlue">信賴水準</td>
-				<td class="bglightBlue">95%</td>
+				<td class="bglightBlue">{{nowUcConfLevel*100}} %</td>
 			</tr>
 			<tr class="fstyle02">
 				<td class="bglightGreen">涵蓋因子</td>
@@ -135,8 +157,8 @@ refgetNowCaseF();
 						<td>{{subItem.ux.toFixed(viewDigsub)}}</td>
 						<td>{{subItem.freedom.toFixed(viewDig)}}</td>
 						<td>{{subItem.factor.toFixed(viewDig)}}</td>
-						<td>{{((subItem.ux**2)*subItem.factor).toFixed(viewDigsub)}}</td>
-						<td>{{((subItem.ux**4)*subItem.factor).toFixed(viewDigsub)}}</td>
+						<td>{{((subItem.ux*subItem.factor)**2).toFixed(viewDigsub)}}</td>
+						<td>{{((subItem.ux*subItem.factor)**4).toFixed(viewDigsub)}}</td>
 						<td class="fstyle02 nowrap" :frequency="subItem.frequency">{{subItem.frequency}}</td>
 						<td class="fstyle02 bgWrite">
 							<span v-for="(x, xindex) in subItem.x" style="margin-right: 10px;">

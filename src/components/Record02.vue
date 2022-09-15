@@ -66,7 +66,7 @@ const nowCaseItemChop = ref(""); // 光達廠牌
 const nowCaseItemModel = ref(""); // 光達型號
 const nowCaseItemSN = ref(""); // 光達序號
 
-const nowCaseParaType = ref("");  // 規格參數類型1:各項均有 2:整合精度
+// const nowCaseParaType = ref("");  // 規格參數類型1:各項均有 2:整合精度
 const isFullPara = ref(true);
 const switchLabel = computed(() => {
   return (isFullPara.value) ? "具完整規格" : "具整合精度";
@@ -192,6 +192,15 @@ const nowCaseKh = ref(""); //水平涵蓋因子(自動計算)
 const nowCaseKv = ref(""); //高程涵蓋因子(自動計算)
 
 const nowCaseCalResult = ref(""); //計算成果表
+const isCalResult = computed(()=>{ //計算表是否有成果
+  let calTable = JSON.parse(nowCaseCalResult.value);
+  if (calTable.rmseH && calTable.rmseV){
+    return true;
+  }else{
+    return false;
+  }
+});
+
 const nowCaseUcResult = ref(""); //不確定度計算表
 const nowCaseUcModel = ref(""); //不確定度選用模組
 provide("nowCaseUcModel", nowCaseUcModel);
@@ -272,7 +281,7 @@ const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetc
 );
 getNowCaseF(result => {
   if (!result.loading && result && result.data.getCasebyID.case_record_02) {
-    // console.log(result.data.getCasebyID);
+    console.log(result.data.getCasebyID);
     // 填入資料
     let getData = result.data.getCasebyID.case_record_02;
     let getItem = result.data.getCasebyID.item_base;
@@ -288,7 +297,7 @@ getNowCaseF(result => {
     nowCaseItemModel.value = (getItem) ? getItem.model : "";
     nowCaseItemSN.value = (getItem) ? getItem.serial_number : "";
     // 參數型態
-    nowCaseParaType.value = getData.type;
+    // nowCaseParaType.value = getData.type;
     (getData.type === 1) ? isFullPara.value = true : isFullPara.value = false;
 
     // LiDAR規格
@@ -827,6 +836,7 @@ calRefGcpOnDone(result=>{
       meas_E: "",
       meas_N: "",
       meas_h: "",
+      count: 0,
       d_E: "",
       d_N: "",
       d_h: "",
@@ -849,7 +859,7 @@ const {
 } = useMutation(CaseGQL.SAVECASERECORD02, () => ({
   variables: {
     updateRecord02Id: props.caseID,
-    type: (isFullPara.value) ? 1 : 0,
+    type: (isFullPara.value) ? 1 : 2,
     gnssId: parseInt(nowCaseGnssID.value),
     imuId: parseInt(nowCaseImuID.value),
     disPresision: parseFloat(nowCaseLrDisPrs.value),
@@ -920,7 +930,7 @@ const {
     hasLogo: nowCaseHasLOGO.value,
     reportTemplate: selectReportTemp.value,
     recordTamplate: "",
-    recalTable: data1ToCalResult(),
+    recalTable: nowCaseCalResult.value,
     uccalTable: nowCaseUcResult.value,
     ucModel: selectUcModel.value,
   },
@@ -941,117 +951,42 @@ const uploadType = ref("");
 function uploadBtn(inputId) {
   // 由按鈕啟動檔案選擇器
   uploadType.value = inputId;
-  const inputDOM = document.getElementById(inputId);
-  inputDOM.click();
-}
-
-// 上傳檔案
-const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
-  CaseGQL.UPLOADFILE
-);
-uploadFileOnDone((result) => {
-  // console.log("uploadFile")
-  let inputDOM;
-  // 儲存(更新)上傳紀錄資料
-  if (!uploadType.value) {
-    return;
-  }
-  switch (uploadType.value) {
+  const inputDOM = document.getElementById("AllUpload");
+  inputDOM.setAttribute("accept","");
+  switch (inputId){
     case "itemLrReportUpload":
-      nowCaseLrReport.value = result.data.uploadFile.filename;
-      saveRecord02();
-      inputDOM = document.getElementById("itemLrReportUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".pdf");
       break;
     case "itemPOSReportUpload":
-      nowCasePosReport.value = result.data.uploadFile.filename;
-      saveRecord02();
-      inputDOM = document.getElementById("itemPOSReportUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".pdf");
       break;
     case "itemLrPlanUpload":
-      nowCasePlanMap.value = result.data.uploadFile.filename;
-      saveRecord02();
-      inputDOM = document.getElementById("itemLrPlanUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".dwg");
       break;
     case "FlyMapAcUpload":
-      nowCaseFlyMapAc.value = result.data.uploadFile.filename;
-      saveRecord02();
-      inputDOM = document.getElementById("FlyMapAcUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".dwg");
       break;
     case "RecTableUpload":
-      nowCaseRecTable.value = result.data.uploadFile.filename;
-      saveRecord02();
-      inputDOM = document.getElementById("RecTableUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept",".pdf");
       break;
     case "OtherUpload":
-      nowCaseOther.value = result.data.uploadFile.filename;
-      saveRecord02();
-      inputDOM = document.getElementById("OtherUpload");
-      inputDOM.value = "";
+      inputDOM.setAttribute("accept","");
       break;
-    // case "REFUpload":
-    //   nowCaseREFUpload.value = result.data.uploadFile.filename;
-    //   saveRecord01();
-    //   inputDOM = document.getElementById("REFUpload");
-    //   inputDOM.value = "";
-    //   break;
-    // case "FreeUpload":
-    //   nowCaseFreeUpload.value = result.data.uploadFile.filename;
-    //   saveRecord01();
-    //   inputDOM = document.getElementById("FreeUpload");
-    //   inputDOM.value = "";
-    //   break;
-    // case "FixUpload":
-    //   nowCaseFixUpload.value = result.data.uploadFile.filename;
-    //   saveRecord01();
-    //   inputDOM = document.getElementById("FixUpload");
-    //   inputDOM.value = "";
-    //   break;
-    // case "GCPUpload":
-    //   nowCaseGCPUpload.value = result.data.uploadFile.filename;
-    //   saveRecord01();
-    //   inputDOM = document.getElementById("GCPUpload");
-    //   inputDOM.value = "";
-    //   break;
-    // case "ATreportUpload":
-    //   nowCaseATreport.value = result.data.uploadFile.filename;
-    //   break;
-    // case "NetGraphUpload":
-    //   nowCaseNetGraph.value = result.data.uploadFile.filename;
-    //   saveRecord01();
-    //   inputDOM = document.getElementById("NetGraphUpload");
-    //   inputDOM.value = "";
-    //   break;
-    // case "GCPGraphUpload":
-    //   nowCaseGCPGraph.value = result.data.uploadFile.filename;
-    //   saveRecord01();
-    //   inputDOM = document.getElementById("GCPGraphUpload");
-    //   inputDOM.value = "";
-    //   break;
-    // case "STDExlUpload":
-    //   nowCaseSTDExl.value = result.data.uploadFile.filename;
-    //   saveRecord01();
-    //   inputDOM = document.getElementById("STDExlUpload");
-    //   inputDOM.value = "";
-    //   break;
-    // case "ReportEditUpload":
-    //   nowCaseReportEdit.value = result.data.uploadFile.filename;
-    //   saveRecord01();
-    //   inputDOM = document.getElementById("ReportEditUpload");
-    //   inputDOM.value = "";
-    //   break;
-    // case "ReportScanUpload":
-    //   nowCaseReportScan.value = result.data.uploadFile.filename;
-    //   saveRecord01();
-    //   inputDOM = document.getElementById("ReportScanUpload");
-    //   inputDOM.value = "";
-    //   break;
+    case "ptCloudUpload":
+      inputDOM.setAttribute("accept",".xyz");
+      break;
+
+    case "ReportEditUpload":
+      inputDOM.setAttribute("accept",".docx");
+      break;
+    case "ReportScanUpload":
+      inputDOM.setAttribute("accept",".pdf");
+      break;
+      
   }
-});
+  
+  inputDOM.click();
+}
 
 // 檔案選擇器選擇事件
 const upFile = ref();
@@ -1081,37 +1016,17 @@ async function uploadChenge(e) {
     case "OtherUpload":
       newName = "06_Other" + path.extname(e.target.value);
       break;
-    // case "REFUpload":
-    //   newName = "07_Ref" + path.extname(e.target.value);
-    //   break;
-    // case "FreeUpload":
-    //   newName = "09_FreeWeb" + path.extname(e.target.value);
-    //   break;
-    // case "FixUpload":
-    //   newName = "10_FixWeb" + path.extname(e.target.value);
-    //   break;
-    // case "GCPUpload":
-    //   newName = "08_GCP" + path.extname(e.target.value);
-    //   break;
-    // case "ATreportUpload":
-    //   await readPrintOut(upFile.value);
-    //   newName = "11_Printout" + path.extname(e.target.value);
-    //   break;
-    // case "NetGraphUpload":
-    //   newName = "14_NetworkDiag" + path.extname(e.target.value);
-    //   break;
-    // case "GCPGraphUpload":
-    //   newName = "15_PtDistribution" + path.extname(e.target.value);
-    //   break;
-    // case "STDExlUpload":
-    //   newName = "13_UncertaintyCal" + path.extname(e.target.value);
-    //   break;
-    // case "ReportEditUpload":
-    //   newName = props.caseID + path.extname(e.target.value)
-    //   break;
-    // case "ReportScanUpload":
-    //   newName = "17_ReportScan" + path.extname(e.target.value);
-    //   break;
+    case "ptCloudUpload":
+      subpath = subpath + "/CloudPt"
+      newName = data1.value[upPtIndex.value].gcp_id + path.extname(e.target.value);
+      await ptCloudAvg(upFile.value,upPtIndex.value);
+      break;
+    case "ReportEditUpload":
+      newName = props.caseID + path.extname(e.target.value)
+      break;
+    case "ReportScanUpload":
+      newName = "17_ReportScan" + path.extname(e.target.value);
+      break;
   }
   await uploadFile({
     file: upFile.value,
@@ -1119,6 +1034,60 @@ async function uploadChenge(e) {
     newfilename: newName,
   });
 }
+
+// 上傳檔案
+const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
+  CaseGQL.UPLOADFILE
+);
+uploadFileOnDone((result) => {
+  // console.log("uploadFile")
+  // 儲存(更新)上傳紀錄資料
+  if (!uploadType.value) {
+    return;
+  }
+  switch (uploadType.value) {
+    case "itemLrReportUpload":
+      nowCaseLrReport.value = result.data.uploadFile.filename;
+      saveRecord02();
+      break;
+    case "itemPOSReportUpload":
+      nowCasePosReport.value = result.data.uploadFile.filename;
+      saveRecord02();
+      break;
+    case "itemLrPlanUpload":
+      nowCasePlanMap.value = result.data.uploadFile.filename;
+      saveRecord02();
+      break;
+    case "FlyMapAcUpload":
+      nowCaseFlyMapAc.value = result.data.uploadFile.filename;
+      saveRecord02();
+      break;
+    case "RecTableUpload":
+      nowCaseRecTable.value = result.data.uploadFile.filename;
+      saveRecord02();
+      break;
+    case "OtherUpload":
+      nowCaseOther.value = result.data.uploadFile.filename;
+      saveRecord02();
+      break;
+    case "ptCloudUpload":
+      saveRecord02();
+      break;
+    case "ReportEditUpload":
+      nowCaseReportEdit.value = result.data.uploadFile.filename;
+      saveRecord02();
+      break;
+    case "ReportScanUpload":
+      nowCaseReportScan.value = result.data.uploadFile.filename;
+      saveRecord02();
+      break;
+  }
+  let inputDOM;
+  inputDOM = document.getElementById("AllUpload");
+  inputDOM.value = "";
+});
+
+
 // 檔案上傳==========End
 
 // 呼叫計算不確定度=======Start
@@ -1135,14 +1104,52 @@ const {
 }));
 getUcListOnDone((result) => {
   // 填入uclist選單
-  if (!result.loading && result.data.getUclist) {
-    nowCaseUcModelMU.value = result.data.getUclist.map((x) => {
-      return { text: x, value: x };
+  if (!result.loading && result.data.getUclist) {  
+    let myArray = [];
+    result.data.getUclist.forEach((x) => {
+      if(isFullPara.value && (x.indexOf("_A")>-1)){
+        myArray.push({ text: x, value: x });
+      }else if(!isFullPara.value && (x.indexOf("_B")>-1)){
+        myArray.push({ text: x, value: x });
+      }
     });
+    myArray.unshift({text: "", value: ""})
+    nowCaseUcModelMU.value = myArray;
   }
 });
 
+function reloadUcMU(){
+  let oldselect = selectUcModel.value;
+  getUcList().then(res=>{
+    selectUcModel.value = oldselect;
+  });
+}
+
+
 // 計算不確定度(return 不確定度H V、有效位置及計算表)
+const pramJsonStr = ref("");
+
+function computeUcBtn(){
+  let calResult = JSON.parse(nowCaseCalResult.value);
+  let pramJson = {
+    lrdis: nowCaseLrDisPrs.value, // LiDAR規格測距精度(mm)
+    lrbeam: nowCaseLrBeam.value, // LiDAR規格雷射擴散角(秒)
+    lrang: nowCaseLrAngResol.value, // LiDAR規格掃描角解析度(秒)
+    posH: nowCaseGnssPrcH.value, // POS規格平面精度(mm)
+    posV: nowCaseGnssPrcV.value, // POS規格高程精度(mm)
+    posOmg: nowCaseImuOmg.value, // POS規格Omega精度(秒)
+    posPhi: nowCaseImuPhi.value, // POS規格Phi精度(秒)
+    posKap: nowCaseImuKap.value, // POS規格Kappa精度(秒)
+    posOri: nowCaseImuPrcO.value, // POS測角解析度(秒)
+    agl: nowCaseAGLac.value, // 飛行離地高(m)
+    fov: nowCaseFOVac.value, // 最大掃描角(度)FOV
+    minpt: calResult.minCloudPt, // 最少點雲數
+    maxpt: calResult.maxCloudPt, // 最多點雲數
+  };
+  pramJsonStr.value = JSON.stringify(pramJson);
+  computeUc();
+}
+
 const {
   mutate: computeUc,
   onDone: computeUcOnDone,
@@ -1154,33 +1161,35 @@ const {
   },
 }));
 computeUcOnDone((result) => {
-  // console.log(result.data.computeUc);
-  // console.log(nowCaseCalResult.value);
+  console.log(result.data.computeUc);
   if (!result.loading && result.data.computeUc) {
     nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
-    nowCaseSTDh.value = result.data.computeUc.ucH;
-    nowCaseSTDv.value = result.data.computeUc.ucV;
+    nowCaseSTDh.value = result.data.computeUc.fixUcH;
+    nowCaseSTDv.value = result.data.computeUc.fixUcV;
     nowCaseKh.value = result.data.computeUc.tinvH.toFixed(2);
     nowCaseKv.value = result.data.computeUc.tinvV.toFixed(2);
-    // const inputDOM = document.getElementById("ATreportUpload");
-    // inputDOM.value = "";
-    // saveRecord02();
+    // console.log(nowCaseUcResult.value);
+    saveRecord02();
   }
 });
 // 呼叫計算不確定度=======End
 
 // 量測作業表格==========Start
-
-function uploadCloudPt(){
-  console.log("uploadCloudPt");
-}
-
 let dt1;
 const table1 = ref();
 const data1 = ref([]);
 const columns1 = [
-  { title: "序號", render: (data, type, row, meta) => { return meta.row; }, width: "30px" },
-  { title: "量測資料", render: (data, type, row, meta) => { return '<span class="btn btn-primary btn-sm ripple-surface uploadCP">上傳</span>' } },
+  { title: "序號", render: (data, type, row, meta) => { return meta.row; },width:"1rem" },
+  { title: "量測資料", render: (data, type, row, meta) => { 
+    return '<span class="btn btn-primary btn-sm ripple-surface uploadCP">上傳</span>' },width:"1rem" 
+  },
+  { title: "剔除", data: "type", render: (data, type, row, meta) => {
+      if(data==='T'){
+        return '<span class="deltype"><i class="fas fa-lg fa-check-circle text-success">使用</i></span>'
+      }else if(data==='F'){
+        return '<span class="deltype"><i class="fas fa-lg fa-times-circle text-danger">剔除</i></span>'
+      }
+    },width:"1rem"},
   { title: "點號", data: "gcp_id" },
   { title: "E_ref", data: "coor_E", className: 'dt-right' },
   { title: "N_ref", data: "coor_N", className: 'dt-right' },
@@ -1188,6 +1197,7 @@ const columns1 = [
   { title: "E_mes", data: "meas_E", className: 'dt-right' },
   { title: "N_mes", data: "meas_N", className: 'dt-right' },
   { title: "h_mes", data: "meas_h", className: 'dt-right' },
+  { title: "點雲個數", data: "count", className: 'dt-right' },
   { title: "dE", data: "d_E", className: 'dt-right' },
   { title: "dN", data: "d_N", className: 'dt-right' },
   { title: "dh", data: "d_h", className: 'dt-right' },
@@ -1210,13 +1220,24 @@ function onChangeStep() {
   updateKey.value += 1;
 }
 
+const upPtIndex = ref("");
 function loadtable(){
   dt1 = table1.value.dt();
-  dt1.on('click', '.uploadCP', function (e, dt, type, indexes) {
-    let ptDataIndex = parseInt(e.target.parentElement.previousSibling.innerText);
-    let upPtName = e.target.parentElement.nextSibling.innerText;
-    console.log(ptDataIndex,upPtName);
-    uploadCloudPt();
+  dt1.off('click', '.uploadCP');
+  dt1.on('click', '.uploadCP', function (e) {
+    upPtIndex.value = parseInt(e.target.parentElement.previousSibling.innerText);
+    uploadBtn("ptCloudUpload");
+    e.stopPropagation()
+  });
+  dt1.on('click', '.deltype', function (e) {
+    upPtIndex.value = parseInt(e.currentTarget.parentElement.previousSibling.previousSibling.innerText);
+    if(data1.value[upPtIndex.value].type==='T'){
+      // 剔除點位
+      data1.value[upPtIndex.value].type='F';
+    }else{
+      // 使用點位
+      data1.value[upPtIndex.value].type='T';
+    }
     e.stopPropagation()
   });
 }
@@ -1227,20 +1248,22 @@ function calResultToData1(){
   let calTable = JSON.parse(nowCaseCalResult.value);
   let myArray = [];
   for(let key in calTable.data){
-    if(calTable.data[key].type==='T'){
+    // if(calTable.data[key].type==='T'){
       myArray.push({
         gcp_id: key,
+        type: calTable.data[key].type,
         coor_E: calTable.data[key].sx,
         coor_N: calTable.data[key].sy,
         coor_h: calTable.data[key].sz,
         meas_E: calTable.data[key].x,
         meas_N: calTable.data[key].y,
         meas_h: calTable.data[key].z,
+        count: calTable.data[key].count,
         d_E: calTable.data[key].dx,
         d_N: calTable.data[key].dy,
         d_h: calTable.data[key].dz,
       })
-    }
+    // }
   }
 
   myArray.sort((a,b)=>{
@@ -1255,36 +1278,108 @@ function data1ToCalResult(){
   let rmseE = 0.0;
   let rmseN = 0.0;
   let rmseV = 0.0;
-  for(let i=0;i<data1.value.length; i++){
-    let pt_Name = data1.value[i].gcp_id;
-    pt_Data[pt_Name]={
-      type: "T",
-      sx: data1.value[i].coor_E,
-      sy: data1.value[i].coor_N,
-      sz: data1.value[i].coor_h,
-      x: data1.value[i].meas_E,
-      y: data1.value[i].meas_N,
-      z: data1.value[i].meas_h,
-      dx: data1.value[i].d_E,
-      dy: data1.value[i].d_N,
-      dz: data1.value[i].d_h,
+  let minPt = 0;
+  let maxPt = 0;
+  let pt_Used = 0;
+  let pt_Total = data1.value.length;
+  for(let i=0; i < pt_Total ; i++){
+    if(data1.value[i].type==="T"){
+      
+      let pt_Name = data1.value[i].gcp_id;
+      pt_Data[pt_Name]={
+        type: "T",
+        sx: data1.value[i].coor_E,
+        sy: data1.value[i].coor_N,
+        sz: data1.value[i].coor_h,
+        x: data1.value[i].meas_E,
+        y: data1.value[i].meas_N,
+        z: data1.value[i].meas_h,
+        count: data1.value[i].count,
+        dx: data1.value[i].d_E,
+        dy: data1.value[i].d_N,
+        dz: data1.value[i].d_h,
+      }
+      rmseE = rmseE + parseFloat(data1.value[i].d_E)**2;
+      rmseN = rmseN + parseFloat(data1.value[i].d_N)**2;
+      rmseV = rmseV + parseFloat(data1.value[i].d_N)**2;
+      if(pt_Used===0){
+        minPt = data1.value[i].count;
+        maxPt = data1.value[i].count;
+      }else{
+        (data1.value[i].count < minPt)?minPt = data1.value[i].count:minPt = minPt;
+        (data1.value[i].count > maxPt)?maxPt = data1.value[i].count:maxPt = maxPt;
+      }
+      pt_Used = pt_Used + 1;
     }
-    rmseE = rmseE + parseFloat(data1.value[i].d_E)**2;
-    rmseN = rmseN + parseFloat(data1.value[i].d_N)**2;
-    rmseV = rmseV + parseFloat(data1.value[i].d_N)**2;
   }
   if(data1.value.length > 0){
-    rmseE = (rmseE/data1.value.length)**0.5;
-    rmseN = (rmseN/data1.value.length)**0.5;
+    rmseE = (rmseE/pt_Used)**0.5;
+    rmseN = (rmseN/pt_Used)**0.5;
     myCalResult.rmseH = (rmseE**2 + rmseE**2)**0.5;
-    myCalResult.rmseV = (rmseV/data1.value.length)**0.5;
+    myCalResult.rmseV = (rmseV/pt_Used)**0.5;
     myCalResult.data = pt_Data;
+    myCalResult.minCloudPt = minPt;
+    myCalResult.maxCloudPt = maxPt;
+    myCalResult.ptUsed = pt_Used;
+    myCalResult.ptTotal = pt_Total;
+    myCalResult.ptDel = pt_Total - pt_Used;
+    console.log(myCalResult);
     nowCaseCalResult.value = JSON.stringify(myCalResult)
-    return nowCaseCalResult.value;
-  }else{
-    return "";
+    // console.log(nowCaseCalResult.value);
   }
-  
+}
+
+async function ptCloudAvg(POfile, ptIndex) {
+  if (POfile) {
+    let pt_x = 0.0;
+    let pt_y = 0.0;
+    let pt_z = 0.0;
+    let pt_count = 0;
+    //確認有檔案存在
+    //建立檔案讀取器
+    const fReader = new FileReader();
+
+    fReader.onloadend = function (evt) {
+      if (evt.target.readyState == FileReader.DONE) {
+        // 全文件轉換成行
+        let allTextLines = evt.target.result.split(/\r\n|\n/);
+        // 逐行解析
+        let i = 0;
+        let ptData = [];
+        let lineString = "";
+        do {
+          // 計算平均
+          lineString = allTextLines[i].trim();
+          if (lineString !== "") {
+            // 有效資料
+            pt_count = pt_count + 1;
+            ptData = lineString.split(" ");
+            pt_x = pt_x + parseFloat(ptData[0]);
+            pt_y = pt_y + parseFloat(ptData[1]);
+            pt_z = pt_z + parseFloat(ptData[2]);
+          }
+          i = i + 1;
+        } while (i < allTextLines.length);
+        if(pt_count > 0){
+          let x_avg = pt_x / pt_count;
+          let y_avg = pt_y / pt_count;
+          let z_avg = pt_z / pt_count;
+          data1.value[ptIndex].meas_E = parseFloat(x_avg.toFixed(3));
+          data1.value[ptIndex].meas_N = parseFloat(y_avg.toFixed(3));
+          data1.value[ptIndex].meas_h = parseFloat(z_avg.toFixed(3));
+          data1.value[ptIndex].count = pt_count;
+          // console.log(data1.value);
+          data1.value[ptIndex].d_E = parseFloat((x_avg - parseFloat(data1.value[ptIndex].coor_E)).toFixed(3));
+          data1.value[ptIndex].d_N = parseFloat((y_avg - parseFloat(data1.value[ptIndex].coor_N)).toFixed(3));
+          data1.value[ptIndex].d_h = parseFloat((z_avg - parseFloat(data1.value[ptIndex].coor_h)).toFixed(3));
+
+          data1ToCalResult();
+        }
+      }
+    }
+    //真正執行以文字方式載入檔案
+    fReader.readAsText(POfile);
+  }
 }
 
 // 量測作業表格==========End
@@ -1328,9 +1423,7 @@ function buildReportBtn() {
   parms.nowCaseSizeY = nowCaseSizeY.value;
 
   let calTable = JSON.parse(nowCaseCalResult.value);
-  // console.log("calTable",calTable);
   let ucTable = JSON.parse(nowCaseUcResult.value);
-  // console.log("ucTable",ucTable);
 
   let defVerH = [];
   let defVerV = [];
@@ -1477,6 +1570,7 @@ defineExpose({
 </script>
 <template>
   <div class="h-100 overflow-auto">
+    <input type="file" id="AllUpload" @change="uploadChenge($event)" style="display: none" />
     <!-- 選擇校正件 -->
     <MDBModal style="left: 66%;" @shown="shownItemModal" v-model="showItemFrom" staticBackdrop scrollable>
       <MDBModalHeader>
@@ -1648,7 +1742,7 @@ defineExpose({
                 </MDBRow>
               </MDBCol>
               <MDBCol col="12" class="my-2">
-                <MDBSwitch :disabled="!rGroup[2]" :label="switchLabel" v-model="isFullPara" />
+                <MDBSwitch :disabled="!rGroup[2]" :label="switchLabel" v-model="isFullPara" @change="reloadUcMU" />
               </MDBCol>
               <MDBCol v-show="isFullPara">
                 <MDBRow>
@@ -1806,8 +1900,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 my-3">
-                    <input type="file" accept=".pdf" id="itemLrReportUpload" @change="uploadChenge($event)"
-                      style="display: none;" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('itemLrReportUpload')">上傳
                     </MDBBtn>
                     <MDBBtn tag="a" size="sm" :href="nowCaseLrReportDL" download color="secondary">下載</MDBBtn>
@@ -1822,8 +1914,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".pdf" id="itemPOSReportUpload" @change="uploadChenge($event)"
-                      style="display: none;" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('itemPOSReportUpload')">
                       上傳</MDBBtn>
                     <MDBBtn tag="a" size="sm" :href="nowCasePosReportDL" download color="secondary">下載</MDBBtn>
@@ -1838,8 +1928,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".dwg" id="itemLrPlanUpload" @change="uploadChenge($event)"
-                      style="display: none;" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('itemLrPlanUpload')">上傳
                     </MDBBtn>
                     <MDBBtn tag="a" size="sm" :href="nowCasePlanMapDL" download color="secondary">下載</MDBBtn>
@@ -1912,8 +2000,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 my-3">
-                    <input type="file" accept=".dwg" id="FlyMapAcUpload" @change="uploadChenge($event)"
-                      style="display: none" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('FlyMapAcUpload')">上傳
                     </MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseFlyMapAcDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -1927,8 +2013,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" accept=".pdf" id="RecTableUpload" @change="uploadChenge($event)"
-                      style="display: none" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('RecTableUpload')">上傳
                     </MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseRecTableDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -1946,7 +2030,6 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <input type="file" id="OtherUpload" @change="uploadChenge($event)" style="display: none" />
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('OtherUpload')">上傳
                     </MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseOtherDL" download size="sm" color="secondary">下載</MDBBtn>
@@ -1986,7 +2069,7 @@ defineExpose({
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
-                    <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="showPrjFrom = true">查詢量測作業</MDBBtn>
+                    <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click.stop="showPrjFrom = true">查詢量測作業</MDBBtn>
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
@@ -2017,7 +2100,7 @@ defineExpose({
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
-                    <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="">
+                    <MDBBtn :disabled="!rGroup[2] || !isCalResult" size="sm" color="primary" @click.stop="computeUcBtn">
                       計算不確定度
                     </MDBBtn>
                     <MDBBtn :disabled="nowCaseCalResult === '' && !rGroup[2]" size="sm" color="primary">
@@ -2092,7 +2175,7 @@ defineExpose({
                       <!-- 選擇報告範本 -->
                       <SelectRptTemp />
                       <MDBCol col="12" class="mb-3">
-                        <MDBBtn :disabled="!rGroup[2]" size="sm" color="secondary" @click="buildReportBtn()">產生報告
+                        <MDBBtn :disabled="!rGroup[2]" size="sm" color="secondary" @click.stop="buildReportBtn()">產生報告
                         </MDBBtn>
                       </MDBCol>
 
@@ -2106,7 +2189,7 @@ defineExpose({
                       </MDBCol>
                       <MDBCol col="3" class="px-0 mb-3">
                         <input type="file" id="ReportEditUpload" @change="" style="display: none" />
-                        <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('ReportEditUpload')">
+                        <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click.stop="uploadBtn('ReportEditUpload')">
                           上傳</MDBBtn>
                         <MDBBtn id="ReportEditDownload" tag="a" :href="nowCaseReportEditDL" download size="sm"
                           color="secondary">下載</MDBBtn>
@@ -2134,7 +2217,7 @@ defineExpose({
                       </MDBCol>
                       <MDBCol col="3" class="px-0 mb-3">
                         <input type="file" id="ReportScanUpload" @change="uploadChenge($event)" style="display: none" />
-                        <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('ReportScanUpload')">
+                        <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click.stop="uploadBtn('ReportScanUpload')">
                           上傳</MDBBtn>
                         <MDBBtn tag="a" :href="nowCaseReportScanDL" download size="sm" color="secondary">下載</MDBBtn>
                       </MDBCol>

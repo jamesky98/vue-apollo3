@@ -122,6 +122,7 @@ const nowFrequencyMU = ref([
 const nowFrequencyDOM = ref();
 const ucModuleTemp = {
   "calType": "",
+  "parmtype": "",
   "prjcode": "",
   "ver": "",
   "minUcH": "",
@@ -627,9 +628,11 @@ testUcOnDone(result=>{
               </MDBCol>
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
-                  <MDBSelect :disabled="!rGroup[1]" size="sm" class="my-3 col-8" label="校正項目" v-model:options="nowUcCalTypeMU"
+                  <MDBSelect :disabled="!rGroup[1]" size="sm" class="my-3 col-6" label="校正項目" v-model:options="nowUcCalTypeMU"
                     v-model:selected="selectUcCalType" ref="nowUcCalTypeDOM" @change="updateCalType"/>
-
+                  <MDBCol col="6" class="my-3">
+                    <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="規格型態" v-model="nowUcModule.uc.parmtype"/>
+                  </MDBCol>
                   <MDBCol col="8" class="mb-3">
                     <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="量測作業編號" v-model="nowUcModule.uc.prjcode"/>
                   </MDBCol>
