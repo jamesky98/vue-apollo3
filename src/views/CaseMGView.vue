@@ -3,7 +3,7 @@ import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import Record01 from "../components/Record01.vue";
 import Record02 from "../components/Record02.vue";
-import { ref, onMounted, provide } from "vue";
+import { ref, reactive, onMounted, provide } from "vue";
 import path from "path-browserify";
 import {
   MDBInput,
@@ -103,6 +103,8 @@ const rGroup =computed(()=>{
 provide("rGroup", rGroup);
 // 取得權限==========End
 // Information
+const NavItem = ref("cases");
+provide("NavItem",NavItem);
 const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");

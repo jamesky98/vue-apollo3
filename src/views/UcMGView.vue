@@ -83,6 +83,8 @@ const rGroup =computed(()=>{
 // 取得權限==========End
 
 // Information
+const NavItem = ref("ucedit");
+provide("NavItem",NavItem);
 const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");

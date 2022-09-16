@@ -2530,8 +2530,14 @@ defineExpose({
                       </MDBCol>
                       <!-- 選擇報告範本 -->
                       <SelectRptTemp />
+
+                      <MDBCol col="4" class="mb-3">
+                        <MDBDatepicker required size="sm" v-model="nowCaseCompleteDate" format="YYYY-MM-DD"
+                          label="報告完成日" ref="nowCaseCompleteDateDOM" />
+                      </MDBCol>
+
                       <MDBCol col="12" class="mb-3">
-                        <MDBBtn :disabled="!rGroup[2]" size="sm" color="secondary" @click="buildReportBtn()">產生報告
+                        <MDBBtn :disabled="!rGroup[2] || !selectReportTemp || !nowCaseCompleteDate" size="sm" color="secondary" @click="buildReportBtn()">產生報告
                         </MDBBtn>
                       </MDBCol>
                       <!-- 報告編輯檔 -->
@@ -2548,10 +2554,7 @@ defineExpose({
                         <MDBBtn id="ReportEditDownload" tag="a" :href="nowCaseReportEditDL" download size="sm"
                           color="secondary">下載</MDBBtn>
                       </MDBCol>
-                      <MDBCol col="4" class="mb-3">
-                        <MDBDatepicker required size="sm" v-model="nowCaseCompleteDate" format="YYYY-MM-DD"
-                          label="報告完成日" ref="nowCaseCompleteDateDOM" />
-                      </MDBCol>
+                      
                     </MDBRow>
                   </MDBCol>
                   <MDBCol col="12" class="rounded-top-5 bg-info text-white">

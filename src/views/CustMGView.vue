@@ -1,6 +1,7 @@
 <script setup>
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
+import { ref, reactive, onMounted, provide } from "vue";
 import {
   MDBNavbar,
   MDBNavbarBrand,
@@ -33,6 +34,9 @@ getchecktoken(result => {
   }
 });
 refgetCheckToken();
+
+const NavItem = ref("cust");
+provide("NavItem",NavItem);
 
 </script>
 <template>

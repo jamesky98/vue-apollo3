@@ -1,13 +1,14 @@
 import router from "../router";
 
 function logOut() {
+  console.log("logOut")
   localStorage.removeItem("AUTH_TOKEN");
   localStorage.removeItem("USER_ID");
   localStorage.removeItem("USER_NAME");
   localStorage.removeItem("USER_NAME2");
   localStorage.removeItem("USER_ROLE");
   localStorage.removeItem("USER_AC");
-  router.push("/");
+  router.push("/login");
 }
 
 function logIn(result) {

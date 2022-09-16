@@ -1,4 +1,6 @@
 <script setup>
+import Footer1 from "../components/Footer.vue";
+import Navbar1 from "../components/Navbar.vue";
 import {
   MDBNavbar,
   MDBNavbarBrand,
@@ -23,7 +25,7 @@ import {
   MDBDropdownItem,
 } from 'mdb-vue-ui-kit';
 import { RouterLink } from 'vue-router'
-import { ref } from 'vue';
+import { ref, reactive, onMounted, provide } from "vue";
 // 判斷token狀況
 import { useQuery } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
@@ -37,6 +39,8 @@ getchecktoken(result => {
 });
 refgetCheckToken();
 
+const NavItem = ref("main");
+provide("NavItem",NavItem);
 const username = ref(localStorage.getItem("USER_NAME2"));
 const usercode = ref(localStorage.getItem("USER_NAME"));
 const dropdown1 = ref(false);
@@ -48,7 +52,7 @@ const dropdown1 = ref(false);
     <MDBRow class="h-100 flex-column flex-nowrap">
       <header>
         <!-- Navbar -->
-        <MDBNavbar expand="lg" light bg="light" container>
+        <!-- <MDBNavbar expand="lg" light bg="light" container>
           <MDBNavbarBrand>{{ username }}，您好</MDBNavbarBrand>
           <MDBNavbarNav right class="ml-auto mb-lg-0">
             <MDBNavbarItem class="dropdown">
@@ -67,8 +71,8 @@ const dropdown1 = ref(false);
               </MDBDropdown>
             </MDBNavbarItem>
           </MDBNavbarNav>
-        </MDBNavbar>
-
+        </MDBNavbar> -->
+        <Navbar1/>
         <!-- Navbar -->
         <!-- Background image -->
         <div class="p-5 text-center bg-image" style="
