@@ -330,16 +330,16 @@ const columns1 = [
   { data: "comment", title: "備註", defaultContent: "-" }
 ];
 const tboption1 = {
-  dom: 'ti',
+  dom: 'tif',
   select: {
     style: 'single',
     info: false
   },
   order: [[1, 'asc']],
-  scrollY: '32vh', 
+  scrollY: '30vh', 
   scrollX: true,
   lengthChange: false,
-  searching: false,
+  searching: true,
   paging: false,
   responsive: true,
   language: {

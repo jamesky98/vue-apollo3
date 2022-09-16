@@ -1,0 +1,613 @@
+<script setup>
+// 作業紀錄表(適用空載光達)
+import { ref } from 'vue';
+import { computed } from "@vue/reactivity";
+import { useQuery } from '@vue/apollo-composable';
+import CaseGQL from "../../graphql/Cases";
+
+// 引入案件編號
+const props = defineProps({
+  caseID: String
+});
+const nowCaseCalTypeCode = ref(""); //校正項目代碼
+const tableID = computed(() => { return props.caseID.slice(0, -2) }); //申請單編號
+const itemID = computed(() => { return props.caseID.slice(-2) }); //校正件編號
+const nowCaseStartDate = ref(""); // 開始日期
+const startDateStr = computed(() => {
+  let dateArray = nowCaseStartDate.value.split("-");
+  return dateArray[0] - 1911 + "年" + dateArray[1] + "月" + dateArray[2] + "日"
+})
+
+const nowCaseFlyDate = ref(""); // 航拍日期
+const flyDateStr = computed(() => {
+  let dateArray = nowCaseFlyDate.value.split("-");
+  return dateArray[0] - 1911 + "年" + dateArray[1] + "月" + dateArray[2] + "日"
+})
+
+const nowCaseStripsAc = ref(""); // 實際航帶總數
+
+const nowCaseAGLac = ref(""); // 實際離地高AGL
+const nowCaseFOVac = ref(""); // 最大掃描角FOV
+const nowCasePtDensityac = ref(""); // 單航帶點雲密度
+
+const nowCaseRefPrjCode = ref(""); // 量測作業編號編號
+const nowCaseRefPrjPublishDate = ref(""); // 參考值發布日期
+const refPubDateStr = computed(() => {
+  let dateArray = nowCaseRefPrjPublishDate.value.split("-");
+  return dateArray[0] - 1911 + "年" + dateArray[1] + "月" + dateArray[2] + "日"
+})
+
+const nowCaseLrDisPrs = ref("");  // LIDAR設備測距精度
+const nowCaseLrBeam = ref("");  // LIDAR設備發散角
+const nowCaseLrAngResol = ref("");  // LIDAR設備掃描角解析度
+
+const nowCaseGnssPrcH = ref("");  // GNSS設備水平精度 或 整合型平面精度
+const nowCaseGnssPrcV = ref("");  // GNSS設備高程精度 或 整合型高程精度
+
+const nowCaseImuOmg = ref("");  // IMU設備Omega精度
+const nowCaseImuPhi = ref("");  // IMU設備Phi精度
+const nowCaseImuKap = ref("");  // IMU設備Kappa精度
+const nowCaseImuPrcO = ref("");  // IMU設備姿態角解析度
+const nowCaseCalResult = ref(""); //計算成果表
+const pt_Data = ref([]);
+const nowCaseSTDh = ref(""); //水平不確定度(自動計算)
+const nowCaseSTDv = ref(""); //高程不確定度(自動計算)
+
+// 查詢Case_Record資料
+const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
+  CaseGQL.GETFULLCASEBYID,
+  () => ({
+    getCasebyIdId: props.caseID
+  })
+);
+getNowCaseF(result => {
+  if (!result.loading && result && result.data.getCasebyID) {
+    // 填入資料
+    let getData = result.data.getCasebyID;
+    let getRecord = result.data.getCasebyID.case_record_02;
+    let getCust = result.data.getCasebyID.cus;
+    let getItem = result.data.getCasebyID.item_base;
+    let getOpt = result.data.getCasebyID.employee_case_base_operators_idToemployee;
+
+    nowCaseCalTypeCode.value = (result.data.getCasebyID.cal_type_cal_typeTocase_base) ? result.data.getCasebyID.cal_type_cal_typeTocase_base.code : "";
+    nowCaseStartDate.value = (getRecord.start_Date) ? getRecord.start_Date.split("T")[0] : "";
+    nowCaseFlyDate.value = (getRecord.fly_date) ? getRecord.fly_date.split("T")[0] : "";
+    nowCaseStripsAc.value = getRecord.strips_no;
+
+    nowCaseAGLac.value = getRecord.agl_ac;
+    nowCaseFOVac.value = getRecord.fov_ac;
+    nowCasePtDensityac.value = getRecord.cloud_density_ac;
+
+    nowCaseRefPrjCode.value = (getRecord.ref_project) ? getRecord.ref_project.project_code : "";
+    nowCaseRefPrjPublishDate.value = (getRecord.ref_project) ? getRecord.ref_project.publish_date.split("T")[0] : "";
+
+    nowCaseLrDisPrs.value = getRecord.dis_presision;
+    nowCaseLrBeam.value = getRecord.beam;
+    nowCaseLrAngResol.value = getRecord.ang_resolution;
+    nowCaseGnssPrcH.value = getRecord.prec_h;
+    nowCaseGnssPrcV.value = getRecord.prec_v;
+
+    nowCaseImuOmg.value = getRecord.omega;
+    nowCaseImuPhi.value = getRecord.phi;
+    nowCaseImuKap.value = getRecord.kappa;
+    nowCaseImuPrcO.value = getRecord.prec_ori;
+    nowCaseCalResult.value = JSON.parse(getRecord.recal_table);
+    let myArray = [];
+    for(let key in nowCaseCalResult.value.data){
+      myArray.push({gcp_id:key,...nowCaseCalResult.value.data[key]});
+    }
+    pt_Data.value = myArray;
+    console.log(pt_Data.value);
+    nowCaseSTDh.value = getRecord.std_h;
+    nowCaseSTDv.value = getRecord.std_v;
+  }
+});
+refgetNowCaseF();
+</script>
+
+<template>
+
+  <div class="header fstyle02 w-100">
+    <div>內政部國土測繪中心　測量儀器校正實驗室</div>
+  </div>
+  <div class="footer fstyle02 w-100">
+    <table width="100%" style="border: hidden;">
+      <tr>
+        <td width="33%" style="text-align: left;border: hidden;">文件編號：SICL-4-59-0</td>
+        <td width="33%" style="text-align: center;border: hidden;">/1</td>
+        <td style="text-align: right;border: hidden;">版次：2.2</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="page">
+
+      <!-- 表單名稱 -->
+      <div class="fstyle01">
+        <div class="fstyle01C" style="margin-bottom: 10px;">空載光達校正作業紀錄表</div>
+      </div>
+      <div class="fstyle02">編號：</div>
+      <table width="100%" cellspacing=0 cellpadding=0>
+        <tr>
+          <th colspan="3">
+            <table width="100%" cellspacing=0 cellpadding=0>
+              <!-- 申請表資料 -->
+              <tr>
+                <td scope="col" width="38%" class="fstyle02 nowrap tdborder-t2 tdborder-l2 tdborder-r">
+                  申請單編號：{{tableID}}
+                </td>
+                <td scope="col" class="fstyle02 nowrap tdborder-t2 tdborder-l tdborder-r2">
+                  校正件編號：{{itemID}}
+                </td>
+                <td scope="col" width="38%" class="fstyle02 nowrap">
+                  作業開始日期：{{startDateStr}}
+                </td>
+              </tr>
+            </table>
+          </th>
+        </tr>
+        
+        <!-- 基本資料 -->
+        <tr>
+          <th colspan="3">
+            <table width="100%">
+              <tr>
+                <td width="6%" rowspan="5" class="tdborder-t2 tdborder-r tdborder-b2 tdborder-l2">
+                  <div class="fstyle02V">基本資料</div>
+                </td>
+                <td width="47%" scope="col" class="fstyle02 nowrap tdborder-t2 tdborder-r">
+                  （1）掃描日期：{{flyDateStr}}
+                </td>
+                <td scope="col" class="fstyle02 nowrap tdborder-t2 tdborder-r2 tdborder-b">
+                  （2）總航帶數：{{nowCaseStripsAc}} 條
+                </td>
+              </tr>
+              <tr>
+                <td width="46%" scope="col" class="fstyle02 nowrap tdborder">
+                  （3）飛航離地高（AGL）：{{nowCaseAGLac}} m
+                </td>
+                <td scope="col" class="fstyle02 nowrap tdborder-b tdborder-r2">
+                  （4）最大掃描角（FOV）：{{nowCaseFOVac}} m
+                </td>
+              </tr>
+              <tr>
+                <td width="46%" scope="col" class="fstyle02 nowrap tdborder-b2">
+                  （5）單航線平均點雲密度：{{nowCasePtDensityac}} 點/m<sup>2</sup>
+                </td>
+                <td scope="col" class="fstyle02 nowrap tdborder-l tdborder-r2 tdborder-b2"></td>
+              </tr>
+            </table>
+          </th>
+        </tr>
+        <!-- 作業紀錄 -->
+        <tr>
+          <th colspan="3">
+            <table width="100%">
+              <tr>
+                <td colspan="4" scope="col" class="fstyle02mid bggray2 tdborder-l2 tdborder-r2">
+                  <strong>點雲量測</strong>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="4" scope="col" class="fstyle02 tdborder-t tdborder-l2 tdborder-b tdborder-r2">
+                  （1）引用參考值之作業編號：{{nowCaseRefPrjCode}}，發布日期：{{refPubDateStr}}
+                </td>
+              </tr>
+              <tr>
+                <td width="6%" rowspan="4" class="tdborder-l2 tdborder-r">
+                  <div class="fstyle02V">擇一填寫</div>
+                </td>
+                <td colspan="3" scope="col" class="fstyle02 pt-2 tdborder-r2" style="line-height: 1;">
+                  （2-A）具各項系統規格參數
+                </td>
+              </tr>
+              <tr>
+                <td scope="col" width="6%" class="tdborder-b"></td>
+                <td colspan="3" scope="col" class="fstyle02 pb-2 tdborder-r2 tdborder-b" style="line-height: 1.2;">
+                  雷射測距精度：{{nowCaseLrDisPrs}} mm，雷射掃描發散角：{{nowCaseLrBeam}} "
+                  雷射掃描角解析度：{{nowCaseLrAngResol}} "<br/>
+                  GNSS定位精度  平面：{{nowCaseGnssPrcH}} mm，高程：{{nowCaseGnssPrcV}}mm<br/>
+                  IMU測角精度  Omega：{{nowCaseImuOmg}} "，Phi：{{nowCaseImuPhi}} "，Kappa：{{nowCaseImuKap}} "<br/>
+                  姿態角解析度：{{nowCaseImuPrcO}} "
+                </td>
+              </tr>
+              <tr>
+                <td colspan="3" scope="col" class="fstyle02 pt-2 tdborder-r2" style="line-height: 1;">
+                  （2-B）具空載光達系統整合精度
+                </td>
+              </tr>
+              <tr>
+                <td scope="col" width="6%"></td>
+                <td colspan="3" scope="col" class="fstyle02 pb-2 tdborder-r2" style="line-height: 1.2;">
+                  平面精度：{{nowCaseGnssPrcH}} mm，高程精度：{{nowCaseGnssPrcV}} mm
+                </td>
+              </tr>
+              <tr>
+                <td width="50%" colspan="3" scope="col" class="fstyle02 tdborder-t2 tdborder-r tdborder-b tdborder-l2">
+                  （3）檢附<strong class="bggray2">報表摘要資訊</strong>，如附件 1。
+                </td>
+                <td scope="col" class="fstyle02 tdborder-t2 tdborder-r2 tdborder-b tdborder-l">
+                  （4）檢附<strong class="bggray2">不確定度計算表</strong>，如附件 2。
+                </td>
+              </tr>
+              <tr>
+                <td colspan="4" scope="col" class="fstyle02 tdborder-l2 tdborder-r2">
+                  （5）檢附符合性使用之<strong class="bggray2">規範標準及決定規則</strong>，如附件 3。(顧客有要求符合性聲明時檢附)
+                </td>
+              </tr>
+            </table>
+            <table width="100%">
+              <tr class="fstyle02mid bggray2">
+                <td width="8%" rowspan="2" scope="col" class="tdborder-t2 tdborder-l2 tdborder-r">校正物編號</td>
+                <td width="8%" rowspan="2" scope="col" class="tdborder-t2 tdborder-l tdborder-r">點雲數</td>
+                <td width="27%" colspan="2" scope="col" class="tdborder-t2 tdborder-l tdborder-r">E</td>
+                <td width="27%" colspan="2" scope="col" class="tdborder-t2 tdborder-l tdborder-r">N</td>
+                <td colspan="2" scope="col" class="tdborder-t2 tdborder-l tdborder-r">器差值(mm)</td>
+                <td width="8%" rowspan="2" scope="col" class="tdborder-t2 tdborder-l tdborder-r2">擴充不確定度</td>
+              </tr>
+              <tr class="fstyle02mid bggray2">
+                <td scope="col" class="tdborder">量測值(m)</td>
+                <td scope="col" class="tdborder">標準值(m)</td>
+                <td scope="col" class="tdborder">量測值(m)</td>
+                <td scope="col" class="tdborder">標準值(m)</td>
+                <td scope="col" class="tdborder">△E</td>
+                <td scope="col" class="tdborder">△N</td>
+              </tr>
+              <tr v-for="item in pt_Data">
+                <td class="fstyle03mid tdborder-t tdborder-l2 tdborder-r">{{item.gcp_id}}</td>
+                <td class="fstyle03mid tdborder-t tdborder-l tdborder-r">{{item.count}}</td>
+                <td class="fstyle03right tdborder-t tdborder-l tdborder-r">{{parseFloat(item.x).toFixed(3)}}</td>
+                <td class="fstyle03right tdborder-t tdborder-l tdborder-r">{{parseFloat(item.sx).toFixed(3)}}</td>
+                <td class="fstyle03right tdborder-t tdborder-l tdborder-r">{{parseFloat(item.y).toFixed(3)}}</td>
+                <td class="fstyle03right tdborder-t tdborder-l tdborder-r">{{parseFloat(item.sy).toFixed(3)}}</td>
+                <td class="fstyle03right tdborder-t tdborder-l tdborder-r">{{(parseFloat(item.dx)*1000).toFixed(1)}}</td>
+                <td class="fstyle03right tdborder-t tdborder-l tdborder-r">{{(parseFloat(item.dy)*1000).toFixed(1)}}</td>
+                <td class="fstyle03right tdborder-t tdborder-l tdborder-r2">{{nowCaseSTDh}}</td>
+                
+              </tr>
+            </table>
+            <table width="100%">
+              <tr class="fstyle02mid bggray2">
+                <td width="8%" rowspan="2" scope="col" class="tdborder-l2 tdborder-r tdborder-t2">校正物編號</td>
+                <td width="8%" rowspan="2" scope="col" class="tdborder-l tdborder-r tdborder-t2">點雲數</td>
+                <td width="54%" colspan="4" scope="col" class="tdborder-l tdborder-r tdborder-t2">h</td>
+                <td colspan="2" scope="col" class="tdborder-l tdborder-r tdborder-t2">器差值(mm)</td>
+                <td width="8%" rowspan="2" scope="col" class="tdborder-l tdborder-r2 tdborder-t2">擴充不確定度</td>
+              </tr>
+              <tr class="fstyle02mid bggray2">
+                <td colspan="2" scope="col" class="tdborder">量測值(m)</td>
+                <td colspan="2" scope="col" class="tdborder">標準值(m)</td>
+                <td colspan="2" scope="col" class="tdborder">△h</td>
+              </tr>
+              <tr v-for="item in pt_Data">
+                <td class="fstyle03mid tdborder-t tdborder-l2 tdborder-r">{{item.gcp_id}}</td>
+                <td class="fstyle03mid tdborder-t tdborder-l tdborder-r">{{item.count}}</td>
+                <td colspan="2" class="fstyle03right tdborder-t tdborder-l tdborder-r">{{parseFloat(item.z).toFixed(3)}}</td>
+                <td colspan="2" class="fstyle03right tdborder-t tdborder-l tdborder-r">{{parseFloat(item.sz).toFixed(3)}}</td>
+                <td colspan="2" class="fstyle03right tdborder-t tdborder-l tdborder-r">{{(parseFloat(item.dz)*1000).toFixed(1)}}</td>
+                <td class="fstyle03right tdborder-t tdborder-l tdborder-r2">{{nowCaseSTDv}}</td>
+              </tr>
+            </table>
+          </th>
+        </tr>
+        <!-- 簽章欄 -->
+        <tr>
+          <th colspan="3">
+            <table width="100%">
+              <tr height="50px">
+                <td width="25%" scope="col" class="fstyle02 tdborder-t2 tdborder-l2">校正人員簽章</td>
+                <td scope="col" class="tdborder-t2 tdborder-l tdborder-r2">
+                  <div>
+                    <table width="60px" style="float: right; margin-right: 20px;">
+                      <tr class="fstyle04mid">
+                        <td class="tdborder-b tdbordercolor">
+                          <span class="fs-gray">日期</span></td>
+                      </tr>
+                      <tr class="fstyle04mid">
+                        <td
+                          style="color: #d9d9d9;">
+                          時間</td>
+                      </tr>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+              <tr height="50px">
+                <td scope="col" class="fstyle02 tdborder-t tdborder-l2 tdborder-b2">數據檢核人員簽章</td>
+                <td scope="col" class="tdborder-t tdborder-l tdborder-b2 tdborder-r2">
+                  <div>
+                    <table width="60px" style="float: right; margin-right: 20px;">
+                      <tr class="fstyle04mid">
+                        <td class="tdborder-b tdbordercolor">
+                          <span class="fs-gray">日期</span></td>
+                      </tr>
+                      <tr class="fstyle04mid">
+                        <td
+                          style="color: #d9d9d9;">
+                          時間</td>
+                      </tr>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </th>
+        </tr>
+      </table>
+  </div>
+</template>
+<style>
+@media screen {
+
+  html,
+  body {
+    width: 210mm;
+    height: 297mm;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .header {
+    display: none;
+  }
+
+  .footer {
+    display: none;
+  }
+
+  .page {
+    border: 1px solid;
+    box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.6);
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    padding-top: 1.5cm;
+    padding-bottom: 1.5cm;
+    padding-left: 2cm;
+    padding-right: 2cm;
+  }
+
+  .page-gap {
+    height: 20px;
+  }
+
+
+
+}
+
+@page {
+  size: A4 portrait;
+  /* 混合使用 */
+  margin: 1cm 2cm;
+  /* 邊界與內容的距離 */
+  orphans: 0;
+  widows: 0;
+}
+
+@media print {
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    counter-reset: page-number;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    /* border: 1px solid red; */
+  }
+
+  .header {
+    position: fixed;
+  }
+
+  .footer {
+    position: fixed;
+    bottom: 0;
+  }
+
+  .page {
+    /* border: 1px solid blue; */
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding-top: 1.5cm;
+    padding-bottom: 1.5cm;
+    page-break-inside: avoid;
+    page-break-before: always;
+  }
+
+  .page::after {
+    counter-increment: page-number;
+    content: counter(page-number);
+    position: absolute;
+    right: 88mm;
+    bottom: 1.8mm;
+    font-size: 11pt;
+    font-family: "Times New Roman", 標楷體;
+    font-weight: normal;
+    text-align: right;
+  }
+
+  .page-gap {
+    display: none;
+  }
+
+  .noprint {
+    display: none;
+  }
+
+}
+
+table, tr{
+  border: none;
+}
+
+
+td {
+  /* border: 2px solid; */
+  page-break-inside: avoid;
+  /* white-space:nowrap; */
+  /* overflow: hidden; */
+  /* height: 30px; */
+}
+
+.fs-gray{
+  color: #d9d9d9;
+}
+
+.tdbordercolor{
+  border-color: #000;
+}
+.tdborder{
+  border: 1px solid;
+}
+
+.tdborder-t{
+  border-top: 1px solid;
+}
+
+.tdborder-b{
+  border-bottom: 1px solid;
+}
+
+.tdborder-l{
+  border-left: 1px solid;
+}
+
+.tdborder-r{
+  border-right: 1px solid;
+}
+
+.tdborder-t2{
+  border-top: 3px solid;
+}
+
+.tdborder-b2{
+  border-bottom: 3px solid;
+}
+
+.tdborder-l2{
+  border-left: 3px solid;
+}
+
+.tdborder-r2{
+  border-right: 3px solid;
+}
+
+.wingdings2 {
+  font-family: 'Wingdings 2';
+  font-size: 16pt;
+  vertical-align: middle;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.bggray {
+  background-color: #b3b3b3;
+}
+
+.bggray2 {
+  background-color: #d9d9d9;
+}
+
+.fstyle01,
+.fstyle01C,
+.fstyle02,
+.fstyle02mid,
+.fstyle02V,
+.fstyle02Vleft, .fstyle04mid {
+  font-family: "Times New Roman", 標楷體;
+}
+
+.fbolder {
+  font-weight: bolder;
+}
+
+.fstyle01,
+.fstyle01C {
+  text-align: center;
+  font-size: 24pt;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.fstyle01C {
+  letter-spacing: 5px;
+}
+
+.fstyle02,
+.fstyle02mid {
+  padding: 3px 10px 3px 10px;
+  font-size: 11pt;
+  letter-spacing: 0px;
+  font-weight: normal;
+}
+
+.fstyle02 {
+  text-align: left;
+  line-height: 2;
+}
+
+.fstyle02mid {
+  text-align: center;
+  line-height: 1.2;
+}
+
+.fstyle02V,
+.fstyle02Vleft {
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 12pt;
+  font-weight: normal;
+  /* line-height: 1; */
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  white-space: nowrap;
+}
+
+.fstyle02V {
+  text-align: center;
+}
+
+.fstyle02Vleft {
+  text-align: left;
+  padding-top: 10px;
+}
+
+.fstyle03left,
+.fstyle03mid,
+.fstyle03right  {
+  padding: 0.3rem 0.5rem;
+  font-size: 10pt;
+  font-weight: normal;
+  line-height: 1;
+}
+
+.fstyle03left {
+  text-align: left;
+}
+
+.fstyle03mid {
+  text-align: center;
+}
+.fstyle03right {
+  text-align: right;
+}
+
+.fstyle04mid{
+  padding: 0;
+  font-size: 8pt;
+  font-weight: normal;
+  line-height: 1;
+  text-align: center;
+}
+
+.lightboxImg {
+  display: block;
+  margin: auto;
+  max-width: 100%;
+  height: 150px;
+}
+</style>

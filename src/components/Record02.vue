@@ -193,6 +193,7 @@ const nowCaseKv = ref(""); //高程涵蓋因子(自動計算)
 
 const nowCaseCalResult = ref(""); //計算成果表
 const isCalResult = computed(()=>{ //計算表是否有成果
+  if(nowCaseCalResult.value===''){return false}
   let calTable = JSON.parse(nowCaseCalResult.value);
   if (calTable.rmseH && calTable.rmseV){
     return true;
@@ -829,6 +830,7 @@ calRefGcpOnDone(result=>{
   let myArray = [];
   getData.forEach((x,i)=>{
     myArray.push({
+      type: "T",
       gcp_id: x.gcp_id,
       coor_E: x.coor_E,
       coor_N: x.coor_N,
@@ -840,12 +842,14 @@ calRefGcpOnDone(result=>{
       d_E: "",
       d_N: "",
       d_h: "",
+      memo: "",
     });
   })
   myArray.sort((a,b)=>{
     return (a.gcp_id > b.gcp_id)?1:-1;
   })
   data1.value = myArray;
+  data1ToCalResult();
 });
 
 
@@ -1161,7 +1165,7 @@ const {
   },
 }));
 computeUcOnDone((result) => {
-  console.log(result.data.computeUc);
+  // console.log(result.data.computeUc);
   if (!result.loading && result.data.computeUc) {
     nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
     nowCaseSTDh.value = result.data.computeUc.fixUcH;
@@ -1181,23 +1185,37 @@ const data1 = ref([]);
 const columns1 = [
   { title: "序號", render: (data, type, row, meta) => { return meta.row; },width:"1rem" },
   { title: "量測資料", render: (data, type, row, meta) => { 
-    return '<span class="btn btn-primary btn-sm ripple-surface uploadCP">上傳</span>' },width:"1rem" 
+      if (row.type==='T'){
+        return '<span class="btn btn-primary btn-sm ripple-surface uploadCP">上傳</span>' 
+      }else if(row.type==='F'){
+        return '<span class="btn btn-primary btn-sm ripple-surface btnDisabled">上傳</span>' 
+      }
+      
+    },width:"1rem" 
   },
   { title: "剔除", data: "type", render: (data, type, row, meta) => {
       if(data==='T'){
-        return '<span class="deltype"><i class="fas fa-lg fa-check-circle text-success">使用</i></span>'
+        return '<span style="cursor: pointer;" class="deltype text-success"><i class="fas fa-lg fa-check-circle"></i>使用</span>'
       }else if(data==='F'){
-        return '<span class="deltype"><i class="fas fa-lg fa-times-circle text-danger">剔除</i></span>'
+        return '<span style="cursor: pointer;" class="deltype text-danger"><i class="fas fa-lg fa-times-circle"></i>剔除</span>'
       }
     },width:"1rem"},
   { title: "點號", data: "gcp_id" },
-  { title: "E_ref", data: "coor_E", className: 'dt-right' },
-  { title: "N_ref", data: "coor_N", className: 'dt-right' },
-  { title: "h_ref", data: "coor_h", className: 'dt-right' },
+  { title: "註記", data: "memo",render: (data, type, row, meta) => {
+      if(row.type==='F'){
+        return '<input class="editDt" type="text" value="'+data+'"/>'
+      }else if(row.type==='T'){
+        return data;
+      }
+    },width:"5rem" 
+  },
   { title: "E_mes", data: "meas_E", className: 'dt-right' },
   { title: "N_mes", data: "meas_N", className: 'dt-right' },
   { title: "h_mes", data: "meas_h", className: 'dt-right' },
   { title: "點雲個數", data: "count", className: 'dt-right' },
+  { title: "E_ref", data: "coor_E", className: 'dt-right' },
+  { title: "N_ref", data: "coor_N", className: 'dt-right' },
+  { title: "h_ref", data: "coor_h", className: 'dt-right' },
   { title: "dE", data: "d_E", className: 'dt-right' },
   { title: "dN", data: "d_N", className: 'dt-right' },
   { title: "dh", data: "d_h", className: 'dt-right' },
@@ -1219,32 +1237,53 @@ const tboption1 = {
 function onChangeStep() {
   updateKey.value += 1;
 }
-
+const setpFlag = ref(1);
 const upPtIndex = ref("");
-function loadtable(){
-  dt1 = table1.value.dt();
-  dt1.off('click', '.uploadCP');
-  dt1.on('click', '.uploadCP', function (e) {
-    upPtIndex.value = parseInt(e.target.parentElement.previousSibling.innerText);
-    uploadBtn("ptCloudUpload");
-    e.stopPropagation()
-  });
-  dt1.on('click', '.deltype', function (e) {
-    upPtIndex.value = parseInt(e.currentTarget.parentElement.previousSibling.previousSibling.innerText);
-    if(data1.value[upPtIndex.value].type==='T'){
-      // 剔除點位
-      data1.value[upPtIndex.value].type='F';
-    }else{
-      // 使用點位
-      data1.value[upPtIndex.value].type='T';
-    }
-    e.stopPropagation()
-  });
+function loadtable(index){
+  if(index===3 && setpFlag.value!==index){
+    dt1 = table1.value.dt();
+    dt1.off('click', '.uploadCP');
+    dt1.on('click', '.uploadCP', function (e) {
+      upPtIndex.value = parseInt(e.target.parentElement.previousSibling.innerText);
+      uploadBtn("ptCloudUpload");
+      e.stopPropagation()
+    });
+    dt1.on('click', '.deltype', function (e) {
+      upPtIndex.value = parseInt(e.currentTarget.parentElement.previousSibling.previousSibling.innerText);
+      if(data1.value[upPtIndex.value].type==='T'){
+        // 剔除點位
+        data1.value[upPtIndex.value].type='F';
+      }else{
+        // 使用點位
+        data1.value[upPtIndex.value].type='T';
+        data1.value[upPtIndex.value].memo='';
+      }
+      data1ToCalResult();
+
+      nowCaseSTDh.value="";
+      nowCaseSTDv.value="";
+      nowCaseKh.value="";
+      nowCaseKv.value="";
+      nowCaseUcResult.value="";
+
+      e.stopPropagation()
+    });
+    dt1.on('change', '.editDt', function (e) {
+      upPtIndex.value = parseInt(e.currentTarget.parentElement.parentElement.firstChild.innerText);
+      data1.value[upPtIndex.value].memo=e.target.value;
+      data1ToCalResult();
+    });
+  }
+  setpFlag.value = index;
 }
 
 // 計算成果匯入表格
 function calResultToData1(){
-  if(!nowCaseCalResult.value || nowCaseCalResult.value===''){return []}
+  if(!nowCaseCalResult.value || nowCaseCalResult.value===''){
+    console.log("[]");
+    return []
+  }
+  console.log("calResultToData1");
   let calTable = JSON.parse(nowCaseCalResult.value);
   let myArray = [];
   for(let key in calTable.data){
@@ -1262,6 +1301,7 @@ function calResultToData1(){
         d_E: calTable.data[key].dx,
         d_N: calTable.data[key].dy,
         d_h: calTable.data[key].dz,
+        memo: calTable.data[key].memo,
       })
     // }
   }
@@ -1283,25 +1323,26 @@ function data1ToCalResult(){
   let pt_Used = 0;
   let pt_Total = data1.value.length;
   for(let i=0; i < pt_Total ; i++){
+    let pt_Name = data1.value[i].gcp_id;
+    pt_Data[pt_Name]={
+      type: data1.value[i].type,
+      sx: data1.value[i].coor_E,
+      sy: data1.value[i].coor_N,
+      sz: data1.value[i].coor_h,
+      x: data1.value[i].meas_E,
+      y: data1.value[i].meas_N,
+      z: data1.value[i].meas_h,
+      count: data1.value[i].count,
+      dx: data1.value[i].d_E,
+      dy: data1.value[i].d_N,
+      dz: data1.value[i].d_h,
+      memo: data1.value[i].memo,
+    }
+
     if(data1.value[i].type==="T"){
-      
-      let pt_Name = data1.value[i].gcp_id;
-      pt_Data[pt_Name]={
-        type: "T",
-        sx: data1.value[i].coor_E,
-        sy: data1.value[i].coor_N,
-        sz: data1.value[i].coor_h,
-        x: data1.value[i].meas_E,
-        y: data1.value[i].meas_N,
-        z: data1.value[i].meas_h,
-        count: data1.value[i].count,
-        dx: data1.value[i].d_E,
-        dy: data1.value[i].d_N,
-        dz: data1.value[i].d_h,
-      }
       rmseE = rmseE + parseFloat(data1.value[i].d_E)**2;
       rmseN = rmseN + parseFloat(data1.value[i].d_N)**2;
-      rmseV = rmseV + parseFloat(data1.value[i].d_N)**2;
+      rmseV = rmseV + parseFloat(data1.value[i].d_h)**2;
       if(pt_Used===0){
         minPt = data1.value[i].count;
         maxPt = data1.value[i].count;
@@ -1312,21 +1353,22 @@ function data1ToCalResult(){
       pt_Used = pt_Used + 1;
     }
   }
-  if(data1.value.length > 0){
+  if(pt_Used > 0){
     rmseE = (rmseE/pt_Used)**0.5;
     rmseN = (rmseN/pt_Used)**0.5;
     myCalResult.rmseH = (rmseE**2 + rmseE**2)**0.5;
     myCalResult.rmseV = (rmseV/pt_Used)**0.5;
-    myCalResult.data = pt_Data;
     myCalResult.minCloudPt = minPt;
     myCalResult.maxCloudPt = maxPt;
-    myCalResult.ptUsed = pt_Used;
-    myCalResult.ptTotal = pt_Total;
-    myCalResult.ptDel = pt_Total - pt_Used;
-    console.log(myCalResult);
-    nowCaseCalResult.value = JSON.stringify(myCalResult)
-    // console.log(nowCaseCalResult.value);
   }
+  myCalResult.ptUsed = pt_Used;
+  myCalResult.ptUsed = pt_Used;
+  myCalResult.ptTotal = pt_Total;
+  myCalResult.ptDel = pt_Total - pt_Used;
+  myCalResult.data = pt_Data;
+  // console.log(myCalResult);
+  // console.log(selectUcModel.value);
+  nowCaseCalResult.value = JSON.stringify(myCalResult)
 }
 
 async function ptCloudAvg(POfile, ptIndex) {
@@ -1374,6 +1416,13 @@ async function ptCloudAvg(POfile, ptIndex) {
           data1.value[ptIndex].d_h = parseFloat((z_avg - parseFloat(data1.value[ptIndex].coor_h)).toFixed(3));
 
           data1ToCalResult();
+          
+          nowCaseSTDh.value="";
+          nowCaseSTDv.value="";
+          nowCaseKh.value="";
+          nowCaseKv.value="";
+          nowCaseUcResult.value="";
+
         }
       }
     }
@@ -1708,7 +1757,7 @@ defineExpose({
     <!-- record02表單 -->
     <MDBStepper linear @onChangeStep="onChangeStep">
       <MDBStepperForm>
-        <MDBStepperStep active>
+        <MDBStepperStep active @click="loadtable(1)">
           <MDBStepperHead icon="1">
             申請
           </MDBStepperHead>
@@ -1937,7 +1986,7 @@ defineExpose({
             </MDBRow>
           </MDBStepperContent>
         </MDBStepperStep>
-        <MDBStepperStep>
+        <MDBStepperStep @click="loadtable(2)">
           <MDBStepperHead icon="2">
             送校
           </MDBStepperHead>
@@ -2052,7 +2101,7 @@ defineExpose({
             </MDBRow>
           </MDBStepperContent>
         </MDBStepperStep>
-        <MDBStepperStep @click="loadtable()">
+        <MDBStepperStep @click="loadtable(3)">
           <MDBStepperHead icon="3">
             校正
           </MDBStepperHead>
@@ -2100,18 +2149,18 @@ defineExpose({
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
-                    <MDBBtn :disabled="!rGroup[2] || !isCalResult" size="sm" color="primary" @click.stop="computeUcBtn">
+                    <MDBBtn :disabled="!rGroup[2] || !isCalResult || !selectUcModel" size="sm" color="primary" @click.stop="computeUcBtn">
                       計算不確定度
                     </MDBBtn>
-                    <MDBBtn :disabled="nowCaseCalResult === '' && !rGroup[2]" size="sm" color="primary">
+                    <MDBBtn :disabled="!rGroup[2] || !isCalResult" size="sm" color="primary">
                       <RouterLink target="_blank" :to="{
-                        path: '/sicltab05',
+                        path: '/sicltab09',
                         query: { caseID: props.caseID },
                       }">
                         <span class="btn-primary">列印計算成果</span>
                       </RouterLink>
                     </MDBBtn>
-                    <MDBBtn :disabled="nowCaseUcResult === '' && !rGroup[2]" size="sm" color="primary">
+                    <MDBBtn :disabled="!rGroup[2] || nowCaseUcResult===''" size="sm" color="primary">
                       <RouterLink target="_blank" :to="{
                         path: '/sicltab06',
                         query: { caseID: props.caseID },
@@ -2143,7 +2192,7 @@ defineExpose({
                   <MDBCol col="12" class="mb-3">
                     <MDBBtn size="sm" color="primary">
                       <RouterLink target="_blank" :to="{
-                        path: '/sicltab07',
+                        path: '/sicltab10',
                         query: { caseID: props.caseID },
                       }">
                         <span class="btn-primary">列印作業紀錄表</span>
@@ -2156,7 +2205,7 @@ defineExpose({
             </MDBRow>
           </MDBStepperContent>
         </MDBStepperStep>
-        <MDBStepperStep>
+        <MDBStepperStep @click="loadtable(4)">
           <MDBStepperHead icon="4">
             出具報告
           </MDBStepperHead>
@@ -2309,5 +2358,11 @@ defineExpose({
   margin: auto;
   max-width: 100%;
   height: 200px;
+}
+
+.btnDisabled{
+  pointer-events: none;
+  opacity: .65;
+  border: 0;
 }
 </style>
