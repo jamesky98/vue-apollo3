@@ -57,6 +57,8 @@ const props = defineProps({
 
 // 案件詳細編輯資料==========start
 // 案件之詳細資料
+const nowCaseTitle = inject("nowCaseTitle"); //報告抬頭
+const nowCaseAddress = inject("nowCaseAddress"); //報告地址
 // 申請
 const updateKey = ref(0);
 const nowCaseCalType = ref(""); //校正項目
@@ -282,7 +284,7 @@ const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetc
 );
 getNowCaseF(result => {
   if (!result.loading && result && result.data.getCasebyID.case_record_02) {
-    console.log(result.data.getCasebyID);
+    // console.log(result.data.getCasebyID);
     // 填入資料
     let getData = result.data.getCasebyID.case_record_02;
     let getItem = result.data.getCasebyID.item_base;
@@ -1280,10 +1282,10 @@ function loadtable(index){
 // 計算成果匯入表格
 function calResultToData1(){
   if(!nowCaseCalResult.value || nowCaseCalResult.value===''){
-    console.log("[]");
+    // console.log("[]");
     return []
   }
-  console.log("calResultToData1");
+  // console.log("calResultToData1");
   let calTable = JSON.parse(nowCaseCalResult.value);
   let myArray = [];
   for(let key in calTable.data){
@@ -1356,8 +1358,8 @@ function data1ToCalResult(){
   if(pt_Used > 0){
     rmseE = (rmseE/pt_Used)**0.5;
     rmseN = (rmseN/pt_Used)**0.5;
-    myCalResult.rmseH = (rmseE**2 + rmseE**2)**0.5;
-    myCalResult.rmseV = (rmseV/pt_Used)**0.5;
+    myCalResult.rmseH = ((rmseE**2 + rmseE**2)**0.5)*1000;
+    myCalResult.rmseV = ((rmseV/pt_Used)**0.5)*1000;
     myCalResult.minCloudPt = minPt;
     myCalResult.maxCloudPt = maxPt;
   }
@@ -1468,11 +1470,10 @@ function buildReportBtn() {
   parms.nowCaseRefPrjPublishDateM = prjPubDateAy[1];
   parms.nowCaseRefPrjPublishDateD = prjPubDateAy[2];
 
-  parms.nowCaseSizeX = nowCaseSizeX.value;
-  parms.nowCaseSizeY = nowCaseSizeY.value;
-
   let calTable = JSON.parse(nowCaseCalResult.value);
+  // console.log("calTable",calTable);
   let ucTable = JSON.parse(nowCaseUcResult.value);
+  // console.log("ucTable",ucTable);
 
   let defVerH = [];
   let defVerV = [];
@@ -1508,33 +1509,35 @@ function buildReportBtn() {
   parms.defVerH = defVerH;
   parms.defVerV = defVerV;
 
+  parms.nowCaseChkNo = calTable.ptUsed;
+
   parms.nowCaseRmseH = fixDataDigPos(parseFloat(calTable.rmseH), parseInt(ucTable.digPosH));
   parms.nowCaseRmseV = fixDataDigPos(parseFloat(calTable.rmseV), parseInt(ucTable.digPosH));
 
+  parms.nowCaseLrDisPrs = nowCaseLrDisPrs.value;
+  parms.nowCaseLrAngResol = nowCaseLrAngResol.value;
+  parms.nowCaseLrBeam = nowCaseLrBeam.value;
 
-  parms.nowCaseStr = parseInt(nowCaseStrNSac.value) + parseInt(nowCaseStrEWac.value)
-  parms.nowCaseStrNSac = nowCaseStrNSac.value;
-  parms.nowCaseStrEWac = nowCaseStrEWac.value;
+  parms.nowCaseGnssChop =  nowCaseGnssChop.value;
+  parms.nowCaseGnssModel =  nowCaseGnssModel.value;
+  parms.nowCaseGnssSN =  nowCaseGnssSN.value;
+  parms.nowCaseGnssPrcH =  nowCaseGnssPrcH.value;
+  parms.nowCaseGnssPrcV =  nowCaseGnssPrcV.value;
 
-  parms.nowCaseEndLapAc = nowCaseEndLapAc.value
-  parms.nowCaseSideLapAc = nowCaseSideLapAc.value
+  parms.nowCaseImuChop =  nowCaseImuChop.value;
+  parms.nowCaseImuModel =  nowCaseImuModel.value;
+  parms.nowCaseImuSN =  nowCaseImuSN.value;
+  parms.nowCaseImuOmg =  nowCaseImuOmg.value;
+  parms.nowCaseImuPhi =  nowCaseImuPhi.value;
+  parms.nowCaseImuKap =  nowCaseImuKap.value;
+  parms.nowCaseImuPrcO =  nowCaseImuPrcO.value;
 
   parms.nowCaseEllHac = nowCaseEllHac.value;
   parms.nowCaseAGLac = nowCaseAGLac.value;
-  parms.nowCaseGSDac = nowCaseGSDac.value;
+  parms.nowCaseStripsAc = nowCaseStripsAc.value;
+  parms.nowCasePtDensity = nowCasePtDensity.value;
+  parms.nowCaseFOV =  nowCaseFOV.value;
 
-  parms.nowCaseFocal = nowCaseFocal.value;
-  parms.nowCasePPAx = nowCasePPAx.value;
-  parms.nowCasePPAy = nowCasePPAy.value;
-  parms.nowCaseDist = nowCaseDist.value;
-
-  parms.nowCasePxSizeX = nowCasePxSizeX.value;
-  parms.nowCasePxSizeY = nowCasePxSizeY.value;
-
-  parms.nowCaseImgNo = nowCaseImgNo.value;
-  parms.nowCaseMeaPt = nowCaseMeaPt.value;
-  parms.nowCaseCrtNo = nowCaseCrtNo.value;
-  parms.nowCaseChkNo = nowCaseChkNo.value;
   parms.nowCaseKh = nowCaseKh.value;
   parms.nowCaseKv = nowCaseKv.value;
   parms.confLevel = (ucTable.confLevel * 100).toFixed(0);
@@ -1585,10 +1588,11 @@ buildRptOnDone(result => {
   // 回填編輯檔欄位
   nowCaseReportEdit.value = result.data.buildReport01;
   // 儲存Record02
-  saveRecord02();
-  // 觸發下載編輯檔
-  let btnDOM = document.getElementById("ReportEditDownload");
-  btnDOM.click();
+  saveRecord02().then(res=>{
+    // 觸發下載編輯檔
+    let btnDOM = document.getElementById("ReportEditDownload");
+    btnDOM.click();
+  });
 });
 
 // 取得報告範本列表
