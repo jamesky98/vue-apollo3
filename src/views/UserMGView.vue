@@ -244,6 +244,9 @@ const { mutate: changePass, onDone: changePassOnDone, onError: changePassError }
   })
 );
 changePassOnDone(result=>{
+  oldPassWord.value = "";
+  newPassWord.value = "";
+  chkPassWord.value = "";
   infomsg.value = result.data.changePASSWord;
 });
 

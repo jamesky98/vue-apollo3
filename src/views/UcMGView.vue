@@ -612,8 +612,8 @@ testUcOnDone(result=>{
               <MDBCol col="12" class="mb-3">
                 <MDBBtn :disabled="!rGroup[1]" v-if="nowUcModuleName===selectUcModuleName" size="sm" color="primary" @click="saveUcModule">儲存</MDBBtn>
                 <MDBBtn :disabled="!rGroup[1]" v-else size="sm" color="primary" @click="saveUcModule">另存新檔</MDBBtn>
-                <MDBBtn size="sm" color="primary" @click="testUc">試算</MDBBtn>
-                <MDBBtn size="sm" color="primary">
+                <MDBBtn :disabled="selectUcModuleName===''" size="sm" color="primary" @click="testUc">試算</MDBBtn>
+                <MDBBtn :disabled="selectUcModuleName===''" size="sm" color="primary">
                   <RouterLink target="_blank" :to="{ path: '/sicltab08', query: { moduleName: nowUcModuleName },}">
                     <span class="btn-primary">列印計算表</span>
                   </RouterLink>
