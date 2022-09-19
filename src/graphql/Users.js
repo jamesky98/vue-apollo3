@@ -155,6 +155,15 @@ const GETNOWUSER = gql`
     }
   }
 `;
+
+const DELUSER = gql`
+  mutation DelUser($userId: Int!) {
+    delUser(user_id: $userId) {
+      user_id
+    }
+  }
+`;
+
 export default {
   CHECKTOKEN,
   LOGINMU,
@@ -166,4 +175,5 @@ export default {
   UPDATEUSER,
   CHANGEPASSWORD,
   GETNOWUSER,
+  DELUSER,
 };

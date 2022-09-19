@@ -1240,11 +1240,13 @@ calRefGcpOnDone((result) => {
     let dx = 0.0;
     let dy = 0.0;
     let dz = 0.0;
-    let pt_Data = JSON.parse(nowCaseCalResult.value).data;
+    let pt_Data_Connect = JSON.parse(nowCaseCalResult.value).dataConnect;
+    let pt_Data={};
 
     refData.forEach((x, i) => {
-      if (pt_Data[x.gcp_id]) {
-        if (pt_Data[x.gcp_id].type === "T") {
+      if (pt_Data_Connect[x.gcp_id]) {
+        pt_Data[x.gcp_id] = {...pt_Data_Connect[x.gcp_id]};
+        if (pt_Data_Connect[x.gcp_id].type === "T") {
           pt_Data[x.gcp_id].sx = x.coor_E;
           pt_Data[x.gcp_id].dx = pt_Data[x.gcp_id].x - x.coor_E;
           dx = dx + pt_Data[x.gcp_id].dx ** 2;
@@ -1277,6 +1279,7 @@ calRefGcpOnDone((result) => {
     nowCaseCrtNo.value = pt_F;
     nowCaseChkNo.value = pt_C;
     nowCaseCalResult.value = JSON.stringify(calTable);
+    console.log(calTable);
     computeUc();
   }
 });
@@ -1467,7 +1470,7 @@ async function readPrintOut(POfile) {
         nowCaseRMSz.value = floatify(rms_Z * 1000);
         nowCaseConnectNo.value = pt_T;
         let calTable = {};
-        calTable.data = pt_Data;
+        calTable.dataConnect = pt_Data;
         nowCaseCalResult.value = JSON.stringify(calTable);
 
         pramJson = {
@@ -1694,6 +1697,10 @@ function buildReportBtn() {
   parms.nowCaseMeaPt = nowCaseMeaPt.value;
   parms.nowCaseCrtNo = nowCaseCrtNo.value;
   parms.nowCaseChkNo = nowCaseChkNo.value;
+  parms.nowCaseUndist = (nowCaseUndist.value)?"是":"否";
+  parms.nowCaseDistSoft = nowCaseDistSoft.value;
+  parms.nowCaseDistVer = nowCaseDistVer.value;
+
   parms.nowCaseKh = nowCaseKh.value;
   parms.nowCaseKv = nowCaseKv.value;
   parms.confLevel = (ucTable.confLevel * 100).toFixed(0);
@@ -1744,10 +1751,11 @@ buildRptOnDone(result => {
   // 回填編輯檔欄位
   nowCaseReportEdit.value = result.data.buildReport01;
   // 儲存Record01
-  saveRecord01();
-  // 觸發下載編輯檔
-  let btnDOM = document.getElementById("ReportEditDownload");
-  btnDOM.click();
+  saveRecord01().then(res=>{
+    // 觸發下載編輯檔
+    let btnDOM = document.getElementById("ReportEditDownload");
+    btnDOM.click();
+  });
 });
 
 // 取得報告範本列表

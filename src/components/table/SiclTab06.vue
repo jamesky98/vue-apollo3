@@ -39,7 +39,7 @@ getNowCaseF(result => {
   if (!result.loading && result && result.data.getCasebyID) {
     if(result.data.getCasebyID.case_record_01){
       getRecord = result.data.getCasebyID.case_record_01;
-    let nowUcResult = JSON.parse(getRecord01.uccal_table);	
+    let nowUcResult = JSON.parse(getRecord.uccal_table);	
     }else if(result.data.getCasebyID.case_record_02){
       getRecord = result.data.getCasebyID.case_record_02;
     }

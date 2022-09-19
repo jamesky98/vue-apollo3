@@ -87,6 +87,7 @@ const rGroup =computed(()=>{
   }
   return result;
 });
+
 // 取得權限==========End
 
 // 引入案件編號
@@ -95,6 +96,8 @@ const props = defineProps({
 });
 
 // Information
+const NavItem = ref("users");
+provide("NavItem", NavItem);
 const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
@@ -219,7 +222,7 @@ saveUserOnDone(result=>{
   refgetAllUser();
 });
 
-// 儲存使用者
+// 變更密碼
 function changePassWord(enforce){
   if(enforce){
     changePass({enforce: true});
@@ -241,6 +244,20 @@ const { mutate: changePass, onDone: changePassOnDone, onError: changePassError }
 );
 changePassOnDone(result=>{
   infomsg.value = result.data.changePASSWord;
+});
+
+// 刪除使用者
+const { mutate: delUser, onDone: delUserOnDone, onError: delUserError } = useMutation(
+  UsersGQL.DELUSER,
+  () => ({
+    variables: {
+      userId: parseInt(nowUserId.value),
+    }
+  })
+);
+delUserOnDone(result=>{
+  infomsg.value = "刪除使用者 " + nowUserId.value;
+  refgetAllUser();
 });
 
 </script>
@@ -285,6 +302,9 @@ changePassOnDone(result=>{
                     <MDBBtn size="sm" color="primary" @click="saveUser">
                       儲存
                     </MDBBtn>
+                    <MDBBtn v-if="rGroup[0]" size="sm" color="primary" @click="delUser">
+                      刪除
+                    </MDBBtn>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -323,7 +343,7 @@ changePassOnDone(result=>{
               </MDBCol>
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
-                  <MDBCol md="12" class="my-3">
+                  <MDBCol v-show="rGroup[0]" md="12" class="my-3">
                     <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1"
                       style="font-size: smaller" class="display w-100 compact" />
                   </MDBCol>
