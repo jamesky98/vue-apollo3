@@ -133,6 +133,7 @@ const nowEmpComment = ref("");
 const nowTrainID = ref("");
 const nowTrainName = ref("");
 const nowTrainEndDate = ref("");
+const nowTrainEndDateDOM = ref();
 const nowTrainInstitution = ref("");
 const nowTrainCertiNo = ref("");
 const nowTrainUpload = ref("");
@@ -164,15 +165,25 @@ const { onResult: getEmpbyID, refetch: refgetEmpbyID } = useQuery(
 getEmpbyID(result => {
   if (!result.loading && result.data.getEmpById) {
     let getData = result.data.getEmpById;
-    // nowEmpID.value = getData.person_id;
+    // console.log(getData);
     nowEmpLabID.value = getData.lab_ee_id;
-    nowEmpModifyDate.value = getData.modify_date ? getData.modify_date.split("T")[0] : "";
+    nowEmpModifyDate.value = (getData.modify_date)?getData.modify_date.split("T")[0]:"";
     nowEmpName.value = getData.name;
     nowEmpIDNumber.value = getData.id_number;
-    nowEmpBirthday.value = getData.birth_date ? getData.birth_date.split("T")[0] : "";
+    nowEmpBirthday.value = (getData.birth_date)?getData.birth_date.split("T")[0]:"";
     nowEmpJobTitle.value = getData.job_title;
-    nowEmpAppDate.value = getData.Appointment_date ? getData.Appointment_date.split("T")[0] : "";
-    nowEmpResDate.value = getData.resignation_date ? getData.resignation_date.split("T")[0] : "";
+    if(getData.Appointment_date){
+      nowEmpAppDate.value = getData.Appointment_date.split("T")[0];
+    }else{
+      nowEmpAppDate.value = "";
+      nowEmpAppDateDOM.value.inputValue="";
+    }
+    if(getData.resignation_date){
+      nowEmpResDate.value = getData.resignation_date.split("T")[0];
+    }else{
+      nowEmpResDate.value = "";
+      nowEmpResDateDOM.value.inputValue="";
+    }
     nowEmpAddress.value = getData.address;
     nowEmpTel.value = getData.tel;
     nowEmpMobile.value = getData.mobile;
@@ -316,6 +327,12 @@ getTrainByIdOnDone(result=>{
   let getData = result.data.getTrainByID;
   nowTrainName.value = getData.train_name;
   nowTrainEndDate.value = (getData.end_date)?getData.end_date.split("T")[0]:"";
+  if(getData.end_date){
+    nowTrainEndDate.value = getData.end_date.split("T")[0];
+  }else{
+    nowTrainEndDate.value = "";
+    nowTrainEndDateDOM.value.inputValue="";
+  }
   nowTrainInstitution.value = getData.train_institution
   nowTrainCertiNo.value = getData.Certificate_no
   nowTrainUpload.value = getData.upload

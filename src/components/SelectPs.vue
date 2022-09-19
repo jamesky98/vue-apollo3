@@ -29,6 +29,9 @@ const rGroup = inject("rGroup");
 onMounted(()=>{
   nowCaseChkPersonDOM.value.setValue(nowCaseChkPersonID.value);
   nowCaseSignPersonDOM.value.setValue(nowCaseSignPersonID.value);
+
+  if(nowCaseChkDate.value===""){nowCaseChkDateDOM.value.inputValue=""}
+  if(nowCaseSignDate.value===""){nowCaseSignDateDOM.value.inputValue=""}
 });
 
 </script>

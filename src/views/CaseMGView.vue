@@ -706,7 +706,12 @@ refgetCaseAllItem();
       nowCasePurpose.value = getData.purpose;
       nowCaseAgreement.value = getData.agreement;
       nowCaseCharge.value = getData.charge;
-      nowCasePayDate.value = (getData.pay_date)?getData.pay_date.split("T")[0]:"";
+      if(getData.pay_date){
+        nowCasePayDate.value = getData.pay_date.split("T")[0];
+      }else{
+        nowCasePayDate.value = "";
+        nowCasePayDateDOM.value.inputValue="";
+      }
       nowCaseOperatorDOM.value.setValue(parseInt(getData.operators_id));
       nowCaseLeaderDOM.value.setValue(parseInt(getData.leader_id));
     }
