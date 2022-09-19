@@ -168,11 +168,10 @@ onMounted(function () {
         return "<span class='" + classn +"'>" + markicon + row.case_status.status + "</span>"
       }
     },
-    
     { data: "id", title: "案件編號", defaultContent: "-" },
     { data: "cal_type", title: "校正項目編號", defaultContent: "-", visible: false },
     { data: "cal_type_cal_typeTocase_base.name", title: "校正項目名稱", defaultContent: "-", visible: false },
-    { data: "cal_type_cal_typeTocase_base.code", title: "校正項目代碼", defaultContent: "-", render: (data, type, row) => {
+    { data: "cal_type_cal_typeTocase_base.code", title: "校正項目", defaultContent: "-", render: (data, type, row) => {
       let markicon = "";
       let classn = "";
       switch (data) {

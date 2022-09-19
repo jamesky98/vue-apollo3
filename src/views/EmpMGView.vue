@@ -17,6 +17,7 @@ import {
   MDBTabContent,
   MDBTabPane,
   MDBBtnClose,
+  MDBPopconfirm,
 } from 'mdb-vue-ui-kit';
 import CaseGQL from "../graphql/Cases";
 import EmpGQL from "../graphql/Employee";
@@ -129,8 +130,10 @@ const nowEmpEducation = ref("");
 const nowEmpExperience = ref("");
 const nowEmpComment = ref("");
 // 人員詳細編輯資料==========End
+
 // 訓練詳細編輯資料==========start
 const nowTrainID = ref("");
+const nowTrainPersonID = ref("");
 const nowTrainName = ref("");
 const nowTrainEndDate = ref("");
 const nowTrainEndDateDOM = ref();
@@ -146,6 +149,43 @@ const nowTrainUploadDL = computed(() => {
 });
 const nowTrainComment = ref("");
 // 訓練詳細編輯資料==========End
+
+// 授權詳細編輯資料==========start
+const nowEmpowerID = ref("");
+const nowEmpowerPersonID = ref("");
+const nowEmpowerCalTypeID = ref("");
+const nowEmpowerRole = ref("");
+const nowEmpowerAssResult = ref("");
+const nowEmpowerAssID = ref("");
+const nowEmpowerAssDate = ref("");
+const nowEmpowerAssDateDOM = ref();
+
+const nowEmpowerSupID = ref("");
+const nowEmpowerDate = ref("");
+const nowEmpowerDateDOM = ref();
+
+const nowEmpowerSusDate = ref("");
+const nowEmpowerSusDateDOM = ref();
+
+const nowEmpowerTabUpload = ref("");
+const nowEmpowerTabUploadDL = computed(() => {
+  if (nowEmpowerTabUpload.value && nowEmpowerTabUpload.value !== "") {
+    return "05_Person/" + nowEmpID.value + "/" + nowEmpowerTabUpload.value;
+  } else {
+    return undefined;
+  }
+});
+const nowEmpowerAprvUpload = ref("");
+const nowEmpowerAprvUploadDL = computed(() => {
+  if (nowEmpowerAprvUpload.value && nowEmpowerAprvUpload.value !== "") {
+    return "05_Person/" + nowEmpID.value + "/" + nowEmpowerAprvUpload.value;
+  } else {
+    return undefined;
+  }
+});
+const nowEmpowerComment = ref("");
+
+// 授權詳細編輯資料==========End
 
 // Table 人員列表==========Start
 const { onResult: getAllEmp, refetch: refgetAllEmp } = useQuery(EmpGQL.GETALLEMP);
@@ -203,13 +243,13 @@ const columns1 = [
   { title: "備註", data: "comment", defaultContent: "-" },
 ];
 const tboption1 = {
-  dom: 'tif',
+  dom: 'fti',
   select: {
     style: 'single',
     info: false
   },
   order: [[0, 'asc']],
-  scrollY: 'calc(50vh - 10.5rem)',
+  scrollY: 'calc(50vh - 12.5rem)',
   scrollX: true,
   lengthChange: false,
   searching: true,
@@ -227,12 +267,23 @@ onMounted(function () {
     nowEmpID.value = dt.rows(indexes).data()[0].person_id;
     refgetEmpbyID();
     refgetTrain();
+    refgetEmpower();
+    refgetOptCase();
+    refgetSignCase();
+    newTrainBtn();
+    newEmpowerBtn();
   });
 
   dt_train = table_train.value.dt();
   dt_train.on('select', function (e, dt, type, indexes) {
     nowTrainID.value = dt.rows(indexes).data()[0].train_id;
     getTrainById();
+  });
+
+  dt_empower = table_empower.value.dt();
+  dt_empower.on('select', function (e, dt, type, indexes) {
+    nowEmpowerID.value = dt.rows(indexes).data()[0].empower_id;
+    getEmpowerById();
   });
 });
 
@@ -325,6 +376,7 @@ const {
 }));
 getTrainByIdOnDone(result=>{
   let getData = result.data.getTrainByID;
+  nowTrainPersonID.value = getData.person_id
   nowTrainName.value = getData.train_name;
   nowTrainEndDate.value = (getData.end_date)?getData.end_date.split("T")[0]:"";
   if(getData.end_date){
@@ -353,13 +405,112 @@ const columns_train = [
   { title: "備註", data: "comment", defaultContent: "-" },
 ];
 const tboption_train = {
-  dom: 'tif',
+  dom: 'fti',
   select: {
     style: 'single',
     info: false
   },
   order: [[0, 'desc']],
-  scrollY: 'calc(50vh - 14.5rem)',
+  scrollY: 'calc(50vh - 16.5rem)',
+  scrollX: true,
+  lengthChange: false,
+  searching: true,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  }
+};
+// 訓練新增
+function newTrainBtn(){
+  nowTrainID.value = "";
+  nowTrainPersonID.value = nowEmpID.value;
+  nowTrainName.value = "";
+  nowTrainEndDate.value = "";
+  nowTrainEndDateDOM.value.inputValue = "";
+  nowTrainInstitution.value = "";
+  nowTrainCertiNo.value = "";
+  nowTrainUpload.value = "";
+  nowTrainComment.value = "";
+}
+
+// Table 訓練列表==========End
+
+// Table 授權列表==========Start
+const { onResult: getEmpower, refetch: refgetEmpower } = useQuery(
+  EmpGQL.GETEMPOWER,
+  () => ({
+    personId: parseInt(nowEmpID.value),
+  }));
+getEmpower(result=>{
+  if(!result.loading && result.data.getEmpowerByPerson){
+    data_empower.value = result.data.getEmpowerByPerson;
+  }
+});
+
+const {
+  mutate: getEmpowerById,
+  onDone: getEmpowerByIdOnDone,
+  onError: getEmpowerByIdError,
+} = useMutation(EmpGQL.GETEMPOWERBYID, () => ({
+  variables: {
+    empowerId: parseInt(nowEmpowerID.value),
+  },
+}));
+getEmpowerByIdOnDone(result=>{
+  let getData = result.data.getEmpowerByID;
+  nowEmpowerPersonID.value = getData.person_id;
+  nowEmpowerCalTypeID.value = getData.cal_type;
+  nowEmpowerRole.value = getData.role_type;
+  nowEmpowerAssResult.value = getData.assessment_result;
+  nowEmpowerAssID.value = getData.assessor;
+  if(getData.assessment_date){
+    nowEmpowerAssDate.value = getData.assessment_date.split("T")[0];
+  }else{
+    nowEmpowerAssDate.value = "";
+    nowEmpowerAssDateDOM.value.inputValue="";
+  }
+  nowEmpowerSupID.value = getData.lab_supervisor;
+  if(getData.empower_date){
+    nowEmpowerDate.value = getData.empower_date.split("T")[0];
+  }else{
+    nowEmpowerDate.value = "";
+    nowEmpowerDateDOM.value.inputValue="";
+  }
+  if(getData.suspension_date){
+    nowEmpowerSusDate.value = getData.suspension_date.split("T")[0];
+  }else{
+    nowEmpowerSusDate.value = "";
+    nowEmpowerSusDateDOM.value.inputValue="";
+  }
+  nowEmpowerTabUpload.value = getData.table_upload;
+  nowEmpowerAprvUpload.value = getData.approval_doc;
+  nowEmpowerComment.value = getData.comment;
+});
+
+let dt_empower;
+const table_empower = ref();
+const data_empower = ref([]);
+const columns_empower = [
+  { title: "索引", data: "empower_id", defaultContent: "-"},
+  { title: "校正項目", data: "cal_type_cal_typeToemployee_empower.name", defaultContent: "-"},
+  { title: "職務", data: "role_type", defaultContent: "-"},
+  { title: "授權日", data: "empower_date", defaultContent: "-", render: (data) => {
+    return toTWDate(data);} 
+  },
+  { title: "停權日", data: "suspension_date", defaultContent: "-", render: (data) => {
+    return toTWDate(data);} 
+  },
+  { title: "備註", data: "comment", defaultContent: "-" },
+];
+const tboption_empower = {
+  dom: 'fti',
+  select: {
+    style: 'single',
+    info: false
+  },
+  order: [[0, 'desc']],
+  scrollY: 'calc(50vh - 16.5rem)',
   scrollX: true,
   lengthChange: false,
   searching: true,
@@ -370,10 +521,314 @@ const tboption_train = {
   }
 };
 
-// Table 訓練列表==========End
+// 授權新增
+function newEmpowerBtn(){
+  nowEmpowerID.value = "";
+  nowEmpowerPersonID.value = nowEmpID.value;
+  nowEmpowerCalTypeID.value = "";
+  nowEmpowerRole.value = "";
+  nowEmpowerAssResult.value = "";
+  nowEmpowerAssID.value = "";
+  nowEmpowerAssDate.value = "";
+  nowEmpowerAssDateDOM.value.inputValue = "";
+  nowEmpowerSupID.value = "";
+  nowEmpowerDate.value = "";
+  nowEmpowerDateDOM.value.inputValue = "";
+  nowEmpowerSusDate.value = "";
+  nowEmpowerSusDateDOM.value.inputValue = "";
+  nowEmpowerTabUpload.value = "";
+  nowEmpowerAprvUpload.value = "";
+  nowEmpowerComment.value = "";
+}
+// Table 授權列表==========End
 
 
+// Table 校正案件==========Start
+const { onResult: getOptCase, refetch: refgetOptCase } = useQuery(
+  CaseGQL.GETALLCASE,()=>({
+    operatorsId: parseInt(nowEmpID.value),
+  })
+);
+getOptCase(result => {
+  // 加入table1資料
+  if (!result.loading) {
+    data_optcase.value = result.data.getAllCase;
+  }
+});
 
+let dt_optcase;
+const table_optcase = ref();
+const data_optcase = ref([]);
+const columns_optcase = [
+  {
+    data: "status_code", title: "狀態", defaultContent: "-", className: "colnowarp", render: (data,type,row) => {
+      let markicon="";
+      let classn="";
+      switch (data) {
+        case 9: //退件
+          markicon = '<i class="fas fa-reply-all"></i>';
+          classn = "status89";
+          break;
+        case 8: //補件
+          markicon = '<i class="fas fa-history"></i>';
+          classn = "status89";
+          break;
+        case 7: //結案
+          markicon = '<i class="fas fa-check"></i>';
+          classn = "status7";
+          break;
+        case 6: //待繳費
+          markicon = '<i class="fas fa-donate"></i>';
+          classn = "status6";
+          break;
+        case 5: //陳核
+          markicon = '<i class="fas fa-paste"></i>';
+          classn = "status45";
+          break;
+        case 4: //校正中
+          markicon = '<i class="fas fa-play"></i>';
+          classn = "status45";
+          break;
+        case 3: //待送件
+          markicon = '<i class="fas fa-hourglass-start"></i>';
+          classn = "status23";
+          break;
+        case 2: //審核中
+          markicon = '<i class="fas fa-glasses"></i>';
+          classn = "status23";
+          break;
+        case 1: //(空)
+          markicon = '<i class="fas fa-exclamation-circle"></i>';
+          classn = "status1";
+      }
+      return "<span class='" + classn +"'>" + markicon + row.case_status.status + "</span>"
+    }
+  },
+  { data: "id", title: "案件編號", defaultContent: "-" },
+  { data: "cal_type", title: "校正項目編號", defaultContent: "-", visible: false },
+  { data: "cal_type_cal_typeTocase_base.name", title: "校正項目名稱", defaultContent: "-", visible: false },
+  { data: "cal_type_cal_typeTocase_base.code", title: "校正項目", defaultContent: "-", render: (data, type, row) => {
+    let markicon = "";
+    let classn = "";
+    switch (data) {
+      case "F": //航測像機
+        markicon = '<i class="fas fa-plane-departure"></i>';
+        classn = "typeF"
+        break;
+      case "I": //空載光達
+        markicon = '<i class="fas fa-wifi"></i>';
+        classn = "typeI"
+        break;
+      case "J": //小像幅
+        markicon = '<i class="fas fa-camera"></i>';
+        classn = "typeJ"
+        break;
+    }
+    // return "<span style='color: " + color + "; background-color:" + bcolor + "' >" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
+    return "<span class='"+ classn +"'>" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
+    }
+  },
+  { data: "operators_id", title: "校正人員編號", defaultContent: "-", visible: false },
+  { data: "employee_case_base_operators_idToemployee.name", title: "校正人員", defaultContent: "-" },
+  {
+    data: "app_date", title: "申請日", defaultContent: "-", render: (data) => {
+      return toTWDate(data);
+    }
+  },
+  {
+    data: "case_record_01.complete_date", title: "完成日", defaultContent: "-", render: (data, type, row) => {
+      if (data) {
+        return toTWDate(data);
+      } else if (row.case_record_02){
+        return toTWDate(row.case_record_02.complete_date);
+      }
+    }
+  },
+  {
+    data: "pay_date", title: "繳費日", defaultContent: "-", render: (data) => {
+      return toTWDate(data);
+    }
+  },
+  {
+    data: "charge", title: "費用", className: "colAlignRight", defaultContent: "-", 
+    render: function (data, type) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(data)
+    } 
+  },
+  { data: "cus.cus_org.name", title: "顧客名稱", defaultContent: "-" },
+  
+  { data: "item_base.chop", title: "廠牌", defaultContent: "-" },
+  { data: "item_base.model", title: "型號", defaultContent: "-" },
+  { data: "item_base.serial_number", title: "序號", defaultContent: "-" },
+  { data: "agreement", title: "協議事項", defaultContent: "-", visible: true },
+];
+const tboption_optcase = {
+  dom: 'fti',
+  select: {
+    style: 'single',
+    info: false
+  },
+  order: [[1, 'desc']],
+  scrollY: 'calc(50vh - 16.5rem)',
+  scrollX: true,
+  lengthChange: false,
+  searching: true,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  }
+};
+
+// Table 校正案件==========End
+
+
+// Table 簽署案件==========Start
+const { onResult: getSignCase, refetch: refgetSignCase } = useQuery(
+  CaseGQL.GETALLCASE,()=>({
+    signPersonId: parseInt(nowEmpID.value),
+  })
+);
+getSignCase(result => {
+  // 加入table1資料
+  if (!result.loading) {
+    data_signcase.value = result.data.getAllCase;
+  }
+});
+let dt_signcase;
+const table_signcase = ref();
+const data_signcase = ref([]);
+const columns_signcase = [
+  {
+    data: "status_code", title: "狀態", defaultContent: "-", className: "colnowarp", render: (data,type,row) => {
+      let markicon="";
+      let classn="";
+      switch (data) {
+        case 9: //退件
+          markicon = '<i class="fas fa-reply-all"></i>';
+          classn = "status89";
+          break;
+        case 8: //補件
+          markicon = '<i class="fas fa-history"></i>';
+          classn = "status89";
+          break;
+        case 7: //結案
+          markicon = '<i class="fas fa-check"></i>';
+          classn = "status7";
+          break;
+        case 6: //待繳費
+          markicon = '<i class="fas fa-donate"></i>';
+          classn = "status6";
+          break;
+        case 5: //陳核
+          markicon = '<i class="fas fa-paste"></i>';
+          classn = "status45";
+          break;
+        case 4: //校正中
+          markicon = '<i class="fas fa-play"></i>';
+          classn = "status45";
+          break;
+        case 3: //待送件
+          markicon = '<i class="fas fa-hourglass-start"></i>';
+          classn = "status23";
+          break;
+        case 2: //審核中
+          markicon = '<i class="fas fa-glasses"></i>';
+          classn = "status23";
+          break;
+        case 1: //(空)
+          markicon = '<i class="fas fa-exclamation-circle"></i>';
+          classn = "status1";
+      }
+      return "<span class='" + classn +"'>" + markicon + row.case_status.status + "</span>"
+    }
+  },
+  { data: "id", title: "案件編號", defaultContent: "-" },
+  { data: "cal_type", title: "校正項目編號", defaultContent: "-", visible: false },
+  { data: "cal_type_cal_typeTocase_base.name", title: "校正項目名稱", defaultContent: "-", visible: false },
+  { data: "cal_type_cal_typeTocase_base.code", title: "校正項目", defaultContent: "-", render: (data, type, row) => {
+    let markicon = "";
+    let classn = "";
+    switch (data) {
+      case "F": //航測像機
+        markicon = '<i class="fas fa-plane-departure"></i>';
+        classn = "typeF"
+        break;
+      case "I": //空載光達
+        markicon = '<i class="fas fa-wifi"></i>';
+        classn = "typeI"
+        break;
+      case "J": //小像幅
+        markicon = '<i class="fas fa-camera"></i>';
+        classn = "typeJ"
+        break;
+    }
+    // return "<span style='color: " + color + "; background-color:" + bcolor + "' >" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
+    return "<span class='"+ classn +"'>" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
+    }
+  },
+  { data: "operators_id", title: "校正人員編號", defaultContent: "-", visible: false },
+  { data: "employee_case_base_operators_idToemployee.name", title: "校正人員", defaultContent: "-" },
+  {
+    data: "case_record_01.sign_person_id", title: "簽署人", defaultContent: "-", render: (data, type, row) => {
+      if (data) {
+        return data;
+      } else if (row.case_record_02){
+        return row.case_record_02.sign_person_id;
+      }
+    }
+  },
+  {
+    data: "app_date", title: "申請日", defaultContent: "-", render: (data) => {
+      return toTWDate(data);
+    }
+  },
+  {
+    data: "case_record_01.complete_date", title: "完成日", defaultContent: "-", render: (data, type, row) => {
+      if (data) {
+        return toTWDate(data);
+      } else if (row.case_record_02){
+        return toTWDate(row.case_record_02.complete_date);
+      }
+    }
+  },
+  {
+    data: "pay_date", title: "繳費日", defaultContent: "-", render: (data) => {
+      return toTWDate(data);
+    }
+  },
+  {
+    data: "charge", title: "費用", className: "colAlignRight", defaultContent: "-", 
+    render: function (data, type) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(data)
+    } 
+  },
+  { data: "cus.cus_org.name", title: "顧客名稱", defaultContent: "-" },
+  
+  { data: "item_base.chop", title: "廠牌", defaultContent: "-" },
+  { data: "item_base.model", title: "型號", defaultContent: "-" },
+  { data: "item_base.serial_number", title: "序號", defaultContent: "-" },
+  { data: "agreement", title: "協議事項", defaultContent: "-", visible: true },
+];
+const tboption_signcase = {
+  dom: 'fti',
+  select: {
+    style: 'single',
+    info: false
+  },
+  order: [[1, 'desc']],
+  scrollY: 'calc(50vh - 16.5rem)',
+  scrollX: true,
+  lengthChange: false,
+  searching: true,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  }
+};
+
+// Table 簽署案件==========End
 
 // 檔案上傳==========Start
 const uploadType = ref("");
@@ -386,6 +841,12 @@ function uploadBtn(inputId) {
     case "trainUpload":
       inputDOM.setAttribute("accept",".pdf");
       break;
+    case "empowerUpload":
+      inputDOM.setAttribute("accept",".pdf");
+      break;
+    case "empowerAprvUpload":
+      inputDOM.setAttribute("accept",".pdf");
+      break;
   }
   inputDOM.click();
 }
@@ -393,14 +854,24 @@ function uploadBtn(inputId) {
 const upFile = ref();
 async function uploadChenge(e) {
   upFile.value = e.target.files[0];
-  let subpath = "05_Person/" + nowEmpID.value;
+  let subpath = "";
   let newName = "";
   if (!uploadType.value) {
     return;
   }
   switch (uploadType.value) {
     case "trainUpload":
+      subpath = "05_Person/" + nowEmpID.value + "/Train";
       newName = nowTrainCertiNo.value + path.extname(e.target.value);
+      break;
+    case "empowerUpload":
+      subpath = "05_Person/" + nowEmpID.value + "/Empower";
+      newName = nowEmpID.value + "-" + nowEmpowerCalTypeID.value + "-" + nowEmpowerRole.value + "_評估表" + path.extname(e.target.value);
+      break;
+    case "empowerAprvUpload":
+      subpath = "05_Person/" + nowEmpID.value + "/Empower";
+      newName = nowEmpID.value + "-" + nowEmpowerCalTypeID.value + "-" + nowEmpowerRole.value + "_核准公文" + path.extname(e.target.value);
+      inputDOM.setAttribute("accept",".pdf");
       break;
   }
   await uploadFile({
@@ -423,6 +894,14 @@ uploadFileOnDone((result) => {
       nowTrainUpload.value = result.data.uploadFile.filename;
       // saveTrain();
       break;
+    case "empowerUpload":
+      nowEmpowerTabUpload.value = result.data.uploadFile.filename;
+      // saveEmpower();
+      break;
+    case "empowerAprvUpload":
+      nowEmpowerAprvUpload.value = result.data.uploadFile.filename;
+      // saveEmpower();
+      break;
   }
   let inputDOM;
   inputDOM = document.getElementById("AllUpload");
@@ -440,14 +919,15 @@ uploadFileOnDone((result) => {
       <Navbar1 />
       <!-- 主體 -->
       <MDBRow style="margin-left:0;margin-right:0;height: calc(100% - 6.5em);" class="align-content-between">
+        <!-- 上方 -->
         <MDBCol col="12" class="my-2 bg-light border border-5 rounded-8 shadow-4" style="height: calc(50% - 1em)">
-          <MDBRow class="h-100">
-            <MDBCol col="5" class="h-100 overflow-auto">
+          <MDBRow class="h-100 overflow-auto">
+            <MDBCol md="5" class="h-100 overflow-auto">
               <!-- 人員列表 -->
               <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1" style="font-size: smaller"
                 class="display w-100 compact" />
             </MDBCol>
-            <MDBCol col="7" class="h-100 border-start">
+            <MDBCol md="7" class="h-100 border-start">
               <MDBRow class="h-100">
                 <!-- 人員基本資料 -->
                 <MDBCol col="12" class="mt-3 border-bottom">
@@ -457,9 +937,10 @@ uploadFileOnDone((result) => {
                   <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveEmp">
                     儲存
                   </MDBBtn>
-                  <MDBBtn v-if="rGroup[0]" size="sm" color="primary" @click="delEmp">
+                  <MDBPopconfirm :disabled="!rGroup[2]" class="btn-sm btn-light btn-outline-danger me-auto" position="top"
+                    message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delEmp">
                     刪除
-                  </MDBBtn>
+                  </MDBPopconfirm>
                 </MDBCol>
                 <MDBCol col="12" class="overflow-auto" style="height: calc(100% - 4rem);">
                   <MDBRow>
@@ -522,6 +1003,7 @@ uploadFileOnDone((result) => {
             </MDBCol>
           </MDBRow>
         </MDBCol>
+        <!-- 下方 -->
         <MDBCol col="12" class="my-2 bg-light border border-5 rounded-8 shadow-4"
           style="height: calc(50% - 1em)">
           <MDBRow class="h-100">
@@ -534,8 +1016,9 @@ uploadFileOnDone((result) => {
                   <MDBTabItem tabId="signcase" href="train">簽署案件</MDBTabItem>
                 </MDBTabNav>
                 <MDBTabContent style="height: calc(100% - 4rem);">
+                  <!-- 訓練資料 -->
                   <MDBTabPane tabId="train" class="h-100">
-                    <MDBRow class="h-100">
+                    <MDBRow class="h-100 overflow-auto">
                       <MDBCol md="6" class="h-100 border-top border-bottom overflow-auto">
                         <DataTable :data="data_train" :columns="columns_train" :options="tboption_train" ref="table_train" style="font-size: smaller"
                           class="display w-100 compact" />
@@ -577,14 +1060,105 @@ uploadFileOnDone((result) => {
                             <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="2" v-model="nowTrainComment" />
                           </MDBCol>
                         </MDBRow>
-                          
-
                       </MDBCol>
                     </MDBRow>
                   </MDBTabPane>
-                  <MDBTabPane tabId="empower" class="h-100">授權</MDBTabPane>
-                  <MDBTabPane tabId="optcase" class="h-100">校正</MDBTabPane>
-                  <MDBTabPane tabId="signcase" class="h-100">簽署</MDBTabPane>
+                  <!-- 授權資料 -->
+                  <MDBTabPane tabId="empower" class="h-100">
+                    <MDBRow class="h-100 overflow-auto">
+                      <MDBCol md="6" class="h-100 border-top border-bottom overflow-auto">
+                        <DataTable :data="data_empower" :columns="columns_empower" :options="tboption_empower" ref="table_empower" style="font-size: smaller"
+                          class="display w-100 compact" />
+                      </MDBCol>
+                      <MDBCol md="6" class="h-100 border-top border-bottom border-start overflow-auto">
+                        <MDBRow class="h-100 align-content-start">
+                          <MDBCol md="4" class="my-3">
+                            <MDBInput disabled required size="sm" type="text" label="索引" v-model="nowEmpowerID" />
+                          </MDBCol>
+                          <div></div>
+                          <MDBCol md="4" class="mb-3">
+                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="校正項目" v-model="nowEmpowerCalTypeID" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mb-3">
+                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="職務" v-model="nowEmpowerRole" />
+                          </MDBCol>
+                          <div></div>
+                          <MDBCol md="12" class="mb-3">
+                            <MDBTextarea :disabled="!rGroup[2]" size="sm" label="評估結果" rows="6" v-model="nowEmpowerAssResult" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mb-3">
+                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="評估人員" v-model="nowEmpowerAssID" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mb-3">
+                            <MDBDatepicker required size="sm" v-model="nowEmpowerAssDate" format="YYYY-MM-DD" label="評估日"
+                              ref="nowEmpowerAssDateDOM" />
+                          </MDBCol>
+                          <div></div>
+                          <MDBCol md="4" class="mb-3">
+                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="授權人員" v-model="nowEmpowerSupID" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mb-3">
+                            <MDBDatepicker required size="sm" v-model="nowEmpowerDate" format="YYYY-MM-DD" label="授權日"
+                              ref="nowEmpowerDateDOM" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mb-3">
+                            <MDBDatepicker required size="sm" v-model="nowEmpowerSusDate" format="YYYY-MM-DD" label="停權日"
+                              ref="nowEmpowerSusDateDOM" />
+                          </MDBCol>
+                          <!-- 評估表上傳 -->
+                          <MDBCol col="9" class="mb-3">
+                            <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
+                              label="評估表上傳" v-model="nowEmpowerTabUpload">
+                              <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpowerTabUpload = ''"
+                                class="btn-upload-close" />
+                            </MDBInput>
+                          </MDBCol>
+                          <MDBCol col="3" class="px-0 mb-3">
+                            <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('empowerUpload')">
+                              上傳</MDBBtn>
+                            <MDBBtn tag="a" :href="nowEmpowerTabUploadDL" download size="sm" color="secondary">下載
+                            </MDBBtn>
+                          </MDBCol>
+                          <!-- 核准公文上傳 -->
+                          <MDBCol col="9" class="mb-3">
+                            <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
+                              label="核准公文上傳" v-model="nowEmpowerAprvUpload">
+                              <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpowerAprvUpload = ''"
+                                class="btn-upload-close" />
+                            </MDBInput>
+                          </MDBCol>
+                          <MDBCol col="3" class="px-0 mb-3">
+                            <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('empowerAprvUpload')">
+                              上傳</MDBBtn>
+                            <MDBBtn tag="a" :href="nowEmpowerAprvUploadDL" download size="sm" color="secondary">下載
+                            </MDBBtn>
+                          </MDBCol>
+
+                          <MDBCol md="12" class="mb-3">
+                            <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="2" v-model="nowEmpowerComment" />
+                          </MDBCol>
+                        </MDBRow>
+                      </MDBCol>
+                    </MDBRow>
+                  </MDBTabPane>
+                  <!-- 校正案件 -->
+                  <MDBTabPane tabId="optcase" class="h-100">
+                    <MDBRow class="h-100 overflow-auto">
+                      <MDBCol md="12" class="h-100">
+                        <DataTable :data="data_optcase" :columns="columns_optcase" :options="tboption_optcase" ref="table_optcase" style="font-size: smaller"
+                          class="display w-100 compact" />
+                      </MDBCol>
+                    </MDBRow>
+                  </MDBTabPane>
+                  <!-- 簽署案件 -->
+                  <MDBTabPane tabId="signcase" class="h-100">
+                    <MDBRow class="h-100 overflow-auto">
+                      <MDBCol md="12" class="h-100">
+                        <DataTable :data="data_signcase" :columns="columns_signcase" :options="tboption_signcase" ref="table_signcase" style="font-size: smaller"
+                          class="display w-100 compact" />
+                      </MDBCol>
+                    </MDBRow>
+                  </MDBTabPane>
                 </MDBTabContent>
               </MDBTabs>
             </MDBCol>
@@ -613,5 +1187,67 @@ div.dataTables_filter {
   position: absolute;
   top: 0.25em;
   right: 0.25em;
+}
+tr > td > span.status89{
+  color: #DE3163;
+}
+tr.selected > td >span.status89 {
+  color: white;
+}
+
+tr>td>span.status7 {
+  color: green;
+}
+tr.selected>td>span.status7 {
+  color: white;
+}
+
+tr>td>span.status6 {
+  color: #F39C12;
+}
+tr.selected>td>span.status6 {
+  color: white;
+}
+
+tr>td>span.status45 {
+  color: #6495ED;
+}
+tr.selected>td>span.status45 {
+  color: white;
+}
+
+tr>td>span.status23 {
+  color: #FF7F50;
+}
+tr.selected>td>span.status23 {
+  color: white;
+}
+
+tr>td>span.status1 {
+  color: Gray;
+}
+tr.selected>td>span.status1 {
+  color: white;
+}
+
+tr>td>span.typeF {
+  color: #6495ED;
+}
+tr.selected>td>span.typeF {
+  color: white;
+}
+tr>td>span.typeI {
+  color: #229954;
+}
+
+tr.selected>td>span.typeI {
+  color: white;
+}
+tr>td>span.typeJ {
+  color: #FF7F50;
+}
+
+tr.selected>td>span.typeJ {
+  color: white;
 }
 </style>

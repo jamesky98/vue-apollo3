@@ -336,12 +336,18 @@ getNowCaseF(result => {
     nowCasePosReport.value = getData.pos_report;
     nowCasePlanMap.value = getData.plan_map;
     // 送件
-    nowCaseRecDate.value = getData.receive_date
-      ? getData.receive_date.split("T")[0]
-      : "";
-    nowCaseFlyDate.value = getData.fly_date
-      ? getData.fly_date.split("T")[0]
-      : "";
+    if(getData.receive_date){
+      nowCaseRecDate.value = getData.receive_date.split("T")[0];
+    }else{
+      nowCaseRecDate.value = "";
+      nowCaseRecDateDOM.value.inputValue="";
+    }
+    if(getData.fly_date){
+      nowCaseFlyDate.value = getData.fly_date.split("T")[0];
+    }else{
+      nowCaseFlyDate.value = "";
+      nowCaseFlyDateDOM.value.inputValue="";
+    }
     nowCaseStripsAc.value = getData.strips_no_ac;
     nowCaseEllHac.value = getData.ell_height_ac;
     nowCaseAGLac.value = getData.agl_ac;
@@ -356,9 +362,12 @@ getNowCaseF(result => {
     nowCaseErrLAS.value = getData.err_cloud;
 
     // 校正
-    nowCaseStartDate.value = getData.start_Date
-      ? getData.start_Date.split("T")[0]
-      : "";
+    if(getData.start_Date){
+      nowCaseStartDate.value = getData.start_Date.split("T")[0];
+    }else{
+      nowCaseStartDate.value = "";
+      nowCaseStartDateDOM.value.inputValue="";
+    }
     nowCaseRefPrjID.value = getData.ref_id;
     nowCaseRefPrjCode.value = getData.ref_project
       ? getData.ref_project.project_code
@@ -381,9 +390,12 @@ getNowCaseF(result => {
     nowCaseHasLOGO.value = getData.has_logo;
     nowCaseReportTemp.value = getData.report_template;
     nowCaseReportEdit.value = getData.report_edit;
-    nowCaseCompleteDate.value = getData.complete_date
-      ? getData.complete_date.split("T")[0]
-      : "";
+    if(getData.complete_date){
+      nowCaseCompleteDate.value = getData.complete_date.split("T")[0];
+    }else{
+      nowCaseCompleteDate.value = "";
+      nowCaseCompleteDateDOM.value.inputValue="";
+    }
     nowCaseChkDate.value = getData.chk_date
       ? getData.chk_date.split("T")[0]
       : "";

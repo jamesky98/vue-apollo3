@@ -6,6 +6,7 @@ const GETALLCASE = gql`
     $statusCode: Int
     $calType: Int
     $operatorsId: Int
+    $signPersonId: Int
     $orgId: Int
     $itemChop: String
     $itemModel: String
@@ -20,6 +21,7 @@ const GETALLCASE = gql`
       status_code: $statusCode
       cal_type: $calType
       operators_id: $operatorsId
+      sign_person_id: $signPersonId
       org_id: $orgId
       item_chop: $itemChop
       item_model: $itemModel
@@ -78,9 +80,11 @@ const GETALLCASE = gql`
       }
       case_record_01 {
         complete_date
+        sign_person_id
       }
       case_record_02 {
         complete_date
+        sign_person_id
       }
     }
   }

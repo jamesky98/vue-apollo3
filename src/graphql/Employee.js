@@ -77,14 +77,74 @@ const GETTRAIN = gql`
 `;
 
 const GETTRAINBYID = gql`
-  mutation GetTrainByID($trainId: Int!) {
+  mutation GetTrainByID($trainId: Int) {
     getTrainByID(train_id: $trainId) {
       train_id
+      person_id
       train_name
       end_date
       train_institution
       Certificate_no
       upload
+      comment
+    }
+  }
+`;
+
+const GETEMPOWER = gql`
+query GetEmpowerByPerson($personId: Int) {
+  getEmpowerByPerson(person_id: $personId) {
+    empower_id
+    cal_type
+    cal_type_cal_typeToemployee_empower {
+      name
+      code
+    }
+    role_type
+    assessment_result
+    assessor
+    employee_employeeToemployee_empower_assessor {
+      name
+    }
+    assessment_date
+    lab_supervisor
+    employee_employeeToemployee_empower_lab_supervisor {
+      name
+    }
+    empower_date
+    suspension_date
+    table_upload
+    approval_doc
+    comment
+  }
+}
+`;
+
+const GETEMPOWERBYID = gql`
+  mutation GetEmpowerByID($empowerId: Int) {
+    getEmpowerByID(empower_id: $empowerId) {
+      empower_id
+      person_id
+      cal_type
+      cal_type_cal_typeToemployee_empower {
+        name
+        code
+      }
+      role_type
+      assessment_result
+      assessor
+      employee_employeeToemployee_empower_assessor {
+        name
+      }
+      assessment_date
+      lab_supervisor
+      employee_employeeToemployee_empower_lab_supervisor {
+        name
+      }
+      empower_date
+      suspension_date
+      table_upload
+      approval_doc
       comment
     }
   }
@@ -97,6 +157,6 @@ export default {
   UPDATEEMP,
   GETTRAIN,
   GETTRAINBYID,
-  // GETEMPOWERBYEMPID,
-  // GETTRAINBYEMPID,
+  GETEMPOWER,
+  GETEMPOWERBYID,
 };
