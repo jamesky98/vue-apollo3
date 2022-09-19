@@ -819,7 +819,9 @@ refgetCaseAllItem();
         caseBtnText.value = "編輯更多<i class='fas fa-angle-double-right'/>";
         animationType.value = "slide-right-ja"
         addBtnDisabled.value = false;
-        setRecordShow(showCaseEditAnima.value);
+        showCaseEditR01Flag.value = false;
+        showCaseEditR02Flag.value = false;
+        // setRecordShow(showCaseEditAnima.value);
       }
     } else {
       setRecordShow(showCaseEditAnima.value);
@@ -828,25 +830,36 @@ refgetCaseAllItem();
   // 切換不同校正項目內容
   function setRecordShow(isAnimate) {
     updateKey.value += 1;
-    if (nowCaseTypeId.value === 1 || nowCaseTypeId.value === 3) {
-      showCaseEditR01Flag.value = true;
-      showCaseEditR02Flag.value = false;
-      if (!isAnimate) {
+    if(isAnimate){
+      // 有啟用動畫
+      if (nowCaseTypeId.value === 1 || nowCaseTypeId.value === 3) {
+        showCaseEditR01Flag.value = true;
+        showCaseEditR02Flag.value = false;
+      }else if (nowCaseTypeId.value === 2) {
+        showCaseEditR01Flag.value = false;
+        showCaseEditR02Flag.value = true;
+      }else{
+        showCaseEditR01Flag.value = false;
+        showCaseEditR02Flag.value = false;
+      }
+    }else{
+      // 沒啟用動畫
+      if (nowCaseTypeId.value === 1 || nowCaseTypeId.value === 3) {
+        showCaseEditR01Flag.value = true;
+        showCaseEditR02Flag.value = false;
         showCaseEditAnima.value = true;
         caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
         addBtnDisabled.value = true;
-      }
-    } else if (nowCaseTypeId.value === 2) {
-      showCaseEditR01Flag.value = false;
-      showCaseEditR02Flag.value = true;
-      if (!isAnimate) {
+      }else if (nowCaseTypeId.value === 2) {
+        showCaseEditR01Flag.value = false;
+        showCaseEditR02Flag.value = true;
         showCaseEditAnima.value = true;
         caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
         addBtnDisabled.value = true;
+      }else{
+        showCaseEditR01Flag.value = false;
+        showCaseEditR02Flag.value = false;
       }
-    } else {
-      showCaseEditR01Flag.value = false;
-      showCaseEditR02Flag.value = false;
     }
   }
 // 案件基本資料==========end

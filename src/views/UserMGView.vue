@@ -52,7 +52,7 @@ getNowUser(result=>{
     // myUserName2.value = getData.user_name2;
     // myUserEmail.value = getData.user_mail;
     // myUserActive.value = (getData.active===1)?true:false;
-    myUserRole.value = getData.role;
+    myUserRole.value = getData.role;    
   }
 });
 refgetNowUser();
@@ -150,6 +150,7 @@ const columns1 = [
         return "系統負責人";
     }
   }},
+  {title:"更新日期", data:"user_updated_time"},
 ];
 const tboption1 = {
   dom: 'fti',

@@ -31,6 +31,7 @@ const GETALLUSERs = gql`
       active
       role
       user_name2
+      user_updated_time
     }
   }
 `;
