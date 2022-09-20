@@ -245,8 +245,14 @@ let dt1;
 const table1 = ref();
 const data1 = ref([]);
 const columns1 = [
+  { title: "實驗室編號", data: "lab_ee_id", defaultContent: "-", width: "100px" },
   { title: "員工編號", data: "person_id", defaultContent: "-", width: "100px" },
   { title: "姓名", data: "name", defaultContent: "-", width: "100px" },
+  {
+    data: "resignation_date", title: "解職日", className: 'dt-right', defaultContent: "-", render: (data) => {
+      return toTWDate(data);
+    }
+  },
   { title: "備註", data: "comment", defaultContent: "-" },
 ];
 const tboption1 = {
@@ -255,7 +261,7 @@ const tboption1 = {
     style: 'single',
     info: false
   },
-  order: [[0, 'asc']],
+  order: [[1, 'asc']],
   scrollY: 'calc(50vh - 12.5rem)',
   scrollX: true,
   lengthChange: false,
@@ -1113,6 +1119,11 @@ refgetEmpRole();
               <MDBRow class="h-100">
                 <!-- 人員基本資料 -->
                 <MDBCol col="12" class="mt-3 border-bottom">
+                  <MDBBtn :disabled="!rGroup[2] || nowEmpID===''" size="sm" color="primary">
+                    <RouterLink target="_blank" :to="{ path: '/sicltab11', query: { empID: nowEmpID }, }">
+                      <span class="btn-primary">列印基本資料表</span>
+                    </RouterLink>
+                  </MDBBtn>
                   <MDBBtn v-if="rGroup[0]" size="sm" color="primary" @click="newEmpBtn">
                     新增
                   </MDBBtn>

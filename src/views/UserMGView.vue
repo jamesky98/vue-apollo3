@@ -183,6 +183,7 @@ const { onResult: getAllUser, refetch: refgetAllUser} = useQuery(UsersGQL.GETALL
 getAllUser(result=>{
   if (!result.loading && result && result.data.allusers) {
     data1.value = result.data.allusers;
+    dt1.columns.adjust();
   }
 });
 refgetAllUser();

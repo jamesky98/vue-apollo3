@@ -169,6 +169,15 @@ const router = createRouter({
         title: "作業紀錄表",
       },
     },
+    {
+      path: "/sicltab11",
+      name: "sicltab11",
+      component: () => import("../components/table/SiclTab11.vue"),
+      props: (route) => route.query,
+      meta: {
+        title: "人員基本資料表",
+      },
+    },
   ],
 });
 
