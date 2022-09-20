@@ -340,13 +340,13 @@ getNowCaseF(result => {
       nowCaseRecDate.value = getData.receive_date.split("T")[0];
     }else{
       nowCaseRecDate.value = "";
-      nowCaseRecDateDOM.value.inputValue="";
+      // nowCaseRecDateDOM.value.inputValue="";
     }
     if(getData.fly_date){
       nowCaseFlyDate.value = getData.fly_date.split("T")[0];
     }else{
       nowCaseFlyDate.value = "";
-      nowCaseFlyDateDOM.value.inputValue="";
+      // nowCaseFlyDateDOM.value.inputValue="";
     }
     nowCaseStripsAc.value = getData.strips_no_ac;
     nowCaseEllHac.value = getData.ell_height_ac;
@@ -366,7 +366,7 @@ getNowCaseF(result => {
       nowCaseStartDate.value = getData.start_Date.split("T")[0];
     }else{
       nowCaseStartDate.value = "";
-      nowCaseStartDateDOM.value.inputValue="";
+      // nowCaseStartDateDOM.value.inputValue="";
     }
     nowCaseRefPrjID.value = getData.ref_id;
     nowCaseRefPrjCode.value = getData.ref_project
@@ -394,7 +394,7 @@ getNowCaseF(result => {
       nowCaseCompleteDate.value = getData.complete_date.split("T")[0];
     }else{
       nowCaseCompleteDate.value = "";
-      nowCaseCompleteDateDOM.value.inputValue="";
+      // nowCaseCompleteDateDOM.value.inputValue="";
     }
     nowCaseChkDate.value = getData.chk_date
       ? getData.chk_date.split("T")[0]
@@ -838,7 +838,7 @@ const { mutate: calRefGcp, onDone: calRefGcpOnDone } = useMutation(
   })
 );
 calRefGcpOnDone(result=>{
-  console.log(result.data.calRefGcp);
+  // console.log(result.data.calRefGcp);
   // 資料寫入data1
   let getData = result.data.calRefGcp;
   let myArray = [];

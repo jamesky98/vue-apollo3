@@ -18,6 +18,7 @@ import {
   MDBTabPane,
   MDBBtnClose,
   MDBPopconfirm,
+  MDBSelect,
 } from 'mdb-vue-ui-kit';
 import CaseGQL from "../graphql/Cases";
 import EmpGQL from "../graphql/Employee";
@@ -73,14 +74,14 @@ const rGroup = computed(() => {
   // rGroup[4]完全開放
   switch (myUserRole.value) {
     case 0:
-      if (myUserName.value === nowEmpID.value) {
+      if (parseInt(myUserName.value) === parseInt(nowEmpID.value)) {
         result = [false, false, false, false, true];
       } else {
         result = [false, false, false, false, false];
       }
       break;
     case 1:
-      if (myUserName.value === nowEmpID.value) {
+      if ( parseInt(myUserName.value) === parseInt(nowEmpID.value)) {
         result = [false, false, true, true, true];
       } else {
         result = [false, false, false, false, false];
@@ -154,7 +155,13 @@ const nowTrainComment = ref("");
 const nowEmpowerID = ref("");
 const nowEmpowerPersonID = ref("");
 const nowEmpowerCalTypeID = ref("");
+const nowEmpowerCalTypeIdMU = ref([]);
+const nowEmpowerCalTypeIdDOM = ref();
+
 const nowEmpowerRole = ref("");
+const nowEmpowerRoleMU = ref([]);
+const nowEmpowerRoleDOM = ref();
+
 const nowEmpowerAssResult = ref("");
 const nowEmpowerAssID = ref("");
 const nowEmpowerAssDate = ref("");
@@ -433,6 +440,72 @@ function newTrainBtn(){
   nowTrainUpload.value = "";
   nowTrainComment.value = "";
 }
+// 訓練儲存
+const {
+  mutate: newTrain,
+  onDone: newTrainOnDone,
+  onError: newTrainError,
+} = useMutation(EmpGQL.CREATETRAIN, () => ({
+  variables: {
+    personId: parseInt(nowTrainPersonID.value),
+    trainName: nowTrainName.value,
+    endDate: (nowTrainEndDate.value === "")? null:nowTrainEndDate.value.trim() + "T00:00:00.000Z",
+    trainInstitution: nowTrainInstitution.value,
+    certificateNo: nowTrainCertiNo.value,
+    upload: nowTrainUpload.value,
+    comment: nowTrainComment.value,
+  },
+}));
+newTrainOnDone(result=>{
+  infomsg.value = "序號：" + result.data.createTrain.train_id + " 儲存完成"
+  refgetTrain();
+});
+
+const {
+  mutate: saveTrain,
+  onDone: saveTrainOnDone,
+  onError: saveTrainError,
+} = useMutation(EmpGQL.UPDATETRAIN, () => ({
+  variables: {
+    trainId: parseInt(nowTrainID.value),
+    personId: parseInt(nowTrainPersonID.value),
+    trainName: nowTrainName.value,
+    endDate: (nowTrainEndDate.value === "")? null:nowTrainEndDate.value.trim() + "T00:00:00.000Z",
+    trainInstitution: nowTrainInstitution.value,
+    certificateNo: nowTrainCertiNo.value,
+    upload: nowTrainUpload.value,
+    comment: nowTrainComment.value,
+  },
+}));
+saveTrainOnDone(result=>{
+  infomsg.value = "序號：" + result.data.updateTrain.train_id + " 儲存完成";
+  refgetTrain();
+});
+
+function saveTrainBtn(){
+  if(!nowTrainID.value || nowTrainID.value===''){
+    // 無序號為新增
+    newTrain();
+  }else{
+    // 有序號為儲存
+    saveTrain();
+  }
+}
+
+// 刪除訓練
+const {
+  mutate: delTrain,
+  onDone: delTrainOnDone,
+  onError: delTrainError,
+} = useMutation(EmpGQL.DELTRAIN, () => ({
+  variables: {
+    trainId: parseInt(nowTrainID.value),
+  },
+}));
+delTrainOnDone(result=>{
+  infomsg.value = "序號：" + result.data.delTrain.train_id + " 已刪除";
+  refgetTrain();
+});
 
 // Table 訓練列表==========End
 
@@ -461,7 +534,11 @@ getEmpowerByIdOnDone(result=>{
   let getData = result.data.getEmpowerByID;
   nowEmpowerPersonID.value = getData.person_id;
   nowEmpowerCalTypeID.value = getData.cal_type;
+  nowEmpowerCalTypeIdDOM.value.setValue(nowEmpowerCalTypeID.value);
+
   nowEmpowerRole.value = getData.role_type;
+  nowEmpowerRoleDOM.value.setValue(nowEmpowerRole.value);
+
   nowEmpowerAssResult.value = getData.assessment_result;
   nowEmpowerAssID.value = getData.assessor;
   if(getData.assessment_date){
@@ -526,7 +603,9 @@ function newEmpowerBtn(){
   nowEmpowerID.value = "";
   nowEmpowerPersonID.value = nowEmpID.value;
   nowEmpowerCalTypeID.value = "";
+  nowEmpowerCalTypeIdDOM.value.setValue("");
   nowEmpowerRole.value = "";
+  nowEmpowerRoleDOM.value.setValue("");
   nowEmpowerAssResult.value = "";
   nowEmpowerAssID.value = "";
   nowEmpowerAssDate.value = "";
@@ -540,6 +619,82 @@ function newEmpowerBtn(){
   nowEmpowerAprvUpload.value = "";
   nowEmpowerComment.value = "";
 }
+
+// 授權儲存
+const {
+  mutate: newEmpower,
+  onDone: newEmpowerOnDone,
+  onError: newEmpowerError,
+} = useMutation(EmpGQL.CREATEEMPOWER, () => ({
+  variables: {
+    personId: parseInt(nowEmpowerPersonID.value),
+    calType: parseInt(nowEmpowerCalTypeID.value),
+    roleType: nowEmpowerRole.value,
+    assessmentResult: nowEmpowerAssResult.value,
+    assessor: parseInt(nowEmpowerAssID.value),
+    assessmentDate: (nowEmpowerAssDate.value === "")? null:nowEmpowerAssDate.value.trim() + "T00:00:00.000Z",
+    labSupervisor: parseInt(nowEmpowerSupID.value),
+    empowerDate: (nowEmpowerDate.value === "")? null:nowEmpowerDate.value.trim() + "T00:00:00.000Z",
+    suspensionDate: (nowEmpowerSusDate.value === "")? null:nowEmpowerSusDate.value.trim() + "T00:00:00.000Z",
+    tableUpload: nowEmpowerTabUpload.value,
+    approvalDoc: nowEmpowerAprvUpload.value,
+    comment: nowEmpowerComment.value,
+  },
+}));
+newEmpowerOnDone(result=>{
+  infomsg.value = "序號：" + result.data.createEmpower.empower_id + " 儲存完成"
+  refgetEmpower();
+});
+
+const {
+  mutate: saveEmpower,
+  onDone: saveEmpowerOnDone,
+  onError: saveEmpowerError,
+} = useMutation(EmpGQL.UPDATEEMPOWER, () => ({
+  variables: {
+    empowerId: parseInt(nowEmpowerID.value),
+    personId: parseInt(nowEmpowerPersonID.value),
+    calType: parseInt(nowEmpowerCalTypeID.value),
+    roleType: parseInt(nowEmpowerRole.value),
+    assessmentResult: nowEmpowerAssResult.value,
+    assessor: parseInt(nowEmpowerAssID.value),
+    assessmentDate: (nowEmpowerAssDate.value === "")? null:nowEmpowerAssDate.value.trim() + "T00:00:00.000Z",
+    labSupervisor: parseInt(nowEmpowerSupID.value),
+    empowerDate: (nowEmpowerDate.value === "")? null:nowEmpowerDate.value.trim() + "T00:00:00.000Z",
+    suspensionDate: (nowEmpowerSusDate.value === "")? null:nowEmpowerSusDate.value.trim() + "T00:00:00.000Z",
+    tableUpload: nowEmpowerTabUpload.value,
+    approvalDoc: nowEmpowerAprvUpload.value,
+    comment: nowEmpowerComment.value,
+  },
+}));
+saveEmpowerOnDone(result=>{
+  infomsg.value = "序號：" + result.data.updateEmpower.empower_id + " 儲存完成"
+  refgetEmpower();
+});
+function saveEmpowerBtn(){
+  if(!nowEmpowerID.value || nowEmpowerID.value===''){
+    // 無序號為新增
+    newEmpower();
+  }else{
+    // 有序號為儲存
+    saveEmpower();
+  }
+}
+
+// 刪除訓練
+const {
+  mutate: delEmpower,
+  onDone: delEmpowerOnDone,
+  onError: delEmpowerError,
+} = useMutation(EmpGQL.DELEMPOWER, () => ({
+  variables: {
+    empowerId: parseInt(nowEmpowerID.value),
+  },
+}));
+delEmpowerOnDone(result=>{
+  infomsg.value = "序號：" + result.data.delEmpower.empower_id + " 已刪除";
+  refgetEmpower();
+});
 // Table 授權列表==========End
 
 
@@ -910,6 +1065,32 @@ uploadFileOnDone((result) => {
 
 // 檔案上傳==========End
 
+// 查詢校正項目列表
+const { onResult: getCaseCalType, refetch: refgetCaseCalType } = useQuery(CaseGQL.GETCASECALTYPE);
+getCaseCalType(result => {
+  // 加入校正項目選單資料
+  if (!result.loading && result.data.getCaseCalType) {
+    nowEmpowerCalTypeIdMU.value = result.data.getCaseCalType.map(x => {
+      return { text: x.name,secondaryText: x.code ,value: parseInt(x.id) }
+    }); nowEmpowerCalTypeIdMU.value.unshift({ text: "", value: "" });
+  }
+});
+refgetCaseCalType();
+
+// 查詢職務列表
+const { onResult: getEmpRole, refetch: refgetEmpRole } = useQuery(EmpGQL.GETEMPROLE);
+getEmpRole(result => {
+  // 加入校正項目選單資料
+  if (!result.loading && result.data.getEmpRoleList) {
+    nowEmpowerRoleMU.value = result.data.getEmpRoleList.map(x => {
+      return { text: x.role_type, value: x.role_type }
+    }); nowEmpowerRoleMU.value.unshift({ text: "", value: "" });
+  }
+});
+refgetEmpRole();
+
+
+
 </script>
 <template>
   <MDBContainer fluid class="h-100">
@@ -927,6 +1108,7 @@ uploadFileOnDone((result) => {
               <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1" style="font-size: smaller"
                 class="display w-100 compact" />
             </MDBCol>
+            <!-- 分割 -->
             <MDBCol md="7" class="h-100 border-start">
               <MDBRow class="h-100">
                 <!-- 人員基本資料 -->
@@ -1023,41 +1205,58 @@ uploadFileOnDone((result) => {
                         <DataTable :data="data_train" :columns="columns_train" :options="tboption_train" ref="table_train" style="font-size: smaller"
                           class="display w-100 compact" />
                       </MDBCol>
-                      <MDBCol md="6" class="h-100 border-top border-bottom border-start overflow-auto">
+                      <!-- 分割 -->
+                      <MDBCol md="6" class="h-100 border-top border-bottom border-start">
                         <MDBRow class="h-100 align-content-start">
-                          <MDBCol md="4" class="my-3">
-                            <MDBInput disabled required size="sm" type="text" label="索引" v-model="nowTrainID" />
-                          </MDBCol>
-                          <div></div>
-                          <MDBCol md="12" class="mb-3">
-                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="訓練名稱" v-model="nowTrainName" />
-                          </MDBCol>
-                          <MDBCol md="12" class="mb-3">
-                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="開課單位" v-model="nowTrainInstitution" />
-                          </MDBCol>
-                          <MDBCol md="4" class="mb-3">
-                            <MDBDatepicker required size="sm" v-model="nowTrainEndDate" format="YYYY-MM-DD" label="結訓日期"
-                              ref="nowTrainEndDateDOM" />
-                          </MDBCol>
-                          <MDBCol md="12" class="mb-3">
-                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="證書編號" v-model="nowTrainCertiNo" />
-                          </MDBCol>
-                          <!-- 證書上傳 -->
-                          <MDBCol col="9" class="mb-3">
-                            <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                              label="證書上傳" v-model="nowTrainUpload">
-                              <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowTrainUpload = ''"
-                                class="btn-upload-close" />
-                            </MDBInput>
-                          </MDBCol>
-                          <MDBCol col="3" class="px-0 mb-3">
-                            <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('trainUpload')">
-                              上傳</MDBBtn>
-                            <MDBBtn tag="a" :href="nowTrainUploadDL" download size="sm" color="secondary">下載
+                          <MDBCol md="12" class="my-2">
+                            <MDBBtn :disabled="!rGroup[2] || nowTrainID===''" size="sm" color="primary" @click="newTrainBtn">
+                              新增
                             </MDBBtn>
+                            <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="saveTrainBtn">
+                              儲存
+                            </MDBBtn>
+                            <MDBPopconfirm :disabled="!rGroup[2] || nowEmpID ===''" class="btn-sm btn-light btn-outline-danger me-auto" position="top"
+                              message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delTrain">
+                              刪除
+                            </MDBPopconfirm>
                           </MDBCol>
-                          <MDBCol md="12" class="mb-3">
-                            <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="2" v-model="nowTrainComment" />
+                          <MDBCol col="12" class="overflow-auto border-top" style="height: calc(100% - 4rem);">
+                            <MDBRow>
+                              <MDBCol md="4" class="my-3">
+                                <MDBInput disabled required size="sm" type="text" label="索引" v-model="nowTrainID" />
+                              </MDBCol>
+                              <div></div>
+                              <MDBCol md="12" class="mb-3">
+                                <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="訓練名稱" v-model="nowTrainName" />
+                              </MDBCol>
+                              <MDBCol md="12" class="mb-3">
+                                <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="開課單位" v-model="nowTrainInstitution" />
+                              </MDBCol>
+                              <MDBCol md="4" class="mb-3">
+                                <MDBDatepicker required size="sm" v-model="nowTrainEndDate" format="YYYY-MM-DD" label="結訓日期"
+                                  ref="nowTrainEndDateDOM" />
+                              </MDBCol>
+                              <MDBCol md="12" class="mb-3">
+                                <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="證書編號" v-model="nowTrainCertiNo" />
+                              </MDBCol>
+                              <!-- 證書上傳 -->
+                              <MDBCol col="9" class="mb-3">
+                                <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
+                                  label="證書上傳" v-model="nowTrainUpload">
+                                  <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowTrainUpload = ''"
+                                    class="btn-upload-close" />
+                                </MDBInput>
+                              </MDBCol>
+                              <MDBCol col="3" class="px-0 mb-3">
+                                <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('trainUpload')">
+                                  上傳</MDBBtn>
+                                <MDBBtn tag="a" :href="nowTrainUploadDL" download size="sm" color="secondary">下載
+                                </MDBBtn>
+                              </MDBCol>
+                              <MDBCol md="12" class="mb-3">
+                                <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="2" v-model="nowTrainComment" />
+                              </MDBCol>
+                            </MDBRow>
                           </MDBCol>
                         </MDBRow>
                       </MDBCol>
@@ -1070,72 +1269,86 @@ uploadFileOnDone((result) => {
                         <DataTable :data="data_empower" :columns="columns_empower" :options="tboption_empower" ref="table_empower" style="font-size: smaller"
                           class="display w-100 compact" />
                       </MDBCol>
+                      <!-- 分割 -->
                       <MDBCol md="6" class="h-100 border-top border-bottom border-start overflow-auto">
                         <MDBRow class="h-100 align-content-start">
-                          <MDBCol md="4" class="my-3">
-                            <MDBInput disabled required size="sm" type="text" label="索引" v-model="nowEmpowerID" />
-                          </MDBCol>
-                          <div></div>
-                          <MDBCol md="4" class="mb-3">
-                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="校正項目" v-model="nowEmpowerCalTypeID" />
-                          </MDBCol>
-                          <MDBCol md="4" class="mb-3">
-                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="職務" v-model="nowEmpowerRole" />
-                          </MDBCol>
-                          <div></div>
-                          <MDBCol md="12" class="mb-3">
-                            <MDBTextarea :disabled="!rGroup[2]" size="sm" label="評估結果" rows="6" v-model="nowEmpowerAssResult" />
-                          </MDBCol>
-                          <MDBCol md="4" class="mb-3">
-                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="評估人員" v-model="nowEmpowerAssID" />
-                          </MDBCol>
-                          <MDBCol md="4" class="mb-3">
-                            <MDBDatepicker required size="sm" v-model="nowEmpowerAssDate" format="YYYY-MM-DD" label="評估日"
-                              ref="nowEmpowerAssDateDOM" />
-                          </MDBCol>
-                          <div></div>
-                          <MDBCol md="4" class="mb-3">
-                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="授權人員" v-model="nowEmpowerSupID" />
-                          </MDBCol>
-                          <MDBCol md="4" class="mb-3">
-                            <MDBDatepicker required size="sm" v-model="nowEmpowerDate" format="YYYY-MM-DD" label="授權日"
-                              ref="nowEmpowerDateDOM" />
-                          </MDBCol>
-                          <MDBCol md="4" class="mb-3">
-                            <MDBDatepicker required size="sm" v-model="nowEmpowerSusDate" format="YYYY-MM-DD" label="停權日"
-                              ref="nowEmpowerSusDateDOM" />
-                          </MDBCol>
-                          <!-- 評估表上傳 -->
-                          <MDBCol col="9" class="mb-3">
-                            <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                              label="評估表上傳" v-model="nowEmpowerTabUpload">
-                              <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpowerTabUpload = ''"
-                                class="btn-upload-close" />
-                            </MDBInput>
-                          </MDBCol>
-                          <MDBCol col="3" class="px-0 mb-3">
-                            <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('empowerUpload')">
-                              上傳</MDBBtn>
-                            <MDBBtn tag="a" :href="nowEmpowerTabUploadDL" download size="sm" color="secondary">下載
+                          <MDBCol md="12" class="my-2">
+                            <MDBBtn :disabled="!rGroup[2] || nowEmpowerID===''" size="sm" color="primary" @click="newEmpowerBtn">
+                              新增
                             </MDBBtn>
-                          </MDBCol>
-                          <!-- 核准公文上傳 -->
-                          <MDBCol col="9" class="mb-3">
-                            <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                              label="核准公文上傳" v-model="nowEmpowerAprvUpload">
-                              <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpowerAprvUpload = ''"
-                                class="btn-upload-close" />
-                            </MDBInput>
-                          </MDBCol>
-                          <MDBCol col="3" class="px-0 mb-3">
-                            <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('empowerAprvUpload')">
-                              上傳</MDBBtn>
-                            <MDBBtn tag="a" :href="nowEmpowerAprvUploadDL" download size="sm" color="secondary">下載
+                            <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="saveEmpowerBtn">
+                              儲存
                             </MDBBtn>
+                            <MDBPopconfirm :disabled="!rGroup[2] || nowEmpID ===''" class="btn-sm btn-light btn-outline-danger me-auto" position="top"
+                              message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delEmpower">
+                              刪除
+                            </MDBPopconfirm>
                           </MDBCol>
-
-                          <MDBCol md="12" class="mb-3">
-                            <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="2" v-model="nowEmpowerComment" />
+                          <MDBCol col="12" class="overflow-auto border-top" style="height: calc(100% - 4rem);">
+                            <MDBRow>
+                              <MDBCol md="4" class="my-3">
+                                <MDBInput disabled required size="sm" type="text" label="索引" v-model="nowEmpowerID" />
+                              </MDBCol>
+                              <div></div>
+                              <MDBSelect size="sm" class="mb-3  col-6" label="校正項目" v-model:options="nowEmpowerCalTypeIdMU"
+                                v-model:selected="nowEmpowerCalTypeID" ref="nowEmpowerCalTypeIdDOM" />
+                              <MDBSelect size="sm" class="mb-3  col-6" label="職務" v-model:options="nowEmpowerRoleMU"
+                                v-model:selected="nowEmpowerRole" ref="nowEmpowerRoleDOM" />
+                              <div></div>
+                              <MDBCol md="12" class="mb-3">
+                                <MDBTextarea :disabled="!rGroup[2]" size="sm" label="評估結果" rows="6" v-model="nowEmpowerAssResult" />
+                              </MDBCol>
+                              <MDBCol md="4" class="mb-3">
+                                <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="評估人員" v-model="nowEmpowerAssID" />
+                              </MDBCol>
+                              <MDBCol md="4" class="mb-3">
+                                <MDBDatepicker required size="sm" v-model="nowEmpowerAssDate" format="YYYY-MM-DD" label="評估日"
+                                  ref="nowEmpowerAssDateDOM" />
+                              </MDBCol>
+                              <div></div>
+                              <MDBCol md="4" class="mb-3">
+                                <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="授權人員" v-model="nowEmpowerSupID" />
+                              </MDBCol>
+                              <MDBCol md="4" class="mb-3">
+                                <MDBDatepicker required size="sm" v-model="nowEmpowerDate" format="YYYY-MM-DD" label="授權日"
+                                  ref="nowEmpowerDateDOM" />
+                              </MDBCol>
+                              <MDBCol md="4" class="mb-3">
+                                <MDBDatepicker required size="sm" v-model="nowEmpowerSusDate" format="YYYY-MM-DD" label="停權日"
+                                  ref="nowEmpowerSusDateDOM" />
+                              </MDBCol>
+                              <!-- 評估表上傳 -->
+                              <MDBCol col="9" class="mb-3">
+                                <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
+                                  label="評估表上傳" v-model="nowEmpowerTabUpload">
+                                  <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpowerTabUpload = ''"
+                                    class="btn-upload-close" />
+                                </MDBInput>
+                              </MDBCol>
+                              <MDBCol col="3" class="px-0 mb-3">
+                                <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('empowerUpload')">
+                                  上傳</MDBBtn>
+                                <MDBBtn tag="a" :href="nowEmpowerTabUploadDL" download size="sm" color="secondary">下載
+                                </MDBBtn>
+                              </MDBCol>
+                              <!-- 核准公文上傳 -->
+                              <MDBCol col="9" class="mb-3">
+                                <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
+                                  label="核准公文上傳" v-model="nowEmpowerAprvUpload">
+                                  <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpowerAprvUpload = ''"
+                                    class="btn-upload-close" />
+                                </MDBInput>
+                              </MDBCol>
+                              <MDBCol col="3" class="px-0 mb-3">
+                                <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('empowerAprvUpload')">
+                                  上傳</MDBBtn>
+                                <MDBBtn tag="a" :href="nowEmpowerAprvUploadDL" download size="sm" color="secondary">下載
+                                </MDBBtn>
+                              </MDBCol>
+                              <MDBCol md="12" class="mb-3">
+                                <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="2" v-model="nowEmpowerComment" />
+                              </MDBCol>
+                            </MDBRow>
                           </MDBCol>
                         </MDBRow>
                       </MDBCol>

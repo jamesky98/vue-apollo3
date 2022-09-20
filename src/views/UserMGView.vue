@@ -65,14 +65,14 @@ const rGroup =computed(()=>{
   // rGroup[4]完全開放
   switch (myUserRole.value){
     case 0:
-      if(myUserName.value===nowUserName.value){
+      if(parseInt(myUserName.value)=== parseInt(nowUserName.value)){
         result = [false,false,false,false,true];
       }else{
         result = [false,false,false,false,false];
       }
       break;
     case 1:
-      if(myUserName.value===nowUserName.value){
+      if(parseInt(myUserName.value)===parseInt(nowUserName.value)){
         result = [false,false,true,true,true];
       }else{
         result = [false,false,false,false,false];

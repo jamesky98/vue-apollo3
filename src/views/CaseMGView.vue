@@ -85,7 +85,7 @@ const rGroup =computed(()=>{
       result = [false,false,false,false,false];
       break;
     case 1:
-      if(myUserName.value===nowCaseOperator.value){
+      if( parseInt(myUserName.value)=== parseInt(nowCaseOperator.value)){
         result = [false,false,true,true,true];
       }else{
         result = [false,false,false,false,false];
@@ -98,6 +98,10 @@ const rGroup =computed(()=>{
       result = [true,true,true,true,true];
     break;
   }
+  // console.log("myUserName",myUserName.value);
+  // console.log("myUserRole",myUserRole.value);
+  // console.log("nowCaseOperator",nowCaseOperator.value);
+  // console.log("rGroup",rGroup.value);
   return result;
 });
 provide("rGroup", rGroup);

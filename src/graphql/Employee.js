@@ -150,6 +150,62 @@ const GETEMPOWERBYID = gql`
   }
 `;
 
+const UPDATETRAIN = gql`
+mutation UpdateTrain($trainId: Int!, $personId: Int, $trainName: String, $endDate: Date, $trainInstitution: String, $certificateNo: String, $upload: String, $comment: String) {
+  updateTrain(train_id: $trainId, person_id: $personId, train_name: $trainName, end_date: $endDate, train_institution: $trainInstitution, Certificate_no: $certificateNo, upload: $upload, comment: $comment) {
+    train_id
+  }
+}
+`;
+
+const CREATETRAIN = gql`
+mutation CreateTrain($personId: Int!, $trainName: String!, $trainInstitution: String!, $endDate: Date, $certificateNo: String, $upload: String, $comment: String) {
+  createTrain(person_id: $personId, train_name: $trainName, train_institution: $trainInstitution, end_date: $endDate, Certificate_no: $certificateNo, upload: $upload, comment: $comment) {
+    train_id
+  }
+}
+`;
+
+const DELTRAIN = gql`
+mutation DelTrain($trainId: Int!) {
+  delTrain(train_id: $trainId) {
+    train_id
+  }
+}
+`;
+
+const CREATEEMPOWER = gql`
+mutation CreateEmpower($personId: Int!, $calType: Int!, $roleType: String, $assessmentResult: String, $assessor: Int, $assessmentDate: Date, $labSupervisor: Int, $empowerDate: Date, $suspensionDate: Date, $tableUpload: String, $approvalDoc: String, $comment: String) {
+  createEmpower(person_id: $personId, cal_type: $calType, role_type: $roleType, assessment_result: $assessmentResult, assessor: $assessor, assessment_date: $assessmentDate, lab_supervisor: $labSupervisor, empower_date: $empowerDate, suspension_date: $suspensionDate, table_upload: $tableUpload, approval_doc: $approvalDoc, comment: $comment) {
+    empower_id
+  }
+}
+`;
+
+const UPDATEEMPOWER = gql`
+mutation UpdateEmpower($empowerId: Int!, $personId: Int!, $calType: Int!, $roleType: String, $assessmentResult: String, $assessor: Int, $assessmentDate: Date, $labSupervisor: Int, $empowerDate: Date, $suspensionDate: Date, $tableUpload: String, $approvalDoc: String, $comment: String) {
+  updateEmpower(empower_id: $empowerId, person_id: $personId, cal_type: $calType, role_type: $roleType, assessment_result: $assessmentResult, assessor: $assessor, assessment_date: $assessmentDate, lab_supervisor: $labSupervisor, empower_date: $empowerDate, suspension_date: $suspensionDate, table_upload: $tableUpload, approval_doc: $approvalDoc, comment: $comment) {
+    empower_id
+  }
+}
+`;
+
+const DELEMPOWER = gql`
+mutation DelEmpower($empowerId: Int!) {
+  delEmpower(empower_id: $empowerId) {
+    empower_id
+  }
+}
+`;
+
+const GETEMPROLE = gql`
+query GetEmpRoleList {
+  getEmpRoleList {
+    role_type
+  }
+}
+`;
+
 export default {
   GETALLEMP,
   GETEMPBYID,
@@ -159,4 +215,11 @@ export default {
   GETTRAINBYID,
   GETEMPOWER,
   GETEMPOWERBYID,
+  UPDATETRAIN,
+  CREATETRAIN,
+  DELTRAIN,
+  CREATEEMPOWER,
+  UPDATEEMPOWER,
+  DELEMPOWER,
+  GETEMPROLE,
 };
