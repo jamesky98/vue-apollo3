@@ -178,6 +178,15 @@ const router = createRouter({
         title: "人員基本資料表",
       },
     },
+    {
+      path: "/sicltab12",
+      name: "sicltab12",
+      component: () => import("../components/table/SiclTab12.vue"),
+      props: (route) => route.query,
+      meta: {
+        title: "人員評估表",
+      },
+    },
   ],
 });
 

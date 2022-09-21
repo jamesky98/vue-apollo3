@@ -122,6 +122,14 @@ const nowEmpAppDateDOM = ref();
 
 const nowEmpResDate = ref("");
 const nowEmpResDateDOM = ref();
+const nowEmpResUpload = ref("");
+const nowEmpResUploadDL = computed(() => {
+  if (nowEmpResUpload.value && nowEmpResUpload.value !== "") {
+    return "05_Person/" + nowEmpID.value + "/resignation/" + nowEmpResUpload.value;
+  } else {
+    return undefined;
+  }
+});
 
 const nowEmpAddress = ref("");
 const nowEmpTel = ref("");
@@ -143,7 +151,7 @@ const nowTrainCertiNo = ref("");
 const nowTrainUpload = ref("");
 const nowTrainUploadDL = computed(() => {
   if (nowTrainUpload.value && nowTrainUpload.value !== "") {
-    return "05_Person/" + nowEmpID.value + "/" + nowTrainUpload.value;
+    return "05_Person/" + nowEmpID.value + "/Train/" + nowTrainUpload.value;
   } else {
     return undefined;
   }
@@ -177,7 +185,7 @@ const nowEmpowerSusDateDOM = ref();
 const nowEmpowerTabUpload = ref("");
 const nowEmpowerTabUploadDL = computed(() => {
   if (nowEmpowerTabUpload.value && nowEmpowerTabUpload.value !== "") {
-    return "05_Person/" + nowEmpID.value + "/" + nowEmpowerTabUpload.value;
+    return "05_Person/" + nowEmpID.value + "/Empower/" + nowEmpowerTabUpload.value;
   } else {
     return undefined;
   }
@@ -185,7 +193,7 @@ const nowEmpowerTabUploadDL = computed(() => {
 const nowEmpowerAprvUpload = ref("");
 const nowEmpowerAprvUploadDL = computed(() => {
   if (nowEmpowerAprvUpload.value && nowEmpowerAprvUpload.value !== "") {
-    return "05_Person/" + nowEmpID.value + "/" + nowEmpowerAprvUpload.value;
+    return "05_Person/" + nowEmpID.value + "/Empower/" + nowEmpowerAprvUpload.value;
   } else {
     return undefined;
   }
@@ -231,6 +239,7 @@ getEmpbyID(result => {
       nowEmpResDate.value = "";
       nowEmpResDateDOM.value.inputValue="";
     }
+    nowEmpResUpload.value = getData.resign_upload;
     nowEmpAddress.value = getData.address;
     nowEmpTel.value = getData.tel;
     nowEmpMobile.value = getData.mobile;
@@ -312,7 +321,9 @@ function newEmpBtn(){
   nowEmpJobTitle.value = "";
   nowEmpAppDate.value = "";
   nowEmpAppDateDOM.value.inputValue = "";
+  nowEmpResDate.value = "";
   nowEmpResDateDOM.value.inputValue = "";
+  nowEmpResUpload.value = "";
   nowEmpAddress.value = "";
   nowEmpTel.value = "";
   nowEmpMobile.value = "";
@@ -336,6 +347,7 @@ const {
     jobTitle: nowEmpJobTitle.value,
     appointmentDate: (nowEmpAppDate.value==="")?null:nowEmpAppDate.value.trim() + "T00:00:00.000Z",
     resignationDate: (nowEmpResDate.value==="")?null:nowEmpResDate.value.trim() + "T00:00:00.000Z",
+    resign_upload: nowEmpResUpload.value,
     address: nowEmpAddress.value,
     tel: nowEmpTel.value,
     mobile: nowEmpMobile.value,
@@ -721,8 +733,8 @@ let dt_optcase;
 const table_optcase = ref();
 const data_optcase = ref([]);
 const columns_optcase = [
-  {
-    data: "status_code", title: "狀態", defaultContent: "-", className: "colnowarp", render: (data,type,row) => {
+  { 
+    data: "status_code", title: "狀態", defaultContent: "-", render: (data,type,row) => {
       let markicon="";
       let classn="";
       switch (data) {
@@ -785,11 +797,9 @@ const columns_optcase = [
         classn = "typeJ"
         break;
     }
-    // return "<span style='color: " + color + "; background-color:" + bcolor + "' >" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
     return "<span class='"+ classn +"'>" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
     }
   },
-  { data: "operators_id", title: "校正人員編號", defaultContent: "-", visible: false },
   { data: "employee_case_base_operators_idToemployee.name", title: "校正人員", defaultContent: "-" },
   {
     data: "app_date", title: "申請日", defaultContent: "-", render: (data) => {
@@ -821,7 +831,7 @@ const columns_optcase = [
   { data: "item_base.chop", title: "廠牌", defaultContent: "-" },
   { data: "item_base.model", title: "型號", defaultContent: "-" },
   { data: "item_base.serial_number", title: "序號", defaultContent: "-" },
-  { data: "agreement", title: "協議事項", defaultContent: "-", visible: true },
+  { data: "agreement", title: "協議事項", defaultContent: "-" },
 ];
 const tboption_optcase = {
   dom: 'fti',
@@ -832,13 +842,13 @@ const tboption_optcase = {
   order: [[1, 'desc']],
   scrollY: 'calc(50vh - 16.5rem)',
   scrollX: true,
-  lengthChange: false,
+  // lengthChange: false,
   searching: true,
   paging: false,
   responsive: true,
   language: {
     info: '共 _TOTAL_ 筆資料',
-  }
+  },
 };
 
 // Table 校正案件==========End
@@ -1008,6 +1018,9 @@ function uploadBtn(inputId) {
     case "empowerAprvUpload":
       inputDOM.setAttribute("accept",".pdf");
       break;
+    case "resUpload":
+      inputDOM.setAttribute("accept",".pdf");
+      break;
   }
   inputDOM.click();
 }
@@ -1032,7 +1045,10 @@ async function uploadChenge(e) {
     case "empowerAprvUpload":
       subpath = "05_Person/" + nowEmpID.value + "/Empower";
       newName = nowEmpID.value + "-" + nowEmpowerCalTypeID.value + "-" + nowEmpowerRole.value + "_核准公文" + path.extname(e.target.value);
-      inputDOM.setAttribute("accept",".pdf");
+      break;
+    case "resUpload":
+      subpath = "05_Person/" + nowEmpID.value + "/resignation";
+      newName = nowEmpID.value + "-" + nowEmpowerCalTypeID.value + "-" + nowEmpowerRole.value + "_核准公文" + path.extname(e.target.value);
       break;
   }
   await uploadFile({
@@ -1053,16 +1069,19 @@ uploadFileOnDone((result) => {
   switch (uploadType.value) {
     case "trainUpload":
       nowTrainUpload.value = result.data.uploadFile.filename;
-      // saveTrain();
+      saveTrain();
       break;
     case "empowerUpload":
       nowEmpowerTabUpload.value = result.data.uploadFile.filename;
-      // saveEmpower();
+      saveEmpower();
       break;
     case "empowerAprvUpload":
       nowEmpowerAprvUpload.value = result.data.uploadFile.filename;
-      // saveEmpower();
+      saveEmpower();
       break;
+    case "resUpload":
+      nowEmpResUpload.value = result.data.uploadFile.filename;
+      saveEmp();
   }
   let inputDOM;
   inputDOM = document.getElementById("AllUpload");
@@ -1095,7 +1114,28 @@ getEmpRole(result => {
 });
 refgetEmpRole();
 
-
+// 頁籤切換更新表格標題寬度
+function tabShown(e){
+  let nowTab = e.target.getAttribute("aria-controls");
+  switch (nowTab){
+    case "train":
+      dt_train = table_train.value.dt();
+      dt_train.columns.adjust();
+      break;
+    case "empower":
+      dt_empower = table_empower.value.dt();
+      dt_empower.columns.adjust();
+      break;
+    case "optcase":
+      dt_optcase = table_empower.value.dt();
+      dt_optcase.columns.adjust();
+      break;
+    case "signcase":
+      dt_signcase = table_empower.value.dt();
+      dt_signcase.columns.adjust();
+      break;
+  }
+}
 
 </script>
 <template>
@@ -1119,18 +1159,13 @@ refgetEmpRole();
               <MDBRow class="h-100">
                 <!-- 人員基本資料 -->
                 <MDBCol col="12" class="mt-3 border-bottom">
-                  <MDBBtn :disabled="!rGroup[2] || nowEmpID===''" size="sm" color="primary">
-                    <RouterLink target="_blank" :to="{ path: '/sicltab11', query: { empID: nowEmpID }, }">
-                      <span class="btn-primary">列印基本資料表</span>
-                    </RouterLink>
-                  </MDBBtn>
-                  <MDBBtn v-if="rGroup[0]" size="sm" color="primary" @click="newEmpBtn">
+                  <MDBBtn :disabled="nowEmpID===''" v-if="rGroup[0]" size="sm" color="primary" @click="newEmpBtn">
                     新增
                   </MDBBtn>
                   <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveEmp">
                     儲存
                   </MDBBtn>
-                  <MDBPopconfirm :disabled="!rGroup[2]" class="btn-sm btn-light btn-outline-danger me-auto" position="top"
+                  <MDBPopconfirm :disabled="!rGroup[2] || nowEmpID===''" class="btn-sm btn-light btn-outline-danger me-auto" position="top"
                     message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delEmp">
                     刪除
                   </MDBPopconfirm>
@@ -1164,10 +1199,7 @@ refgetEmpRole();
                       <MDBDatepicker required size="sm" v-model="nowEmpAppDate" format="YYYY-MM-DD" label="到職日"
                         ref="nowEmpAppDateDOM" />
                     </MDBCol>
-                    <MDBCol md="4" class="mb-3">
-                      <MDBDatepicker required size="sm" v-model="nowEmpResDate" format="YYYY-MM-DD" label="解職日"
-                        ref="nowEmpResDateDOM" />
-                    </MDBCol>
+                    <div></div>
                     <MDBCol md="4" class="mb-3">
                       <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="電話" v-model="nowEmpTel" />
                     </MDBCol>
@@ -1187,6 +1219,26 @@ refgetEmpRole();
                     <MDBCol md="12" class="mb-3">
                       <MDBTextarea :disabled="!rGroup[2]" size="sm" label="經歷" rows="2" v-model="nowEmpExperience" />
                     </MDBCol>
+                    <MDBCol md="4" class="mb-3">
+                      <MDBDatepicker required size="sm" v-model="nowEmpResDate" format="YYYY-MM-DD" label="解職日"
+                        ref="nowEmpResDateDOM" />
+                    </MDBCol>
+                    <div></div>
+                    <!-- 解職證明上傳 -->
+                    <MDBCol col="9" class="mb-3">
+                      <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
+                        label="解職證明" v-model="nowEmpResUpload">
+                        <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpResUpload = ''"
+                          class="btn-upload-close" />
+                      </MDBInput>
+                    </MDBCol>
+                    <MDBCol col="3" class="px-0 mb-3">
+                      <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('resUpload')">
+                        上傳</MDBBtn>
+                      <MDBBtn tag="a" :href="nowEmpResUploadDL" download size="sm" color="secondary">下載
+                      </MDBBtn>
+                    </MDBCol>
+
                     <MDBCol md="12" class="mb-3">
                       <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="2" v-model="nowEmpComment" />
                     </MDBCol>
@@ -1201,12 +1253,12 @@ refgetEmpRole();
           style="height: calc(50% - 1em)">
           <MDBRow class="h-100">
             <MDBCol col="12" class="h-100">
-              <MDBTabs v-model="activeTabId1">
+              <MDBTabs v-model="activeTabId1" @shown="tabShown($event)">
                 <MDBTabNav tabsClasses="">
                   <MDBTabItem tabId="train" href="train">訓練資料</MDBTabItem>
-                  <MDBTabItem tabId="empower" href="train">授權資料</MDBTabItem>
-                  <MDBTabItem tabId="optcase" href="train">校正案件</MDBTabItem>
-                  <MDBTabItem tabId="signcase" href="train">簽署案件</MDBTabItem>
+                  <MDBTabItem tabId="empower" href="empower">授權資料</MDBTabItem>
+                  <MDBTabItem tabId="optcase" href="optcase">校正案件</MDBTabItem>
+                  <MDBTabItem tabId="signcase" href="signcase">簽署案件</MDBTabItem>
                 </MDBTabNav>
                 <MDBTabContent style="height: calc(100% - 4rem);">
                   <!-- 訓練資料 -->
@@ -1220,6 +1272,11 @@ refgetEmpRole();
                       <MDBCol md="6" class="h-100 border-top border-bottom border-start">
                         <MDBRow class="h-100 align-content-start">
                           <MDBCol md="12" class="my-2">
+                            <MDBBtn :disabled="!rGroup[2] || nowEmpID===''" size="sm" color="primary">
+                              <RouterLink target="_blank" :to="{ path: '/sicltab11', query: { empID: nowEmpID }, }">
+                                <span class="btn-primary">列印基本資料表</span>
+                              </RouterLink>
+                            </MDBBtn>
                             <MDBBtn :disabled="!rGroup[2] || nowTrainID===''" size="sm" color="primary" @click="newTrainBtn">
                               新增
                             </MDBBtn>
@@ -1284,6 +1341,11 @@ refgetEmpRole();
                       <MDBCol md="6" class="h-100 border-top border-bottom border-start overflow-auto">
                         <MDBRow class="h-100 align-content-start">
                           <MDBCol md="12" class="my-2">
+                            <MDBBtn :disabled="!rGroup[2] || nowEmpowerID===''" size="sm" color="primary">
+                              <RouterLink target="_blank" :to="{ path: '/sicltab12', query: { empowerID: nowEmpowerID }, }">
+                                <span class="btn-primary">列印評估表</span>
+                              </RouterLink>
+                            </MDBBtn>
                             <MDBBtn :disabled="!rGroup[2] || nowEmpowerID===''" size="sm" color="primary" @click="newEmpowerBtn">
                               新增
                             </MDBBtn>

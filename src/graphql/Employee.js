@@ -12,6 +12,7 @@ const GETALLEMP = gql`
       job_title
       Appointment_date
       resignation_date
+      resign_upload
       address
       tel
       mobile
@@ -35,6 +36,7 @@ const GETEMPBYID = gql`
       job_title
       Appointment_date
       resignation_date
+      resign_upload
       address
       tel
       mobile
@@ -55,8 +57,8 @@ const DELEMP = gql`
 `;
 
 const UPDATEEMP = gql`
-  mutation UpdateEmp($personId: Int!, $labEeId: String, $name: String, $idNumber: String, $birthDate: Date, $jobTitle: String, $appointmentDate: Date, $resignationDate: Date, $address: String, $tel: String, $mobile: String, $email: String, $education: String, $experience: String, $comment: String) {
-    updateEmp(person_id: $personId, lab_ee_id: $labEeId, name: $name, id_number: $idNumber, birth_date: $birthDate, job_title: $jobTitle, Appointment_date: $appointmentDate, resignation_date: $resignationDate, address: $address, tel: $tel, mobile: $mobile, Email: $email, education: $education, experience: $experience, comment: $comment) {
+  mutation UpdateEmp($personId: Int!, $labEeId: String, $name: String, $idNumber: String, $birthDate: Date, $jobTitle: String, $appointmentDate: Date, $resignationDate: Date, $resignUpload: String, $address: String, $tel: String, $mobile: String, $email: String, $education: String, $experience: String, $comment: String) {
+    updateEmp(person_id: $personId, lab_ee_id: $labEeId, name: $name, id_number: $idNumber, birth_date: $birthDate, job_title: $jobTitle, Appointment_date: $appointmentDate, resignation_date: $resignationDate, resign_upload: $resignUpload, address: $address, tel: $tel, mobile: $mobile, Email: $email, education: $education, experience: $experience, comment: $comment) {
       person_id
     }
   }
@@ -125,6 +127,9 @@ const GETEMPOWERBYID = gql`
     getEmpowerByID(empower_id: $empowerId) {
       empower_id
       person_id
+      employee {
+        name
+      }
       cal_type
       cal_type_cal_typeToemployee_empower {
         name

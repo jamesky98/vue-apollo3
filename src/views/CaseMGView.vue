@@ -29,6 +29,7 @@ import {
   MDBTabItem,
   MDBTabPane,
 } from 'mdb-vue-ui-kit';
+import gql from "graphql-tag";
 import CaseGQL from "../graphql/Cases";
 import CustGQL from "../graphql/Cust";
 
@@ -541,9 +542,10 @@ function setCustBtn(){
       addCaseTypeIdMU.value = result.data.getCaseCalType.map(x => {
         return { text: x.name, value: parseInt(x.id) }
       }); addCaseTypeIdMU.value.unshift({ text: "", value: "" });
-      // nowDocTypemu.value = result.data.getAllDocType.map(x => {
-      //   return { text: x.doc_type, value: parseInt(x.doc_type_id) }
-      // }); nowDocTypemu.value.unshift({ text: "", value: "" });
+      // API連線區
+      apiCalTypeIDMU.value = result.data.getCaseCalType.map(x => {
+        return { text: x.name, value: x.code }
+      }); apiCalTypeIDMU.value.unshift({ text: "", value: "" });
     }
   });
   refgetCaseCalType();
@@ -929,26 +931,95 @@ refgetCaseAllItem();
   }
 // 新增案件表單==========end
 
-// 連線取得案件
+// 連線取得案件==========Start
+let dtAPI;
+const tableAPI = ref();
+const dataAPI = ref([]);
+
+const hasNowAllCase = ref([]);
+
+const showAPIFrom = ref(false);
+const apiCaseID = ref(""); // 申請單編號
+const apiCalTypeID = ref(""); // 校正項目ID
+const apiCalTypeIDMU = ref([]);
+const apiCalTypeIdDOM = ref([]);
+const apiStartDate = ref(""); // 起始日
+const apiStartDateDOM = ref();
+const apiEndDate = ref(""); // 結束日
+const apiEndDateDOM = ref();
+
+// 設定表格tableCust
+const columnsAPI = [
+  { data: "", title: "選取", defaultContent: "-" },
+  { data: "hasMatchCase", title: "已匯入", defaultContent: "-" },
+  { data: "caseid", title: "案件編號", defaultContent: "-" },
+  { data: "Code", title: "校正項目", defaultContent: "-" },
+  { data: "TITLE", title: "顧客名稱", defaultContent: "-" },
+  { data: "OWNER_ID", title: "聯絡人", defaultContent: "-" },
+  { data: "chop", title: "廠牌", defaultContent: "-" },
+  { data: "model", title: "型號", defaultContent: "-" },
+  { data: "sn", title: "序號", defaultContent: "-" },
+  
+];
+const tboptionAPI = {
+  dom: 'fti',
+  select: {
+    style: 'single',
+    info: false
+  },
+  order: [[0, 'asc']],
+  scrollY: '22vh',
+  scrollX: true,
+  lengthChange: false,
+  searching: false,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  }
+};
+
+function shownAPIModal(){
+  dtAPI = tableAPI.value.dt();
+  // 設定表格選取動作
+  dtAPI.on('select', function (e, dt, type, indexes) {
+    let getData = dt.rows(indexes).data()[0];
+    // seletCustId.value = getData.id;
+  });
+}
+
+// 查詢全部案件資料
+const {onResult: getAPIAllCase} = useQuery(
+  gql`query GetAllCase {
+    getAllCase {
+      id
+    }
+  }`,
+);
+getAPIAllCase(result=>{
+  hasNowAllCase.value = result.data.getAllCase;
+});
+
 function getCaseByAPI(){
-  // const uuid = xxxxx
-  const token = "xxxxx"
-  const url = "https://sicl.kingspread.com.tw/api/DataExchange/CalibrationApplication"
+  const url = import.meta.env.VITE_SICLAPI_URL;
 
   let headers = {
-      // "Content-Type": "application/json",
-      "Content-Type": "application/x-www-form-urlencoded",
+      "Content-Type": "application/json",
+      // "Content-Type": "application/x-www-form-urlencoded",
       "Accept": "*/*",
-      // "Accept": "application/json",
-      // "Authorization": `Bearer ${token}`,
   }
 
-  //以下是API文件中提及必寫的主體参數。而以下這個產品資料是六角學院提供的。
-  let body = {
-    "code": "F",
-    // "startDate": "2022/06/01",
-    // "endDate": "2022/09/12"
+  let body = {};
+  if(apiCaseID.value || apiCaseID.value!==''){body.id=apiCaseID.value}
+  if(apiCalTypeID.value || apiCalTypeID.value!==''){body.code=apiCalTypeID.value}
+  if(apiStartDate.value || apiStartDate.value!==''){
+    body.startDate = (apiStartDate.value).replaceAll("-","/");
   }
+  if(apiEndDate.value || apiEndDate.value!==''){
+    body.endDate = (apiEndDate.value).replaceAll("-","/");
+  }
+
+  console.log(body);
 
   fetch(url,{
     method: "POST",
@@ -957,10 +1028,84 @@ function getCaseByAPI(){
     //別忘了把主體参數轉成字串，否則資料會變成[object Object]，它無法被成功儲存在後台
     body: JSON.stringify(body),
   })
-  .then(response => console.log(response))
-  // .then(json => console.log(json))
+  .then(response => {
+    // console.log(response);
+    return response.json();
+  })
+  .then(json => {
+    // 將回傳json轉成可用矩陣
+    let myArray=[];
+    console.log(json)
+    for (let i=0; i<json.length; i++){
+      for (let j=0; j<json[i].CalibrationDetails.length; j++){
+        for (let k=0; k<json[i].CalibrationDetails[j].CalibrationItems.length; k++){
+          let temp = {
+            ...json[i],
+            CalibrationDetails: null, 
+            ...json[i].CalibrationDetails[j],
+            CalibrationItems: null,
+            ...json[i].CalibrationDetails[j].CalibrationItems[k]
+          };
+          switch (temp.Code){
+            case "A":
+            case "B":
+            case "C":
+              temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
+              temp.chop = temp.COL02;
+              temp.model = temp.COL03;
+              temp.sn = temp.COL04;
+              break;
+            case "D":
+            case "K":
+              temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
+              temp.chop = temp.COL04;
+              temp.model = temp.COL05;
+              temp.sn = temp.COL06;
+              break;
+            case "I":
+            case "M":
+              temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
+              temp.chop = temp.COL02;
+              temp.model = temp.COL03;
+              temp.sn = temp.COL04;
+              break;
+            case "J":
+              temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
+              temp.chop = temp.COL02;
+              temp.model = temp.COL03;
+              temp.sn = temp.COL04;
+              break;
+            case "L":
+              temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
+              temp.chop = temp.COL02;
+              temp.model = temp.COL03;
+              temp.sn = temp.COL04;
+              break;
+            case "F":
+              temp.caseid = temp.ARTICLE_ID + "01";
+              temp.chop = temp.COL02;
+              temp.model = temp.COL03;
+              temp.sn = temp.COL04;
+              break;
+          }
+
+          temp.hasMatchCase = hasCaseID(temp.caseid);
+          myArray.push(JSON.parse(JSON.stringify(temp)));
+        }
+      }
+    }
+    console.log(myArray);
+    dataAPI.value = myArray;
+  })
   .catch(err => console.log(err));
 }
+
+function hasCaseID(findID){
+  let result = hasNowAllCase.value.find(x=> x.id === findID);
+  return (result)?true:false
+}
+
+// 連線取得案件==========End
 
 </script>
 <template>
@@ -1047,7 +1192,66 @@ function getCaseByAPI(){
       <MDBBtn color="primary" @click="setCustBtn()">加入</MDBBtn>
     </MDBModalFooter>
   </MDBModal>
-
+  <!-- API匯入 -->
+  <MDBModal 
+    @shown="shownAPIModal()" 
+    v-model="showAPIFrom" 
+    size="lg"
+    staticBackdrop 
+    scrollable>
+    <MDBModalHeader>
+      <MDBModalTitle>校正案件匯入</MDBModalTitle>
+    </MDBModalHeader>
+    <MDBModalBody>
+      <MDBContainer fluid>
+        <MDBRow>
+          <!-- 上方 取得案件列表 -->
+          <MDBCol col="12" class="h-50">
+            <DataTable :data=" dataAPI" :columns="columnsAPI" :options="tboptionAPI" ref="tableAPI"
+              style="font-size: smaller" class="display w-100 compact" />
+          </MDBCol>
+          <!-- 下方 操作面板 -->
+          <MDBCol col="12" class="border h-50">
+            <MDBRow class="h-100">
+              <!-- 左側 -->
+              <MDBCol col="8">
+                <!-- 條件欄位 -->
+                <MDBRow>
+                  <MDBCol md="12" class="my-2">
+                    <MDBInput size="sm" type="text" label="申請表編號" v-model="apiCaseID" />
+                  </MDBCol>
+                  <div></div>
+                  <MDBSelect size="sm" class="mb-2  md-12" label="校正項目" v-model:options="apiCalTypeIDMU"
+                    v-model:selected="apiCalTypeID" ref="apiCalTypeIdDOM" />
+                  <div></div>
+                  <MDBCol md="6" class="mb-2">
+                    <MDBDatepicker size="sm" v-model="apiStartDate" format="YYYY-MM-DD" label="申請日(起)"
+                      ref="apiStartDateDOM" />
+                  </MDBCol>
+                  <MDBCol md="6" class="mb-2">
+                    <MDBDatepicker size="sm" v-model="apiEndDate" format="YYYY-MM-DD" label="申請日(迄)"
+                      ref="apiEndDateDOM" />
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              <!-- 右側 -->
+              <MDBCol col="4">
+                <!-- 操作按鈕 -->
+                <MDBRow>
+                  <MDBCol col="12" class="my-2">
+                    <MDBBtn size="sm" color="primary" @click="getCaseByAPI">取得連線資料</MDBBtn>
+                  </MDBCol>
+                  <MDBCol col="12" class="mb-2">
+                    <MDBBtn size="sm" color="secondary" @click="">匯入新增案件</MDBBtn>
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+            </MDBRow>
+          </MDBCol>
+        </MDBRow>
+      </MDBContainer>
+    </MDBModalBody>
+  </MDBModal>
   <MDBContainer fluid class="h-100">
     <MDBRow class="h-100 flex-column flex-nowrap">
       <!-- 導覽列 -->
@@ -1202,7 +1406,7 @@ function getCaseByAPI(){
                 <div class="d-flex mb-3 justify-content-end">
                   <MDBBtn size="sm" color="warning" @click="AddCaseCancel()">取消</MDBBtn>
                   <MDBBtn size="sm" color="primary" type="submit">確認</MDBBtn>
-                  <MDBBtn size="sm" color="warning" @click="getCaseByAPI">連線取得</MDBBtn>
+                  <MDBBtn size="sm" color="warning" @click="showAPIFrom=true">連線取得</MDBBtn>
                 </div>
                 <MDBCol col="6" class="mb-4">
                   <MDBInput required counter :maxlength="12" size="sm" type="number" label="案件編號" v-model="addCaseID" />
