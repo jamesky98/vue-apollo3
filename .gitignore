@@ -17,6 +17,8 @@ coverage
 public/02_DOC/
 public/05_Person/
 public/06_Case/
+src/assets/fonts/
+src/assets/cwtexyen/
 
 /cypress/videos/
 /cypress/screenshots/

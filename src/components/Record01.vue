@@ -386,13 +386,11 @@ getNowCaseF((result) => {
       nowCaseRecDate.value = getData.receive_date.split("T")[0];
     }else{
       nowCaseRecDate.value = "";
-      nowCaseRecDateDOM.value.inputValue="";
     }
     if(getData.fly_date){
       nowCaseFlyDate.value = getData.fly_date.split("T")[0];
     }else{
       nowCaseFlyDate.value = "";
-      nowCaseFlyDateDOM.value.inputValue="";
     }
     nowCaseGSDac.value = getData.gsd_ac;
     nowCaseStrNSac.value = getData.strip_ns_ac;
@@ -414,7 +412,6 @@ getNowCaseF((result) => {
       nowCaseStartDate.value = getData.start_Date.split("T")[0];
     }else{
       nowCaseStartDate.value = "";
-      nowCaseStartDateDOM.value.inputValue="";
     }
     nowCaseRefPrjID.value = getData.ref_id;
     nowCaseRefPrjCode.value = getData.ref_project
@@ -462,7 +459,6 @@ getNowCaseF((result) => {
       nowCaseCompleteDate.value = getData.complete_date.split("T")[0];
     }else{
       nowCaseCompleteDate.value = "";
-      nowCaseCompleteDateDOM.value.inputValue="";
     }
     nowCaseChkDate.value = getData.chk_date
       ? getData.chk_date.split("T")[0]

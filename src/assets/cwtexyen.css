@@ -1,0 +1,11 @@
+/*
+ * cwTeXYen (Chinese Traditional) http://www.google.com/fonts/earlyaccess
+ * src: url(//fonts.gstatic.com/ea/cwtexyen/v3/cwTeXYen-zhonly.eot);
+ * src: url(./assets/cwtexyen/cwTeXYen-zhonly.eot);
+ */
+@font-face {
+  font-family: 'cwTeXYen';
+  font-style: normal;
+  font-weight: 500;
+  src: url(./cwtexyen/cwTeXYen-zhonly.eot);
+}
