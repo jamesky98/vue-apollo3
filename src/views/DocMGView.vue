@@ -338,7 +338,7 @@ const tboption1 = {
     info: false
   },
   order: [[1, 'asc']],
-  scrollY: '30vh', 
+  scrollY: 'calc(50vh - 11rem)',
   scrollX: true,
   lengthChange: false,
   searching: true,
@@ -384,7 +384,7 @@ const tboption2 = {
     info: false
   },
   order: [[5, 'desc']],
-  scrollY: '28vh',
+  scrollY: 'calc(50vh - 13rem)',
   scrollX: true,
   lengthChange: false,
   searching: false,
@@ -430,7 +430,7 @@ const tboption3 = {
     info: false
   },
   order: [[2, 'asc']],
-  scrollY: '28vh',
+  scrollY: 'calc(50vh - 13rem)',
   scrollX: true,
   lengthChange: false,
   searching: false,
@@ -684,7 +684,7 @@ function saveDocBtn() {
       <!-- 導覽列 -->
       <Navbar1 />
       <!-- 主體 -->
-      <MDBRow style="margin-left:0;margin-right:0;height: calc(100% - 6.5em);">
+      <MDBRow style="margin-left:0;margin-right:0;height: calc(100% - 6.5em);" class="overflow-auto">
         <!-- 左方資料欄 -->
         <MDBCol md="8" class="h-100">
           <MDBRow class="h-100 align-content-between">
@@ -695,8 +695,8 @@ function saveDocBtn() {
                 class="display w-100 compact" />
             </MDBCol>
             <!-- 下方子列表 -->
-            <MDBCol md="12" class="h-50 mb-2 border border-5 rounded-8 shadow-4">
-              <MDBRow style="height: calc(100%) ;">
+            <MDBCol md="12" class="h-50 mb-2 border border-5 rounded-8 shadow-4 overflow-auto">
+              <MDBRow class="h-100">
                 <!-- 下方左側資料 -->
                 <MDBCol md="7" class="h-100 overflow-auto">
                   <MDBTabs v-model="activeTabId2">
@@ -718,7 +718,7 @@ function saveDocBtn() {
                   </MDBTabs>
                 </MDBCol>
                 <!-- 下方右側資料 -->
-                <MDBCol md="5" class="h-100 bg-light border-start">
+                <MDBCol md="5" class="h-100 border-start">
                   <MDBTabs v-model="activeTabId1">
                     <!-- Tabs navs -->
                     <MDBTabNav tabsClasses="mb-1">
@@ -868,6 +868,9 @@ function saveDocBtn() {
 .datatable tbody tr:last-child {
   border-bottom: rgba(0,0,0,0);
   height: auto;
+}
+div.dataTables_filter {
+  padding-top: 0.85em;
 }
 .colnowarp {
   white-space: nowrap;
