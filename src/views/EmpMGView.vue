@@ -172,10 +172,16 @@ const nowEmpowerRoleDOM = ref();
 
 const nowEmpowerAssResult = ref("");
 const nowEmpowerAssID = ref("");
+const nowEmpowerAssMU = ref([]);
+const nowEmpowerAssDOM = ref();
+
 const nowEmpowerAssDate = ref("");
 const nowEmpowerAssDateDOM = ref();
 
 const nowEmpowerSupID = ref("");
+const nowEmpowerSupMU = ref([]);
+const nowEmpowerSupDOM = ref();
+
 const nowEmpowerDate = ref("");
 const nowEmpowerDateDOM = ref();
 
@@ -559,6 +565,8 @@ getEmpowerByIdOnDone(result=>{
 
   nowEmpowerAssResult.value = getData.assessment_result;
   nowEmpowerAssID.value = getData.assessor;
+  nowEmpowerAssDOM.value.setValue(nowEmpowerAssID.value);
+
   if(getData.assessment_date){
     nowEmpowerAssDate.value = getData.assessment_date.split("T")[0];
   }else{
@@ -566,6 +574,8 @@ getEmpowerByIdOnDone(result=>{
     nowEmpowerAssDateDOM.value.inputValue="";
   }
   nowEmpowerSupID.value = getData.lab_supervisor;
+  nowEmpowerSupDOM.value.setValue(nowEmpowerSupID.value);
+
   if(getData.empower_date){
     nowEmpowerDate.value = getData.empower_date.split("T")[0];
   }else{
@@ -1137,6 +1147,54 @@ function tabShown(e){
   }
 }
 
+function filterArrayforObj(arr,key){
+  let tempArray = [];
+  for(let i=0;i<arr.length;i++){
+    let hasElm = tempArray.findIndex((x)=>{
+      return (x[key]===arr[i][key])?true:false
+    });
+    if(hasElm === -1){
+      tempArray.push(arr[i]);
+    }
+  }
+  return tempArray;
+}
+
+// 查詢評估人員列表
+const { onResult: getAssList, refetch: refgetAssList } = useQuery(
+  EmpGQL.GETEMPOWERBYROLE,
+  ()=>({roleType:'技術主管'})
+);
+getAssList(result => {
+  // 加入評估人員選單資料
+  if (!result.loading && result.data.getEmpowerbyRole) {
+    let mylist = [];
+    mylist = result.data.getEmpowerbyRole.map(x => { return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
+    mylist = filterArrayforObj(mylist,"person_id");// 去除重複
+    nowEmpowerAssMU.value = mylist.map(x => {
+      return { text: x.name, value: x.person_id }
+    }); nowEmpowerAssMU.value.unshift({ text: "", value: "" });
+  }
+});
+refgetAssList();
+// 查詢授權人員列表
+const { onResult: getSupList, refetch: refgetSupList } = useQuery(
+  EmpGQL.GETEMPOWERBYROLE,
+  ()=>({roleType:'實驗室主管'})
+);
+getSupList(result => {
+  // 加入評估人員選單資料
+  if (!result.loading && result.data.getEmpowerbyRole) {
+    let mylist = [];
+    mylist = result.data.getEmpowerbyRole.map(x => { return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
+    mylist = filterArrayforObj(mylist,"person_id");// 去除重複
+    nowEmpowerSupMU.value = mylist.map(x => {
+      return { text: x.name, value: x.person_id }
+    }); nowEmpowerSupMU.value.unshift({ text: "", value: "" });
+  }
+});
+refgetSupList();
+
 </script>
 <template>
   <MDBContainer fluid class="h-100">
@@ -1172,75 +1230,90 @@ function tabShown(e){
                 </MDBCol>
                 <MDBCol col="12" class="overflow-auto" style="height: calc(100% - 4rem);">
                   <MDBRow>
-                    <MDBCol md="4" class="my-3">
-                      <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="員工編號" v-model="nowEmpID" />
+                    <MDBCol lg="6">
+                      <MDBRow>
+                        <MDBCol md="4" class="mt-3">
+                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="員工編號" v-model="nowEmpID" />
+                        </MDBCol>
+                        <MDBCol md="4" class="mt-3">
+                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="實驗室編號" v-model="nowEmpLabID" />
+                        </MDBCol>
+                        <MDBCol md="4" class="mt-3">
+                          <MDBInput disabled size="sm" type="text" label="更新日期" v-model="nowEmpModifyDate" />
+                        </MDBCol>
+                        <MDBCol md="4" class="mt-3">
+                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="姓名" v-model="nowEmpName" />
+                        </MDBCol>
+                        <MDBCol md="4" class="mt-3">
+                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="身分證字號"
+                            v-model="nowEmpIDNumber" />
+                        </MDBCol>
+                        <MDBCol md="4" class="mt-3">
+                          <MDBDatepicker required size="sm" v-model="nowEmpBirthday" format="YYYY-MM-DD" label="出生日"
+                            ref="nowEmpBirthdayDOM" />
+                        </MDBCol>
+                        <MDBCol md="4" class="mt-3">
+                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="職稱" v-model="nowEmpJobTitle" />
+                        </MDBCol>
+                        <MDBCol md="4" class="mt-3">
+                          <MDBDatepicker required size="sm" v-model="nowEmpAppDate" format="YYYY-MM-DD" label="到職日"
+                            ref="nowEmpAppDateDOM" />
+                        </MDBCol>
+                        <div></div>
+                        <MDBCol md="4" class="mt-3">
+                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="電話" v-model="nowEmpTel" />
+                        </MDBCol>
+                        <MDBCol md="4" class="mt-3">
+                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="手機" v-model="nowEmpMobile" />
+                        </MDBCol>
+                        <MDBCol md="4" class="mt-3">
+                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="e-Mail"
+                            v-model="nowEmpEmail" />
+                        </MDBCol>
+                        <MDBCol md="12" class="mt-3">
+                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="住址" v-model="nowEmpAddress" />
+                        </MDBCol>
+                      </MDBRow>
                     </MDBCol>
-                    <MDBCol md="4" class="my-3">
-                      <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="實驗室編號" v-model="nowEmpLabID" />
+                    <MDBCol lg="6">
+                      <MDBRow>
+                        <MDBCol md="12" class="mt-3">
+                          <MDBTextarea :disabled="!rGroup[2]" size="sm" label="學歷" rows="4" v-model="nowEmpEducation" />
+                        </MDBCol>
+                        <MDBCol md="12" class="mt-3">
+                          <MDBTextarea :disabled="!rGroup[2]" size="sm" label="經歷" rows="5" v-model="nowEmpExperience" />
+                        </MDBCol>
+                      </MDBRow>
                     </MDBCol>
-                    <MDBCol md="4" class="my-3">
-                      <MDBInput disabled size="sm" type="text" label="更新日期" v-model="nowEmpModifyDate" />
+                    <MDBCol lg="6">
+                      <MDBRow>
+                        <MDBCol md="6" class="mt-3">
+                          <MDBDatepicker required size="sm" v-model="nowEmpResDate" format="YYYY-MM-DD" label="解職日"
+                            ref="nowEmpResDateDOM" />
+                        </MDBCol>
+                        <div></div>
+                        <!-- 解職證明上傳 -->
+                        <MDBCol col="8" class="mt-3">
+                          <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
+                            label="解職證明" v-model="nowEmpResUpload">
+                            <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpResUpload = ''"
+                              class="btn-upload-close" />
+                          </MDBInput>
+                        </MDBCol>
+                        <MDBCol col="4" class="px-0 mt-3">
+                          <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('resUpload')">
+                            上傳</MDBBtn>
+                          <MDBBtn tag="a" :href="nowEmpResUploadDL" download size="sm" color="secondary">下載
+                          </MDBBtn>
+                        </MDBCol>
+                      </MDBRow>
                     </MDBCol>
-                    <MDBCol md="4" class="mb-3">
-                      <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="姓名" v-model="nowEmpName" />
-                    </MDBCol>
-                    <MDBCol md="4" class="mb-3">
-                      <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="身分證字號"
-                        v-model="nowEmpIDNumber" />
-                    </MDBCol>
-                    <MDBCol md="4" class="mb-3">
-                      <MDBDatepicker required size="sm" v-model="nowEmpBirthday" format="YYYY-MM-DD" label="出生日"
-                        ref="nowEmpBirthdayDOM" />
-                    </MDBCol>
-                    <MDBCol md="4" class="mb-3">
-                      <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="職稱" v-model="nowEmpJobTitle" />
-                    </MDBCol>
-                    <MDBCol md="4" class="mb-3">
-                      <MDBDatepicker required size="sm" v-model="nowEmpAppDate" format="YYYY-MM-DD" label="到職日"
-                        ref="nowEmpAppDateDOM" />
-                    </MDBCol>
-                    <div></div>
-                    <MDBCol md="4" class="mb-3">
-                      <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="電話" v-model="nowEmpTel" />
-                    </MDBCol>
-                    <MDBCol md="4" class="mb-3">
-                      <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="手機" v-model="nowEmpMobile" />
-                    </MDBCol>
-                    <MDBCol md="4" class="mb-3">
-                      <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="e-Mail"
-                        v-model="nowEmpEmail" />
-                    </MDBCol>
-                    <MDBCol md="12" class="mb-3">
-                      <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="住址" v-model="nowEmpAddress" />
-                    </MDBCol>
-                    <MDBCol md="12" class="mb-3">
-                      <MDBTextarea :disabled="!rGroup[2]" size="sm" label="學歷" rows="2" v-model="nowEmpEducation" />
-                    </MDBCol>
-                    <MDBCol md="12" class="mb-3">
-                      <MDBTextarea :disabled="!rGroup[2]" size="sm" label="經歷" rows="2" v-model="nowEmpExperience" />
-                    </MDBCol>
-                    <MDBCol md="4" class="mb-3">
-                      <MDBDatepicker required size="sm" v-model="nowEmpResDate" format="YYYY-MM-DD" label="解職日"
-                        ref="nowEmpResDateDOM" />
-                    </MDBCol>
-                    <div></div>
-                    <!-- 解職證明上傳 -->
-                    <MDBCol col="9" class="mb-3">
-                      <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                        label="解職證明" v-model="nowEmpResUpload">
-                        <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpResUpload = ''"
-                          class="btn-upload-close" />
-                      </MDBInput>
-                    </MDBCol>
-                    <MDBCol col="3" class="px-0 mb-3">
-                      <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('resUpload')">
-                        上傳</MDBBtn>
-                      <MDBBtn tag="a" :href="nowEmpResUploadDL" download size="sm" color="secondary">下載
-                      </MDBBtn>
-                    </MDBCol>
-
-                    <MDBCol md="12" class="mb-3">
-                      <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="2" v-model="nowEmpComment" />
+                    <MDBCol lg="6">
+                      <MDBRow>
+                        <MDBCol md="12" class="mt-3 mb-2">
+                          <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="3" v-model="nowEmpComment" />
+                        </MDBCol>
+                      </MDBRow>
                     </MDBCol>
                   </MDBRow>
                 </MDBCol>
@@ -1290,39 +1363,47 @@ function tabShown(e){
                           </MDBCol>
                           <MDBCol col="12" class="overflow-auto border-top" style="height: calc(100% - 4rem);">
                             <MDBRow>
-                              <MDBCol md="4" class="my-3">
-                                <MDBInput disabled required size="sm" type="text" label="索引" v-model="nowTrainID" />
+                              <MDBCol lg="6">
+                                <MDBRow>
+                                  <MDBCol md="6" class="mt-3">
+                                    <MDBInput disabled required size="sm" type="text" label="索引" v-model="nowTrainID" />
+                                  </MDBCol>
+                                  <div></div>
+                                  <MDBCol md="12" class="mt-3">
+                                    <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="訓練名稱" v-model="nowTrainName" />
+                                  </MDBCol>
+                                  <MDBCol md="12" class="mt-3">
+                                    <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="開課單位" v-model="nowTrainInstitution" />
+                                  </MDBCol>
+                                  <MDBCol md="6" class="mt-3">
+                                    <MDBDatepicker required size="sm" v-model="nowTrainEndDate" format="YYYY-MM-DD" label="結訓日期"
+                                      ref="nowTrainEndDateDOM" />
+                                  </MDBCol>
+                                </MDBRow>
                               </MDBCol>
-                              <div></div>
-                              <MDBCol md="12" class="mb-3">
-                                <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="訓練名稱" v-model="nowTrainName" />
-                              </MDBCol>
-                              <MDBCol md="12" class="mb-3">
-                                <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="開課單位" v-model="nowTrainInstitution" />
-                              </MDBCol>
-                              <MDBCol md="4" class="mb-3">
-                                <MDBDatepicker required size="sm" v-model="nowTrainEndDate" format="YYYY-MM-DD" label="結訓日期"
-                                  ref="nowTrainEndDateDOM" />
-                              </MDBCol>
-                              <MDBCol md="12" class="mb-3">
-                                <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="證書編號" v-model="nowTrainCertiNo" />
-                              </MDBCol>
-                              <!-- 證書上傳 -->
-                              <MDBCol col="9" class="mb-3">
-                                <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                                  label="證書上傳" v-model="nowTrainUpload">
-                                  <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowTrainUpload = ''"
-                                    class="btn-upload-close" />
-                                </MDBInput>
-                              </MDBCol>
-                              <MDBCol col="3" class="px-0 mb-3">
-                                <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('trainUpload')">
-                                  上傳</MDBBtn>
-                                <MDBBtn tag="a" :href="nowTrainUploadDL" download size="sm" color="secondary">下載
-                                </MDBBtn>
-                              </MDBCol>
-                              <MDBCol md="12" class="mb-3">
-                                <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="2" v-model="nowTrainComment" />
+                              <MDBCol lg="6">
+                                <MDBRow>
+                                  <MDBCol md="12" class="mt-3">
+                                    <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="證書編號" v-model="nowTrainCertiNo" />
+                                  </MDBCol>
+                                  <!-- 證書上傳 -->
+                                  <MDBCol col="8" class="mt-3">
+                                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
+                                      label="證書上傳" v-model="nowTrainUpload">
+                                      <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowTrainUpload = ''"
+                                        class="btn-upload-close" />
+                                    </MDBInput>
+                                  </MDBCol>
+                                  <MDBCol col="4" class="px-0 mt-3">
+                                    <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('trainUpload')">
+                                      上傳</MDBBtn>
+                                    <MDBBtn tag="a" :href="nowTrainUploadDL" download size="sm" color="secondary">下載
+                                    </MDBBtn>
+                                  </MDBCol>
+                                  <MDBCol md="12" class="my-3">
+                                    <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="2" v-model="nowTrainComment" />
+                                  </MDBCol>
+                                </MDBRow>
                               </MDBCol>
                             </MDBRow>
                           </MDBCol>
@@ -1359,68 +1440,80 @@ function tabShown(e){
                           </MDBCol>
                           <MDBCol col="12" class="overflow-auto border-top" style="height: calc(100% - 4rem);">
                             <MDBRow>
-                              <MDBCol md="4" class="my-3">
-                                <MDBInput disabled required size="sm" type="text" label="索引" v-model="nowEmpowerID" />
+                              <MDBCol lg="6">
+                                <MDBRow>
+                                  <MDBCol md="6" class="mt-3">
+                                    <MDBInput disabled required size="sm" type="text" label="索引" v-model="nowEmpowerID" />
+                                  </MDBCol>
+                                  <div></div>
+                                  <MDBSelect size="sm" class="mt-3  col-6" label="校正項目" v-model:options="nowEmpowerCalTypeIdMU"
+                                    v-model:selected="nowEmpowerCalTypeID" ref="nowEmpowerCalTypeIdDOM" />
+                                  <MDBSelect size="sm" class="mt-3  col-6" label="職務" v-model:options="nowEmpowerRoleMU"
+                                    v-model:selected="nowEmpowerRole" ref="nowEmpowerRoleDOM" />
+                                  <div></div>
+                                  <MDBCol md="12" class="mt-3">
+                                    <MDBTextarea :disabled="!rGroup[2]" size="sm" label="評估結果" rows="7" v-model="nowEmpowerAssResult" />
+                                  </MDBCol>
+                                </MDBRow>
                               </MDBCol>
-                              <div></div>
-                              <MDBSelect size="sm" class="mb-3  col-6" label="校正項目" v-model:options="nowEmpowerCalTypeIdMU"
-                                v-model:selected="nowEmpowerCalTypeID" ref="nowEmpowerCalTypeIdDOM" />
-                              <MDBSelect size="sm" class="mb-3  col-6" label="職務" v-model:options="nowEmpowerRoleMU"
-                                v-model:selected="nowEmpowerRole" ref="nowEmpowerRoleDOM" />
-                              <div></div>
-                              <MDBCol md="12" class="mb-3">
-                                <MDBTextarea :disabled="!rGroup[2]" size="sm" label="評估結果" rows="6" v-model="nowEmpowerAssResult" />
+                              <MDBCol lg="6">
+                                <MDBRow>
+                                  <MDBCol md="6" class="mt-3">
+                                    <MDBDatepicker required size="sm" v-model="nowEmpowerAssDate" format="YYYY-MM-DD" label="評估日"
+                                      ref="nowEmpowerAssDateDOM" />
+                                  </MDBCol>
+                                  <MDBSelect :disabled="!rGroup[2]" size="sm" class="mt-3 col-md-6" label="評估人員" v-model:options="nowEmpowerAssMU"
+                                    v-model:selected="nowEmpowerAssID" ref="nowEmpowerAssDOM" />
+                                  <div></div>
+                                  <MDBCol md="6" class="mt-3">
+                                    <MDBDatepicker required size="sm" v-model="nowEmpowerDate" format="YYYY-MM-DD" label="授權日"
+                                      ref="nowEmpowerDateDOM" />
+                                  </MDBCol>
+                                  <MDBSelect :disabled="!rGroup[2]" size="sm" class="mt-3 col-md-6" label="授權人員" v-model:options="nowEmpowerSupMU"
+                                    v-model:selected="nowEmpowerSupID" ref="nowEmpowerSupDOM" />
+
+                                  <MDBCol md="6" class="mt-3">
+                                    <MDBDatepicker required size="sm" v-model="nowEmpowerSusDate" format="YYYY-MM-DD" label="停權日"
+                                      ref="nowEmpowerSusDateDOM" />
+                                  </MDBCol>
+                                  <div></div>
+                                  <!-- 評估表上傳 -->
+                                  <MDBCol col="8" class="mt-3">
+                                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
+                                      label="評估表上傳" v-model="nowEmpowerTabUpload">
+                                      <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpowerTabUpload = ''"
+                                        class="btn-upload-close" />
+                                    </MDBInput>
+                                  </MDBCol>
+                                  <MDBCol col="4" class="px-0 mt-3">
+                                    <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('empowerUpload')">
+                                      上傳</MDBBtn>
+                                    <MDBBtn tag="a" :href="nowEmpowerTabUploadDL" download size="sm" color="secondary">下載
+                                    </MDBBtn>
+                                  </MDBCol>
+                                  <!-- 核准公文上傳 -->
+                                  <MDBCol col="8" class="mt-3">
+                                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
+                                      label="核准公文上傳" v-model="nowEmpowerAprvUpload">
+                                      <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpowerAprvUpload = ''"
+                                        class="btn-upload-close" />
+                                    </MDBInput>
+                                  </MDBCol>
+                                  <MDBCol col="4" class="px-0 mt-3">
+                                    <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('empowerAprvUpload')">
+                                      上傳</MDBBtn>
+                                    <MDBBtn tag="a" :href="nowEmpowerAprvUploadDL" download size="sm" color="secondary">下載
+                                    </MDBBtn>
+                                  </MDBCol>
+                                  <MDBCol md="12" class="my-3">
+                                    <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="2" v-model="nowEmpowerComment" />
+                                  </MDBCol>
+                                </MDBRow>
                               </MDBCol>
-                              <MDBCol md="4" class="mb-3">
-                                <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="評估人員" v-model="nowEmpowerAssID" />
-                              </MDBCol>
-                              <MDBCol md="4" class="mb-3">
-                                <MDBDatepicker required size="sm" v-model="nowEmpowerAssDate" format="YYYY-MM-DD" label="評估日"
-                                  ref="nowEmpowerAssDateDOM" />
-                              </MDBCol>
-                              <div></div>
-                              <MDBCol md="4" class="mb-3">
-                                <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="授權人員" v-model="nowEmpowerSupID" />
-                              </MDBCol>
-                              <MDBCol md="4" class="mb-3">
-                                <MDBDatepicker required size="sm" v-model="nowEmpowerDate" format="YYYY-MM-DD" label="授權日"
-                                  ref="nowEmpowerDateDOM" />
-                              </MDBCol>
-                              <MDBCol md="4" class="mb-3">
-                                <MDBDatepicker required size="sm" v-model="nowEmpowerSusDate" format="YYYY-MM-DD" label="停權日"
-                                  ref="nowEmpowerSusDateDOM" />
-                              </MDBCol>
-                              <!-- 評估表上傳 -->
-                              <MDBCol col="9" class="mb-3">
-                                <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                                  label="評估表上傳" v-model="nowEmpowerTabUpload">
-                                  <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpowerTabUpload = ''"
-                                    class="btn-upload-close" />
-                                </MDBInput>
-                              </MDBCol>
-                              <MDBCol col="3" class="px-0 mb-3">
-                                <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('empowerUpload')">
-                                  上傳</MDBBtn>
-                                <MDBBtn tag="a" :href="nowEmpowerTabUploadDL" download size="sm" color="secondary">下載
-                                </MDBBtn>
-                              </MDBCol>
-                              <!-- 核准公文上傳 -->
-                              <MDBCol col="9" class="mb-3">
-                                <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                                  label="核准公文上傳" v-model="nowEmpowerAprvUpload">
-                                  <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpowerAprvUpload = ''"
-                                    class="btn-upload-close" />
-                                </MDBInput>
-                              </MDBCol>
-                              <MDBCol col="3" class="px-0 mb-3">
-                                <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('empowerAprvUpload')">
-                                  上傳</MDBBtn>
-                                <MDBBtn tag="a" :href="nowEmpowerAprvUploadDL" download size="sm" color="secondary">下載
-                                </MDBBtn>
-                              </MDBCol>
-                              <MDBCol md="12" class="mb-3">
-                                <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="2" v-model="nowEmpowerComment" />
-                              </MDBCol>
+
+
+                              
+                              
                             </MDBRow>
                           </MDBCol>
                         </MDBRow>

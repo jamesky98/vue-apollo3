@@ -211,6 +211,39 @@ query GetEmpRoleList {
 }
 `;
 
+const GETEMPOWERBYROLE = gql`
+  query GetEmpowerbyRole($roleType: String, $calType: Int) {
+    getEmpowerbyRole(role_type: $roleType, cal_type: $calType) {
+      empower_id
+      person_id
+      employee {
+        name
+      }
+      cal_type
+      cal_type_cal_typeToemployee_empower {
+        name
+        code
+      }
+      role_type
+      assessment_result
+      assessor
+      employee_employeeToemployee_empower_assessor {
+        name
+      }
+      assessment_date
+      lab_supervisor
+      employee_employeeToemployee_empower_lab_supervisor {
+        name
+      }
+      empower_date
+      suspension_date
+      table_upload
+      approval_doc
+      comment
+    }
+  }
+`;
+
 export default {
   GETALLEMP,
   GETEMPBYID,
@@ -227,4 +260,5 @@ export default {
   UPDATEEMPOWER,
   DELEMPOWER,
   GETEMPROLE,
+  GETEMPOWERBYROLE,
 };
