@@ -818,15 +818,24 @@ function saveNowCaseData() {
 }
 
 // 顯示編輯更多畫面
+function isAinmaDispaly(){
+  if (animationType.value === "slide-right-ja") {
+    showCaseLeftDiv.value = true;
+  }else{
+    showCaseLeftDiv.value = false;
+  }
+}
 function showCaseEdit() {
   if (showCaseEditAnima.value) {
     if (animationType.value === "slide-right-ja") {
       caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
+      // showCaseLeftDiv.value = false;
       addBtnDisabled.value = true;
       setRecordShow(showCaseEditAnima.value);
       animationType.value = "slide-left-ja"
     } else if (animationType.value === "slide-left-ja") {
       caseBtnText.value = "編輯更多<i class='fas fa-angle-double-right'/>";
+      showCaseLeftDiv.value = true;
       animationType.value = "slide-right-ja"
       addBtnDisabled.value = false;
       showCaseEditR01Flag.value = false;
@@ -859,12 +868,14 @@ function setRecordShow(isAnimate) {
       showCaseEditR02Flag.value = false;
       showCaseEditAnima.value = true;
       caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
+      // showCaseLeftDiv.value = false;
       addBtnDisabled.value = true;
     } else if (nowCaseTypeId.value === 2) {
       showCaseEditR01Flag.value = false;
       showCaseEditR02Flag.value = true;
       showCaseEditAnima.value = true;
       caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
+      // showCaseLeftDiv.value = false;
       addBtnDisabled.value = true;
     } else {
       showCaseEditR01Flag.value = false;
@@ -1450,66 +1461,71 @@ const {
       <Navbar1 />
       <!-- 主體 -->
       <!-- <MDBContainer tag="main" fluid> -->
-      <MDBAnimation style="height: calc(100% - 6.5em);" :animation="animationType" trigger="manually"
-        v-model="showCaseEditAnima">
-        <MDBRow style="margin-left:0;margin-right:0;" class="h-100 flex-md-nowrap overflow-visible">
+      <MDBRow style="height: calc(100% - 6.5em);margin-left:0;margin-right:0;" class="overflow-auto">
+      <!-- <MDBAnimation style="height: calc(100% - 6.5em);" :animation="animationType" trigger="manually"
+        v-model="showCaseEditAnima"> -->
+        <!-- <MDBRow style="margin-left:0;margin-right:0;" class="h-100 flex-md-nowrap overflow-auto"> -->
           <!-- 左方列表 -->
-          <MDBCol v-show="showCaseLeftDiv" md="8" class="h-100">
-            <MDBRow class="h-100 align-content-between">
-              <!-- 上方列表 -->
-              <MDBCol md="12" style="height: calc(75% - 1.5rem) ;"
-                class="mt-2 overflow-auto border border-5 rounded-8 shadow-4">
-                <DataTable :data=" data1" :columns="columns1" :options="tboption1" ref="table1"
-                  style="font-size: smaller" class="display w-100 compact" />
-              </MDBCol>
-              <!-- 下方篩選 -->
-              <MDBCol md="12" class="h-25 mb-2 overflow-auto border border-5 rounded-8 shadow-4">
-                <MDBRow>
-                  <div class="my-2 d-flex">
-                    <div class="flex-grow-1">條件篩選</div>
-                    <div>
-                      <MDBBtn size="sm" color="primary" @click="caseClearFilter()">清除</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="caseDoFilter()">篩選</MDBBtn>
+          <MDBAnimation v-show="showCaseLeftDiv" class="h-100 col-md-8" :animation="animationType" trigger="manually" v-model="showCaseEditAnima" @animationend="isAinmaDispaly" @animationstart="showCaseLeftDiv=true">
+            <!-- <MDBCol v-show="showCaseLeftDiv" md="8" class="h-100"> -->
+            <div class="h-100">
+              <MDBRow class="h-100 align-content-between">
+                <!-- 上方列表 -->
+                <MDBCol md="12" style="height: calc(75% - 1.5rem) ;"
+                  class="mt-2 overflow-auto border border-5 rounded-8 shadow-4">
+                  <DataTable :data=" data1" :columns="columns1" :options="tboption1" ref="table1"
+                    style="font-size: smaller" class="display w-100 compact" />
+                </MDBCol>
+                <!-- 下方篩選 -->
+                <MDBCol md="12" class="h-25 mb-2 overflow-auto border border-5 rounded-8 shadow-4">
+                  <MDBRow>
+                    <div class="my-2 d-flex">
+                      <div class="flex-grow-1">條件篩選</div>
+                      <div>
+                        <MDBBtn size="sm" color="primary" @click="caseClearFilter()">清除</MDBBtn>
+                        <MDBBtn size="sm" color="primary" @click="caseDoFilter()">篩選</MDBBtn>
+                      </div>
                     </div>
-                  </div>
-                  <MDBSelect size="sm" class="mb-3 col-3" label="案件狀態" v-model:options="caseStatusMU"
-                    v-model:selected="caseStatusSEL" ref="caseStatusFilter" />
-                  <MDBCol col="3" class="mb-3">
-                    <MDBInput size="sm" type="text" label="案件編號" v-model="caseIDSEL" />
-                  </MDBCol>
-                  <MDBSelect size="sm" class="mb-3  col-3" label="校正項目" v-model:options="caseTypeMU"
-                    v-model:selected="caseTypeSEL" ref="caseTypeFilter" />
-                  <MDBSelect filter size="sm" class="mb-3  col-3" label="校正人員" v-model:options="caseOptMU"
-                    v-model:selected="caseOptSEL" ref="caseOptFilter" />
-                  <MDBSelect filter size="sm" class="mb-3  col-3" label="顧客" v-model:options="caseCustMU"
-                    v-model:selected="caseCustSEL" ref="caseCustFilter" />
-                  <MDBSelect filter size="sm" class="mb-3  col-3" label="廠牌" v-model:options="caseChopMU"
-                    v-model:selected="caseChopSEL" ref="caseChopFilter" />
-                  <MDBSelect filter size="sm" class="mb-3  col-3" label="型號" v-model:options="caseModelMU"
-                    v-model:selected="caseModelSEL" ref="caseModelFilter" />
-                  <MDBCol col="3" class="mb-3">
-                    <MDBInput size="sm" type="text" label="序號" v-model="caseSelnumSEL" />
-                  </MDBCol>
-                  <MDBCol col="3" class="mb-3">
-                    <MDBDatepicker size="sm" v-model="caseAppDateStartSEL" format="YYYY-MM-DD" label="申請日(起)"
-                      ref="caseAppDateStartFilter" />
-                  </MDBCol>
-                  <MDBCol col="3" class="mb-3">
-                    <MDBDatepicker size="sm" v-model="caseAppDateEndtSEL" format="YYYY-MM-DD" label="申請日(迄)"
-                      ref="caseAppDateEndFilter" />
-                  </MDBCol>
-                  <MDBCol col="3" class="mb-3">
-                    <MDBDatepicker size="sm" v-model="casePayDateStartSEL" format="YYYY-MM-DD" label="繳費日(起)"
-                      ref="casePayDateStartFilter" />
-                  </MDBCol>
-                  <MDBCol col="3" class="mb-3">
-                    <MDBDatepicker size="sm" v-model="casePayDateEndtSEL" format="YYYY-MM-DD" label="繳費日(迄)"
-                      ref="casePayDateEndFilter" />
-                  </MDBCol>
-                </MDBRow>
-              </MDBCol>
-            </MDBRow>
-          </MDBCol>
+                    <MDBSelect size="sm" class="mb-3 col-3" label="案件狀態" v-model:options="caseStatusMU"
+                      v-model:selected="caseStatusSEL" ref="caseStatusFilter" />
+                    <MDBCol col="3" class="mb-3">
+                      <MDBInput size="sm" type="text" label="案件編號" v-model="caseIDSEL" />
+                    </MDBCol>
+                    <MDBSelect size="sm" class="mb-3  col-3" label="校正項目" v-model:options="caseTypeMU"
+                      v-model:selected="caseTypeSEL" ref="caseTypeFilter" />
+                    <MDBSelect filter size="sm" class="mb-3  col-3" label="校正人員" v-model:options="caseOptMU"
+                      v-model:selected="caseOptSEL" ref="caseOptFilter" />
+                    <MDBSelect filter size="sm" class="mb-3  col-3" label="顧客" v-model:options="caseCustMU"
+                      v-model:selected="caseCustSEL" ref="caseCustFilter" />
+                    <MDBSelect filter size="sm" class="mb-3  col-3" label="廠牌" v-model:options="caseChopMU"
+                      v-model:selected="caseChopSEL" ref="caseChopFilter" />
+                    <MDBSelect filter size="sm" class="mb-3  col-3" label="型號" v-model:options="caseModelMU"
+                      v-model:selected="caseModelSEL" ref="caseModelFilter" />
+                    <MDBCol col="3" class="mb-3">
+                      <MDBInput size="sm" type="text" label="序號" v-model="caseSelnumSEL" />
+                    </MDBCol>
+                    <MDBCol col="3" class="mb-3">
+                      <MDBDatepicker size="sm" v-model="caseAppDateStartSEL" format="YYYY-MM-DD" label="申請日(起)"
+                        ref="caseAppDateStartFilter" />
+                    </MDBCol>
+                    <MDBCol col="3" class="mb-3">
+                      <MDBDatepicker size="sm" v-model="caseAppDateEndtSEL" format="YYYY-MM-DD" label="申請日(迄)"
+                        ref="caseAppDateEndFilter" />
+                    </MDBCol>
+                    <MDBCol col="3" class="mb-3">
+                      <MDBDatepicker size="sm" v-model="casePayDateStartSEL" format="YYYY-MM-DD" label="繳費日(起)"
+                        ref="casePayDateStartFilter" />
+                    </MDBCol>
+                    <MDBCol col="3" class="mb-3">
+                      <MDBDatepicker size="sm" v-model="casePayDateEndtSEL" format="YYYY-MM-DD" label="繳費日(迄)"
+                        ref="casePayDateEndFilter" />
+                    </MDBCol>
+                  </MDBRow>
+                </MDBCol>
+              </MDBRow>
+            </div>
+            <!-- </MDBCol> -->
+          </MDBAnimation>
           <!-- 右方案件資料 -->
           <MDBCol md="4" v-show="!showCaseNew" class="h-100">
             <MDBRow style="margin-left: auto;height: calc(100% - 1rem);"
@@ -1648,8 +1664,9 @@ const {
               <Record02 :caseID="nowCaseID" :key="updateKey" ref="subFormRecord02" />
             </MDBRow>
           </MDBCol>
-        </MDBRow>
-      </MDBAnimation>
+        <!-- </MDBRow> -->
+      <!-- </MDBAnimation> -->
+      </MDBRow>
       <!-- 頁腳 -->
       <Footer1 :msg="infomsg" />
     </MDBRow>
@@ -1747,12 +1764,18 @@ tr.selected>td>span.typeJ {
 
 @keyframes slide-left-ja {
   from {
-    transform: translate3d(0, 0, 0);
+    /* transform-origin:left;
+    transform: scaleX(1); */
+    max-width: 100%;
   }
 
   to {
-    transform: translate3d(-66.16666667%, 0, 0);
+    /* transform: translate3d(-66.16666667%, 0, 0); */
+    /* transform-origin:left;
+    transform: scaleX(0); */
+    max-width: 0;
     /* visibility: hidden; */
+    display: none;
   }
 }
 
@@ -1762,11 +1785,13 @@ tr.selected>td>span.typeJ {
 
 @keyframes slide-right-ja {
   from {
-    transform: translate3d(-66.16666667%, 0, 0);
+    /* transform: translate3d(-66.16666667%, 0, 0); */
+    max-width: 0;
   }
 
   to {
-    transform: translate3d(0, 0, 0);
+    /* transform: translate3d(0, 0, 0); */
+    max-width: 100%;
     /* visibility: hidden; */
   }
 }
