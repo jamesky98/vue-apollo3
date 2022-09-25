@@ -602,7 +602,7 @@ testUcOnDone(result=>{
       <!-- 導覽列 -->
       <Navbar1 />
       <div style="height: calc(100% - 6.5em);">
-        <MDBRow style="margin-left:0;margin-right:0;" class="h-100 justify-content-between flex-md-nowrap overflow-visible">
+        <MDBRow style="margin-left:0;margin-right:0;" class="h-100 justify-content-between flex-md-nowrap overflow-auto">
           <!-- 左 -->
           <MDBCol md="4" class="h-100 ps-0 pe-1">
             <MDBRow style="margin-left:0;margin-right:0;height: calc(100% - 1em);" class="px-2 my-2 align-content-start overflow-auto border border-5 rounded-8 shadow-4">

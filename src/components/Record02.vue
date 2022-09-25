@@ -31,6 +31,7 @@ import {
 } from 'mdb-vue-ui-kit';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../graphql/Cases";
+import EmpGQL from "../graphql/Employee";
 import ItemGQL from "../graphql/Item";
 import PrjGQL from "../graphql/Prj";
 import SelectPs from "./SelectPs.vue";
@@ -416,44 +417,60 @@ getNowCaseF(result => {
 });
 refgetNowCaseF();
 
+function filterArrayforObj(arr,key){
+  let tempArray = [];
+  for(let i=0;i<arr.length;i++){
+    let hasElm = tempArray.findIndex((x)=>{
+      return (x[key]===arr[i][key])?true:false
+    });
+    if(hasElm === -1){
+      tempArray.push(arr[i]);
+    }
+  }
+  return tempArray;
+}
+
 // 查詢報告簽署人列表
-const {
-  result: allSignPson,
-  onResult: getAllSignPson,
-  refetch: refgetAllSignPson,
-} = useQuery(CaseGQL.GETOPERATOR, () => ({
-  calType: nowCaseCalType.value === "" ? null : nowCaseCalType.value,
-  roleType: "報告簽署人",
-}));
-getAllSignPson((result) => {
-  // 加入報告簽署人選單資料
-  if (!result.loading && result.data.getEmpByRole) {
-    // 資料區
-    nowCaseSignPersonMU.value = result.data.getEmpByRole.map((x) => {
-      return { text: x.name, value: parseInt(x.person_id) };
-    });
-    nowCaseSignPersonMU.value.unshift({ text: "", value: "" });
+const { onResult: getAllSignPson, refetch: refgetAllSignPson } = useQuery(
+  EmpGQL.GETEMPOWERBYROLE,
+  ()=>({
+    roleType:'報告簽署人',
+    calType: parseInt(nowCaseCalType.value),
+  })
+);
+getAllSignPson(result => {
+  // 加入評估人員選單資料
+  if (!result.loading && result.data.getEmpowerbyRole) {
+    let mylist = [];
+    mylist = result.data.getEmpowerbyRole.map(x => { return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
+    mylist = filterArrayforObj(mylist,"person_id");// 去除重複
+    nowCaseSignPersonMU.value = mylist.map(x => {
+      return { text: x.name, value: x.person_id }
+    }); nowCaseSignPersonMU.value.unshift({ text: "", value: "" });
   }
 });
+refgetAllSignPson();
+
 // 查詢數據檢核人列表
-const {
-  result: allChkPson,
-  onResult: getAllChkPson,
-  refetch: refgetAllChkPson,
-} = useQuery(CaseGQL.GETOPERATOR, () => ({
-  calType: nowCaseCalType.value === "" ? null : nowCaseCalType.value,
-  roleType: null,
-}));
-getAllChkPson((result) => {
-  // 加入數據檢核人選單資料
-  if (!result.loading && result.data.getEmpByRole) {
-    // 資料區
-    nowCaseChkPersonMU.value = result.data.getEmpByRole.map((x) => {
-      return { text: x.name, value: parseInt(x.person_id) };
-    });
-    nowCaseChkPersonMU.value.unshift({ text: "", value: "" });
+const { onResult: getAllChkPson, refetch: refgetAllChkPson } = useQuery(
+  EmpGQL.GETEMPOWERBYROLE,
+  ()=>({
+    roleType:'校正人員',
+    calType: parseInt(nowCaseCalType.value),
+  })
+);
+getAllChkPson(result => {
+  // 加入評估人員選單資料
+  if (!result.loading && result.data.getEmpowerbyRole) {
+    let mylist = [];
+    mylist = result.data.getEmpowerbyRole.map(x => { return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
+    mylist = filterArrayforObj(mylist,"person_id");// 去除重複
+    nowCaseChkPersonMU.value = mylist.map(x => {
+      return { text: x.name, value: x.person_id }
+    }); nowCaseChkPersonMU.value.unshift({ text: "", value: "" });
   }
 });
+refgetAllChkPson();
 
 
 // 案件詳細編輯資料==========end

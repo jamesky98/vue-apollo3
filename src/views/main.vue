@@ -40,7 +40,7 @@ getchecktoken(result => {
 refgetCheckToken();
 
 const NavItem = ref("main");
-provide("NavItem",NavItem);
+provide("NavItem", NavItem);
 const username = ref(localStorage.getItem("USER_NAME2"));
 const usercode = ref(localStorage.getItem("USER_NAME"));
 const dropdown1 = ref(false);
@@ -50,44 +50,26 @@ const dropdown1 = ref(false);
 <template>
   <MDBContainer fluid class="h-100">
     <MDBRow class="h-100 flex-column flex-nowrap">
+      <!-- 頁首 -->
       <header>
-        <!-- Navbar -->
-        <!-- <MDBNavbar expand="lg" light bg="light" container>
-          <MDBNavbarBrand>{{ username }}，您好</MDBNavbarBrand>
-          <MDBNavbarNav right class="ml-auto mb-lg-0">
-            <MDBNavbarItem class="dropdown">
-              <MDBDropdown v-model="dropdown1">
-                <MDBDropdownToggle tag="a" class="nav-link" @click="dropdown1 = !dropdown1">
-                  <MDBIcon icon="user" />
-                </MDBDropdownToggle>
-                <MDBDropdownMenu>
-                  <MDBDropdownItem tag="button">
-                    <RouterLink :to="{ path: '/useredit', query: { userName: usercode }}">
-                      使用者管理
-                    </RouterLink>
-                  </MDBDropdownItem>
-                  <MDBDropdownItem tag="button" @click="logOut()">登出</MDBDropdownItem>
-                </MDBDropdownMenu>
-              </MDBDropdown>
-            </MDBNavbarItem>
-          </MDBNavbarNav>
-        </MDBNavbar> -->
-        <Navbar1/>
+        <Navbar1 />
         <!-- Navbar -->
         <!-- Background image -->
         <div class="p-5 text-center bg-image" style="
         background-image: url('/ZZZZZ2598.png');
         height: 150px;
       ">
-          <div class="mask" style="background-color: rgba(0, 0, 0, 0.0.5);">
+          <div class="mask" style="background-color: rgba(255, 255, 255, 0.2);">
           </div>
         </div>
         <!-- Background image -->
       </header>
-      <MDBRow style="margin-left:0;margin-right:0;" class=" flex-grow-1">
+      <!-- 主體 -->
+      <MDBRow style="height: calc(100% - 16rem);margin-left:0;margin-right:0;" class="w-100 overflow-auto">
         <MDBCol col="12" class="py-2">
           <MDBRow class="h-100 border border-5 rounded-8 shadow-4">
-            <MDBCol col="3">
+            <!-- 左方導航列 -->
+            <MDBCol md="3">
               <MDBRow class="d-flex flex-column">
                 <MDBCol class="px-2 p-3 border w-100">
                   <RouterLink :to="{ name: 'docs'}">
@@ -133,7 +115,8 @@ const dropdown1 = ref(false);
                 </MDBCol>
               </MDBRow>
             </MDBCol>
-            <MDBCol col="9" class="border h-100">
+            <!-- 右方統計圖 -->
+            <MDBCol md="9" class="border h-100">
               <!-- 加入統計圖 -->加入統計圖
             </MDBCol>
           </MDBRow>
