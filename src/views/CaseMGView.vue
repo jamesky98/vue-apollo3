@@ -33,6 +33,7 @@ import gql from "graphql-tag";
 import CaseGQL from "../graphql/Cases";
 import CustGQL from "../graphql/Cust";
 import EmpGQL from "../graphql/Employee";
+import ItemGQL from "../graphql/Item";
 
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
@@ -1077,9 +1078,7 @@ function getCaseByAPI() {
   if (apiEndDate.value || apiEndDate.value !== '') {
     body.endDate = (apiEndDate.value).replaceAll("-", "/");
   }
-
-  console.log(body);
-
+  // console.log(body);
   fetch(url, {
     method: "POST",
     mode: 'cors',
@@ -1094,7 +1093,7 @@ function getCaseByAPI() {
     .then(json => {
       // 將回傳json轉成可用矩陣
       let myArray = [];
-      console.log(json)
+      // console.log(json)
       for (let i = 0; i < json.length; i++) {
         for (let j = 0; j < json[i].CalibrationDetails.length; j++) {
           for (let k = 0; k < json[i].CalibrationDetails[j].CalibrationItems.length; k++) {
@@ -1153,7 +1152,7 @@ function getCaseByAPI() {
           }
         }
       }
-      console.log(myArray);
+      // console.log(myArray);
       dataAPI.value = myArray;
       notProssing.value = true;
     })
@@ -1208,106 +1207,237 @@ function inputAPICase() {
   showAPIFrom.value = false;
 }
 
+const { mutate: dlFromAPI, onDone: dlFromAPIOnDone, onError: dlFromAPIError } = useMutation(CaseGQL.DOWNLOADFROMAPI);
+const { mutate: getCustByName, onDone: getCustByNameOnDone, onError: getCustByNameError } = useMutation(CustGQL.GETCUSTBYNAME);
+const { mutate: getItemBySN, onDone: getItemBySNOnDone, onError: getItemBySNError } = useMutation(ItemGQL.GETITEMBYSN);
+
 function saveAPIRecord(nowData) {
-  saveCaseS({
-    updateCaseId: nowData.caseid,
-    statusCode: parseInt(2),
-    // cusId: null,
-    title: nowData.EXTRA_4,
-    address: nowData.EXTRA_6,
-    purpose: nowData.META_DESCRIPTION,
-    // itemId: null,
-    // charge: null,
-    // payDate: null,
-    agreement: nowData.EXTRA_10 + "\n" + nowData.EXTRA_9,
-    // leaderId: null,
-    // operatorsId: null,
-  }).then(result => {
-    // 填入其他資料
+  // 查詢顧客
+  getCustByName({
+    name: nowData.OWNER_ID,
+  }).then(res => {
+    let result={};
+    if(res.data.getCustByName.length === 1) {
+      result.cust_id = res.data.getCustByName[0].id;
+    }
+    console.log("cust-result",result);
+    return result;
+  }).then(res1 => {
+    let result;
+    // 查詢儀器
     switch (nowData.Code) {
       case "F":
-        saveRecord01API({
-          updateRecord01Id: nowData.caseid,
-          camType: parseInt(nowData.COL01),
-          focal: parseFloat(nowData.COL05),
-          ppaX: parseFloat(nowData.COL06),
-          ppaY: parseFloat(nowData.COL07),
-          pxW: parseInt(nowData.COL09),
-          pxH: parseInt(nowData.COL08),
-          pxSizeX: parseFloat(nowData.COL10),
-          pxSizeY: parseFloat(nowData.COL11),
-          sizeX: parseFloat(((parseFloat(nowData.COL09) * parseFloat(nowData.COL10)) / 1000).toFixed(4)),
-          sizeY: parseFloat(((parseFloat(nowData.COL08) * parseFloat(nowData.COL11)) / 1000).toFixed(4)),
-          planYear: parseInt(nowData.COL14),
-          planMonth: parseInt(nowData.COL15),
-          gsd: parseFloat(nowData.COL16),
-          stripsNs: parseInt(nowData.COL17),
-          stripsEw: parseInt(nowData.COL18),
-          endLap: parseFloat(nowData.COL19),
-          sideLap: parseFloat(nowData.COL20),
-          ellHeight: parseFloat(nowData.COL21),
-          agl: parseFloat(nowData.COL22),
-          // camReport: null,
-          // planMap: null,
-        });
-        break;
       case "J":
-        saveRecord01API({
-          updateRecord01Id: nowData.caseid,
-          camType: 3,
-          focal: parseFloat(nowData.COL05),
-          ppaX: parseFloat(nowData.COL06),
-          ppaY: parseFloat(nowData.COL07),
-          pxW: parseInt(nowData.COL09),
-          pxH: parseInt(nowData.COL08),
-          pxSizeX: parseFloat(nowData.COL10),
-          pxSizeY: parseFloat(nowData.COL11),
-          sizeX: parseFloat(((parseFloat(nowData.COL09) * parseFloat(nowData.COL10)) / 1000).toFixed(4)),
-          sizeY: parseFloat(((parseFloat(nowData.COL08) * parseFloat(nowData.COL11)) / 1000).toFixed(4)),
-          distorCorrSoft: nowData.COL14.split(";")[0],
-          distorCorrVer: nowData.COL14.split(";")[1],
-          planYear: parseInt(nowData.COL15),
-          planMonth: parseInt(nowData.COL16),
-          gsd: parseFloat(nowData.COL17),
-          stripsNs: parseInt(nowData.COL18),
-          stripsEw: parseInt(nowData.COL19),
-          endLap: parseFloat(nowData.COL20),
-          sideLap: parseFloat(nowData.COL21),
-          ellHeight: parseFloat(nowData.COL22),
-          agl: parseFloat(nowData.COL23),
-          camReport: null,
-          planMap: null,
-        });
-        break;
+        result = getItemBySN({
+          sn: nowData.COL04,
+        }).then(res =>{
+          let preresult = res1;
+          if(res.data.getItemBySN.length === 1){
+            preresult.item_id = res.data.getItemBySN[0].id;
+          }
+          return preresult;
+        })
+        return result;
       case "I":
-        saveRecord02API({
-          updateRecord02Id: nowData.caseid,
-          type: parseInt(nowData.COL05),
-          // gnssId: null,
-          // imuId: null,
-          disPresision: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL06):null,
-          angResolution: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL07):null,
-          beam: parseFloat(nowData.COL08),
-          precH: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL12):parseFloat(nowData.COL06),
-          precV: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL13):parseFloat(nowData.COL07),
-          omega: parseFloat(nowData.COL17),
-          phi: parseFloat(nowData.COL18),
-          kappa: parseFloat(nowData.COL19),
-          precOri: parseFloat(nowData.COL20),
-          planYear: parseInt(nowData.COL21),
-          planMonth: parseInt(nowData.COL22),
-          stripsNo: parseInt(nowData.COL23),
-          ellHeight: parseFloat(nowData.COL24),
-          agl: parseFloat(nowData.COL25),
-          cloudDensity: parseFloat(nowData.COL26),
-          fov: parseFloat(nowData.COL27),
-          // lidarReport: null,
-          // posReport: null,
-          // planMap: null,
-        });
+        result = getItemBySN({
+          sn: nowData.COL04,
+        }).then(res =>{
+          console.log("res1",res1);
+          console.log("item_id",res);
+          let preresult = res1;
+          if(res.data.getItemBySN.length === 1){
+            preresult.item_id = res.data.getItemBySN[0].id;
+          }
+          return preresult;
+        }).then(res2 => {
+
+          result = getItemBySN({
+            sn: nowData.COL11,
+          }).then(res=>{
+            console.log("res2",res2);
+            let preresult = res2;
+            if(res.data.getItemBySN.length === 1){
+              preresult.gnss_id = res.data.getItemBySN[0].id;
+            }
+            console.log("gnss_id",preresult);
+            return preresult;
+          })
+          return result;
+        }).then(res3 => {
+          console.log("res3",res3);
+          result = getItemBySN({
+            sn: nowData.COL16,
+          }).then(res=>{
+            let preresult = res3;
+            if(res.data.getItemBySN.length === 1){
+              preresult.imu_id = res.data.getItemBySN[0].id;
+            }
+            return preresult;
+          })
+          return result;
+        })
         break;
     }
-  });
+    return result;
+  }).then(res => {
+    let result = saveCaseS({
+      updateCaseId: nowData.caseid,
+      statusCode: parseInt(2),
+      cusId: (res.cust_id)?parseInt(res.cust_id):null,
+      title: nowData.EXTRA_4,
+      address: nowData.EXTRA_6,
+      purpose: nowData.META_DESCRIPTION,
+      itemId: (res.item_id)?parseInt(res.item_id):null,
+      // charge: null,
+      // payDate: null,
+      agreement: nowData.EXTRA_10 + "\n" + nowData.EXTRA_9,
+      // leaderId: null,
+      // operatorsId: null,
+      
+    })
+    return res;
+  }).then(res => {
+    // console.log("saveCaseS_result",res);
+    let result;
+      // 下載附件
+      switch (nowData.Code) {
+        case "F":
+        case "J":
+          // 下載camReport
+          result = dlFromAPI({
+            fromUrl: nowData.COL24,
+            toSubPath: "06_Case/" + nowData.caseid,
+            toFileName: "01_CamReport" + path.extname(nowData.COL24),
+          }).then(res=>{ 
+            // 下載planMap
+            dlFromAPI({
+            fromUrl: nowData.COL25,
+            toSubPath: "06_Case/" + nowData.caseid,
+            toFileName: "02_PlanDwg" + path.extname(nowData.COL25),
+            })
+          }).then(res=>{ 
+            return ["01_CamReport" + path.extname(nowData.COL24) , "02_PlanDwg" + path.extname(nowData.COL25) ];
+          })
+          break;
+        case "I":
+          // 下載camReport
+          let preresult = res;
+          result = dlFromAPI({
+            fromUrl: nowData.COL28,
+            toSubPath: "06_Case/" + nowData.caseid,
+            toFileName: "01_LrReport" + path.extname(nowData.COL28),
+          }).then(res=>{  
+            // 下載planMap
+            dlFromAPI({
+            fromUrl: nowData.COL29,
+            toSubPath: "06_Case/" + nowData.caseid,
+            toFileName: "02_POSReport" + path.extname(nowData.COL29),
+            })
+          }).then(res=>{  
+            // 下載planMap
+            dlFromAPI({
+            fromUrl: nowData.COL30,
+            toSubPath: "06_Case/" + nowData.caseid,
+            toFileName: "03_LrPlan" + path.extname(nowData.COL30),
+            })
+          }).then(res=>{
+            return [
+              "01_LrReport" + path.extname(nowData.COL28) , 
+              "02_POSReport" + path.extname(nowData.COL29), 
+              "03_LrPlan" + path.extname(nowData.COL30),
+              (preresult.gnss_id)?preresult.gnss_id:null,
+              (preresult.imu_id)?preresult.imu_id:null];
+          })
+          break;
+      }
+      // console.log("download_result",result);
+      return result;
+    }).then(res => {
+      // 填入其他資料
+      switch (nowData.Code) {
+        case "F":
+          saveRecord01API({
+            updateRecord01Id: nowData.caseid,
+            camType: parseInt(nowData.COL01),
+            focal: parseFloat(nowData.COL05),
+            ppaX: parseFloat(nowData.COL06),
+            ppaY: parseFloat(nowData.COL07),
+            pxW: parseInt(nowData.COL09),
+            pxH: parseInt(nowData.COL08),
+            pxSizeX: parseFloat(nowData.COL10),
+            pxSizeY: parseFloat(nowData.COL11),
+            sizeX: parseFloat(((parseFloat(nowData.COL09) * parseFloat(nowData.COL10)) / 1000).toFixed(4)),
+            sizeY: parseFloat(((parseFloat(nowData.COL08) * parseFloat(nowData.COL11)) / 1000).toFixed(4)),
+            planYear: parseInt(nowData.COL14),
+            planMonth: parseInt(nowData.COL15),
+            gsd: parseFloat(nowData.COL16),
+            stripsNs: parseInt(nowData.COL17),
+            stripsEw: parseInt(nowData.COL18),
+            endLap: parseFloat(nowData.COL19),
+            sideLap: parseFloat(nowData.COL20),
+            ellHeight: parseFloat(nowData.COL21),
+            agl: parseFloat(nowData.COL22),
+            camReport: res[0],
+            planMap: res[1],
+          });
+          break;
+        case "J":
+          saveRecord01API({
+            updateRecord01Id: nowData.caseid,
+            camType: 3,
+            focal: parseFloat(nowData.COL05),
+            ppaX: parseFloat(nowData.COL06),
+            ppaY: parseFloat(nowData.COL07),
+            pxW: parseInt(nowData.COL09),
+            pxH: parseInt(nowData.COL08),
+            pxSizeX: parseFloat(nowData.COL10),
+            pxSizeY: parseFloat(nowData.COL11),
+            sizeX: parseFloat(((parseFloat(nowData.COL09) * parseFloat(nowData.COL10)) / 1000).toFixed(4)),
+            sizeY: parseFloat(((parseFloat(nowData.COL08) * parseFloat(nowData.COL11)) / 1000).toFixed(4)),
+            distorCorrSoft: nowData.COL14.split(";")[0],
+            distorCorrVer: nowData.COL14.split(";")[1],
+            planYear: parseInt(nowData.COL15),
+            planMonth: parseInt(nowData.COL16),
+            gsd: parseFloat(nowData.COL17),
+            stripsNs: parseInt(nowData.COL18),
+            stripsEw: parseInt(nowData.COL19),
+            endLap: parseFloat(nowData.COL20),
+            sideLap: parseFloat(nowData.COL21),
+            ellHeight: parseFloat(nowData.COL22),
+            agl: parseFloat(nowData.COL23),
+            camReport: res[0],
+            planMap: res[1],
+          });
+          break;
+        case "I":
+          saveRecord02API({
+            updateRecord02Id: nowData.caseid,
+            type: parseInt(nowData.COL05),
+            gnssId: (res[3])?parseInt(res[3]):null,
+            imuId: (res[4])?parseInt(res[4]):null,
+            disPresision: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL06):null,
+            angResolution: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL07):null,
+            beam: parseFloat(nowData.COL08),
+            precH: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL12):parseFloat(nowData.COL06),
+            precV: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL13):parseFloat(nowData.COL07),
+            omega: parseFloat(nowData.COL17),
+            phi: parseFloat(nowData.COL18),
+            kappa: parseFloat(nowData.COL19),
+            precOri: parseFloat(nowData.COL20),
+            planYear: parseInt(nowData.COL21),
+            planMonth: parseInt(nowData.COL22),
+            stripsNo: parseInt(nowData.COL23),
+            ellHeight: parseFloat(nowData.COL24),
+            agl: parseFloat(nowData.COL25),
+            cloudDensity: parseFloat(nowData.COL26),
+            fov: parseFloat(nowData.COL27),
+            lidarReport: res[0],
+            posReport: res[1],
+            planMap: res[2],
+          });
+          break;
+      }
+    }); 
 }
 
 // 儲存Record01API

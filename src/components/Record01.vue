@@ -1812,7 +1812,7 @@ defineExpose({
   <div class="h-100 overflow-auto">
     <input type="file" id="AllUpload" @change="uploadChenge($event)" style="display: none" />
     <!-- 選擇校正件 -->
-    <MDBModal style="left: 66%" @shown="shownItemModal" v-model="showItemFrom" staticBackdrop scrollable>
+    <MDBModal @shown="shownItemModal" v-model="showItemFrom" staticBackdrop scrollable>
       <MDBModalHeader>
         <MDBModalTitle>請選擇校正件</MDBModalTitle>
       </MDBModalHeader>

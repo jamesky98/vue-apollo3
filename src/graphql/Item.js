@@ -68,9 +68,18 @@ const SAVEITEM = gql`
   }
 `;
 
+const GETITEMBYSN = gql`
+mutation GetItemBySN($sn: String) {
+  getItemBySN(serial_number: $sn) {
+    id
+  }
+}
+`;
+
 export default {
   GETALLITEM,
   GETITEMBYID,
   GETALLITEMTYPE,
   SAVEITEM,
+  GETITEMBYSN,
 };

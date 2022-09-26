@@ -943,6 +943,12 @@ const GETUCRESULTFORMJSON = gql`
   }
 `;
 
+const DOWNLOADFROMAPI = gql`
+  mutation DownLoadFromAPI($fromUrl: String, $toSubPath: String, $toFileName: String) {
+    downLoadFromAPI(fromURL: $fromUrl, toSubPath: $toSubPath, toFileName: $toFileName)
+  }
+`;
+
 export default {
   GETALLCASE,
   GETCASESTATUS,
@@ -965,4 +971,5 @@ export default {
   GETUCMODULE,
   SAVEUCMODULE,
   GETUCRESULTFORMJSON,
+  DOWNLOADFROMAPI,
 };

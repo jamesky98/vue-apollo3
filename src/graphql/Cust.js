@@ -54,8 +54,17 @@ const UPDATECUST = gql`
   }
 `;
 
+const GETCUSTBYNAME = gql`
+mutation GetCustByName($name: String) {
+  getCustByName(name: $name) {
+    id
+  }
+}
+`;
+
 export default {
   GETALLCUST,
   GETCUSTBYID,
   UPDATECUST,
+  GETCUSTBYNAME,
 };
