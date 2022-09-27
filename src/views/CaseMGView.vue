@@ -1701,7 +1701,7 @@ const {
                       </MDBBtn>
                     </div>
                   </MDBCol>
-                  <MDBCol col="12" style="height: calc(100% - 4.5rem);" class="overflow-auto">
+                  <MDBCol col="12" style="height: calc(100% - 5rem);" class="overflow-auto">
                     <MDBRow>
                       <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mt-2  col-6" label="校正人員"
                         v-model:options="nowCaseOperatorMU" v-model:selected="nowCaseOperator" ref="nowCaseOperatorDOM" />

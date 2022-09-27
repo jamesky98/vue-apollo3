@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 const GETALLCUST = gql`
-  query GetAllCust($name: String, $orgName: String, $orgTaxid: String) {
-    getAllCust(name: $name, org_name: $orgName, org_taxid: $orgTaxid) {
+  query GetAllCust($name: String,$orgId:Int ,$orgName: String, $orgTaxid: String) {
+    getAllCust(name: $name,org_id: $orgId ,org_name: $orgName, org_taxid: $orgTaxid) {
       id
       name
       address
@@ -62,9 +62,20 @@ mutation GetCustByName($name: String) {
 }
 `;
 
+const GETALLORG = gql`
+  query GetAllOrg {
+    getAllOrg {
+      id
+      name
+      tax_id
+    }
+  }
+`;
+
 export default {
   GETALLCUST,
   GETCUSTBYID,
   UPDATECUST,
   GETCUSTBYNAME,
+  GETALLORG,
 };

@@ -9,6 +9,9 @@ import {
   MDBInput,
   MDBBtn,
 } from 'mdb-vue-ui-kit';
+import CaseGQL from "../graphql/Cases";
+import CustGQL from "../graphql/Cust";
+import ItemGQL from "../graphql/Item";
 
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
@@ -51,6 +54,10 @@ getNowUser(result=>{
   }
 });
 refgetNowUser();
+
+const NavItem = ref("cust");
+provide("NavItem",NavItem);
+
 const rGroup =computed(()=>{
   let result=[];
   // rGroup[0]最高權限
@@ -82,18 +89,37 @@ const rGroup =computed(()=>{
   }
   return result;
 });
-
 // 取得權限==========End
 
+// 參數==========Start
+const joinCust = ref(true);
+const joinItem = ref(true);
 
-// 公司表格
+const nowCustOrgID = ref("");
+const nowCustOrgName = ref("");
+const nowCustOrgTaxId = ref("");
+
+// 參數==========End
+
+
+
+
+// 公司表格==========Start
+const { onResult: getAllOrg, refetch: refgetAllOrg } = useQuery(CustGQL.GETALLORG);
+getAllOrg(result=>{
+  if (!result.loading && result.data.getAllOrg) {
+    data_org.value = result.data.getAllOrg;
+  }
+});
+refgetAllOrg();
+
 let dt_org;
 const table_org = ref(); 
 const data_org = ref([]);
 const columns_org = [
-  {title:"序號", data:"user_id",width:"2rem"},
-  {title:"機關名稱", data:"user_name"},
-  {title:"統一編號", data:"user_name2"},
+  {title:"序號", data:"id",width:"2rem"},
+  {title:"機關名稱", data:"name"},
+  {title:"統一編號", data:"tax_id"},
 ];
 const tboption_org = {
   dom: 'fti',
@@ -106,9 +132,62 @@ const tboption_org = {
   paging: false,
   responsive: true,
 };
+// 公司表格==========End
 
-const NavItem = ref("cust");
-provide("NavItem",NavItem);
+// 聯絡人表格==========Start
+const varAllCust = computed(()=>{
+  console.log()
+  if(joinCust.value){
+    if(nowCustOrgID.value && nowCustOrgID.value!==""){
+      return {orgId: parseInt(nowCustOrgID.value)};
+    }
+  }
+  return null;
+});
+const { onResult: getAllCust, refetch: refgetAllCust } = useQuery(
+  CustGQL.GETALLCUST,()=>(varAllCust.value)
+);
+getAllCust(result=>{
+  if (!result.loading && result.data.getAllCust) {
+    data_cust.value = result.data.getAllCust;
+  }
+});
+refgetAllCust();
+
+let dt_cust;
+const table_cust = ref(); 
+const data_cust = ref([]);
+const columns_cust = [
+  {title:"序號", data:"id",width:"2rem"},
+  {title:"姓名", data:"name"},
+];
+const tboption_cust = {
+  dom: 'fti',
+  select: {style: 'single',info: false},
+  order: [[0, 'desc']],
+  scrollY: 'calc(50vh - 15rem)',
+  scrollX: true,
+  lengthChange: false,
+  searching: true,
+  paging: false,
+  responsive: true,
+};
+// 聯絡人表格==========End
+
+
+// 加載表格選取事件
+onMounted(function () {
+  dt_org = table_org.value.dt();
+  dt_org.on('select', function (e, dt, type, indexes) {
+    nowCustOrgID.value = dt.rows(indexes).data()[0].id;
+    nowCustOrgName.value = dt.rows(indexes).data()[0].name;
+    nowCustOrgTaxId.value = dt.rows(indexes).data()[0].tax_id;
+    refgetAllCust();
+  });
+});
+
+
+
 
 </script>
 <template>
@@ -139,11 +218,11 @@ provide("NavItem",NavItem);
                         <MDBBtn size="sm" color="primary" @click="">刪除</MDBBtn>
                       </MDBCol>
                       <MDBCol lg="8" class="mt-2">
-                        <MDBInput size="sm" type="text" label="機關名稱"/>
+                        <MDBInput size="sm" type="text" label="機關名稱" v-model="nowCustOrgName"/>
                       </MDBCol>
                       <div></div>
                       <MDBCol lg="8" class="mt-2">
-                        <MDBInput size="sm" type="text" label="統一編號"/>
+                        <MDBInput size="sm" type="text" label="統一編號" v-model="nowCustOrgTaxId"/>
                       </MDBCol>
                     </MDBCol>
                   </MDBRow>
@@ -155,8 +234,17 @@ provide("NavItem",NavItem);
             <MDBCol col="12" style="height: 40%;">
               <MDBRow class="h-100">
                 <MDBCol col="12" class="border border-5 rounded-8 shadow-4 mb-2" style="height: calc(100% - 0.5rem)">
-                
-                
+                  <MDBRow class="h-100">
+                    <!-- 左下左 -->
+                    <MDBCol col="4">
+                      <DataTable :data="data_cust" :columns="columns_cust" :options="tboption_cust" ref="table_cust"
+                        style="font-size: smaller;" class="display w-100 compact" />
+                    </MDBCol>
+                    <!-- 左下右 -->
+                    <MDBCol col="8">
+
+                    </MDBCol>
+                  </MDBRow>
                 </MDBCol>
               </MDBRow>
             </MDBCol>
@@ -183,3 +271,9 @@ provide("NavItem",NavItem);
     </MDBRow>
   </MDBContainer>
 </template>
+<style>
+.datatable tbody tr:last-child {
+  border-bottom: rgba(0, 0, 0, 0);
+  height: auto;
+}
+</style>
