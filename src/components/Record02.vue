@@ -659,7 +659,7 @@ saveItemOnDone(() => {
 });
 // 更多編輯=>引導至校正件管理
 function gotoItemMG() {
-  router.push('/items');
+  router.push('/cust');
 }
 
 // 清除校正件篩選條件

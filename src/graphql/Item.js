@@ -1,18 +1,8 @@
 import gql from "graphql-tag";
 
 const GETALLITEM = gql`
-  query GetAllItem(
-    $chop: String
-    $model: String
-    $serialNumber: String
-    $type: Int
-  ) {
-    getAllItem(
-      chop: $chop
-      model: $model
-      serial_number: $serialNumber
-      type: $type
-    ) {
+  query GetAllItem($chop: String, $model: String, $serialNumber: String, $type: Int, $orgId: Int) {
+    getAllItem(chop: $chop, model: $model, serial_number: $serialNumber, type: $type, org_id: $orgId) {
       id
       chop
       model
@@ -20,6 +10,25 @@ const GETALLITEM = gql`
       type
       item_type {
         type
+      }
+      case_base {
+        id
+        employee_case_base_operators_idToemployee {
+          name
+        }
+        cus {
+          name
+          org_id
+          cus_org {
+            name
+          }
+        }
+        case_record_01 {
+          complete_date
+        }
+        case_record_02 {
+          complete_date
+        }
       }
     }
   }

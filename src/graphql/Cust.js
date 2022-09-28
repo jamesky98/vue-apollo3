@@ -72,10 +72,37 @@ const GETALLORG = gql`
   }
 `;
 
+const UPDATEORG = gql`
+mutation UpdateOrg($updateOrgId: Int!, $name: String, $taxId: String) {
+  updateOrg(id: $updateOrgId, name: $name, tax_id: $taxId) {
+    id
+  }
+}
+`;
+
+const DELORG = gql`
+  mutation DelOrg($delOrgId: Int!) {
+    delOrg(id: $delOrgId) {
+      id
+    }
+  }
+`;
+
+const DELCUST = gql`
+  mutation DelCust($delCustId: Int!) {
+    delCust(id: $delCustId) {
+      id
+    }
+  }
+`;
+
 export default {
   GETALLCUST,
   GETCUSTBYID,
   UPDATECUST,
   GETCUSTBYNAME,
   GETALLORG,
+  UPDATEORG,
+  DELORG,
+  DELCUST,
 };
