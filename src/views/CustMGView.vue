@@ -433,6 +433,40 @@ const tboption_Item = {
   }
 };
 
+// 查詢儀器類型
+const { onResult: getAllItemType, refetch: refgetAllItemType} = useQuery(ItemGQL.GETALLITEMTYPE);
+getAllItemType((result) => {
+  // 加入儀器類型選單資料
+  if (!result.loading && result.data.getAllItemType) {
+    // 資料區
+    nowItemTypeMU.value = result.data.getAllItemType.map((x) => {
+      return { text: x.type, value: parseInt(x.id) };
+    });nowItemTypeMU.value.unshift({ text: "", value: "" });
+    // 篩選區
+    selItemTypeMU.value = result.data.getAllItemType.map((x) => {
+      return { text: x.type, value: parseInt(x.id) };
+    });selItemTypeMU.value.unshift({ text: "-未選擇-", value: -1 });
+    selItemTypeDOM.value.setValue(-1);
+    // selItemTypeDOM.value.toggle();
+  }
+});
+refgetAllItemType();
+
+function selItemTypeChange(e){
+  if(joinItem.value){
+    // 有連結
+    refgetAllItem({
+      orgId: parseInt(nowCustOrgID.value),
+      type: (parseInt(selItemType.value)===-1)?null:parseInt(selItemType.value),
+    })
+  }else{
+    // 無連結
+    refgetAllItem({
+      orgId: null,
+      type: (parseInt(selItemType.value)===-1)?null:parseInt(selItemType.value),
+    })
+  }
+}
 
 function newItem(){
 
@@ -446,8 +480,35 @@ function delItem(){
 
 // 校正件表格==========End
 
+// 案件連結表格==========Start
 
-
+let dt_Case;
+const table_Case = ref(); 
+const data_Case = ref([]);
+const columns_Case = [
+  {title:"案件編號", data:"id",width:"2rem"},
+  {title:"機關名稱", data:"item_type.type"},
+  {title:"聯絡人", data:"item_type.type"},
+  {title:"校正人員", data:"item_type.type"},
+  {title:"校正日期", data:"item_type.type"},
+  {title:"費用", data:"item_type.type"},
+  {title:"繳費日期", data:"item_type.type"},
+];
+const tboption_Case = {
+  dom: 'fti',
+  select: {style: 'single',info: false},
+  order: [[0, 'desc']],
+  scrollY: 'calc(40vh - 12rem)',
+  scrollX: true,
+  lengthChange: false,
+  searching: true,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  }
+};
+// 案件連結表格==========End
 
 
 
@@ -617,7 +678,7 @@ onMounted(function () {
                               篩選設定
                             </MDBCol>
                             <MDBSelect size="sm" class="my-2 col-lg-8" label="儀器類型" v-model:options="selItemTypeMU"
-                              v-model:selected="selItemType" ref="selItemTypeDOM" />
+                              v-model:selected="selItemType" ref="selItemTypeDOM" @change="selItemTypeChange"/>
 
                             <MDBCol col="12" class="border-top">
                               資料編輯
@@ -644,7 +705,6 @@ onMounted(function () {
                                 <MDBCol col="12" class="mt-2">
                                   <MDBInput size="sm" type="text" label="序號" v-model="nowItemSN" />
                                 </MDBCol>
-                                
                               </MDBRow>
                             </MDBCol>
                           </MDBRow>
@@ -659,9 +719,15 @@ onMounted(function () {
             <MDBCol col="12" style="height: 40%;">
               <MDBRow class="h-100">
                 <MDBCol col="12" class="border border-5 rounded-8 shadow-4 mb-2" style="height: calc(100% - 0.5rem)">
-                  <MDBRow class="h-100">
-                    <MDBCol col="12">校正紀錄</MDBCol>
-
+                  <MDBRow class="h-100 d-flex align-content-start">
+                    <MDBCol col="12">
+                      校正紀錄
+                    </MDBCol>
+                    <MDBCol col="12">
+                      <DataTable :data="data_Case" :columns="columns_Case" :options="tboption_Case" ref="table_Case"
+                        style="font-size: smaller;" class="display w-100 compact" />
+                    </MDBCol>
+                    
                   </MDBRow>
                 </MDBCol>
               </MDBRow>
