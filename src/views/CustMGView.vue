@@ -131,10 +131,6 @@ const selItemType = ref("");
 const selItemTypeMU = ref([]);
 const selItemTypeDOM = ref();
 
-const selItemChop = ref("");
-const selItemModel = ref("");
-const selItemSN = ref("");
-
 // 參數==========End
 
 function setJoinCust(){
@@ -218,7 +214,7 @@ const { mutate: saveOrg, onDone: saveOrgOnDone, onError: saveOrgError } = useMut
   CustGQL.UPDATEORG,
   () => ({
     variables: {
-      updateOrgId: parseInt(nowCustOrgID.value),
+      updateOrgId: (parseInt(nowCustOrgID.value))?parseInt(nowCustOrgID.value):-1,
       name: nowCustOrgName.value,
       taxId: nowCustOrgTaxId.value,
     }
@@ -235,7 +231,7 @@ const { mutate: delOrg, onDone: delOrgOnDone, onError: delOrgError } = useMutati
   CustGQL.DELORG,
   () => ({
     variables: {
-      updateOrgId: parseInt(nowCustOrgID.value),
+      delOrgId: parseInt(nowCustOrgID.value),
     }
   })
 );
@@ -292,6 +288,7 @@ const tboption_cust = {
 
 // 新增顧客
 function newCust(){
+  nowCustId.value = "";
   nowCustName.value = "";
   nowCustTel.value = "";
   nowCustFax.value = "";
@@ -310,7 +307,7 @@ const { mutate: saveCust, onDone: saveCustOnDone, onError: saveCustError } = use
   CustGQL.UPDATECUST,
   () => ({
     variables: {
-      updateCustId: parseInt(nowCustId.value),
+      updateCustId: (parseInt(nowCustId.value))?parseInt(nowCustId.value):-1,
       name: nowCustName.value,
       address: nowCustAddress.value,
       tel: nowCustTel.value,
@@ -408,9 +405,9 @@ const columns_Item = [
       let maxCalDateStr = (dateObj.getFullYear()-1911) + "-" + ((monthStr.toString().length<2)?"0"+monthStr:monthStr) + "-" + ((dateStr.toString().length<2)?"0"+dateStr:dateStr);
       let toDay = new Date();
       if((toDay - dateObj)>(3 * 365.4 * 24 * 60 * 60 * 1000)){
-        return "<span style='color: red;'>"+ maxCalDateStr + "</span>";
+        return "<span class='status89'>"+ maxCalDateStr + "</span>";
       }else{
-        return "<span style='color: green;'>"+ maxCalDateStr + "</span>";
+        return "<span class='status7'>"+ maxCalDateStr + "</span>";
       }
     }
   }},
@@ -467,37 +464,167 @@ function selItemTypeChange(e){
     })
   }
 }
-
+// 新增校正件
 function newItem(){
+  nowItemId.value = "";
+  nowItemType.value = ""
+  nowItemTypeDOM.value.setValue("");
 
+  nowItemChop.value = "";
+  nowItemModel.value = "";
+  nowItemSN.value = "";
 }
-function saveItem(){
+// 儲存校正件
+const { mutate: saveItem, onDone: saveItemOnDone, onError: saveItemError } = useMutation(
+  ItemGQL.SAVEITEM, () => ({
+  variables: {
+    updateItemId: (parseInt(nowItemId.value))?parseInt(nowItemId.value):-1,
+    chop: nowItemChop.value,
+    model: nowItemModel.value,
+    serialNumber: nowItemSN.value,
+    type: parseInt(nowItemType.value),
+  },
+}));
+saveItemOnDone(result=>{
+  infomsg.value = "校正件 " + result.data.updateItem.id + " 儲存完畢";
+  if(joinItem.value){
+    if(nowCustOrgID.value && nowCustOrgID.value!==""){
+      // console.log("nowCustOrgID",nowCustOrgID.value);
+      refgetAllItem({
+        orgId: parseInt(nowCustOrgID.value),
+        type: (parseInt(selItemType.value)===-1)?null:parseInt(selItemType.value),
+      })
+    }else{
+      refgetAllItem({
+        orgId: null,
+        type: (parseInt(selItemType.value)===-1)?null:parseInt(selItemType.value),
+      })
+    }
+  }else{
+    refgetAllItem({
+      orgId: null,
+      type: (parseInt(selItemType.value)===-1)?null:parseInt(selItemType.value),
+    })
+  }
+});
 
-}
-function delItem(){
-
-}
+const { mutate: delItem, onDone: delItemOnDone, onError: delItemError } = useMutation(
+  ItemGQL.DELITEM, () => ({
+  variables: {
+    delItemId: parseInt(nowItemId.value),
+  }})
+);
+delItemOnDone(result=>{
+  infomsg.value = "校正件 " + result.data.delItem.id + " 刪除完成";
+  if(joinItem.value){
+    if(nowCustOrgID.value && nowCustOrgID.value!==""){
+      // console.log("nowCustOrgID",nowCustOrgID.value);
+      refgetAllItem({
+        orgId: parseInt(nowCustOrgID.value),
+        type: (parseInt(selItemType.value)===-1)?null:parseInt(selItemType.value),
+      })
+    }else{
+      refgetAllItem({
+        orgId: null,
+        type: (parseInt(selItemType.value)===-1)?null:parseInt(selItemType.value),
+      })
+    }
+  }else{
+    refgetAllItem({
+      orgId: null,
+      type: (parseInt(selItemType.value)===-1)?null:parseInt(selItemType.value),
+    })
+  }
+});
 
 // 校正件表格==========End
 
 // 案件連結表格==========Start
+// 查詢案件資料
+const { onResult: getItemCase, refetch: refgetItemCase } = useQuery(
+  CaseGQL.GETALLCASE,
+  ()=>({itemId: -1})
+);
+getItemCase(result=>{
+  if(!result.loading){
+    data_Case.value = result.data.getAllCase;
+  }
+});
 
 let dt_Case;
 const table_Case = ref(); 
 const data_Case = ref([]);
 const columns_Case = [
+{
+    data: "status_code", title: "狀態", defaultContent: "-", className: "colnowarp", render: (data, type, row) => {
+      let markicon = "";
+      let classn = "";
+      switch (data) {
+        case 9: //退件
+          markicon = '<i class="fas fa-reply-all"></i>';
+          classn = "status89";
+          break;
+        case 8: //補件
+          markicon = '<i class="fas fa-history"></i>';
+          classn = "status89";
+          break;
+        case 7: //結案
+          markicon = '<i class="fas fa-check"></i>';
+          classn = "status7";
+          break;
+        case 6: //待繳費
+          markicon = '<i class="fas fa-donate"></i>';
+          classn = "status6";
+          break;
+        case 5: //陳核
+          markicon = '<i class="fas fa-paste"></i>';
+          classn = "status45";
+          break;
+        case 4: //校正中
+          markicon = '<i class="fas fa-play"></i>';
+          classn = "status45";
+          break;
+        case 3: //待送件
+          markicon = '<i class="fas fa-hourglass-start"></i>';
+          classn = "status23";
+          break;
+        case 2: //審核中
+          markicon = '<i class="fas fa-glasses"></i>';
+          classn = "status23";
+          break;
+        case 1: //(空)
+          markicon = '<i class="fas fa-exclamation-circle"></i>';
+          classn = "status1";
+      }
+      return "<span class='" + classn + "'>" + markicon + row.case_status.status + "</span>"
+    }
+  },
   {title:"案件編號", data:"id",width:"2rem"},
-  {title:"機關名稱", data:"item_type.type"},
-  {title:"聯絡人", data:"item_type.type"},
-  {title:"校正人員", data:"item_type.type"},
-  {title:"校正日期", data:"item_type.type"},
-  {title:"費用", data:"item_type.type"},
-  {title:"繳費日期", data:"item_type.type"},
+  {title:"機關名稱", data:"cus.cus_org.name", defaultContent: "-"},
+  {title:"聯絡人", data:"cus.name", defaultContent: "-"},
+  {title:"校正人員", data:"employee_case_base_operators_idToemployee.name", defaultContent: "-"},
+  {title:"校正日期", data:"case_record_01.complete_date", className: "dt-center", defaultContent: "-", render: (data, type, row) => {
+      if (data) {
+        return toTWDate(data);
+      } else if (row.case_record_02) {
+        return toTWDate(row.case_record_02.complete_date);
+      }
+    }
+  },
+  {title:"費用", data:"charge", className: "dt-right", defaultContent: "-",
+    render: function (data, type) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(data)
+    }
+  },
+  {title:"繳費日期", data:"pay_date", className: "dt-center", defaultContent: "-", render: (data) => {
+      return toTWDate(data);
+    }
+  },
 ];
 const tboption_Case = {
   dom: 'fti',
   select: {style: 'single',info: false},
-  order: [[0, 'desc']],
+  order: [[1, 'desc']],
   scrollY: 'calc(40vh - 12rem)',
   scrollX: true,
   lengthChange: false,
@@ -509,11 +636,6 @@ const tboption_Case = {
   }
 };
 // 案件連結表格==========End
-
-
-
-
-
 
 // 加載表格選取事件
 onMounted(function () {
@@ -546,6 +668,8 @@ onMounted(function () {
       refgetAllItem({orgId: null});
     }
     // newItem();
+
+    refgetItemCase({itemId: -1});
   });
 
   dt_cust = table_cust.value.dt();
@@ -558,7 +682,10 @@ onMounted(function () {
   dt_Item.on('select', function (e, dt, type, indexes) {
     nowItemId.value = dt.rows(indexes).data()[0].id;
     refgetItemById({getItemByIdId: parseInt(nowItemId.value)});
+    refgetItemCase({itemId: parseInt(nowItemId.value)});
   });
+
+  
 });
 
 
@@ -595,7 +722,7 @@ onMounted(function () {
                         <MDBBtn size="sm" color="primary" @click="saveOrg">儲存</MDBBtn>
                         <MDBBtn size="sm" color="primary" @click="delOrg">刪除</MDBBtn>
                         <MDBBtn size="sm" color="primary" @click="setJoinCust"><span :class="joinCustTextColor"><i :class="joinCustIcon"></i>聯絡人</span></MDBBtn>
-                        <MDBBtn size="sm" color="primary" @click="setJoinItem"><span :class="joinItemTextColor"><i :class="joinItemIcon"></i>校正件</span></MDBBtn>
+                        
                       </MDBCol>
                       <MDBCol lg="8" class="mt-3">
                         <MDBInput size="sm" type="text" label="機關名稱" v-model="nowCustOrgName"/>
@@ -664,7 +791,10 @@ onMounted(function () {
                       <MDBRow class="h-100 overflow-auto">
                         <!-- 左表格 -->
                         <MDBCol lg="8" class="pt-2">
-                          <MDBCol col="12">校正件管理</MDBCol>
+                          <MDBCol col="12">
+                            校正件管理
+                            <MDBBtn size="sm" color="primary" @click="setJoinItem"><span :class="joinItemTextColor"><i :class="joinItemIcon"></i>連結顧客</span></MDBBtn>
+                          </MDBCol>
                           <MDBCol col="12">
                             <DataTable :data="data_Item" :columns="columns_Item" :options="tboption_Item" ref="table_Item"
                               style="font-size: smaller;" class="display w-100 compact" />
@@ -748,5 +878,81 @@ onMounted(function () {
 
 #custTable div.dataTables_wrapper div.dataTables_filter input {
   width: 6rem;
+}
+
+tr.selected>td>span {
+  color: white;
+}
+
+tr>td>span.status89 {
+  color: #DE3163;
+}
+
+tr.selected>td>span.status89 {
+  color: white;
+}
+
+tr>td>span.status7 {
+  color: green;
+}
+
+tr.selected>td>span.status7 {
+  color: white;
+}
+
+tr>td>span.status6 {
+  color: #F39C12;
+}
+
+tr.selected>td>span.status6 {
+  color: white;
+}
+
+tr>td>span.status45 {
+  color: #6495ED;
+}
+
+tr.selected>td>span.status45 {
+  color: white;
+}
+
+tr>td>span.status23 {
+  color: #FF7F50;
+}
+
+tr.selected>td>span.status23 {
+  color: white;
+}
+
+tr>td>span.status1 {
+  color: Gray;
+}
+
+tr.selected>td>span.status1 {
+  color: white;
+}
+
+tr>td>span.typeF {
+  color: #6495ED;
+}
+
+tr.selected>td>span.typeF {
+  color: white;
+}
+
+tr>td>span.typeI {
+  color: #229954;
+}
+
+tr.selected>td>span.typeI {
+  color: white;
+}
+
+tr>td>span.typeJ {
+  color: #FF7F50;
+}
+
+tr.selected>td>span.typeJ {
+  color: white;
 }
 </style>

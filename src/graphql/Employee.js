@@ -62,6 +62,7 @@ const UPDATEEMP = gql`
       person_id
     }
   }
+
 `;
 
 const GETTRAIN = gql`
@@ -244,6 +245,21 @@ const GETEMPOWERBYROLE = gql`
   }
 `;
 
+const GETALLTRAIN = gql`
+query GetAllTrain {
+  getAllTrain {
+    train_id
+    person_id
+    train_name
+    end_date
+    train_institution
+    Certificate_no
+    upload
+    comment
+  }
+}
+`;
+
 export default {
   GETALLEMP,
   GETEMPBYID,
@@ -261,4 +277,5 @@ export default {
   DELEMPOWER,
   GETEMPROLE,
   GETEMPOWERBYROLE,
+  GETALLTRAIN,
 };

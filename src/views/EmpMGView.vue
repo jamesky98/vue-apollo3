@@ -144,9 +144,16 @@ const nowEmpComment = ref("");
 const nowTrainID = ref("");
 const nowTrainPersonID = ref("");
 const nowTrainName = ref("");
+const nowTrainNameMU = ref([]);
+const nowTrainNameDOM = ref();
+
 const nowTrainEndDate = ref("");
 const nowTrainEndDateDOM = ref();
+
 const nowTrainInstitution = ref("");
+const nowTrainInstitutionMU = ref([]);
+const nowTrainInstitutionDOM = ref();
+
 const nowTrainCertiNo = ref("");
 const nowTrainUpload = ref("");
 const nowTrainUploadDL = computed(() => {
@@ -296,8 +303,8 @@ onMounted(function () {
     refgetEmpbyID();
     refgetTrain();
     refgetEmpower();
-    refgetOptCase();
-    refgetSignCase();
+    refgetOptCase({ operatorsId: parseInt(nowEmpID.value) });
+    refgetSignCase({ signPersonId: parseInt(nowEmpID.value) });
     newTrainBtn();
     newEmpowerBtn();
   });
@@ -353,7 +360,7 @@ const {
     jobTitle: nowEmpJobTitle.value,
     appointmentDate: (nowEmpAppDate.value==="")?null:nowEmpAppDate.value.trim() + "T00:00:00.000Z",
     resignationDate: (nowEmpResDate.value==="")?null:nowEmpResDate.value.trim() + "T00:00:00.000Z",
-    resign_upload: nowEmpResUpload.value,
+    resignUpload: nowEmpResUpload.value,
     address: nowEmpAddress.value,
     tel: nowEmpTel.value,
     mobile: nowEmpMobile.value,
@@ -409,6 +416,8 @@ getTrainByIdOnDone(result=>{
   let getData = result.data.getTrainByID;
   nowTrainPersonID.value = getData.person_id
   nowTrainName.value = getData.train_name;
+  nowTrainNameDOM.value.setValue(nowTrainName.value);
+
   nowTrainEndDate.value = (getData.end_date)?getData.end_date.split("T")[0]:"";
   if(getData.end_date){
     nowTrainEndDate.value = getData.end_date.split("T")[0];
@@ -417,6 +426,8 @@ getTrainByIdOnDone(result=>{
     nowTrainEndDateDOM.value.inputValue="";
   }
   nowTrainInstitution.value = getData.train_institution
+  nowTrainInstitutionDOM.value.setValue(nowTrainInstitution.value);
+
   nowTrainCertiNo.value = getData.Certificate_no
   nowTrainUpload.value = getData.upload
   nowTrainComment.value = getData.comment
@@ -431,8 +442,8 @@ const columns_train = [
   { title: "結訓日期", data: "end_date", defaultContent: "-", render: (data) => {
     return toTWDate(data);} 
   },
-  { title: "證書編號", data: "train_institution", defaultContent: "-"},
-  { title: "開課單位", data: "Certificate_no", defaultContent: "-"},
+  { title: "開課單位", data: "train_institution", defaultContent: "-"},
+  { title: "證書編號", data: "Certificate_no", defaultContent: "-"},
   { title: "備註", data: "comment", defaultContent: "-" },
 ];
 const tboption_train = {
@@ -457,9 +468,13 @@ function newTrainBtn(){
   nowTrainID.value = "";
   nowTrainPersonID.value = nowEmpID.value;
   nowTrainName.value = "";
+  nowTrainNameDOM.value.setValue("");
+
   nowTrainEndDate.value = "";
   nowTrainEndDateDOM.value.inputValue = "";
   nowTrainInstitution.value = "";
+  nowTrainInstitutionDOM.value.setValue("");
+
   nowTrainCertiNo.value = "";
   nowTrainUpload.value = "";
   nowTrainComment.value = "";
@@ -481,7 +496,8 @@ const {
   },
 }));
 newTrainOnDone(result=>{
-  infomsg.value = "序號：" + result.data.createTrain.train_id + " 儲存完成"
+  nowTrainID.value = result.data.createTrain.train_id;
+  infomsg.value = "序號：" + nowTrainID.value + " 儲存完成"
   refgetTrain();
 });
 
@@ -529,6 +545,28 @@ const {
 delTrainOnDone(result=>{
   infomsg.value = "序號：" + result.data.delTrain.train_id + " 已刪除";
   refgetTrain();
+});
+
+// 查詢訓練課程及開課單位清單
+const { onResult: getAllTrain, refetch: refgetAllTrain } = useQuery(EmpGQL.GETALLTRAIN);
+getAllTrain(result=>{
+  if(!result.loading && result.data.getAllTrain){
+    let trainList = [];
+    let trainInstList = [];
+
+    trainList = result.data.getAllTrain.map(x => { return x.train_name });//從物件陣列中取出成陣列
+    trainList = [...new Set(trainList)]; //ES6排除重複值語法
+    nowTrainNameMU.value = trainList.sort().map(x => {
+      return { text: x, value: x }
+    }); nowTrainNameMU.value.unshift({ text: "-未選擇-", value: "" });
+
+    trainInstList = result.data.getAllTrain.map(x => { return x.train_institution });//從物件陣列中取出成陣列
+    trainInstList = [...new Set(trainInstList)]; //ES6排除重複值語法
+    nowTrainInstitutionMU.value = trainInstList.sort().map(x => {
+      return { text: x, value: x }
+    }); nowTrainInstitutionMU.value.unshift({ text: "-未選擇-", value: "" });
+
+  }
 });
 
 // Table 訓練列表==========End
@@ -670,7 +708,8 @@ const {
   },
 }));
 newEmpowerOnDone(result=>{
-  infomsg.value = "序號：" + result.data.createEmpower.empower_id + " 儲存完成"
+  nowEmpowerID.value = result.data.createEmpower.empower_id;
+  infomsg.value = "序號：" + nowEmpowerID.value + " 儲存完成"
   refgetEmpower();
 });
 
@@ -683,7 +722,7 @@ const {
     empowerId: parseInt(nowEmpowerID.value),
     personId: parseInt(nowEmpowerPersonID.value),
     calType: parseInt(nowEmpowerCalTypeID.value),
-    roleType: parseInt(nowEmpowerRole.value),
+    roleType: nowEmpowerRole.value,
     assessmentResult: nowEmpowerAssResult.value,
     assessor: parseInt(nowEmpowerAssID.value),
     assessmentDate: (nowEmpowerAssDate.value === "")? null:nowEmpowerAssDate.value.trim() + "T00:00:00.000Z",
@@ -696,7 +735,8 @@ const {
   },
 }));
 saveEmpowerOnDone(result=>{
-  infomsg.value = "序號：" + result.data.updateEmpower.empower_id + " 儲存完成"
+  nowEmpowerID.value = result.data.updateEmpower.empower_id;
+  infomsg.value = "序號：" + nowEmpowerID.value + " 儲存完成"
   refgetEmpower();
 });
 function saveEmpowerBtn(){
@@ -729,7 +769,7 @@ delEmpowerOnDone(result=>{
 // Table 校正案件==========Start
 const { onResult: getOptCase, refetch: refgetOptCase } = useQuery(
   CaseGQL.GETALLCASE,()=>({
-    operatorsId: parseInt(nowEmpID.value),
+    operatorsId: -1,
   })
 );
 getOptCase(result => {
@@ -867,7 +907,7 @@ const tboption_optcase = {
 // Table 簽署案件==========Start
 const { onResult: getSignCase, refetch: refgetSignCase } = useQuery(
   CaseGQL.GETALLCASE,()=>({
-    signPersonId: parseInt(nowEmpID.value),
+    signPersonId: -1,
   })
 );
 getSignCase(result => {
@@ -1163,7 +1203,7 @@ function filterArrayforObj(arr,key){
 // 查詢評估人員列表
 const { onResult: getAssList, refetch: refgetAssList } = useQuery(
   EmpGQL.GETEMPOWERBYROLE,
-  ()=>({roleType:'技術主管'})
+  ()=>({roleType: '主管'})
 );
 getAssList(result => {
   // 加入評估人員選單資料
@@ -1369,12 +1409,31 @@ refgetSupList();
                                     <MDBInput disabled required size="sm" type="text" label="索引" v-model="nowTrainID" />
                                   </MDBCol>
                                   <div></div>
-                                  <MDBCol md="12" class="mt-3">
-                                    <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="訓練名稱" v-model="nowTrainName" />
+
+                                  <MDBCol md="12" class="mt-3" style="position: relative ;">
+                                    <MDBSelect filter :disabled="!rGroup[2]" size="sm" class="col-md-12 notext" :visibleOptions="2" v-model:options="nowTrainNameMU"
+                                      v-model:selected="nowTrainName" ref="nowTrainNameDOM"/>
+                                    <div style="position:absolute;top: 0;z-index=10;width: calc(100% - 3.25rem);">
+                                      <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="訓練名稱" v-model="nowTrainName"/>
+                                    </div>
                                   </MDBCol>
-                                  <MDBCol md="12" class="mt-3">
-                                    <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="開課單位" v-model="nowTrainInstitution" />
+                                  
+                                  
+                                  
+                                  
+                                  
+                                  
+                                  <MDBCol md="12" class="mt-3" style="position: relative ;">
+                                    <MDBSelect filter :disabled="!rGroup[2]" size="sm" class="col-md-12 notext" :visibleOptions="2" v-model:options="nowTrainInstitutionMU"
+                                      v-model:selected="nowTrainInstitution" ref="nowTrainInstitutionDOM"/>
+                                    <div style="position:absolute;top: 0;z-index=10;width: calc(100% - 3.25rem);">
+                                      <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="開課單位" v-model="nowTrainInstitution" />
+                                    </div>
                                   </MDBCol>
+
+
+
+
                                   <MDBCol md="6" class="mt-3">
                                     <MDBDatepicker required size="sm" v-model="nowTrainEndDate" format="YYYY-MM-DD" label="結訓日期"
                                       ref="nowTrainEndDateDOM" />
@@ -1628,5 +1687,9 @@ tr>td>span.typeJ {
 
 tr.selected>td>span.typeJ {
   color: white;
+}
+
+div.notext input{
+  color:rgba(0, 0, 0, 0)
 }
 </style>

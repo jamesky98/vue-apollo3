@@ -8,6 +8,7 @@ const GETALLCASE = gql`
     $operatorsId: Int
     $signPersonId: Int
     $orgId: Int
+    $itemId: Int
     $itemChop: String
     $itemModel: String
     $itemSn: String
@@ -23,6 +24,7 @@ const GETALLCASE = gql`
       operators_id: $operatorsId
       sign_person_id: $signPersonId
       org_id: $orgId
+      item_id: $itemId
       item_chop: $itemChop
       item_model: $itemModel
       item_sn: $itemSn

@@ -85,10 +85,19 @@ mutation GetItemBySN($sn: String) {
 }
 `;
 
+const DELITEM = gql`
+  mutation DelItem($delItemId: Int!) {
+    delItem(id: $delItemId) {
+      id
+    }
+  }
+`;
+
 export default {
   GETALLITEM,
   GETITEMBYID,
   GETALLITEMTYPE,
   SAVEITEM,
   GETITEMBYSN,
+  DELITEM,
 };
