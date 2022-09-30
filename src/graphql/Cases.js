@@ -478,6 +478,7 @@ const GETSIMPLECASEBYID = gql`
         name
         code
       }
+      item_id
       charge
       pay_date
       agreement

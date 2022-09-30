@@ -334,15 +334,14 @@ const nowCasePDFPath = ref("pdfjs-dist/web/viewer.html"); //校正報告掃描�
 
 // 查詢Record01資料
 const {
-  result: nowCaseF,
-  loading: lodingnowCaseF,
   onResult: getNowCaseF,
   refetch: refgetNowCaseF,
 } = useQuery(CaseGQL.GETFULLCASEBYID, () => ({
   getCasebyIdId: props.caseID,
 }));
 getNowCaseF((result) => {
-  if (!result.loading && result && result.data.getCasebyID.case_record_01) {
+  // console.log(result.data.getCasebyID.case_record_01);
+  if (!result.loading) {
     // 填入資料
     let getData = result.data.getCasebyID.case_record_01;
     let getItem = result.data.getCasebyID.item_base;
@@ -452,9 +451,12 @@ getNowCaseF((result) => {
     nowCaseCalResult.value = getData.recal_table ? getData.recal_table : "";
     nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table : "";
     nowCaseUcModel.value = getData.uc_model;
+    selectUcModel.value = getData.uc_model;
     // 出具報告
     nowCaseHasLOGO.value = getData.has_logo;
     nowCaseReportTemp.value = getData.report_template;
+    selectReportTemp.value = getData.report_template;
+
     nowCaseReportEdit.value = getData.report_edit;
     if(getData.complete_date){
       nowCaseCompleteDate.value = getData.complete_date.split("T")[0];
@@ -567,7 +569,7 @@ let dtItem;
 const tableItem = ref();
 const dataItem = ref([]);
 const showItemFrom = ref(false);
-const itemTabId = ref("itemEditor");
+const itemTabId = ref("itemFilter");
 
 const seletItemId = ref("");
 
@@ -602,7 +604,7 @@ const columnsItem = [
   { data: "item_type.type", title: "儀器類型", defaultContent: "-" },
 ];
 const tboptionItem = {
-  dom: "ti",
+  dom: "fti",
   select: {
     style: "single",
     info: false,
@@ -611,7 +613,7 @@ const tboptionItem = {
   scrollY: "22vh",
   scrollX: true,
   lengthChange: false,
-  searching: false,
+  searching: true,
   paging: false,
   responsive: true,
   language: {
@@ -923,8 +925,13 @@ function setPrjBtn() {
   nowCaseRefPrjID.value = seletPrjID.value;
   nowCaseRefPrjCode.value = seletPrjCode.value;
   nowCaseRefPrjPublishDate.value = seletPrjPublishDate.value;
-  getUcList();
-  showPrjFrom.value = false;
+  saveRecord01().then(res=>{
+    refgetNowCaseF();
+  }).then(res=>{
+    getUcList();
+  }).then(res => {
+    showPrjFrom.value = false;
+  });
 }
 
 // 參考值列表=========end
@@ -1048,6 +1055,7 @@ saveRecord01Error((error) => {
   console.log(error);
 });
 saveRecord01OnDone(() => {
+  refgetNowCaseF();
   // console.log(nowCaseCalResult.value)
   // console.log('nowCaseChkPersonID: ',nowCaseChkPersonID.value);
   // console.log('selectChkPersonID: ',selectChkPersonID.value);
@@ -1537,7 +1545,7 @@ getUcListOnDone((result) => {
   if (!result.loading && result.data.getUclist) {
     nowCaseUcModelMU.value = result.data.getUclist.map((x) => {
       return { text: x, value: x };
-    });
+    });nowCaseUcModelMU.value.unshift({text: "-未選取-", value: -1})
   }
 });
 
@@ -1631,6 +1639,7 @@ function buildReportBtn() {
   parms.nowCaseCompleteDateM = CompleteDateAy[1];
   parms.nowCaseCompleteDateD = CompleteDateAy[2];
   parms.nowCaseID = props.caseID;
+  parms.nowCaseFullID = nowCaseCalTypeCode.value + props.caseID;
   parms.nowCaseItemChop = nowCaseItemChop.value;
   parms.nowCaseItemModel = nowCaseItemModel.value;
   parms.nowCaseItemSN = nowCaseItemSN.value;
@@ -1695,8 +1704,8 @@ function buildReportBtn() {
   parms.defVerH = defVerH;
   parms.defVerV = defVerV;
 
-  parms.nowCaseRmseH = fixDataDigPos(parseFloat(calTable.rmseH), parseInt(ucTable.digPosH));
-  parms.nowCaseRmseV = fixDataDigPos(parseFloat(calTable.rmseV), parseInt(ucTable.digPosH));
+  parms.nowCaseRmseH = fixDataDigPos(parseFloat(calTable.rmseH), fixDigPosH);
+  parms.nowCaseRmseV = fixDataDigPos(parseFloat(calTable.rmseV), fixDigPosV);
 
 
   parms.nowCaseStr = parseInt(nowCaseStrNSac.value) + parseInt(nowCaseStrEWac.value)
@@ -1748,7 +1757,6 @@ function buildReportBtn() {
   });
 
   parms.eqData = eqData;
-
   pramRptStr.value = JSON.stringify(parms);
   buildRpt();
 }
@@ -1828,8 +1836,8 @@ defineExpose({
             <MDBCol col="12" class="border">
               <MDBTabs v-model="itemTabId">
                 <MDBTabNav tabsClasses="">
-                  <MDBTabItem tabId="itemEditor" href="itemEditor">資料編輯</MDBTabItem>
                   <MDBTabItem tabId="itemFilter" href="itemFilter">條件篩選</MDBTabItem>
+                  <MDBTabItem tabId="itemEditor" href="itemEditor">資料編輯</MDBTabItem>
                 </MDBTabNav>
                 <MDBTabContent>
                   <!-- 編輯表單 -->
@@ -1889,7 +1897,7 @@ defineExpose({
       </MDBModalFooter>
     </MDBModal>
     <!-- 選擇參考值量測作業 -->
-    <MDBModal style="left: 66%" @shown="shownPrjModal" v-model="showPrjFrom" staticBackdrop scrollable>
+    <MDBModal @shown="shownPrjModal" v-model="showPrjFrom" staticBackdrop scrollable>
       <MDBModalHeader>
         <MDBModalTitle>請選擇參考值量測作業</MDBModalTitle>
       </MDBModalHeader>
@@ -2010,13 +2018,14 @@ defineExpose({
                       v-model="nowCasePPAy" />
                   </MDBCol>
                   <MDBCol col="3" class="mb-3">
-                    <MDBInput :disabled="!rGroup[2]" tooltipFeedback required size="sm" type="text" label="像元數(rows)"
-                      v-model="nowCasePXh" />
-                  </MDBCol>
-                  <MDBCol col="3" class="mb-3">
                     <MDBInput :disabled="!rGroup[2]" tooltipFeedback required size="sm" type="text" label="像元數(columns)"
                       v-model="nowCasePXw" />
                   </MDBCol>
+                  <MDBCol col="3" class="mb-3">
+                    <MDBInput :disabled="!rGroup[2]" tooltipFeedback required size="sm" type="text" label="像元數(rows)"
+                      v-model="nowCasePXh" />
+                  </MDBCol>
+                  
                   <MDBCol col="3" class="mb-3">
                     <MDBInput :disabled="!rGroup[2]" tooltipFeedback required size="sm" type="text" label="像元尺寸_x(um)"
                       v-model="nowCasePxSizeX" />
@@ -2564,7 +2573,7 @@ defineExpose({
                       <!-- 選擇報告範本 -->
                       <SelectRptTemp />
 
-                      <MDBCol col="4" class="mb-3">
+                      <MDBCol lg="6" class="mb-3">
                         <MDBDatepicker required size="sm" v-model="nowCaseCompleteDate" format="YYYY-MM-DD"
                           label="報告完成日" ref="nowCaseCompleteDateDOM" />
                       </MDBCol>
@@ -2597,14 +2606,14 @@ defineExpose({
                     <MDBRow>
                       <SelectPs ref="selectPsData" />
                       <!-- 校正報告掃描檔 -->
-                      <MDBCol col="8" class="mb-3">
+                      <MDBCol col="8" class="mt-3">
                         <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
                           label="報告掃描檔" v-model="nowCaseReportScan">
                           <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowCaseReportScan = ''"
                             class="btn-upload-close" />
                         </MDBInput>
                       </MDBCol>
-                      <MDBCol col="3" class="px-0 mb-3">
+                      <MDBCol col="3" class="px-0 mt-3">
                         <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('ReportScanUpload')">
                           上傳</MDBBtn>
                         <MDBBtn tag="a" :href="nowCaseReportScanDL" download size="sm" color="secondary">下載</MDBBtn>

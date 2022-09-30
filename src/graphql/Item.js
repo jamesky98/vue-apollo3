@@ -18,16 +18,22 @@ const GETALLITEM = gql`
         }
         cus {
           name
+          address
+          tel
+          fax
           org_id
           cus_org {
             name
+            tax_id
           }
         }
         case_record_01 {
           complete_date
+          sign_person_id
         }
         case_record_02 {
           complete_date
+          sign_person_id
         }
       }
     }

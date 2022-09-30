@@ -126,6 +126,7 @@ onMounted(function () {
   dt1 = table1.value.dt();
   dt1.on('select', function (e, dt, type, indexes) {
     nowCaseID.value = dt.rows(indexes).data()[0].id
+    // refgetNowCaseS({getCasebyIdId: nowCaseID.value});
   });
 });
 
@@ -717,17 +718,16 @@ getCaseLeader(result => {
 refgetCaseLeader();
 
 // 查詢顯示選擇案件之簡單資料
-const { result: nowCaseS, loading: lodingnowCaseS, onResult: getNowCaseS, refetch: refgetNowCaseS } = useQuery(
-  CaseGQL.GETSIMPLECASEBYID,
-  () => ({
+const { onResult: getNowCaseS, refetch: refgetNowCaseS } = useQuery(
+  CaseGQL.GETSIMPLECASEBYID,()=>({
     getCasebyIdId: nowCaseID.value
-  })
-);
+  }));
 getNowCaseS(result => {
   if (!result.loading && result && result.data.getCasebyID) {
     // 填入簡單資料
     let getData = result.data.getCasebyID;
     nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
+    nowCaseItemID.value = (getData.item_id)?getData.item_id:"";
     nowCaseAppDate.value = (getData.app_date) ? getData.app_date.split("T")[0] : "";
     nowCaseTypeName.value = getData.cal_type_cal_typeTocase_base.name;
     nowCaseTypeId.value = getData.cal_type
@@ -889,6 +889,7 @@ function showCaseEdit() {
     if (nowCaseTypeId.value === 1 || nowCaseTypeId.value === 3) {
       showCaseEditR01Flag.value = true;
       showCaseEditR02Flag.value = false;
+      // updateKey.value=updateKey.value+1;
       caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
       addBtnDisabled.value = true;
       //播放
@@ -896,6 +897,7 @@ function showCaseEdit() {
     }else if (nowCaseTypeId.value === 2) {
       showCaseEditR01Flag.value = false;
       showCaseEditR02Flag.value = true;
+      // updateKey.value=updateKey.value+1;
       caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
       addBtnDisabled.value = true;
       //播放

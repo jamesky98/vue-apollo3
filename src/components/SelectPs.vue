@@ -38,20 +38,20 @@ onMounted(()=>{
 <template>
   <MDBContainer fluid>
     <MDBRow>
-      <MDBCol col="4" class="my-3">
+      <MDBCol lg="6" class="mt-3">
         <MDBDatepicker required size="sm" v-model="nowCaseChkDate" format="YYYY-MM-DD" label="數據檢核日"
           ref="nowCaseChkDateDOM" />
       </MDBCol>
 
-      <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="my-3 col-6" label="數據檢核人" v-model:options="nowCaseChkPersonMU"
+      <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mt-3 col-lg-6" label="數據檢核人" v-model:options="nowCaseChkPersonMU"
         v-model:selected="selectChkPersonID" ref="nowCaseChkPersonDOM" />
       <div></div>
-      <MDBCol col="4" class="mb-3">
+      <MDBCol lg="6" class="mt-3">
         <MDBDatepicker required size="sm" v-model="nowCaseSignDate" format="YYYY-MM-DD" label="報告簽署日"
           ref="nowCaseSignDateDOM" />
       </MDBCol>
 
-      <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mb-3 col-6" label="報告簽署人" v-model:options="nowCaseSignPersonMU"
+      <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mt-3 col-lg-6" label="報告簽署人" v-model:options="nowCaseSignPersonMU"
         v-model:selected="selectSignPersonID" ref="nowCaseSignPersonDOM" />
     </MDBRow>
   </MDBContainer>

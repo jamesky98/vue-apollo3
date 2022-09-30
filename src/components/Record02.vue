@@ -277,7 +277,7 @@ const nowCasePDFPath = computed(() => {
 // 案件之詳細資料^^^
 
 // 查詢Record02資料
-const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
+const { onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
   CaseGQL.GETFULLCASEBYID,
   () => ({
     getCasebyIdId: props.caseID
@@ -386,10 +386,12 @@ getNowCaseF(result => {
     data1.value = calResultToData1();
     nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table : "";
     nowCaseUcModel.value = getData.uc_model; // 不確定度模組
-
+    selectUcModel.value = getData.uc_model; // 不確定度模組
     // 出具報告
     nowCaseHasLOGO.value = getData.has_logo;
     nowCaseReportTemp.value = getData.report_template;
+    selectReportTemp.value = getData.report_template;
+
     nowCaseReportEdit.value = getData.report_edit;
     if(getData.complete_date){
       nowCaseCompleteDate.value = getData.complete_date.split("T")[0];
@@ -835,12 +837,19 @@ function setPrjBtn() {
   nowCaseRefPrjID.value = seletPrjID.value;
   nowCaseRefPrjCode.value = seletPrjCode.value;
   nowCaseRefPrjPublishDate.value = seletPrjPublishDate.value;
-  getUcList().then(res => {
-    calRefGcp().then(res=>{
-      showPrjFrom.value = false;
-    });
-  });
-
+  calRefGcp().then(res=>{
+    // console.log("calRefGcp");
+    saveRecord02();  
+  }).then(res=>{
+    // console.log("saveRecord02");
+    refgetNowCaseF();
+  }).then(res=>{
+    // console.log("refgetNowCaseF");
+    getUcList();
+  }).then(res=>{
+    // console.log("getUcList");
+    showPrjFrom.value = false;
+  })
 }
 
 // 查詢參考值並填入data1
@@ -855,7 +864,6 @@ const { mutate: calRefGcp, onDone: calRefGcpOnDone } = useMutation(
   })
 );
 calRefGcpOnDone(result=>{
-  // console.log(result.data.calRefGcp);
   // 資料寫入data1
   let getData = result.data.calRefGcp;
   let myArray = [];
@@ -974,6 +982,7 @@ saveRecord02Error((error) => {
   console.log(error);
 });
 saveRecord02OnDone(() => {
+  refgetNowCaseF();
   // console.log(nowCaseCalResult.value)
   // console.log('nowCaseChkPersonID: ',nowCaseChkPersonID.value);
   // console.log('selectChkPersonID: ',selectChkPersonID.value);
@@ -1148,7 +1157,7 @@ getUcListOnDone((result) => {
         myArray.push({ text: x, value: x });
       }
     });
-    myArray.unshift({text: "", value: ""})
+    myArray.unshift({text: "-未選取-", value: -1})
     nowCaseUcModelMU.value = myArray;
   }
 });
@@ -1477,6 +1486,7 @@ function buildReportBtn() {
   parms.nowCaseCompleteDateM = CompleteDateAy[1];
   parms.nowCaseCompleteDateD = CompleteDateAy[2];
   parms.nowCaseID = props.caseID;
+  parms.nowCaseFullID = nowCaseCalTypeCode.value + props.caseID;
   parms.nowCaseItemChop = nowCaseItemChop.value;
   parms.nowCaseItemModel = nowCaseItemModel.value;
   parms.nowCaseItemSN = nowCaseItemSN.value;
@@ -1589,7 +1599,7 @@ function buildReportBtn() {
   });
 
   parms.eqData = eqData;
-
+  
   pramRptStr.value = JSON.stringify(parms);
   buildRpt();
 }
@@ -1731,7 +1741,7 @@ defineExpose({
       </MDBModalFooter>
     </MDBModal>
     <!-- 選擇參考值量測作業 -->
-    <MDBModal style="left: 66%;" @shown="shownPrjModal" v-model="showPrjFrom" staticBackdrop scrollable>
+    <MDBModal @shown="shownPrjModal" v-model="showPrjFrom" staticBackdrop scrollable>
       <MDBModalHeader>
         <MDBModalTitle>請選擇參考值量測作業</MDBModalTitle>
       </MDBModalHeader>
@@ -2256,7 +2266,7 @@ defineExpose({
                       </MDBCol>
                       <!-- 選擇報告範本 -->
                       <SelectRptTemp />
-                      <MDBCol col="4" class="mb-3">
+                      <MDBCol lg="6" class="mb-3">
                         <MDBDatepicker required size="sm" v-model="nowCaseCompleteDate" format="YYYY-MM-DD"
                           label="報告完成日" ref="nowCaseCompleteDateDOM" />
                       </MDBCol>
@@ -2291,14 +2301,14 @@ defineExpose({
                     <MDBRow>
                       <SelectPs />
                       <!-- 校正報告掃描檔 -->
-                      <MDBCol col="8" class="mb-3">
+                      <MDBCol col="8" class="mt-3">
                         <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
                           label="報告掃描檔" v-model="nowCaseReportScan">
                           <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowCaseReportScan = ''"
                             class="btn-upload-close" />
                         </MDBInput>
                       </MDBCol>
-                      <MDBCol col="3" class="px-0 mb-3">
+                      <MDBCol col="3" class="px-0 mt-3">
                         <input type="file" id="ReportScanUpload" @change="uploadChenge($event)" style="display: none" />
                         <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click.stop="uploadBtn('ReportScanUpload')">
                           上傳</MDBBtn>
