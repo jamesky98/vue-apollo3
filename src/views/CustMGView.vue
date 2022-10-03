@@ -9,6 +9,7 @@ import {
   MDBInput,
   MDBBtn,
   MDBSelect,
+  MDBPopconfirm,
 } from 'mdb-vue-ui-kit';
 import CaseGQL from "../graphql/Cases";
 import CustGQL from "../graphql/Cust";
@@ -65,18 +66,10 @@ const rGroup =computed(()=>{
   // rGroup[4]完全開放
   switch (myUserRole.value){
     case 0:
-      if(parseInt(myUserName.value)=== parseInt(nowUserName.value)){
-        result = [false,false,false,false,true];
-      }else{
         result = [false,false,false,false,false];
-      }
       break;
     case 1:
-      if(parseInt(myUserName.value)===parseInt(nowUserName.value)){
-        result = [false,false,true,true,true];
-      }else{
         result = [false,false,false,false,false];
-      }
       break;
     case 2:
       result = [false,true,false,true,true];
@@ -124,7 +117,13 @@ const nowItemTypeMU = ref([]);
 const nowItemTypeDOM = ref();
 
 const nowItemChop = ref("");
+const nowItemChopMU = ref([]);
+const nowItemChopDOM = ref();
+
 const nowItemModel = ref("");
+const nowItemModelMU = ref([]);
+const nowItemModelDOM = ref();
+
 const nowItemSN = ref("");
 
 const selItemType = ref("");
@@ -275,7 +274,7 @@ const tboption_cust = {
   dom: 'fti',
   select: {style: 'single',info: false},
   order: [[0, 'desc']],
-  scrollY: 'calc(40vh - 11rem)',
+  scrollY: 'calc(40vh - 12rem)',
   scrollX: true,
   lengthChange: false,
   searching: true,
@@ -364,6 +363,29 @@ getAllItem(result=>{
 });
 refgetAllItem();
 
+const { onResult: getItemList, refetch: refgetItemList } = useQuery(ItemGQL.GETALLITEM);
+getItemList(result=>{
+  if(!result.loading && result.data.getAllItem){
+    // 校正件清單
+    let choplist = [];
+    let modellist = [];
+    choplist = result.data.getAllItem.map(x => { return x.chop });//從物件陣列中取出成陣列
+    choplist = [...new Set(choplist)]; //ES6排除重複值語法
+    nowItemChopMU.value = choplist.sort().map(x => {
+      return { text: x, value: x }
+    }); nowItemChopMU.value.unshift({ text: "-未選擇-", value: "" });
+
+    modellist = result.data.getAllItem.map(x => { return x.model });//從物件陣列中取出成陣列
+    modellist = [...new Set(modellist)]; //ES6排除重複值語法
+    nowItemModelMU.value = modellist.sort().map(x => {
+      return { text: x, value: x }
+    }); nowItemModelMU.value.unshift({ text: "-未選擇-", value: "" });
+
+  }
+});
+refgetItemList();
+
+
 const { onResult: getItemById, refetch: refgetItemById } = useQuery(ItemGQL.GETITEMBYID);
 getItemById(result=>{
   if(!result.loading && result.data.getItemByID){
@@ -372,7 +394,9 @@ getItemById(result=>{
     nowItemType.value = getData.type;
     nowItemTypeDOM.value.setValue(parseInt(nowItemType.value));
     nowItemChop.value = getData.chop;
+    nowItemChopDOM.value.setValue(parseInt(nowItemChop.value));
     nowItemModel.value = getData.model;
+    nowItemModelDOM.value.setValue(parseInt(nowItemModel.value));
     nowItemSN.value = getData.serial_number;
   }
 });
@@ -487,6 +511,7 @@ const { mutate: saveItem, onDone: saveItemOnDone, onError: saveItemError } = use
 }));
 saveItemOnDone(result=>{
   infomsg.value = "校正件 " + result.data.updateItem.id + " 儲存完畢";
+  refgetItemList();
   if(joinItem.value){
     if(nowCustOrgID.value && nowCustOrgID.value!==""){
       // console.log("nowCustOrgID",nowCustOrgID.value);
@@ -707,7 +732,7 @@ onMounted(function () {
               <MDBRow class="h-100">
                 <MDBCol col="12" style="height: calc(100% - 1rem);" class="border border-5 rounded-8 shadow-4 my-2">
                   <MDBRow class="h-100 overflow-auto" style="position:relative ;">
-                    <div style="position: absolute; top:0;left:0;">
+                    <div style="position: absolute; top:0;left:0; width: 8rem;">
                       顧客管理
                     </div>
                     <!-- 機關表格 -->
@@ -718,9 +743,13 @@ onMounted(function () {
                     <!-- 機關操作表單 -->
                     <MDBCol col="12" class="border-top" style="height: 7rem;">
                       <MDBCol lg="12" class="mt-2">
-                        <MDBBtn size="sm" color="primary" @click="newOrg">新增</MDBBtn>
+                        <MDBBtn :disabled="nowCustOrgID===''" size="sm" color="primary" @click="newOrg">新增</MDBBtn>
                         <MDBBtn size="sm" color="primary" @click="saveOrg">儲存</MDBBtn>
-                        <MDBBtn size="sm" color="primary" @click="delOrg">刪除</MDBBtn>
+                        <!-- <MDBBtn size="sm" color="primary" @click="delOrg">刪除</MDBBtn> -->
+                        <MDBPopconfirm v-if="rGroup[0]" :disabled="!rGroup[0] || nowCustOrgID===''" color="danger" class="btn-sm btn-light btn-outline-danger me-auto"
+                          message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delOrg">
+                          刪除
+                        </MDBPopconfirm>
                         <MDBBtn size="sm" color="primary" @click="setJoinCust"><span :class="joinCustTextColor"><i :class="joinCustIcon"></i>聯絡人</span></MDBBtn>
                         
                       </MDBCol>
@@ -741,7 +770,10 @@ onMounted(function () {
             <MDBCol col="12" style="height: 40%;">
               <MDBRow class="h-100">
                 <MDBCol col="12" class="border border-5 rounded-8 shadow-4 mb-2" style="height: calc(100% - 0.5rem)">
-                  <MDBRow class="h-100">
+                  <MDBRow class="h-100" style="position:relative ;">
+                    <div style="position: absolute; top:0;left:0; width: 8rem;">
+                      聯絡人
+                    </div>
                     <!-- 左下左 -->
                     <MDBCol col="5" class="mt-2 overflow-auto" style="height: calc(100% - 0.5rem)">
                       <DataTable id="custTable" :data="data_cust" :columns="columns_cust" :options="tboption_cust" ref="table_cust"
@@ -750,9 +782,13 @@ onMounted(function () {
                     <!-- 左下右 -->
                     <MDBCol col="7" class="h-100 border-start">
                       <MDBCol col="12" class="py-2 w-100 border-bottom overflow-auto" style="white-space: nowrap">
-                        <MDBBtn size="sm" color="primary" @click="newCust">新增</MDBBtn>
+                        <MDBBtn :disabled="nowCustId===''" size="sm" color="primary" @click="newCust">新增</MDBBtn>
                         <MDBBtn size="sm" color="primary" @click="saveCust">儲存</MDBBtn>
-                        <MDBBtn size="sm" color="primary" @click="delCust">刪除</MDBBtn>
+                        <!-- <MDBBtn size="sm" color="primary" @click="delCust">刪除</MDBBtn> -->
+                        <MDBPopconfirm v-if="rGroup[0]" :disabled="!rGroup[0] || nowCustId===''" class="btn-sm btn-light btn-outline-danger me-auto"
+                          message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delCust">
+                          刪除
+                        </MDBPopconfirm>
                       </MDBCol>
                       <MDBCol class="mt-2" style="height: calc(100% - 4.5rem);">
                         <MDBRow class="h-100 d-flex align-content-start overflow-auto">
@@ -815,23 +851,38 @@ onMounted(function () {
                             </MDBCol>
                             <!-- 操作按鈕 -->
                             <MDBCol col="12" class="py-2 w-100 overflow-auto" style="white-space: nowrap">
-                              <MDBBtn size="sm" color="primary" @click="newItem">新增</MDBBtn>
+                              <MDBBtn :disabled="nowItemId===''" size="sm" color="primary" @click="newItem">新增</MDBBtn>
                               <MDBBtn size="sm" color="primary" @click="saveItem">儲存</MDBBtn>
-                              <MDBBtn size="sm" color="primary" @click="delItem">刪除</MDBBtn>
+                              <!-- <MDBBtn size="sm" color="primary" @click="delItem">刪除</MDBBtn> -->
+                              <MDBPopconfirm v-if="rGroup[0]" :disabled="!rGroup[0] || nowItemId===''" class="btn-sm btn-light btn-outline-danger me-auto"
+                                message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delItem">
+                                刪除
+                              </MDBPopconfirm>
                             </MDBCol>
                             <MDBCol col="12" class="" style="height: calc(100% - 10rem);">
                               <MDBRow class="h-100 d-flex align-content-start overflow-auto">
                                 <MDBCol col="12" class="mt-2">
                                   <MDBInput readonly size="sm" type="text" label="索引" v-model="nowItemId" />
                                 </MDBCol>
-                                <MDBSelect size="sm" class="my-2 col-lg-12" label="儀器類型" v-model:options="nowItemTypeMU"
+                                <MDBSelect size="sm" class="mt-2 col-lg-12" label="儀器類型" v-model:options="nowItemTypeMU"
                                   v-model:selected="nowItemType" ref="nowItemTypeDOM" />
-                                  <MDBCol col="12" class="mt-2">
-                                  <MDBInput size="sm" type="text" label="廠牌" v-model="nowItemChop" />
+                                
+                                <MDBSelect filter size="sm" class="mt-2 col-12 notext noborder" v-model:options="nowItemChopMU"
+                                  v-model:selected="nowItemChop" ref="nowItemChopDOM"/>
+                                <MDBCol col="12" class="" style="position: relative ;">
+                                  <div style="position:absolute;top: -1.85rem;z-index=10;width: calc(100% - 3.25rem);">
+                                    <MDBInput class="noborder" size="sm" type="text" label="廠牌" v-model="nowItemChop"/>
+                                  </div>
                                 </MDBCol>
-                                <MDBCol col="12" class="mt-2">
-                                  <MDBInput size="sm" type="text" label="型號" v-model="nowItemModel" />
+
+                                <MDBSelect filter size="sm" class="mt-2 col-12 notext" v-model:options="nowItemModelMU"
+                                    v-model:selected="nowItemModel" ref="nowItemModelDOM"/>
+                                <MDBCol col="12" class="" style="position: relative ;">
+                                  <div style="position:absolute;top: -1.85rem;z-index=10;width: calc(100% - 3.25rem);">
+                                    <MDBInput class="noborder" size="sm" type="text" label="型號" v-model="nowItemModel"/>
+                                  </div>
                                 </MDBCol>
+
                                 <MDBCol col="12" class="mt-2">
                                   <MDBInput size="sm" type="text" label="序號" v-model="nowItemSN" />
                                 </MDBCol>
@@ -954,5 +1005,12 @@ tr>td>span.typeJ {
 
 tr.selected>td>span.typeJ {
   color: white;
+}
+div.notext input,div.notext input.select-input.focused{
+  color:rgba(0, 0, 0, 0)
+}
+
+input.noborder~div.form-notch div.form-notch-leading,input.noborder~div.form-notch div.form-notch-middle,input.noborder~div.form-notch div.form-notch-trailing{
+  border: none;
 }
 </style>

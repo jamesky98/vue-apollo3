@@ -1410,29 +1410,21 @@ refgetSupList();
                                   </MDBCol>
                                   <div></div>
 
-                                  <MDBCol md="12" class="mt-3" style="position: relative ;">
-                                    <MDBSelect filter :disabled="!rGroup[2]" size="sm" class="col-md-12 notext" :visibleOptions="2" v-model:options="nowTrainNameMU"
-                                      v-model:selected="nowTrainName" ref="nowTrainNameDOM"/>
-                                    <div style="position:absolute;top: 0;z-index=10;width: calc(100% - 3.25rem);">
-                                      <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="訓練名稱" v-model="nowTrainName"/>
+                                  <MDBSelect filter :disabled="!rGroup[2]" size="sm" class="mt-3 col-md-12 notext" v-model:options="nowTrainNameMU"
+                                    v-model:selected="nowTrainName" ref="nowTrainNameDOM"/>
+                                  <MDBCol md="12" class="" style="position: relative ;">
+                                    <div style="position:absolute;top: -1.85rem;z-index=10;width: calc(100% - 3.25rem);">
+                                      <MDBInput :disabled="!rGroup[2]" class="noborder" required size="sm" type="text" label="訓練名稱" v-model="nowTrainName"/>
                                     </div>
                                   </MDBCol>
                                   
-                                  
-                                  
-                                  
-                                  
-                                  
-                                  <MDBCol md="12" class="mt-3" style="position: relative ;">
-                                    <MDBSelect filter :disabled="!rGroup[2]" size="sm" class="col-md-12 notext" :visibleOptions="2" v-model:options="nowTrainInstitutionMU"
-                                      v-model:selected="nowTrainInstitution" ref="nowTrainInstitutionDOM"/>
-                                    <div style="position:absolute;top: 0;z-index=10;width: calc(100% - 3.25rem);">
-                                      <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="開課單位" v-model="nowTrainInstitution" />
+                                  <MDBSelect filter :disabled="!rGroup[2]" size="sm" class="mt-3 col-md-12 notext" v-model:options="nowTrainInstitutionMU"
+                                    v-model:selected="nowTrainInstitution" ref="nowTrainInstitutionDOM"/>
+                                  <MDBCol md="12" class="" style="position: relative ;">
+                                    <div style="position:absolute;top: -1.85rem;z-index=10;width: calc(100% - 3.25rem);">
+                                      <MDBInput :disabled="!rGroup[2]" class="noborder" required size="sm" type="text" label="開課單位" v-model="nowTrainInstitution" />
                                     </div>
                                   </MDBCol>
-
-
-
 
                                   <MDBCol md="6" class="mt-3">
                                     <MDBDatepicker required size="sm" v-model="nowTrainEndDate" format="YYYY-MM-DD" label="結訓日期"
@@ -1689,7 +1681,11 @@ tr.selected>td>span.typeJ {
   color: white;
 }
 
-div.notext input{
+div.notext input,div.notext input.select-input.focused{
   color:rgba(0, 0, 0, 0)
+}
+
+input.noborder~div.form-notch div.form-notch-leading,input.noborder~div.form-notch div.form-notch-middle,input.noborder~div.form-notch div.form-notch-trailing{
+  border: none;
 }
 </style>
