@@ -1,9 +1,5 @@
 import gql from "graphql-tag";
 
-const GETALLGCP = gql`
-
-`;
-
 const GETRECORDBYPID = gql`
   query GetGcpRecordsByGCPId($gcpId: String!) {
     getGcpRecordsByGCPId(gcp_id: $gcpId) {
@@ -40,6 +36,5 @@ const GETRECORDBYPID = gql`
 `;
 
 export default {
-  GETALLGCP,
   GETRECORDBYPID,
 };

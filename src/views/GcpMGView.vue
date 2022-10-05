@@ -288,8 +288,12 @@ const { onResult: getRcordByPId, refetch: refgetRcordByPId } = useQuery(
   ()=>({gcpId:""})
 );
 getRcordByPId(result=>{
-  
+  if(!result.loading){
+    console.log(result.data.getGcpRecordsByGCPId);
+  }
 });
+
+
 // 歷年量測列表==========End
 
 
