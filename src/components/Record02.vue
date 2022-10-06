@@ -2397,13 +2397,6 @@ defineExpose({
   margin-bottom: 0rem;
 }
 
-.lightboxImg {
-  display: block;
-  margin: auto;
-  max-width: 100%;
-  height: 200px;
-}
-
 .btnDisabled{
   pointer-events: none;
   opacity: .65;

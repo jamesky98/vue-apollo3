@@ -254,14 +254,12 @@ const tboption1 = {
 };
 
 // 查詢案件資料
-const { result: allCase, loading: lodingAllCase, variables: varAllCase, onResult: getAllCase, refetch: refgetAllCase } = useQuery(
-  CaseGQL.GETALLCASE,
-);
-
+const { onResult: getAllCase, refetch: refgetAllCase } = useQuery(CaseGQL.GETALLCASE);
 getAllCase(result => {
   // 加入table1資料
   if (!result.loading) {
     data1.value = result.data.getAllCase;
+    notProssing2.value = true;
   }
 });
 refgetAllCase();
@@ -472,21 +470,21 @@ const casePayDateEndtSEL = ref("");
 const casePayDateEndFilter = ref();
 // 執行篩選
 function caseDoFilter() {
-  let where = {};
-  if (caseStatusSEL.value !== "") where.statusCode = parseInt(caseStatusSEL.value);
-  if (caseIDSEL.value !== "") where.getAllCaseId = caseIDSEL.value;
-  if (caseTypeSEL.value !== "") where.calType = parseInt(caseTypeSEL.value);
-  if (caseOptSEL.value !== "") where.operatorsId = parseInt(caseOptSEL.value);
-  if (caseCustSEL.value !== "") where.orgId = parseInt(caseCustSEL.value);
-  if (caseChopSEL.value !== "") where.itemChop = caseChopSEL.value;
-  if (caseModelSEL.value !== "") where.itemModel = caseModelSEL.value;
-  if (caseSelnumSEL.value !== "") where.itemSn = caseSelnumSEL.value;
-  if (caseAppDateStartSEL.value !== "") where.appdateStart = caseAppDateStartSEL.value.trim() + "T00:00:00.000Z";
-  if (caseAppDateEndtSEL.value !== "") where.appdateEnd = caseAppDateEndtSEL.value.trim() + "T00:00:00.000Z";
-  if (casePayDateStartSEL.value !== "") where.paydateStart = casePayDateStartSEL.value.trim() + "T00:00:00.000Z";
-  if (casePayDateEndtSEL.value !== "") where.paydateEnd = casePayDateEndtSEL.value.trim() + "T00:00:00.000Z";
-
-  varAllCase.value = where;
+  notProssing2.value = false;
+  refgetAllCase({
+    statusCode: (caseStatusSEL.value)?parseInt(caseStatusSEL.value):null,
+    getAllCaseId: (caseIDSEL.value)?caseIDSEL.value:null,
+    calType: (caseTypeSEL.value)?parseInt(caseTypeSEL.value):null,
+    operatorsId: (caseOptSEL.value)?parseInt(caseOptSEL.value):null,
+    orgId: (caseCustSEL.value)?parseInt(caseCustSEL.value):null,
+    itemChop: (caseChopSEL.value)?caseChopSEL.value:null,
+    itemModel: (caseModelSEL.value)?caseModelSEL.value:null,
+    itemSn: (caseSelnumSEL.value)?caseSelnumSEL.value:null,
+    appdateStart: (caseAppDateStartSEL.value)?(caseAppDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
+    appdateEnd: (caseAppDateEndtSEL.value)?(caseAppDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
+    paydateStart: (casePayDateStartSEL.value)?(casePayDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
+    paydateEnd: (casePayDateEndtSEL.value)?(casePayDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
+  });
 }
 // 清除條件
 function caseClearFilter() {
@@ -976,6 +974,7 @@ let dtAPI;
 const tableAPI = ref();
 const dataAPI = ref([]);
 const notProssing = ref(true);
+const notProssing2 = ref(false);
 const hasNowAllCase = ref([]);
 
 const showAPIFrom = ref(false);
@@ -1626,8 +1625,11 @@ const {
               <MDBCol v-show="showCaseLeftDiv" md="8" class="h-100">
                   <MDBRow class="h-100 align-content-between">
                     <!-- 上方列表 -->
-                    <MDBCol md="12" style="height: calc(75% - 1.5rem) ;"
+                    <MDBCol md="12" style="height: calc(75% - 1.5rem); position: relative;"
                       class="mt-2 overflow-auto border border-5 rounded-8 shadow-4">
+                      <div :class="{ 'hiddenSpinner': notProssing2}" style="position: absolute; left: 50%; top: 10rem;">
+                        <MDBSpinner size="md" color="primary" />Loading...
+                      </div>
                       <DataTable :data=" data1" :columns="columns1" :options="tboption1" ref="table1"
                         style="font-size: smaller" class="display w-100 compact" />
                     </MDBCol>

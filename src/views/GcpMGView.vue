@@ -1,7 +1,8 @@
 <script setup>
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
-import { ref, reactive, onMounted, provide } from "vue";
+import path from "path-browserify";
+import { ref, reactive, onMounted, provide, inject } from "vue";
 import {
   MDBInput,
   MDBCol,
@@ -21,8 +22,11 @@ import {
   MDBSwitch,
   MDBLightbox,
   MDBLightboxItem,
+  MDBSpinner,
 } from 'mdb-vue-ui-kit';
+import CaseGQL from "../graphql/Cases";
 import GcpGQL from "../graphql/Gcp";
+import PrjGQL from "../graphql/Prj";
 
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
@@ -95,9 +99,12 @@ const rGroup =computed(()=>{
 // infomation
 const NavItem = ref("gcps");
 provide("NavItem",NavItem);
+
+const updateKey = ref(0);
 const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
+const notProssing = ref(false);
 
 const activeTabId1 = ref('filter');
 const activeTabId2 = ref('ptRecord');
@@ -128,34 +135,58 @@ const nowGcpTypeCodeMU = ref([]);
 const nowGcpTypeCodeDOM = ref();
 
 const nowGcpOwnerShip = ref("");
-const nowGcpOwnerShipMU = ref([]);
+const nowGcpOwnerShipMU = ref([
+  {text: "-未選取-", value: -1},
+  {text: "公有地", value: "公有地"},
+  {text: "私有地", value: "私有地"},
+]);
 const nowGcpOwnerShipDOM = ref();
 
 const nowGcpEstablishment = ref("");
 const nowGcpEstDate = ref("");
 
 const nowGcpPavement = ref("");
-const nowGcpPavementMU = ref([]);
+const nowGcpPavementMU = ref([
+  {text: "-未選取-", value: -1},
+  {text: "道路面", value: "道路面"},
+  {text: "建物頂樓", value: "建物頂樓"},
+  {text: "人行道", value: "人行道"},
+  {text: "空地地面", value: "空地地面"},
+  {text: "泥土面", value: "泥土面"},
+  {text: "水泥面", value: "水泥面"},
+]);
 const nowGcpPavementDOM = ref();
 
 const nowGcpStyle = ref("");
-const nowGcpStyleMU = ref([]);
+const nowGcpStyleMU = ref([
+  {text: "-未選取-", value: -1},
+  {text: "鋼釘", value: "鋼釘"},
+  {text: "鋼片", value: "鋼片"},
+]);
 const nowGcpStyleDOM = ref();
 
 const nowGcpSimage = ref("");
 const nowGcpSimageDL = computed(()=>{
-  return "04_GCP/Pt/" + nowGcpSimage.value
+  if(nowGcpDespImg.value){
+    return "04_GCP/Pt/" + nowGcpSimage.value
+  }else{
+    return ""
+  }
 });
 
 const nowGcpComment = ref("");
 
 const nowGcpDespImg = ref("");
 const nowGcpDespImgDL = computed(()=>{
-  return "04_GCP/Pt/" + nowGcpDespImg.value
+  if(nowGcpDespImg.value){
+    return "04_GCP/Pt/" + nowGcpDespImg.value
+  }else{
+    return ""
+  }
 });
 
 const nowGcpDespStr = ref("");
-
+const nowGcpNeedContact = ref(false);
 const nowGcpContactId = ref("");
 const nowGcpContactMU = ref([]);
 const nowGcpContactDOM = ref();
@@ -197,41 +228,195 @@ const nowPRecordCom = ref("");
 
 const nowPRecordImg0 = ref("");
 const nowPRecordImg0DL = computed(()=>{
-  return "04_GCP/" + nowPRecordPrjId.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value
+  if(nowPRecordImg0.value){
+    return "04_GCP/" + nowPRecordPrjId.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value
+  }else{
+    return ""
+  }
 });
 
 const nowPRecordImg1 = ref("");
 const nowPRecordImg1DL = computed(()=>{
-  return "04_GCP/" + nowPRecordPrjId.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value
+  if(nowPRecordImg1.value){
+    return "04_GCP/" + nowPRecordPrjId.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value
+  }else{
+    return ""
+  }
 });
 
 const nowPRecordImg2 = ref("");
 const nowPRecordImg2DL = computed(()=>{
-  return "04_GCP/" + nowPRecordPrjId.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value
+  if(nowPRecordImg2.value){
+    return "04_GCP/" + nowPRecordPrjId.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value
+  }else{
+    return ""
+  }
 });
 
 const nowPRecordImg3 = ref("");
 const nowPRecordImg3DL = computed(()=>{
-  return "04_GCP/" + nowPRecordPrjId.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value
+  if(nowPRecordImg3.value){
+    return "04_GCP/" + nowPRecordPrjId.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value
+  }else{
+    return ""
+  }
 });
 
 
 // 參數==========End
+
+// 下拉式篩選清單填入==========Start
+// 作業編號清單
+const { onResult: getAllPrj, refetch: refgetAllPrj } = useQuery(PrjGQL.GETALLPRJ);
+getAllPrj(result=>{
+  if(!result.loading && result.data.getAllPrj){
+    let mulist=[];
+    mulist = result.data.getAllPrj.map(x => {
+      return { text: x.project_code, value: parseInt(x.id) }
+    }); 
+    mulist.sort((a,b)=>{
+      return (a.project_code > b.project_code)?1:-1;
+    });mulist.unshift({ text: "-未選取-", value: -1 });
+    selPrjCodeMU.value = mulist;
+  }
+});
+refgetAllPrj().then(res=>{
+  selPrjCode.value = selPrjCodeMU.value[1].value;
+  // console.log(selPrjCode.value);
+  selPrjCodeDOM.value.setValue(selPrjCode.value);
+  refgetAllGcp({projectId: selPrjCode.value });
+});
+// 啟用狀態清單
+selGcpEnableMU.value = [
+  {text: "-未選取-", value: -1},
+  {text: "啟用", value: 1},
+  {text: "未啟用", value: 0},
+];
+// 點位狀態清單
+selGcpStatusMU.value = [
+  {text: "-未選取-", value: -1},
+  {text: "正常", value: "正常"},
+  {text: "遺失", value: "遺失"},
+  {text: "損毀", value: "損毀"},
+  {text: "不適用", value: "不適用"},
+  {text: "停用", value: "停用"},
+];
+// 聯絡機關清單
+const { onResult: getAllContact, refetch: refgetAllContact } = useQuery(GcpGQL.GETALLCONTACT);
+getAllContact(result=>{
+  if(!result.loading && result.data.getAllContact){
+    // 篩選區
+    selGcpContactMU.value = result.data.getAllContact.map(x => {
+      return { text: x.name, value: parseInt(x.id) }
+    });selGcpContactMU.value.unshift({ text: "-未選取-", value: -1 });
+    // 資料區
+    nowGcpContactMU.value = result.data.getAllContact.map(x => {
+      return { text: x.name, value: parseInt(x.id) }
+    });nowGcpContactMU.value.unshift({ text: "-未選取-", value: -1 });
+  }
+});
+refgetAllContact();
+
+// 清除篩選
+function clearfilter(){
+  selPrjCode.value=-1;
+  selPrjCodeDOM.value.setValue(-1);
+
+  selGcpId.value="";
+
+  selGcpEnable.value=-1;
+  selGcpEnableDOM.value.setValue(-1);
+
+  selGcpStatus.value=-1;
+  selGcpStatusDOM.value.setValue(-1);
+
+  selGcpContact.value=-1;
+  selGcpContactDOM.value.setValue(-1);
+}
+
+function dofilter(){
+  notProssing.value = false;
+  refgetAllGcp({
+    projectId: (selPrjCode.value && selPrjCode.value!==-1)?parseInt(selPrjCode.value):null,
+    getAllGcpId: (selGcpId.value && selGcpId.value!=="")?selGcpId.value:null,
+    enable: (parseInt(selGcpEnable.value) > -1)?parseInt(selGcpEnable.value):null,
+    status: (selGcpStatus.value && selGcpStatus.value!==-1)?selGcpStatus.value:null,
+    contactId: (parseInt(selGcpContact.value) > -1)?parseInt(selGcpContact.value):null,
+  });
+}
+
+// nowGcpTypeCodeMU
+const { onResult: getGcpType, refetch: refgetGcpType } = useQuery(GcpGQL.GETGCPTYPE);
+getGcpType(result=>{
+  if(!result.loading && result.data.getGcpType){
+    nowGcpTypeCodeMU.value = result.data.getGcpType.map(x => {
+      return { text: x.type_name, value: parseInt(x.code) }
+    });nowGcpTypeCodeMU.value.unshift({ text: "-未選取-", value: -1 });
+  }
+});
+refgetGcpType();
+
+// 下拉式篩選清單填入==========End
+
+// 點位狀態顯示樣式
+function statusRender(data,type,row){
+  let markicon="";
+  let classn="";
+  switch (data) {
+    case "遺失":
+      markicon = '<i class="fas fa-lg fa-times"></i>';
+      classn = "status89";
+      break;
+    case "損毀":
+      markicon = '<i class="fas fa-skull-crossbones"></i>';
+      classn = "status89";
+      break;
+    case "正常":
+      markicon = '<i class="fas fa-check"></i>';
+      classn = "status7";
+      break;
+    case "不適用":
+      markicon = '<i class="fas fa-ban"></i>';
+      classn = "status23";
+      break;
+    case "停用":
+      markicon = '<i class="fas fa-ban"></i>';
+      classn = "status23";
+      break;
+    default:
+      markicon = '<i class="fas fa-exclamation-circle"></i>';
+      classn = "status1";
+  }
+  return "<span class='" + classn +"'>" + markicon + data + "</span>"
+}
 
 // 點位基本列表==========Start
 let dt_gcp;
 const table_gcp = ref(); 
 const data_gcp = ref([]);
 const columns_gcp = [
-  {title:"啟用", data:"gcp.enable"},
-  {title:"點號", data:"gcp.id"},
-  {title:"狀態", data:"gcp_record.status"},
-  {title:"類別", data:"gcp.type_code"},
-  {title:"作業編號", data:"gcp_record.ref_project.project_code"},
-  {title:"作業方式", data:"gcp_record.ref_project.method"},
-  {title:"清查日", data:"gcp_record.date"},
-  {title:"清查人", data:"gcp_record.person"},
-  {title:"需聯絡", data:"gcp.need_contact"},
+  {title:"啟用", data:"enable",width:"4rem",className: 'dt-center',render: (data,type,row) => {
+    if(data===1){
+      return '<i class="fas fa-lg fa-check-circle text-success"></i>'
+    }else{
+      return '<i class="fas fa-lg fa-times-circle text-danger"></i>'
+    }
+  }},
+  {title:"點號", data:"id", defaultContent: "-"},
+  {title:"狀態", data:"gcp_record[0].status", defaultContent: "-", render: statusRender},
+  {title:"類別", data:"gcp_type.type_name", defaultContent: "-"},
+  {title:"作業編號", data:"gcp_record[0].ref_project.project_code", defaultContent: "-"},
+  {title:"作業方式", data:"gcp_record[0].ref_project.method", defaultContent: "-"},
+  {title:"清查日", data:"gcp_record[0].date", defaultContent: "-", render: (data) => {
+      return toTWDate(data);}},
+  {title:"清查人", data:"gcp_record[0].person", defaultContent: "-"},
+  {title:"需聯絡", data:"need_contact", render: (data,type,row) => {
+      if(data===1){
+        return "<span class='status23'><i class='fab fa-lg fa-viber'></i></span>"
+      }else {
+        return "-"
+      }
+    }},
 ];
 const tboption_gcp = {
   dom: 'fti',
@@ -247,7 +432,83 @@ const tboption_gcp = {
     info: '共 _TOTAL_ 筆資料',
   }
 };
+// 查詢AllGCP
+const { onResult: getAllGcp, refetch: refgetAllGcp } = useQuery(GcpGQL.GETALLGCP);
+getAllGcp(result=>{
+  if(!result.loading){
+    // console.log(result.data.getAllGcp);
+    data_gcp.value = result.data.getAllGcp;
+    notProssing.value = true;
+    updateKey.value = updateKey.value + 1;
+  }
+});
 
+// 查詢GCPbyID
+const { mutate: getGcpById, onDone: getGcpByIdOnDone, onError: getGcpByIdError } = useMutation(GcpGQL.GETGCPBYID);
+getGcpByIdOnDone(result=>{
+  let getData = result.data.getGcpById;
+  nowGcpEnable.value = (getData.enable===1)?true:false;
+  
+  nowGcpTypeCode.value = getData.type_code;
+  nowGcpTypeCodeDOM.value.setValue(nowGcpTypeCode.value);
+
+  nowGcpOwnerShip.value = getData.ownership;
+  nowGcpOwnerShipDOM.value.setValue(nowGcpOwnerShip.value);
+
+  nowGcpEstablishment.value = getData.establishment;
+  nowGcpEstDate.value = getData.Est_date;
+
+  nowGcpPavement.value = getData.pavement;
+  nowGcpPavementDOM.value.setValue(nowGcpPavement.value);
+
+  nowGcpStyle.value = getData.style;
+  nowGcpStyleDOM.value.setValue(nowGcpStyle.value);
+
+  nowGcpSimage.value = getData.aerial_img;
+  nowGcpComment.value = getData.comment;
+  nowGcpDespImg.value = getData.pt_map;
+  nowGcpDespStr.value = getData.pt_desc;
+  nowGcpNeedContact.value = (getData.need_contact===1)?true:false;
+  nowGcpContactId.value = getData.contact_id;
+  nowGcpContactDOM.value.setValue(nowGcpContactId.value);
+
+  if(getData.gcp_contact){
+    nowGcpContactAds.value = getData.gcp_contact.address;
+    nowGcpContactPrs.value = getData.gcp_contact.person;
+    nowGcpContactTel.value = getData.gcp_contact.tel;
+    nowGcpContactCom.value = getData.gcp_contact.comment;
+  }else{
+    nowGcpContactAds.value = "";
+    nowGcpContactPrs.value = "";
+    nowGcpContactTel.value = "";
+    nowGcpContactCom.value = "";
+  }
+  updateKey.value = updateKey.value + 1;
+});
+
+// 儲存
+const { mutate: saveGcp, onDone: saveGcpOnDone, onError: saveGcpError } = useMutation(GcpGQL.UPDATEGCP);
+saveGcpOnDone(result=>{
+  infomsg.value = "點位 " + result.data.updateGCP.id + "儲存完畢"
+});
+function saveGcpBtn(){
+  saveGcp({
+    updateGcpId: nowGcpId.value,
+    enable: (nowGcpEnable.value)?1:0,
+    typeCode: (nowGcpTypeCode.value && nowGcpTypeCode.value!==-1)?parseInt(nowGcpTypeCode.value):null,
+    ownership: nowGcpOwnerShip.value,
+    establishment: nowGcpEstablishment.value,
+    estDate: parseInt(nowGcpEstDate.value),
+    pavement: (nowGcpPavement.value && nowGcpPavement.value!==-1)?nowGcpPavement.value:null,
+    style: (nowGcpStyle.value && nowGcpStyle.value!==-1)?nowGcpStyle.value:null,
+    ptDesc: nowGcpDespStr.value,
+    ptMap: nowGcpDespImg.value,
+    aerialImg: nowGcpSimage.value,
+    needContact: (nowGcpNeedContact.value)?1:0,
+    contactId: (nowGcpContactId.value && nowGcpContactId.value!==-1)?parseInt(nowGcpContactId.value):null,
+    comment: nowGcpComment.value,
+  }).then(res=>{refgetAllGcp()});
+}
 
 
 // 點位基本列表==========End
@@ -257,21 +518,22 @@ let dt_hist;
 const table_hist = ref(); 
 const data_hist = ref([]);
 const columns_hist = [
-  {title:"點號", data:"gcp.id"},
-  {title:"狀態", data:"gcp_record.status"},
-  {title:"作業編號", data:"gcp_record.ref_project.project_code"},
-  {title:"作業方式", data:"gcp_record.ref_project.method"},
-  {title:"辦理單位", data:"gcp_record.ref_project.organizer"},
-  {title:"清查日", data:"gcp_record.date"},
-  {title:"清查人", data:"gcp_record.person"},
-  {title:"E坐標", data:"gcp_record.coor_E", className:"dt-body-right"},
-  {title:"N坐標", data:"gcp_record.coor_N", className:"dt-body-right"},
-  {title:"h坐標", data:"gcp_record.coor_h", className:"dt-body-right"},
+  {title:"狀態", data:"status", defaultContent: "-", render: statusRender},
+  {title:"作業編號", data:"ref_project.project_code", defaultContent: "-"},
+  {title:"作業方式", data:"ref_project.method", defaultContent: "-"},
+  {title:"辦理單位", data:"ref_project.organizer", defaultContent: "-"},
+  {title:"清查日", data:"date", className: "dt-center", defaultContent: "-", render: (data) => {
+      return toTWDate(data);}},
+  {title:"清查人", data:"person", defaultContent: "-"},
+  {title:"E坐標", data:"coor_E", className:"dt-body-right", defaultContent: "-"},
+  {title:"N坐標", data:"coor_N", className:"dt-body-right", defaultContent: "-"},
+  {title:"h坐標", data:"coor_h", className:"dt-body-right", defaultContent: "-"},
+  {title:"備註", data:"comment", defaultContent: "-"},
 ];
 const tboption_hist = {
   dom: 'fti',
   select: {style: 'single',info: false},
-  order: [[1, 'asc']],
+  order: [[1, 'desc']],
   scrollY: 'calc(50vh - 12.5rem)',
   scrollX: true,
   lengthChange: false,
@@ -282,25 +544,118 @@ const tboption_hist = {
     info: '共 _TOTAL_ 筆資料',
   }
 };
-
+// 查詢Record
 const { onResult: getRcordByPId, refetch: refgetRcordByPId } = useQuery(
   GcpGQL.GETRECORDBYPID,
   ()=>({gcpId:""})
 );
 getRcordByPId(result=>{
   if(!result.loading){
-    console.log(result.data.getGcpRecordsByGCPId);
+    // console.log(result.data.getGcpRecordsByGCPId);
+    data_hist.value = result.data.getGcpRecordsByGCPId;
   }
 });
 
 
 // 歷年量測列表==========End
 
+// 加載表格選取事件
+onMounted(function () {
+  dt_gcp = table_gcp.value.dt();
+  dt_gcp.on('select', function (e, dt, type, indexes) {
+    nowGcpId.value = dt.rows(indexes).data()[0].id;
+    // refgetGcpByPId({ gcpId: nowGcpId.value });
+    refgetRcordByPId({ gcpId: nowGcpId.value });
+    getGcpById({getGcpByIdId: nowGcpId.value})
+  });
 
+  // dt_cust = table_cust.value.dt();
+  // dt_cust.on('select', function (e, dt, type, indexes) {
+  //   nowCustId.value = dt.rows(indexes).data()[0].id;
+  //   refgetselCust({getCustByIdId: parseInt(nowCustId.value)});
+  // });
 
+  // dt_Item = table_Item.value.dt();
+  // dt_Item.on('select', function (e, dt, type, indexes) {
+  //   nowItemId.value = dt.rows(indexes).data()[0].id;
+  //   refgetItemById({getItemByIdId: parseInt(nowItemId.value)});
+  //   refgetItemCase({itemId: parseInt(nowItemId.value)});
+  // });
+});
+
+// 檔案上傳==========Start
+const uploadType = ref("");
+function uploadBtn(inputId) {
+  // 由按鈕啟動檔案選擇器
+  uploadType.value = inputId;
+  const inputDOM = document.getElementById("AllUpload");
+  inputDOM.setAttribute("accept","");
+  switch (inputId) {
+    case "GcpSimage":
+      inputDOM.setAttribute("accept","image/*");
+      break;
+    case "GcpDespImg":
+      inputDOM.setAttribute("accept","image/*");
+      break;
+  }
+  inputDOM.click();
+}
+// 檔案選擇器選擇事件
+const upFile = ref();
+async function uploadChenge(e) {
+  upFile.value = e.target.files[0];
+  let subpath;
+  let newName = "";
+  if (!uploadType.value) {
+    return;
+  }
+  switch (uploadType.value) {
+    case "GcpSimage":
+      subpath = "04_GCP/Pt"
+      newName = nowGcpId.value + "-A" + path.extname(e.target.value);
+      break;
+    case "GcpDespImg":
+      subpath = "04_GCP/Pt"
+      newName = nowGcpId.value + "-B" + path.extname(e.target.value);
+      break;
+    
+  }
+  await uploadFile({
+    file: upFile.value,
+    subpath: subpath,
+    newfilename: newName,
+  });
+}
+// 上傳檔案
+const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
+  CaseGQL.UPLOADFILE
+);
+uploadFileOnDone((result) => {
+  // console.log("uploadFile")
+  // 儲存(更新)上傳紀錄資料
+  if (!uploadType.value) {
+    return;
+  }
+  switch (uploadType.value) {
+    case "GcpSimage":
+      nowGcpSimage.value = result.data.uploadFile.filename;
+      saveGcpBtn();
+      break;
+    case "GcpDespImg":
+      nowGcpDespImg.value = result.data.uploadFile.filename;
+      saveGcpBtn();
+      break;
+  }
+  let inputDOM;
+  inputDOM = document.getElementById("AllUpload");
+  inputDOM.value = "";
+});
+
+// 檔案上傳==========End
 
 </script>
 <template>
+  <input type="file" id="AllUpload" @change="uploadChenge($event)" style="display: none" />
   <MDBContainer fluid class="h-100">
     <MDBRow class="h-100 flex-column flex-nowrap">
       <!-- 導覽列 -->
@@ -314,14 +669,25 @@ getRcordByPId(result=>{
             <MDBCol col="12" style="height: 50%;">
               <MDBRow class="h-100">
                 <MDBCol col="12" style="height: calc(100% - 1rem);" class="border border-5 rounded-8 shadow-4 my-2">
-                  <MDBRow class="h-100 overflow-auto" style="position:relative ;">
+                  <MDBRow class="h-100 overflow-auto">
                     <!-- 分割左 -->
-                    <MDBCol lg="7" class="h-100 overflow-auto pt-2">
+                    <MDBCol lg="7" class="h-100 overflow-auto pt-2" style="position: relative ;">
+                      <div :class="{ 'hiddenSpinner': notProssing}" style="position: absolute; left: 50%; top: 10rem;">
+                        <MDBSpinner size="md" color="primary" />Loading...
+                      </div>
+                      <div style="position:absolute;">目前點號：<span class="text-info">{{nowGcpId}}</span></div>
                       <DataTable :data="data_gcp" :columns="columns_gcp" :options="tboption_gcp" ref="table_gcp"
                         style="font-size: smaller;" class="display w-100 compact" />
                     </MDBCol>
                     <!-- 分割右 -->
                     <MDBCol lg="5" class="h-100 border-start">
+                      <MDBRow>
+                        <MDBCol col="12" class="py-2 border-bottom">
+                          <MDBBtn size="sm" color="primary" @click="">新增</MDBBtn>
+                          <MDBBtn size="sm" color="primary" @click="saveGcpBtn">儲存</MDBBtn>
+                          <MDBBtn size="sm" color="primary" @click="">刪除</MDBBtn>
+                        </MDBCol>
+                      </MDBRow>
                       <MDBTabs v-model="activeTabId1">
                         <!-- Tabs navs -->
                         <MDBTabNav tabsClasses="">
@@ -330,13 +696,13 @@ getRcordByPId(result=>{
                           <MDBTabItem tabId="description" href="description">點之記</MDBTabItem>
                           <MDBTabItem tabId="contact" href="contact">聯絡資訊</MDBTabItem>
                         </MDBTabNav>
-                        <MDBTabContent style="height: calc(100% - 3rem);">
+                        <MDBTabContent :key="updateKey" style="height: calc(100% - 6rem);">
                           <!-- 篩選 -->
                           <MDBTabPane tabId="filter" class="h-100">
                             <MDBRow>
                               <MDBCol col="12" class="py-2 border-bottom">
-                                <MDBBtn size="sm" color="primary" @click="">清除</MDBBtn>
-                                <MDBBtn size="sm" color="primary" @click="">篩選</MDBBtn>
+                                <MDBBtn size="sm" color="primary" @click="clearfilter">清除</MDBBtn>
+                                <MDBBtn size="sm" color="primary" @click="dofilter">篩選</MDBBtn>
                               </MDBCol>
                             </MDBRow>
                             <MDBRow class="overflow-auto align-content-start" style="height: calc(100% - 3rem);">
@@ -353,25 +719,18 @@ getRcordByPId(result=>{
                               <MDBSelect size="sm" class="mt-2 col-xl-6" label="點位狀態" v-model:options="selGcpStatusMU"
                                 v-model:selected="selGcpStatus" ref="selGcpStatusDOM" />
                                 <div></div>
-                              <MDBSelect size="sm" class="mt-2 col-xl-6" label="聯絡機關" v-model:options="selGcpContactMU"
+                              <MDBSelect filter size="sm" class="mt-2 col-xl-6" label="聯絡機關" v-model:options="selGcpContactMU"
                                 v-model:selected="selGcpContact" ref="selGcpContactDOM" />
                             </MDBRow>
                           </MDBTabPane>
                           <!-- 基本資料 -->
                           <MDBTabPane tabId="baseData" class="h-100">
-                            <MDBRow>
-                              <MDBCol col="12" class="py-2 border-bottom">
-                                <MDBBtn size="sm" color="primary" @click="">新增</MDBBtn>
-                                <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
-                                <MDBBtn size="sm" color="primary" @click="">刪除</MDBBtn>
-                              </MDBCol>
-                            </MDBRow>
-                            <MDBRow class="overflow-auto align-content-start" style="height: calc(100% - 3rem);">
+                            <MDBRow class="overflow-auto align-content-start h-100">
                               <!-- 左方資料 -->
                               <MDBCol xl="6">
                                 <MDBRow>
                                   <MDBCol xl="6" class="mt-2">
-                                    <MDBSwitch label="啟用" labelClass="fs-6" v-model="nowGcpEnable" />
+                                    <MDBSwitch label="啟用" labelClass="fs-7" v-model="nowGcpEnable" />
                                   </MDBCol>
                                   <MDBCol xl="6" class="mt-2">
                                     <MDBInput size="sm" type="text" label="點號" v-model="nowGcpId" />
@@ -394,15 +753,15 @@ getRcordByPId(result=>{
                                 </MDBRow>
                               </MDBCol>
                               <!-- 右方略圖 -->
-                              <MDBCol xl="6">
-                                <MDBRow>
-                                  <MDBCol class="text-center mx-2 mt-2">
-                                    <MDBLightbox zoomLevel="0.25">
-                                      <MDBLightboxItem 
-                                        :src="'04_GCP/Pt/' + nowGcpSimage" 
-                                        :fullScreenSrc="'04_GCP/Pt/' + nowGcpSimage" 
-                                        alt="航拍略圖" 
-                                        class="img-thumbnail lightboxImg" />
+                              <MDBCol xl="6" style="height: calc(100% - 9.75rem);">
+                                <MDBRow class="h-100 align-content-start">
+                                  <MDBCol class="text-center mx-2 mt-2 p-0 h-100">
+                                    <MDBLightbox class="h-100 overflow-hidden img-thumbnail lightboxImg">
+                                          <MDBLightboxItem 
+                                            :src="nowGcpSimageDL" 
+                                            :fullScreenSrc = "nowGcpSimageDL"
+                                            alt="航拍略圖" 
+                                            class="img-allfluid"/>
                                     </MDBLightbox>
                                   </MDBCol>
                                   <div></div>
@@ -428,24 +787,17 @@ getRcordByPId(result=>{
                           </MDBTabPane>
                           <!-- 點之記 -->
                           <MDBTabPane tabId="description" class="h-100">
-                            <MDBRow>
-                              <MDBCol col="12" class="py-2 border-bottom">
-                                <MDBBtn size="sm" color="primary" @click="">新增</MDBBtn>
-                                <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
-                                <MDBBtn size="sm" color="primary" @click="">刪除</MDBBtn>
-                              </MDBCol>
-                            </MDBRow>
-                            <MDBRow class="overflow-auto align-content-start" style="height: calc(100% - 3rem);">
+                            <MDBRow class="overflow-auto align-content-start h-100">
                               <!-- 左圖 -->
                               <MDBCol xl="6" class="h-100">
                                 <MDBRow class="h-100 align-content-start">
                                   <MDBCol class="text-center mx-2 mt-2 p-0" style="height: calc(100% - 6rem);">
-                                    <MDBLightbox zoomLevel="0.25" class="h-100">
+                                    <MDBLightbox zoomLevel="0.25" class="h-100 overflow-hidden img-thumbnail lightboxImg">
                                       <MDBLightboxItem 
-                                        :src="'04_GCP/Pt/' + nowGcpDespImg" 
-                                        :fullScreenSrc="'04_GCP/Pt/' + nowGcpDespImg" 
+                                        :src="nowGcpDespImgDL" 
+                                        :fullScreenSrc="nowGcpDespImgDL"
                                         alt="點之記略圖" 
-                                        class="img-thumbnail lightboxImg" />
+                                        class="img-allfluid" />
                                     </MDBLightbox>
                                   </MDBCol>
                                   <div></div>
@@ -475,14 +827,10 @@ getRcordByPId(result=>{
                           </MDBTabPane>
                           <!-- 聯絡資訊 -->
                           <MDBTabPane tabId="contact" class="h-100">
-                            <MDBRow>
-                              <MDBCol col="12" class="py-2 border-bottom">
-                                <MDBBtn size="sm" color="primary" @click="">新增</MDBBtn>
-                                <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
-                                <MDBBtn size="sm" color="primary" @click="">刪除</MDBBtn>
+                            <MDBRow class="overflow-auto align-content-start h-100">
+                              <MDBCol xl="6" class="mt-2">
+                                <MDBSwitch label="需聯絡" labelClass="fs-7" v-model="nowGcpNeedContact" />
                               </MDBCol>
-                            </MDBRow>
-                            <MDBRow class="overflow-auto align-content-start" style="height: calc(100% - 3rem);">
                               <MDBSelect size="sm" class="mt-2 col-12" label="機關名稱" v-model:options="nowGcpContactMU"
                                 v-model:selected="nowGcpContactId" ref="nowGcpContactDOM" />
                               <MDBCol xl="12" class="mt-2">
@@ -512,7 +860,8 @@ getRcordByPId(result=>{
                 <MDBCol col="12" class="border border-5 rounded-8 shadow-4 mb-2" style="height: calc(100% - 0.5rem)">
                   <MDBRow class="h-100" style="position:relative ;">
                     <!-- 分割左 -->
-                    <MDBCol lg="7" class="h-100 overflow-auto pt-2">
+                    <MDBCol lg="7" class="h-100 overflow-auto pt-2" style="position: relative ;">
+                      <div style="position:absolute;">歷史紀錄 點號：<span class="text-info">{{nowGcpId}}</span></div>
                       <DataTable :data="data_hist" :columns="columns_hist" :options="tboption_hist" ref="table_hist"
                         style="font-size: smaller;" class="display w-100 compact" />
                     </MDBCol>
@@ -524,7 +873,7 @@ getRcordByPId(result=>{
                           <MDBTabItem tabId="ptRecord" href="ptRecord">清查資料</MDBTabItem>
                           <MDBTabItem tabId="images" href="images">照片</MDBTabItem>
                         </MDBTabNav>
-                        <MDBTabContent style="height: calc(100% - 3rem);">
+                        <MDBTabContent :key="updateKey" style="height: calc(100% - 3rem);">
                           <!-- 清查資料 -->
                           <MDBTabPane tabId="ptRecord" class="h-100">
                             <MDBRow>
@@ -702,7 +1051,7 @@ getRcordByPId(result=>{
           <MDBRow style="margin-left: auto;height: calc(100% - 1rem);" class="my-2 bg-light border border-5 rounded-8 shadow-4">
             <MDBCol col="12" class="h-100">
               地圖
-
+              
             </MDBCol>
           </MDBRow>
         </MDBCol>
@@ -716,6 +1065,47 @@ getRcordByPId(result=>{
 .datatable tbody tr:last-child {
   border-bottom: rgba(0, 0, 0, 0);
   height: auto;
+}
+tr > td > span.status89{
+  color: #DE3163;
+}
+tr.selected > td >span.status89 {
+  color: white;
+}
+
+tr>td>span.status7 {
+  color: green;
+}
+tr.selected>td>span.status7 {
+  color: white;
+}
+
+tr>td>span.status6 {
+  color: #F39C12;
+}
+tr.selected>td>span.status6 {
+  color: white;
+}
+
+tr>td>span.status45 {
+  color: #6495ED;
+}
+tr.selected>td>span.status45 {
+  color: white;
+}
+
+tr>td>span.status23 {
+  color: #FF7F50;
+}
+tr.selected>td>span.status23 {
+  color: white;
+}
+
+tr>td>span.status1 {
+  color: Gray;
+}
+tr.selected>td>span.status1 {
+  color: white;
 }
 
 .nav-tabs .nav-link{
@@ -731,5 +1121,16 @@ getRcordByPId(result=>{
   margin: auto;
   max-width: 100%;
   height: 100%;
+}
+.fs-7{
+  font-size: 0.8rem;
+}
+.hiddenSpinner {
+  display: none;
+}
+.img-allfluid{
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
 }
 </style>

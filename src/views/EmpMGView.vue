@@ -1626,7 +1626,7 @@ tr.selected > td >span.status89 {
 }
 
 tr>td>span.status7 {
-  color: green;
+  color: rgb(20, 164, 77);
 }
 tr.selected>td>span.status7 {
   color: white;

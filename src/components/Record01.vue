@@ -2491,12 +2491,14 @@ defineExpose({
                   <MDBRow>
                     <MDBCol lg="6">
                       <MDBRow>
-                        <MDBCol class="text-center mx-2 my-3">
-                          <MDBLightboxItem :src="
-                            '06_Case/' + props.caseID + '/' + nowCaseNetGraph
-                          " :fullScreenSrc="
-                              '06_Case/' + props.caseID + '/' + nowCaseNetGraph
-                            " alt="網形圖" class="img-thumbnail lightboxImg" />
+                        <MDBCol class="text-center mx-2 my-3" style="height: 200px;">
+                          <div class="h-100 overflow-hidden img-thumbnail lightboxImg">
+                            <MDBLightboxItem 
+                              :src="'06_Case/' + props.caseID + '/' + nowCaseNetGraph" 
+                              :fullScreenSrc="'06_Case/' + props.caseID + '/' + nowCaseNetGraph" 
+                              alt="網形圖" class="img-allfluid" />
+                          </div>
+                          
                         </MDBCol>
                         <div></div>
                         <!-- 網形圖 -->
@@ -2516,12 +2518,13 @@ defineExpose({
                     </MDBCol>
                     <MDBCol lg="6">
                       <MDBRow>
-                        <MDBCol class="text-center mx-2 my-3">
-                          <MDBLightboxItem :src="
-                            '06_Case/' + props.caseID + '/' + nowCaseGCPGraph
-                          " :fullScreenSrc="
-                              '06_Case/' + props.caseID + '/' + nowCaseGCPGraph
-                            " alt="點位分布圖" class="img-thumbnail lightboxImg" />
+                        <MDBCol class="text-center mx-2 my-3" style="height: 200px;">
+                          <div class="h-100 overflow-hidden img-thumbnail lightboxImg">
+                            <MDBLightboxItem 
+                              :src="'06_Case/' + props.caseID + '/' + nowCaseGCPGraph" 
+                              :fullScreenSrc="'06_Case/' + props.caseID + '/' + nowCaseGCPGraph" 
+                              alt="點位分布圖" class="img-allfluid" />
+                          </div>
                         </MDBCol>
                         <div></div>
                         <!-- 點位分布圖 -->
@@ -2705,6 +2708,12 @@ defineExpose({
   display: block;
   margin: auto;
   max-width: 100%;
-  height: 200px;
+  height: 100%;
+}
+
+.img-allfluid{
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
 }
 </style>
