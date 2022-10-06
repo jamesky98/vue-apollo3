@@ -337,7 +337,7 @@ function clearfilter(){
 function dofilter(){
   notProssing.value = false;
   refgetAllGcp({
-    projectId: (selPrjCode.value && selPrjCode.value!==-1)?parseInt(selPrjCode.value):null,
+    projectId: (parseInt(selPrjCode.value) > -1)?parseInt(selPrjCode.value):null,
     getAllGcpId: (selGcpId.value && selGcpId.value!=="")?selGcpId.value:null,
     enable: (parseInt(selGcpEnable.value) > -1)?parseInt(selGcpEnable.value):null,
     status: (selGcpStatus.value && selGcpStatus.value!==-1)?selGcpStatus.value:null,
@@ -569,11 +569,11 @@ onMounted(function () {
     getGcpById({getGcpByIdId: nowGcpId.value})
   });
 
-  // dt_cust = table_cust.value.dt();
-  // dt_cust.on('select', function (e, dt, type, indexes) {
-  //   nowCustId.value = dt.rows(indexes).data()[0].id;
-  //   refgetselCust({getCustByIdId: parseInt(nowCustId.value)});
-  // });
+  dt_hist = table_hist.value.dt();
+  dt_hist.on('select', function (e, dt, type, indexes) {
+    nowPRecordId.value = dt.rows(indexes).data()[0].id;
+    refgetselCust({getCustByIdId: parseInt(nowCustId.value)});
+  });
 
   // dt_Item = table_Item.value.dt();
   // dt_Item.on('select', function (e, dt, type, indexes) {
