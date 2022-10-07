@@ -2494,8 +2494,9 @@ defineExpose({
                         <MDBCol class="text-center mx-2 my-3" style="height: 200px;">
                           <div class="h-100 overflow-hidden img-thumbnail lightboxImg">
                             <MDBLightboxItem 
-                              :src="'06_Case/' + props.caseID + '/' + nowCaseNetGraph" 
-                              :fullScreenSrc="'06_Case/' + props.caseID + '/' + nowCaseNetGraph" 
+                              :src="nowCaseNetGraphDL" 
+                              :fullScreenSrc="nowCaseNetGraphDL" 
+                              onerror="this.src='nosrc.png'"
                               alt="網形圖" class="img-allfluid" />
                           </div>
                           
@@ -2521,8 +2522,9 @@ defineExpose({
                         <MDBCol class="text-center mx-2 my-3" style="height: 200px;">
                           <div class="h-100 overflow-hidden img-thumbnail lightboxImg">
                             <MDBLightboxItem 
-                              :src="'06_Case/' + props.caseID + '/' + nowCaseGCPGraph" 
-                              :fullScreenSrc="'06_Case/' + props.caseID + '/' + nowCaseGCPGraph" 
+                              :src="nowCaseGCPGraphDL" 
+                              :fullScreenSrc="nowCaseGCPGraphDL" 
+                              onerror="this.src='nosrc.png'"
                               alt="點位分布圖" class="img-allfluid" />
                           </div>
                         </MDBCol>

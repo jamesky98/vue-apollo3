@@ -101,6 +101,7 @@ const NavItem = ref("gcps");
 provide("NavItem",NavItem);
 
 const updateKey = ref(0);
+const updateKey2 = ref(0);
 const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
@@ -195,12 +196,13 @@ const nowGcpContactAds = ref("");
 const nowGcpContactPrs = ref("");
 const nowGcpContactTel = ref("");
 const nowGcpContactCom = ref("");
-
+// 清查紀錄
 const nowPRecordId = ref("");
 const nowPRecordPtId = ref("");
 const nowPRecordPrjId = ref("");
 const nowPRecordPrjIdMU = ref([]);
 const nowPRecordPrjIdDOM = ref();
+const nowPRecordPrjCode = ref("");
 
 const nowPRecordDate = ref("");
 const nowPRecordDateDOM = ref();
@@ -210,7 +212,14 @@ const nowPRecordPersonMU = ref([]);
 const nowPRecordPersonDOM = ref();
 
 const nowPRecordPtStatus = ref("");
-const nowPRecordPtStatusMU = ref([]);
+const nowPRecordPtStatusMU = ref([
+  {text: "-未選取-", value: -1},
+  {text: "正常", value: "正常"},
+  {text: "遺失", value: "遺失"},
+  {text: "損毀", value: "損毀"},
+  {text: "不適用", value: "不適用"},
+  {text: "停用", value: "停用"},
+]);
 const nowPRecordPtStatusDOM = ref();
 
 const nowPRecordE = ref("");
@@ -229,7 +238,7 @@ const nowPRecordCom = ref("");
 const nowPRecordImg0 = ref("");
 const nowPRecordImg0DL = computed(()=>{
   if(nowPRecordImg0.value){
-    return "04_GCP/" + nowPRecordPrjId.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value
+    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value
   }else{
     return ""
   }
@@ -238,7 +247,7 @@ const nowPRecordImg0DL = computed(()=>{
 const nowPRecordImg1 = ref("");
 const nowPRecordImg1DL = computed(()=>{
   if(nowPRecordImg1.value){
-    return "04_GCP/" + nowPRecordPrjId.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value
+    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value
   }else{
     return ""
   }
@@ -247,7 +256,7 @@ const nowPRecordImg1DL = computed(()=>{
 const nowPRecordImg2 = ref("");
 const nowPRecordImg2DL = computed(()=>{
   if(nowPRecordImg2.value){
-    return "04_GCP/" + nowPRecordPrjId.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value
+    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value
   }else{
     return ""
   }
@@ -256,7 +265,16 @@ const nowPRecordImg2DL = computed(()=>{
 const nowPRecordImg3 = ref("");
 const nowPRecordImg3DL = computed(()=>{
   if(nowPRecordImg3.value){
-    return "04_GCP/" + nowPRecordPrjId.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value
+    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value
+  }else{
+    return ""
+  }
+});
+
+const nowPRecordObs = ref("");
+const nowPRecordObsDL = computed(()=>{
+  if(nowPRecordObs.value){
+    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordObs.value
   }else{
     return ""
   }
@@ -271,20 +289,27 @@ const { onResult: getAllPrj, refetch: refgetAllPrj } = useQuery(PrjGQL.GETALLPRJ
 getAllPrj(result=>{
   if(!result.loading && result.data.getAllPrj){
     let mulist=[];
-    mulist = result.data.getAllPrj.map(x => {
-      return { text: x.project_code, value: parseInt(x.id) }
+    let recordPrjList=[];
+    result.data.getAllPrj.map(x => {
+      mulist.push({ text: x.project_code, value: parseInt(x.id)});
+      recordPrjList.push({ text: x.project_code, value: parseInt(x.id)});
     }); 
     mulist.sort((a,b)=>{
       return (a.project_code > b.project_code)?1:-1;
     });mulist.unshift({ text: "-未選取-", value: -1 });
+
+    recordPrjList.sort((a,b)=>{
+      return (a.project_code > b.project_code)?1:-1;
+    });recordPrjList.unshift({ text: "-未選取-", value: -1 });
     selPrjCodeMU.value = mulist;
+    nowPRecordPrjIdMU.value = recordPrjList;
   }
 });
 refgetAllPrj().then(res=>{
   selPrjCode.value = selPrjCodeMU.value[1].value;
   // console.log(selPrjCode.value);
   selPrjCodeDOM.value.setValue(selPrjCode.value);
-  refgetAllGcp({projectId: selPrjCode.value });
+  getAllGcp();
 });
 // 啟用狀態清單
 selGcpEnableMU.value = [
@@ -336,13 +361,7 @@ function clearfilter(){
 
 function dofilter(){
   notProssing.value = false;
-  refgetAllGcp({
-    projectId: (parseInt(selPrjCode.value) > -1)?parseInt(selPrjCode.value):null,
-    getAllGcpId: (selGcpId.value && selGcpId.value!=="")?selGcpId.value:null,
-    enable: (parseInt(selGcpEnable.value) > -1)?parseInt(selGcpEnable.value):null,
-    status: (selGcpStatus.value && selGcpStatus.value!==-1)?selGcpStatus.value:null,
-    contactId: (parseInt(selGcpContact.value) > -1)?parseInt(selGcpContact.value):null,
-  });
+  getAllGcp();
 }
 
 // nowGcpTypeCodeMU
@@ -355,6 +374,24 @@ getGcpType(result=>{
   }
 });
 refgetGcpType();
+
+// 清查人員清單
+const { mutate: getRecPerson, onDone: getRecPersonOnDone, onError: getRecPersonError } = useMutation(GcpGQL.GETRECPERSON);
+getRecPersonOnDone(result=>{
+  let getData = result.data.getAllRecPersonList;
+  nowPRecordPersonMU.value = getData.map(x => {
+      return { text: x, value: x }
+    });nowPRecordPersonMU.value.unshift({ text: "-未選取-", value: -1 });
+});
+getRecPerson();
+function updateRecPerson(){
+  let newoption = nowPRecordPerson.value;
+  let findid = nowPRecordPersonMU.value.findIndex(x => x.value===newoption);
+  if(findid===-1){
+    nowPRecordPersonMU.value.push({text: newoption, value: newoption})
+    nowPRecordPersonDOM.value.setValue(newoption);
+  }
+}
 
 // 下拉式篩選清單填入==========End
 
@@ -433,8 +470,17 @@ const tboption_gcp = {
   }
 };
 // 查詢AllGCP
-const { onResult: getAllGcp, refetch: refgetAllGcp } = useQuery(GcpGQL.GETALLGCP);
-getAllGcp(result=>{
+const { mutate: getAllGcp, onDone: getAllGcpOnDone, onError: getAllGcpError } = useMutation(
+  GcpGQL.GETALLGCP,() => ({
+    variables: {
+      projectId: (parseInt(selPrjCode.value) > -1)?parseInt(selPrjCode.value):null,
+      getAllGcpId: (selGcpId.value && selGcpId.value!=="")?selGcpId.value:null,
+      enable: (parseInt(selGcpEnable.value) > -1)?parseInt(selGcpEnable.value):null,
+      status: (selGcpStatus.value && selGcpStatus.value!==-1)?selGcpStatus.value:null,
+      contactId: (parseInt(selGcpContact.value) > -1)?parseInt(selGcpContact.value):null,
+    }
+}));
+getAllGcpOnDone(result=>{
   if(!result.loading){
     // console.log(result.data.getAllGcp);
     data_gcp.value = result.data.getAllGcp;
@@ -507,7 +553,7 @@ function saveGcpBtn(){
     needContact: (nowGcpNeedContact.value)?1:0,
     contactId: (nowGcpContactId.value && nowGcpContactId.value!==-1)?parseInt(nowGcpContactId.value):null,
     comment: nowGcpComment.value,
-  }).then(res=>{refgetAllGcp()});
+  }).then(res=>{getAllGcp()});
 }
 
 
@@ -544,7 +590,7 @@ const tboption_hist = {
     info: '共 _TOTAL_ 筆資料',
   }
 };
-// 查詢Record
+// 查詢Record歷年紀錄
 const { onResult: getRcordByPId, refetch: refgetRcordByPId } = useQuery(
   GcpGQL.GETRECORDBYPID,
   ()=>({gcpId:""})
@@ -554,6 +600,34 @@ getRcordByPId(result=>{
     // console.log(result.data.getGcpRecordsByGCPId);
     data_hist.value = result.data.getGcpRecordsByGCPId;
   }
+});
+// 查詢Record單筆紀錄
+const { mutate: getRecordById, onDone: getRecordByIdOnDone, onError: getRecordByIdError } = useMutation(GcpGQL.GETRECORDBYID);
+getRecordByIdOnDone(result=>{
+  let getData = result.data.getGcpRecordById;
+  nowPRecordPtId.value = getData.gcp_id;
+  nowPRecordPrjId.value = getData.project_id;
+  nowPRecordPrjIdDOM.value.setValue(nowPRecordPrjId.value);
+
+  nowPRecordPrjCode.value = (getData.ref_project)?getData.ref_project.project_code:"";
+  nowPRecordDate.value = (getData.date)?(getData.date.split("T")[0]):"";
+  nowPRecordPerson.value = getData.person;
+  nowPRecordPersonDOM.value.setValue(nowPRecordPerson.value);
+
+  nowPRecordPtStatus.value = getData.status;
+  nowPRecordPtStatusDOM.value.setValue(nowPRecordPtStatus.value);
+
+  nowPRecordE.value = getData.coor_E;
+  nowPRecordN.value = getData.coor_N;
+  nowPRecordh.value = getData.coor_h;
+  nowPRecordCom.value = getData.comment;
+  nowPRecordImg0.value = getData.close_photo;
+  nowPRecordImg1.value = getData.far_photo1;
+  nowPRecordImg2.value = getData.far_photo2;
+  nowPRecordImg3.value = getData.far_photo3;
+  nowPRecordObs.value = getData.obstruction; //透空圖
+
+  updateKey2.value=updateKey2.value+1;
 });
 
 
@@ -566,21 +640,14 @@ onMounted(function () {
     nowGcpId.value = dt.rows(indexes).data()[0].id;
     // refgetGcpByPId({ gcpId: nowGcpId.value });
     refgetRcordByPId({ gcpId: nowGcpId.value });
-    getGcpById({getGcpByIdId: nowGcpId.value})
+    getGcpById({getGcpByIdId: nowGcpId.value});
   });
 
   dt_hist = table_hist.value.dt();
   dt_hist.on('select', function (e, dt, type, indexes) {
     nowPRecordId.value = dt.rows(indexes).data()[0].id;
-    refgetselCust({getCustByIdId: parseInt(nowCustId.value)});
+    getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
   });
-
-  // dt_Item = table_Item.value.dt();
-  // dt_Item.on('select', function (e, dt, type, indexes) {
-  //   nowItemId.value = dt.rows(indexes).data()[0].id;
-  //   refgetItemById({getItemByIdId: parseInt(nowItemId.value)});
-  //   refgetItemCase({itemId: parseInt(nowItemId.value)});
-  // });
 });
 
 // 檔案上傳==========Start
@@ -760,6 +827,7 @@ uploadFileOnDone((result) => {
                                           <MDBLightboxItem 
                                             :src="nowGcpSimageDL" 
                                             :fullScreenSrc = "nowGcpSimageDL"
+                                            onerror="this.src='nosrc.png'"
                                             alt="航拍略圖" 
                                             class="img-allfluid"/>
                                     </MDBLightbox>
@@ -796,6 +864,7 @@ uploadFileOnDone((result) => {
                                       <MDBLightboxItem 
                                         :src="nowGcpDespImgDL" 
                                         :fullScreenSrc="nowGcpDespImgDL"
+                                        onerror="this.src='nosrc.png'"
                                         alt="點之記略圖" 
                                         class="img-allfluid" />
                                     </MDBLightbox>
@@ -867,59 +936,61 @@ uploadFileOnDone((result) => {
                     </MDBCol>
                     <!-- 分割右 -->
                     <MDBCol lg="5" class="h-100 border-start">
+                      <MDBRow>
+                        <MDBCol col="12" class="py-2 border-bottom">
+                          <MDBBtn size="sm" color="primary" @click="">新增</MDBBtn>
+                          <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
+                          <MDBBtn size="sm" color="primary" @click="">刪除</MDBBtn>
+                        </MDBCol>
+                      </MDBRow>
                       <MDBTabs v-model="activeTabId2">
                         <!-- Tabs navs -->
                         <MDBTabNav tabsClasses="">
                           <MDBTabItem tabId="ptRecord" href="ptRecord">清查資料</MDBTabItem>
                           <MDBTabItem tabId="images" href="images">照片</MDBTabItem>
+                          <MDBTabItem tabId="obsImg" href="obsImg">透空圖</MDBTabItem>
                         </MDBTabNav>
-                        <MDBTabContent :key="updateKey" style="height: calc(100% - 3rem);">
+                        <MDBTabContent :key="updateKey2" style="height: calc(100% - 6rem);">
                           <!-- 清查資料 -->
                           <MDBTabPane tabId="ptRecord" class="h-100">
-                            <MDBRow>
-                              <MDBCol col="12" class="py-2 border-bottom">
-                                <MDBBtn size="sm" color="primary" @click="">新增</MDBBtn>
-                                <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
-                                <MDBBtn size="sm" color="primary" @click="">刪除</MDBBtn>
+                            <MDBRow class="overflow-auto align-content-start h-100">
+                              <MDBCol xl="6" class="mt-2">
+                                <MDBInput readonly size="sm" type="text" label="索引" v-model="nowPRecordId" />
                               </MDBCol>
-                            </MDBRow>
-                            <MDBRow class="overflow-auto align-content-start" style="height: calc(100% - 3rem);">
-                              <MDBCol xl="6">
-                                <MDBRow>
-                                  <MDBCol xl="12" class="mt-2">
-                                    <MDBInput size="sm" type="text" label="索引" v-model="nowPRecordId" />
-                                  </MDBCol>
-                                  <MDBCol xl="12" class="mt-2">
-                                    <MDBInput size="sm" type="text" label="點號" v-model="nowPRecordPtId" />
-                                  </MDBCol>
-                                  <MDBSelect size="sm" class="mt-2 col-12" label="作業編號" v-model:options="nowPRecordPrjIdMU"
-                                    v-model:selected="nowPRecordPrjId" ref="nowPRecordPrjIdDOM" />
-                                  <MDBCol xl="12" class="mt-2">
-                                    <MDBDatepicker size="sm" v-model="nowPRecordDate" format=" YYYY-MM-DD " label="紀錄日期"
-                                      ref="nowPRecordDateDOM" />
-                                  </MDBCol>
-                                  <MDBSelect size="sm" class="mt-2 col-12" label="作業人員" v-model:options="nowPRecordPersonMU"
-                                    v-model:selected="nowPRecordPerson" ref="nowPRecordPersonDOM" />
-                                  <MDBSelect size="sm" class="mt-2 col-12" label="點位狀況" v-model:options="nowPRecordPtStatusMU"
-                                    v-model:selected="nowPRecordPtStatus" ref="nowPRecordPtStatusDOM" />
-                                </MDBRow>
+                              <MDBCol xl="6" class="mt-2">
+                                <MDBInput size="sm" type="text" label="點號" v-model="nowPRecordPtId" />
                               </MDBCol>
-                              <MDBCol xl="6">
-                                <MDBRow>
-                                  <MDBCol xl="12" class="mt-2">
-                                    <MDBInput size="sm" type="text" label="E坐標" v-model="nowPRecordE" />
-                                  </MDBCol>
-                                  <MDBCol xl="12" class="mt-2">
-                                    <MDBInput size="sm" type="text" label="N坐標" v-model="nowPRecordN" />
-                                  </MDBCol>
-                                  <MDBCol xl="12" class="mt-2">
-                                    <MDBInput size="sm" type="text" label="h坐標" v-model="nowPRecordh" />
-                                  </MDBCol>
-                                  <MDBCol xl="12" class="mt-2">
-                                    <MDBInput size="sm" type="text" v-model="nowPRecordCoor" />
-                                  </MDBCol>
-                                </MDBRow>
+                              <MDBSelect size="sm" class="mt-2 col-xl-6" label="作業編號" v-model:options="nowPRecordPrjIdMU"
+                                v-model:selected="nowPRecordPrjId" ref="nowPRecordPrjIdDOM" />
+                              <MDBCol xl="6" class="mt-2">
+                                <MDBDatepicker size="sm" v-model="nowPRecordDate" format=" YYYY-MM-DD " label="紀錄日期"
+                                  ref="nowPRecordDateDOM" />
                               </MDBCol>
+
+                              <MDBSelect filter size="sm" class="mt-2 col-xl-6 notext" 
+                                v-model:options="nowPRecordPersonMU"
+                                v-model:selected="nowPRecordPerson" 
+                                ref="nowPRecordPersonDOM"
+                                @close="updateRecPerson()">
+                                <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowPRecordPerson" />
+                              </MDBSelect>
+
+                              <MDBSelect size="sm" class="mt-2 col-xl-6" label="點位狀況" v-model:options="nowPRecordPtStatusMU"
+                                v-model:selected="nowPRecordPtStatus" ref="nowPRecordPtStatusDOM" />
+
+                              <MDBCol xl="6" class="mt-2">
+                                <MDBInput size="sm" type="text" label="E坐標" v-model="nowPRecordE" />
+                              </MDBCol>
+                              <MDBCol xl="6" class="mt-2">
+                                <MDBInput size="sm" type="text" label="N坐標" v-model="nowPRecordN" />
+                              </MDBCol>
+                              <MDBCol xl="6" class="mt-2">
+                                <MDBInput size="sm" type="text" label="h坐標" v-model="nowPRecordh" />
+                              </MDBCol>
+                              <MDBCol xl="12" class="mt-2">
+                                <MDBInput size="sm" type="text" v-model="nowPRecordCoor" />
+                              </MDBCol>
+
                               <MDBCol col="12" class="mt-2">
                                 <MDBTextarea size="sm" label="備註" rows="2" v-model="nowPRecordCom" />
                               </MDBCol>
@@ -927,24 +998,18 @@ uploadFileOnDone((result) => {
                           </MDBTabPane>
                           <!-- 照片資料 -->
                           <MDBTabPane tabId="images" class="h-100">
-                            <MDBRow>
-                              <MDBCol col="12" class="py-2 border-bottom">
-                                <MDBBtn size="sm" color="primary" @click="">新增</MDBBtn>
-                                <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
-                                <MDBBtn size="sm" color="primary" @click="">刪除</MDBBtn>
-                              </MDBCol>
-                            </MDBRow>
-                            <MDBLightbox zoomLevel="0.25" style="height: calc(100% - 3rem);">
+                            <MDBLightbox zoomLevel="0.25" class="h-100">
                               <MDBRow class="overflow-auto align-content-start h-100">
-                                
                                   <!-- 近照 -->
                                   <MDBCol xl="6">
                                     <MDBRow>
-                                      <MDBCol class="text-center mx-2 mt-2 p-0" style="height: 10rem;">
+                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 10rem;">
                                           <MDBLightboxItem 
-                                            :src="'04_GCP/' + nowPRecordPrjId + '/pic/' + nowPRecordPtId + '/' + nowPRecordImg0" 
+                                            :src="nowPRecordImg0DL" 
+                                            :fullScreenSrc="nowPRecordImg0DL"
+                                            onerror="this.src='nosrc.png'"
                                             alt="近照" 
-                                            class="img-thumbnail lightboxImg" />
+                                            class="img-allfluid" />
                                       </MDBCol>
                                       <div></div>
                                       <MDBCol col="12" class="mt-2">
@@ -964,11 +1029,13 @@ uploadFileOnDone((result) => {
                                   <!-- 遠照1 -->
                                   <MDBCol xl="6">
                                     <MDBRow>
-                                      <MDBCol class="text-center mx-2 mt-2 p-0" style="height: 10rem;">
+                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 10rem;">
                                           <MDBLightboxItem 
-                                            :src="'04_GCP/' + nowPRecordPrjId + '/pic/' + nowPRecordPtId + '/' + nowPRecordImg1" 
+                                            :src="nowPRecordImg1DL" 
+                                            :fullScreenSrc="nowPRecordImg1DL"
+                                            onerror="this.src='nosrc.png'"
                                             alt="遠照1" 
-                                            class="img-thumbnail lightboxImg" />
+                                            class="img-allfluid" />
                                       </MDBCol>
                                       <div></div>
                                       <MDBCol col="12" class="mt-2">
@@ -988,11 +1055,13 @@ uploadFileOnDone((result) => {
                                   <!-- 遠照2 -->
                                   <MDBCol xl="6">
                                     <MDBRow>
-                                      <MDBCol class="text-center mx-2 mt-2 p-0" style="height: 10rem;">
+                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 10rem;">
                                           <MDBLightboxItem 
-                                            :src="'04_GCP/' + nowPRecordPrjId + '/pic/' + nowPRecordPtId + '/' + nowPRecordImg2" 
+                                            :src="nowPRecordImg2DL" 
+                                            :fullScreenSrc="nowPRecordImg2DL"
+                                            onerror="this.src='nosrc.png'"
                                             alt="遠照2" 
-                                            class="img-thumbnail lightboxImg" />
+                                            class="img-allfluid" />
                                       </MDBCol>
                                       <div></div>
                                       <MDBCol col="12" class="mt-2">
@@ -1012,11 +1081,13 @@ uploadFileOnDone((result) => {
                                   <!-- 遠照3 -->
                                   <MDBCol xl="6">
                                     <MDBRow>
-                                      <MDBCol class="text-center mx-2 mt-2 p-0" style="height: 10rem;">
+                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 10rem;">
                                           <MDBLightboxItem 
-                                            :src="'04_GCP/' + nowPRecordPrjId + '/pic/' + nowPRecordPtId + '/' + nowPRecordImg3" 
+                                            :src="nowPRecordImg3DL"
+                                            :fullScreenSrc="nowPRecordImg3DL" 
+                                            onerror="this.src='nosrc.png'"
                                             alt="遠照3" 
-                                            class="img-thumbnail lightboxImg" />
+                                            class="img-allfluid" />
                                       </MDBCol>
                                       <div></div>
                                       <MDBCol col="12" class="mt-2">
@@ -1029,6 +1100,39 @@ uploadFileOnDone((result) => {
                                       <MDBCol col="12" class="mt-2">
                                         <MDBBtn size="sm" color="primary" @click="uploadBtn('PRecordImg3')">上傳</MDBBtn>
                                         <MDBBtn tag="a" :href="nowPRecordImg3DL" download size="sm" color="secondary">下載</MDBBtn>
+                                      </MDBCol>
+                                    </MDBRow>
+                                  </MDBCol>
+
+                              </MDBRow>
+                            </MDBLightbox>
+                          </MDBTabPane>
+                          <!-- 透空圖 -->
+                          <MDBTabPane tabId="obsImg" class="h-100">
+                            <MDBLightbox zoomLevel="0.25" class="h-100">
+                              <MDBRow class="overflow-auto align-content-start h-100">
+                                  <!-- 透空圖 -->
+                                  <MDBCol xl="12" class="h-100">
+                                    <MDBRow class="h-100">
+                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: calc(100% - 6rem)">
+                                          <MDBLightboxItem 
+                                            :src="nowPRecordObsDL"
+                                            :fullScreenSrc="nowPRecordObsDL" 
+                                            onerror="this.src='nosrc.png'"
+                                            alt="透空圖" 
+                                            class="img-allfluid" />
+                                      </MDBCol>
+                                      <div></div>
+                                      <MDBCol col="12" class="mt-2">
+                                        <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
+                                          label="透空圖" v-model="nowPRecordObs">
+                                          <MDBBtnClose @click.prevent="nowPRecordObs = ''"
+                                            class="btn-upload-close" />
+                                        </MDBInput>
+                                      </MDBCol>
+                                      <MDBCol col="12" class="mt-2">
+                                        <MDBBtn size="sm" color="primary" @click="uploadBtn('PRecordImg0')">上傳</MDBBtn>
+                                        <MDBBtn tag="a" :href="nowPRecordObsDL" download size="sm" color="secondary">下載</MDBBtn>
                                       </MDBCol>
                                     </MDBRow>
                                   </MDBCol>

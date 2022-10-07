@@ -36,7 +36,7 @@ const GETRECORDBYPID = gql`
 `;
 
 const GETALLGCP = gql`
-  query GetAllGcp(
+  mutation GetAllGcp(
     $projectId: Int
     $getAllGcpId: String
     $enable: Int
@@ -178,6 +178,38 @@ const UPDATEGCP = gql`
   }
 `;
 
+const GETRECORDBYID = gql`
+  mutation GetGcpRecordById($getGcpRecordByIdId: Int!) {
+    getGcpRecordById(id: $getGcpRecordByIdId) {
+      id
+      gcp_id
+      project_id
+      date
+      person
+      status
+      coor_E
+      coor_N
+      coor_h
+      close_photo
+      far_photo1
+      far_photo2
+      far_photo3
+      obstruction
+      ismodify
+      comment
+      ref_project {
+        project_code
+      }
+    }
+  }
+`;
+
+const GETRECPERSON = gql`
+  mutation Mutation {
+    getAllRecPersonList
+  }
+`;
+
 export default {
   GETRECORDBYPID,
   GETALLGCP,
@@ -185,4 +217,6 @@ export default {
   GETGCPBYID,
   GETGCPTYPE,
   UPDATEGCP,
+  GETRECORDBYID,
+  GETRECPERSON,
 };
