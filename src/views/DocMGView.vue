@@ -638,6 +638,7 @@ function saveDocBtn() {
       // console.log(pdfPath.value);
     }else{
       nowEdUpload.value = result.data.uploadDoc.filename;
+      document.getElementById('pdf-js-viewer').contentWindow.location.reload();
       saveUpload({
         updateDocId: parseInt(nowIDed.value),
         editableUpload: nowEdUpload.value,
@@ -675,6 +676,22 @@ function saveDocBtn() {
     document.getElementById("itemExpUpload").click();
   }
 // 檔案上傳==========end
+const showLeftData = ref(true);
+const rightPDFmd = ref("4");
+const showPDFIcon = ref('<i class="fas fa-angle-double-left"></i>')
+function zoompdfView(){
+  if(showLeftData.value){
+    // 準備關閉
+    showLeftData.value = false;
+    rightPDFmd.value = "12";
+    showPDFIcon.value = '<i class="fas fa-angle-double-right"></i>';
+  }else{  
+    // 準備開啟
+    showLeftData.value = true;
+    rightPDFmd.value = "4";
+    showPDFIcon.value = '<i class="fas fa-angle-double-left"></i>';
+  }
+}
 
 </script>
 
@@ -686,7 +703,7 @@ function saveDocBtn() {
       <!-- 主體 -->
       <MDBRow style="margin-left:0;margin-right:0;height: calc(100% - 6.5em);" class="overflow-auto">
         <!-- 左方資料欄 -->
-        <MDBCol md="8" class="h-100">
+        <MDBCol v-show="showLeftData" id="left-data" md="8" class="h-100">
           <MDBRow class="h-100 align-content-between">
             <!-- 上方列表 -->
             <MDBCol md="12" style="height: calc(50% - 1.5rem) ;"
@@ -845,11 +862,21 @@ function saveDocBtn() {
           </MDBRow>
         </MDBCol>
         <!-- 右方PDF顯示 -->
-        <MDBCol md="4" class="h-100">
+        <MDBCol id="right-pdf" :md="rightPDFmd" class="h-100 ps-4" style="position: relative;" >
+          <button 
+            style="position:absolute; 
+            top:0;
+            left:0.7rem;
+            height: calc(100% - 1rem);
+            width: 1rem;" 
+            class="my-2 p-0 btn btn-info" 
+            @click.prevent="zoompdfView"
+            v-html="showPDFIcon" >
+          </button>
           <!-- PDF預覽 -->
-          <MDBRow style="margin-left: auto;height: calc(100% - 1rem);"
+          <MDBRow style="height: calc(100% - 1rem);"
             class="my-2 bg-light overflow-auto border border-5 rounded-8 shadow-4">
-            <iframe id="pdf-js-viewer" :src="pdfPath" class="h-100 w-100"></iframe>
+            <iframe id="pdf-js-viewer" :src="pdfPath" class="h-100"></iframe>
           </MDBRow>
 
         </MDBCol>

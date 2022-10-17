@@ -58,6 +58,9 @@ const props = defineProps({
 
 // 案件詳細編輯資料==========start
 // 案件之詳細資料
+const selectUcObj = ref();
+const selectReportObj = ref();
+
 const nowCaseTitle = inject("nowCaseTitle"); //報告抬頭
 const nowCaseAddress = inject("nowCaseAddress"); //報告地址
 // 申請
@@ -385,12 +388,9 @@ getNowCaseF(result => {
     nowCaseCalResult.value = getData.recal_table ? getData.recal_table : "";
     data1.value = calResultToData1();
     nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table : "";
-    nowCaseUcModel.value = getData.uc_model; // 不確定度模組
-    selectUcModel.value = getData.uc_model; // 不確定度模組
+
     // 出具報告
     nowCaseHasLOGO.value = getData.has_logo;
-    nowCaseReportTemp.value = getData.report_template;
-    selectReportTemp.value = getData.report_template;
 
     nowCaseReportEdit.value = getData.report_edit;
     if(getData.complete_date){
@@ -413,8 +413,21 @@ getNowCaseF(result => {
 
     nowCaseReportScan.value = getData.report_scan;
 
-    getUcList(); // 取得不確定度模組清單，並填入下拉選單
-    getRptList(); // 取得報告範本清單，並填入下拉選單
+    // 不確定度模組
+    getUcList().then(res=>{
+      nowCaseUcModel.value = getData.uc_model;
+      selectUcModel.value = getData.uc_model;
+      if(selectUcObj.value){
+        selectUcObj.value.doreNew();
+      }
+    }); // 取得不確定度模組清單，並填入下拉選單
+    getRptList().then(res=>{
+      nowCaseReportTemp.value = getData.report_template;
+      selectReportTemp.value = getData.report_template;
+      if(selectReportObj.value){
+        selectReportObj.value.doreNew();
+      }
+    }); // 取得報告範本清單，並填入下拉選單
   }
 });
 refgetNowCaseF();
@@ -1157,7 +1170,7 @@ getUcListOnDone((result) => {
         myArray.push({ text: x, value: x });
       }
     });
-    myArray.unshift({text: "-未選取-", value: -1})
+    myArray.unshift({text: "-未選取-", value: '-1'})
     nowCaseUcModelMU.value = myArray;
   }
 });
@@ -1649,7 +1662,7 @@ getRptListOnDone((result) => {
   if (!result.loading && result.data.getRptlist) {
     nowCaseReportTempMU.value = result.data.getRptlist.map((x) => {
       return { text: x, value: x };
-    });
+    });nowCaseReportTempMU.value.unshift({text: "-未選取-", value: '-1'})
   }
 });
 
@@ -2172,7 +2185,8 @@ defineExpose({
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="發布日期"
                       v-model="nowCaseRefPrjPublishDate" />
                   </MDBCol>
-                  <SelectUc />
+                  <!-- 參考值選單 -->
+                  <SelectUc ref="selectUcObj" />
                 </MDBRow>
               </MDBCol>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
@@ -2192,7 +2206,7 @@ defineExpose({
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
-                    <MDBBtn :disabled="!rGroup[2] || !isCalResult || !selectUcModel" size="sm" color="primary" @click.stop="computeUcBtn">
+                    <MDBBtn :disabled="!rGroup[2] || !isCalResult || !selectUcModel || selectUcModel==='-1'" size="sm" color="primary" @click.stop="computeUcBtn">
                       計算不確定度
                     </MDBBtn>
                     <MDBBtn :disabled="!rGroup[2] || !isCalResult" size="sm" color="primary">
@@ -2265,14 +2279,14 @@ defineExpose({
                         <MDBSwitch label="具TAF-LOGO" v-model="nowCaseHasLOGO" />
                       </MDBCol>
                       <!-- 選擇報告範本 -->
-                      <SelectRptTemp />
+                      <SelectRptTemp ref="selectReportObj" />
                       <MDBCol lg="6" class="mb-3">
                         <MDBDatepicker required size="sm" v-model="nowCaseCompleteDate" format="YYYY-MM-DD"
                           label="報告完成日" ref="nowCaseCompleteDateDOM" />
                       </MDBCol>
 
                       <MDBCol col="12" class="mb-3">
-                        <MDBBtn :disabled="!rGroup[2] || !selectReportTemp || !nowCaseCompleteDate" size="sm" color="secondary" @click.stop="buildReportBtn()">產生報告
+                        <MDBBtn :disabled="!rGroup[2] || !selectReportTemp || selectReportTemp==='-1' || !nowCaseCompleteDate" size="sm" color="secondary" @click.stop="buildReportBtn()">產生報告
                         </MDBBtn>
                       </MDBCol>
 

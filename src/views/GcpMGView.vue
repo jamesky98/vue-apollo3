@@ -137,7 +137,7 @@ const nowGcpTypeCodeDOM = ref();
 
 const nowGcpOwnerShip = ref("");
 const nowGcpOwnerShipMU = ref([
-  {text: "-未選取-", value: -1},
+  {text: "-未選取-", value: "-1"},
   {text: "公有地", value: "公有地"},
   {text: "私有地", value: "私有地"},
 ]);
@@ -148,7 +148,7 @@ const nowGcpEstDate = ref("");
 
 const nowGcpPavement = ref("");
 const nowGcpPavementMU = ref([
-  {text: "-未選取-", value: -1},
+  {text: "-未選取-", value: "-1"},
   {text: "道路面", value: "道路面"},
   {text: "建物頂樓", value: "建物頂樓"},
   {text: "人行道", value: "人行道"},
@@ -160,7 +160,7 @@ const nowGcpPavementDOM = ref();
 
 const nowGcpStyle = ref("");
 const nowGcpStyleMU = ref([
-  {text: "-未選取-", value: -1},
+  {text: "-未選取-", value: "-1"},
   {text: "鋼釘", value: "鋼釘"},
   {text: "鋼片", value: "鋼片"},
 ]);
@@ -169,7 +169,7 @@ const nowGcpStyleDOM = ref();
 const nowGcpSimage = ref("");
 const nowGcpSimageDL = computed(()=>{
   if(nowGcpDespImg.value){
-    return "04_GCP/Pt/" + nowGcpSimage.value
+    return "04_GCP/Pt/" + nowGcpSimage.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -180,7 +180,7 @@ const nowGcpComment = ref("");
 const nowGcpDespImg = ref("");
 const nowGcpDespImgDL = computed(()=>{
   if(nowGcpDespImg.value){
-    return "04_GCP/Pt/" + nowGcpDespImg.value
+    return "04_GCP/Pt/" + nowGcpDespImg.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -238,7 +238,7 @@ const nowPRecordCom = ref("");
 const nowPRecordImg0 = ref("");
 const nowPRecordImg0DL = computed(()=>{
   if(nowPRecordImg0.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value
+    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -247,7 +247,7 @@ const nowPRecordImg0DL = computed(()=>{
 const nowPRecordImg1 = ref("");
 const nowPRecordImg1DL = computed(()=>{
   if(nowPRecordImg1.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value
+    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -256,7 +256,7 @@ const nowPRecordImg1DL = computed(()=>{
 const nowPRecordImg2 = ref("");
 const nowPRecordImg2DL = computed(()=>{
   if(nowPRecordImg2.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value
+    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -265,7 +265,7 @@ const nowPRecordImg2DL = computed(()=>{
 const nowPRecordImg3 = ref("");
 const nowPRecordImg3DL = computed(()=>{
   if(nowPRecordImg3.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value
+    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -274,7 +274,7 @@ const nowPRecordImg3DL = computed(()=>{
 const nowPRecordObs = ref("");
 const nowPRecordObsDL = computed(()=>{
   if(nowPRecordObs.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordObs.value
+    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordObs.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -539,14 +539,14 @@ saveGcpOnDone(result=>{
 });
 function saveGcpBtn(){
   saveGcp({
-    updateGcpId: nowGcpId.value,
+    updateGcpId: (nowGcpId.value)?nowGcpId.value:'-1',
     enable: (nowGcpEnable.value)?1:0,
     typeCode: (nowGcpTypeCode.value && nowGcpTypeCode.value!==-1)?parseInt(nowGcpTypeCode.value):null,
     ownership: nowGcpOwnerShip.value,
     establishment: nowGcpEstablishment.value,
     estDate: parseInt(nowGcpEstDate.value),
-    pavement: (nowGcpPavement.value && nowGcpPavement.value!==-1)?nowGcpPavement.value:null,
-    style: (nowGcpStyle.value && nowGcpStyle.value!==-1)?nowGcpStyle.value:null,
+    pavement: (nowGcpPavement.value && nowGcpPavement.value!=='-1')?nowGcpPavement.value:null,
+    style: (nowGcpStyle.value && nowGcpStyle.value!=='-1')?nowGcpStyle.value:null,
     ptDesc: nowGcpDespStr.value,
     ptMap: nowGcpDespImg.value,
     aerialImg: nowGcpSimage.value,
@@ -556,7 +556,46 @@ function saveGcpBtn(){
   }).then(res=>{getAllGcp()});
 }
 
+// 新增
+function newGcpBtn(){
+  nowGcpId.value = "";
+  nowGcpEnable.value = true;
 
+  nowGcpTypeCode.value = -1;
+  nowGcpTypeCodeDOM.value.setValue(nowGcpTypeCode.value);
+
+  nowGcpOwnerShip.value = "";
+  nowGcpEstablishment.value = "";
+  nowGcpEstDate.value = "";
+
+  nowGcpPavement.value = "-1";
+  nowGcpPavementDOM.value.setValue(nowGcpPavement.value);
+
+  nowGcpStyle.value = "-1";
+  nowGcpStyleDOM.value.setValue(nowGcpStyle.value);
+
+  nowGcpDespStr.value = "";
+  nowGcpDespImg.value = "";
+  nowGcpSimage.value = "";
+  nowGcpNeedContact.value = false;
+  nowGcpContactId.value = -1;
+  nowGcpContactDOM.value.setValue(nowGcpContactId.value);
+  nowGcpComment.value = "";
+  nowGcpContactAds.value = "";
+  nowGcpContactPrs.value = "";
+  nowGcpContactTel.value = "";
+  nowGcpContactCom.value = "";
+}
+
+// 刪除
+const { mutate: delGcp, onDone: delGcpOnDone, onError: delGcpError } = useMutation(
+  GcpGQL.DELGCP,()=>({
+    variables: {
+      delGcpId: nowGcpId.value,
+}}));
+delGcpOnDone(result=>{
+  infomsg.value = "點位 " + result.data.delGCP.id + "刪除完畢"
+});
 // 點位基本列表==========End
 
 // 歷年量測列表==========Start
@@ -630,6 +669,75 @@ getRecordByIdOnDone(result=>{
   updateKey2.value=updateKey2.value+1;
 });
 
+// 儲存
+const { mutate: saveGcpRecord, onDone: saveGcpRecordOnDone, onError: saveGcpRecordError } = useMutation(GcpGQL.UPDATEGCPRECORD);
+saveGcpRecordOnDone(result=>{
+  infomsg.value = "點位 " + result.data.updateGcpRecord.gcp_id + "紀錄儲存完畢"
+});
+function saveGcpRecordBtn(){
+  saveGcpRecord({
+    updateGcpRecordId: (parseInt(nowPRecordId.value))?parseInt(nowPRecordId.value):-1,
+    gcpId: (nowPRecordPtId.value)?nowPRecordPtId.value:null,
+    projectId: (parseInt(nowPRecordPrjId.value) && parseInt(nowPRecordPrjId.value)!==-1)?parseInt(nowPRecordPrjId.value):null,
+    date: (nowPRecordDate.value === "")? null: nowPRecordDate.value.trim() + "T00:00:00.000Z",
+    person: nowPRecordPerson.value,
+    status: nowPRecordPtStatus.value,
+    coorE: nowPRecordE.value,
+    coorN: nowPRecordN.value,
+    coorH: nowPRecordh.value,
+    closePhoto: nowPRecordImg0.value,
+    farPhoto1: nowPRecordImg1.value,
+    farPhoto2: nowPRecordImg2.value,
+    farPhoto3: nowPRecordImg3.value,
+    obstruction: nowPRecordObs.value,
+    comment: nowPRecordCom.value,
+  }).then(res=>{
+    getAllGcp()
+  }).then(res=>{
+    refgetRcordByPId({ gcpId: nowGcpId.value });
+  }).then(res=>{
+    getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
+  });
+}
+
+// 新增
+function newPRecordBtn(){
+  nowPRecordId.value = "";
+  nowPRecordPtId.value = nowGcpId.value;
+  nowPRecordPrjId.value = -1;
+  nowPRecordPrjIdDOM.value.setValue(nowPRecordPrjId.value);
+
+  nowPRecordPrjCode.value = "";
+
+  nowPRecordDate.value = "";
+  nowPRecordDateDOM.value.value.inputValue="";
+
+  nowPRecordPerson.value = "";
+  nowPRecordPtStatus.value = "";
+  nowPRecordE.value = "";
+  nowPRecordN.value = "";
+  nowPRecordh.value = "";
+  nowPRecordCom.value = "";
+  nowPRecordImg0.value = "";
+  nowPRecordImg1.value = "";
+  nowPRecordImg2.value = "";
+  nowPRecordImg3.value = "";
+  nowPRecordObs.value = "";
+}
+// 刪除
+const { mutate: delGcpRecord, onDone: delGcpRecordOnDone, onError: delGcpRecordError } = useMutation(
+  GcpGQL.DELGCPRECORD,()=>({
+    variables: {
+      delGcpRecordId: nowPRecordId.value,
+}}));
+delGcpRecordOnDone(result=>{
+  infomsg.value = "點位 " + result.data.delGcpRecord.gcp_id + "紀錄刪除完畢"
+});
+
+// 作業編號下拉式選取
+function nowPrjChange(e){
+  nowPRecordPrjCode.value = nowPRecordPrjIdDOM.value.inputValue;
+}
 
 // 歷年量測列表==========End
 
@@ -685,7 +793,26 @@ async function uploadChenge(e) {
       subpath = "04_GCP/Pt"
       newName = nowGcpId.value + "-B" + path.extname(e.target.value);
       break;
-    
+    case "PRecordImg0":
+      subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
+      newName = nowGcpId.value + "-1" + path.extname(e.target.value);
+      break;
+    case "PRecordImg1":
+      subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
+      newName = nowGcpId.value + "-2" + path.extname(e.target.value);
+      break;
+    case "PRecordImg2":
+      subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
+      newName = nowGcpId.value + "-3" + path.extname(e.target.value);
+      break;
+    case "PRecordImg3":
+      subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
+      newName = nowGcpId.value + "-4" + path.extname(e.target.value);
+      break;
+    case "PRecordImgObs":
+      subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
+      newName = nowGcpId.value + "-C" + path.extname(e.target.value);
+      break;
   }
   await uploadFile({
     file: upFile.value,
@@ -705,12 +832,39 @@ uploadFileOnDone((result) => {
   }
   switch (uploadType.value) {
     case "GcpSimage":
+      nowGcpSimage.value = "";
       nowGcpSimage.value = result.data.uploadFile.filename;
       saveGcpBtn();
       break;
     case "GcpDespImg":
+      nowGcpDespImg.value = "";
       nowGcpDespImg.value = result.data.uploadFile.filename;
       saveGcpBtn();
+      break;
+    case "PRecordImg0":
+      nowPRecordImg0.value = ""
+      nowPRecordImg0.value = result.data.uploadFile.filename;
+      saveGcpRecordBtn();
+      break;
+    case "PRecordImg1":
+      nowPRecordImg1.value = "";
+      nowPRecordImg1.value = result.data.uploadFile.filename;
+      saveGcpRecordBtn();
+      break;
+    case "PRecordImg2":
+      nowPRecordImg2.value = "";
+      nowPRecordImg2.value = result.data.uploadFile.filename;
+      saveGcpRecordBtn();
+      break;
+    case "PRecordImg3":
+      nowPRecordImg3.value = "";
+      nowPRecordImg3.value = result.data.uploadFile.filename;
+      saveGcpRecordBtn();
+      break;
+    case "PRecordImgObs":
+      nowPRecordObs.value = "";
+      nowPRecordObs.value = result.data.uploadFile.filename;
+      saveGcpRecordBtn();
       break;
   }
   let inputDOM;
@@ -750,9 +904,13 @@ uploadFileOnDone((result) => {
                     <MDBCol lg="5" class="h-100 border-start">
                       <MDBRow>
                         <MDBCol col="12" class="py-2 border-bottom">
-                          <MDBBtn size="sm" color="primary" @click="">新增</MDBBtn>
+                          <MDBBtn size="sm" color="primary" @click="newGcpBtn">新增</MDBBtn>
                           <MDBBtn size="sm" color="primary" @click="saveGcpBtn">儲存</MDBBtn>
-                          <MDBBtn size="sm" color="primary" @click="">刪除</MDBBtn>
+                          <!-- <MDBBtn size="sm" color="primary" @click="delGcp">刪除</MDBBtn> -->
+                          <MDBPopconfirm :disabled="!rGroup[1] || !nowGcpId" class="btn-sm btn-danger me-auto" message="刪除後無法恢復，確定刪除嗎？"
+                            cancelText="取消" confirmText="確定" @confirm="delGcp">
+                            刪除
+                          </MDBPopconfirm>
                         </MDBCol>
                       </MDBRow>
                       <MDBTabs v-model="activeTabId1">
@@ -819,34 +977,24 @@ uploadFileOnDone((result) => {
                                   
                                 </MDBRow>
                               </MDBCol>
-                              <!-- 右方略圖 -->
-                              <MDBCol xl="6" style="height: calc(100% - 9.75rem);">
-                                <MDBRow class="h-100 align-content-start">
-                                  <MDBCol class="text-center mx-2 mt-2 p-0 h-100">
-                                    <MDBLightbox class="h-100 overflow-hidden img-thumbnail lightboxImg">
-                                          <MDBLightboxItem 
-                                            :src="nowGcpSimageDL" 
-                                            :fullScreenSrc = "nowGcpSimageDL"
-                                            onerror="this.src='nosrc.png'"
-                                            alt="航拍略圖" 
-                                            class="img-allfluid"/>
+                              <!-- 右方航拍略圖 -->
+                              <MDBCol xl="6" style="height: calc(100% - 4.5rem); position:relative;" class="ps-0">
+                                  <!-- <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg h-100" style="position:relative;"> -->
+                                    <MDBLightbox zoomLevel="0.25" class="text-center h-100 overflow-hidden img-thumbnail lightboxImg">
+                                      <MDBLightboxItem 
+                                        :src="nowGcpSimageDL" 
+                                        :fullScreenSrc="nowGcpSimageDL"
+                                        onerror="this.src='nosrc.png'"
+                                        alt="航拍略圖" 
+                                        class="img-allfluid" />
                                     </MDBLightbox>
-                                  </MDBCol>
-                                  <div></div>
-                                  <!-- 航拍略圖 -->
-                                  <MDBCol col="12" class="mt-2">
-                                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                                      label="航拍略圖" v-model="nowGcpSimage">
-                                      <MDBBtnClose @click.prevent="nowGcpSimage = ''"
-                                        class="btn-upload-close" />
-                                    </MDBInput>
-                                  </MDBCol>
-                                  <MDBCol col="12" class="mt-2">
-                                    <MDBBtn size="sm" color="primary" @click="uploadBtn('GcpSimage')">上傳</MDBBtn>
-                                    <MDBBtn tag="a" :href="nowGcpSimageDL" download size="sm" color="secondary">下載</MDBBtn>
-                                  </MDBCol>
-                                </MDBRow>
+                                    <div style="position: absolute; right: 1rem; bottom: 0.2rem;">
+                                      <MDBBtn size="sm" color="primary" @click.prevent="uploadBtn('GcpSimage')">上傳</MDBBtn>
+                                      <MDBBtn tag="a" :href="nowGcpSimageDL" download size="sm" color="secondary">下載</MDBBtn>
+                                    </div>
+                                  <!-- </MDBCol> -->
                               </MDBCol>
+
                               <!-- 下方備註 -->
                               <MDBCol col="12" class="my-2">
                                 <MDBTextarea size="sm" label="備註" rows="2" v-model="nowGcpComment" />
@@ -856,39 +1004,27 @@ uploadFileOnDone((result) => {
                           <!-- 點之記 -->
                           <MDBTabPane tabId="description" class="h-100">
                             <MDBRow class="overflow-auto align-content-start h-100">
-                              <!-- 左圖 -->
-                              <MDBCol xl="6" class="h-100">
-                                <MDBRow class="h-100 align-content-start">
-                                  <MDBCol class="text-center mx-2 mt-2 p-0" style="height: calc(100% - 6rem);">
-                                    <MDBLightbox zoomLevel="0.25" class="h-100 overflow-hidden img-thumbnail lightboxImg">
-                                      <MDBLightboxItem 
-                                        :src="nowGcpDespImgDL" 
-                                        :fullScreenSrc="nowGcpDespImgDL"
-                                        onerror="this.src='nosrc.png'"
-                                        alt="點之記略圖" 
-                                        class="img-allfluid" />
-                                    </MDBLightbox>
-                                  </MDBCol>
-                                  <div></div>
-                                  <!-- 點之記略圖 -->
-                                  <MDBCol col="12" class="mt-2">
-                                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                                      label="點之記略圖" v-model="nowGcpDespImg">
-                                      <MDBBtnClose @click.prevent="nowGcpDespImg = ''"
-                                        class="btn-upload-close" />
-                                    </MDBInput>
-                                  </MDBCol>
-                                  <MDBCol col="12" class="mt-2">
-                                    <MDBBtn size="sm" color="primary" @click="uploadBtn('GcpDespImg')">上傳</MDBBtn>
-                                    <MDBBtn tag="a" :href="nowGcpDespImgDL" download size="sm" color="secondary">下載</MDBBtn>
-                                  </MDBCol>
-                                </MDBRow>
+                              <!-- 左方點之記略圖 -->
+                              <MDBCol xl="6" class="text-center h-100 p-2" style="position:relative;">
+                                <MDBLightbox zoomLevel="0.25" class="h-100 overflow-hidden img-thumbnail lightboxImg">
+                                  <MDBLightboxItem 
+                                  :src="nowGcpDespImgDL" 
+                                  :fullScreenSrc="nowGcpDespImgDL"
+                                  onerror="this.src='nosrc.png'"
+                                  alt="點之記略圖" 
+                                  class="img-allfluid" />
+                                </MDBLightbox>
+                                <div style="position: absolute; right: 1rem; bottom: 1rem;">
+                                  <MDBBtn size="sm" color="primary" @click.prevent="uploadBtn('GcpDespImg')">上傳</MDBBtn>
+                                  <MDBBtn tag="a" :href="nowGcpDespImgDL" download size="sm" color="secondary">下載</MDBBtn>
+                                </div>
                               </MDBCol>
+
                               <!-- 右文 -->
                               <MDBCol xl="6" class="h-100">
                                 <MDBRow class="h-100">
                                   <MDBCol col="12" class="h-100">
-                                    <MDBTextarea size="sm" class="my-2" label="點之記說明" rows="13" v-model="nowGcpDespStr" />
+                                    <MDBTextarea size="sm" class="mt-2" label="點之記說明" rows="13.5" v-model="nowGcpDespStr" />
                                   </MDBCol>
                                 </MDBRow>
                               </MDBCol>
@@ -938,9 +1074,13 @@ uploadFileOnDone((result) => {
                     <MDBCol lg="5" class="h-100 border-start">
                       <MDBRow>
                         <MDBCol col="12" class="py-2 border-bottom">
-                          <MDBBtn size="sm" color="primary" @click="">新增</MDBBtn>
-                          <MDBBtn size="sm" color="primary" @click="">儲存</MDBBtn>
-                          <MDBBtn size="sm" color="primary" @click="">刪除</MDBBtn>
+                          <MDBBtn size="sm" color="primary" @click="newPRecordBtn">新增</MDBBtn>
+                          <MDBBtn size="sm" color="primary" @click="saveGcpRecordBtn">儲存</MDBBtn>
+                          <!-- <MDBBtn size="sm" color="primary" @click="delGcpRecord">刪除</MDBBtn> -->
+                          <MDBPopconfirm :disabled="!rGroup[1] || !nowPRecordId" class="btn-sm btn-danger me-auto" message="刪除後無法恢復，確定刪除嗎？"
+                            cancelText="取消" confirmText="確定" @confirm="delGcpRecord">
+                            刪除
+                          </MDBPopconfirm>
                         </MDBCol>
                       </MDBRow>
                       <MDBTabs v-model="activeTabId2">
@@ -958,10 +1098,10 @@ uploadFileOnDone((result) => {
                                 <MDBInput readonly size="sm" type="text" label="索引" v-model="nowPRecordId" />
                               </MDBCol>
                               <MDBCol xl="6" class="mt-2">
-                                <MDBInput size="sm" type="text" label="點號" v-model="nowPRecordPtId" />
+                                <MDBInput readonly size="sm" type="text" label="點號" v-model="nowPRecordPtId" />
                               </MDBCol>
                               <MDBSelect size="sm" class="mt-2 col-xl-6" label="作業編號" v-model:options="nowPRecordPrjIdMU"
-                                v-model:selected="nowPRecordPrjId" ref="nowPRecordPrjIdDOM" />
+                                v-model:selected="nowPRecordPrjId" ref="nowPRecordPrjIdDOM" @close="nowPrjChange($event)"/>
                               <MDBCol xl="6" class="mt-2">
                                 <MDBDatepicker size="sm" v-model="nowPRecordDate" format=" YYYY-MM-DD " label="紀錄日期"
                                   ref="nowPRecordDateDOM" />
@@ -988,7 +1128,7 @@ uploadFileOnDone((result) => {
                                 <MDBInput size="sm" type="text" label="h坐標" v-model="nowPRecordh" />
                               </MDBCol>
                               <MDBCol xl="12" class="mt-2">
-                                <MDBInput size="sm" type="text" v-model="nowPRecordCoor" />
+                                <MDBInput readonly size="sm" type="text" v-model="nowPRecordCoor" />
                               </MDBCol>
 
                               <MDBCol col="12" class="mt-2">
@@ -1003,103 +1143,68 @@ uploadFileOnDone((result) => {
                                   <!-- 近照 -->
                                   <MDBCol xl="6">
                                     <MDBRow>
-                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 10rem;">
-                                          <MDBLightboxItem 
-                                            :src="nowPRecordImg0DL" 
-                                            :fullScreenSrc="nowPRecordImg0DL"
-                                            onerror="this.src='nosrc.png'"
-                                            alt="近照" 
-                                            class="img-allfluid" />
-                                      </MDBCol>
-                                      <div></div>
-                                      <MDBCol col="12" class="mt-2">
-                                        <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                                          label="近照" v-model="nowPRecordImg0">
-                                          <MDBBtnClose @click.prevent="nowPRecordImg0 = ''"
-                                            class="btn-upload-close" />
-                                        </MDBInput>
-                                      </MDBCol>
-                                      <MDBCol col="12" class="mt-2">
-                                        <MDBBtn size="sm" color="primary" @click="uploadBtn('PRecordImg0')">上傳</MDBBtn>
-                                        <MDBBtn tag="a" :href="nowPRecordImg0DL" download size="sm" color="secondary">下載</MDBBtn>
+                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                        <MDBLightboxItem 
+                                          :src="nowPRecordImg0DL" 
+                                          :fullScreenSrc="nowPRecordImg0DL"
+                                          onerror="this.src='nosrc.png'"
+                                          alt="近照" 
+                                          class="img-allfluid" />
+                                        <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                          <MDBBtn size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg0')">上傳</MDBBtn>
+                                          <MDBBtn tag="a" :href="nowPRecordImg0DL" download size="sm" color="secondary">下載</MDBBtn>
+                                        </div>
                                       </MDBCol>
                                     </MDBRow>
                                   </MDBCol>
-
                                   <!-- 遠照1 -->
                                   <MDBCol xl="6">
                                     <MDBRow>
-                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 10rem;">
-                                          <MDBLightboxItem 
-                                            :src="nowPRecordImg1DL" 
-                                            :fullScreenSrc="nowPRecordImg1DL"
-                                            onerror="this.src='nosrc.png'"
-                                            alt="遠照1" 
-                                            class="img-allfluid" />
-                                      </MDBCol>
-                                      <div></div>
-                                      <MDBCol col="12" class="mt-2">
-                                        <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                                          label="遠照1" v-model="nowPRecordImg1">
-                                          <MDBBtnClose @click.prevent="nowPRecordImg1 = ''"
-                                            class="btn-upload-close" />
-                                        </MDBInput>
-                                      </MDBCol>
-                                      <MDBCol col="12" class="mt-2">
-                                        <MDBBtn size="sm" color="primary" @click="uploadBtn('PRecordImg1')">上傳</MDBBtn>
-                                        <MDBBtn tag="a" :href="nowPRecordImg1DL" download size="sm" color="secondary">下載</MDBBtn>
+                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                        <MDBLightboxItem 
+                                          :src="nowPRecordImg1DL" 
+                                          :fullScreenSrc="nowPRecordImg1DL"
+                                          onerror="this.src='nosrc.png'"
+                                          alt="遠照1" 
+                                          class="img-allfluid" />
+                                        <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                          <MDBBtn size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg1')">上傳</MDBBtn>
+                                          <MDBBtn tag="a" :href="nowPRecordImg1DL" download size="sm" color="secondary">下載</MDBBtn>
+                                        </div>
                                       </MDBCol>
                                     </MDBRow>
                                   </MDBCol>
-
                                   <!-- 遠照2 -->
                                   <MDBCol xl="6">
                                     <MDBRow>
-                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 10rem;">
-                                          <MDBLightboxItem 
-                                            :src="nowPRecordImg2DL" 
-                                            :fullScreenSrc="nowPRecordImg2DL"
-                                            onerror="this.src='nosrc.png'"
-                                            alt="遠照2" 
-                                            class="img-allfluid" />
-                                      </MDBCol>
-                                      <div></div>
-                                      <MDBCol col="12" class="mt-2">
-                                        <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                                          label="遠照2" v-model="nowPRecordImg2">
-                                          <MDBBtnClose @click.prevent="nowPRecordImg2 = ''"
-                                            class="btn-upload-close" />
-                                        </MDBInput>
-                                      </MDBCol>
-                                      <MDBCol col="12" class="mt-2">
-                                        <MDBBtn size="sm" color="primary" @click="uploadBtn('PRecordImg3')">上傳</MDBBtn>
-                                        <MDBBtn tag="a" :href="nowPRecordImg2DL" download size="sm" color="secondary">下載</MDBBtn>
+                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                        <MDBLightboxItem 
+                                          :src="nowPRecordImg2DL" 
+                                          :fullScreenSrc="nowPRecordImg2DL"
+                                          onerror="this.src='nosrc.png'"
+                                          alt="遠照2" 
+                                          class="img-allfluid" />
+                                        <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                          <MDBBtn size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg2')">上傳</MDBBtn>
+                                          <MDBBtn tag="a" :href="nowPRecordImg2DL" download size="sm" color="secondary">下載</MDBBtn>
+                                        </div>
                                       </MDBCol>
                                     </MDBRow>
                                   </MDBCol>
-
                                   <!-- 遠照3 -->
                                   <MDBCol xl="6">
                                     <MDBRow>
-                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 10rem;">
-                                          <MDBLightboxItem 
-                                            :src="nowPRecordImg3DL"
-                                            :fullScreenSrc="nowPRecordImg3DL" 
-                                            onerror="this.src='nosrc.png'"
-                                            alt="遠照3" 
-                                            class="img-allfluid" />
-                                      </MDBCol>
-                                      <div></div>
-                                      <MDBCol col="12" class="mt-2">
-                                        <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                                          label="遠照3" v-model="nowPRecordImg3">
-                                          <MDBBtnClose @click.prevent="nowPRecordImg3 = ''"
-                                            class="btn-upload-close" />
-                                        </MDBInput>
-                                      </MDBCol>
-                                      <MDBCol col="12" class="mt-2">
-                                        <MDBBtn size="sm" color="primary" @click="uploadBtn('PRecordImg3')">上傳</MDBBtn>
-                                        <MDBBtn tag="a" :href="nowPRecordImg3DL" download size="sm" color="secondary">下載</MDBBtn>
+                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                        <MDBLightboxItem 
+                                          :src="nowPRecordImg3DL" 
+                                          :fullScreenSrc="nowPRecordImg3DL"
+                                          onerror="this.src='nosrc.png'"
+                                          alt="遠照3" 
+                                          class="img-allfluid" />
+                                        <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                          <MDBBtn size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg3')">上傳</MDBBtn>
+                                          <MDBBtn tag="a" :href="nowPRecordImg3DL" download size="sm" color="secondary">下載</MDBBtn>
+                                        </div>
                                       </MDBCol>
                                     </MDBRow>
                                   </MDBCol>
@@ -1131,7 +1236,7 @@ uploadFileOnDone((result) => {
                                         </MDBInput>
                                       </MDBCol>
                                       <MDBCol col="12" class="mt-2">
-                                        <MDBBtn size="sm" color="primary" @click="uploadBtn('PRecordImg0')">上傳</MDBBtn>
+                                        <MDBBtn size="sm" color="primary" @click="uploadBtn('PRecordImgObs')">上傳</MDBBtn>
                                         <MDBBtn tag="a" :href="nowPRecordObsDL" download size="sm" color="secondary">下載</MDBBtn>
                                       </MDBCol>
                                     </MDBRow>

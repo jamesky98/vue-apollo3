@@ -15,7 +15,16 @@ const rGroup = inject("rGroup");
   const nowCaseReportTempDOM = ref();
 
 onMounted(()=>{
+  selectReportTemp.value = nowCaseReportTemp.value;
   nowCaseReportTempDOM.value.setValue(nowCaseReportTemp.value);
+});
+
+function doreNew(){
+  nowCaseReportTempDOM.value.setValue(nowCaseReportTemp.value);
+}
+
+defineExpose({
+  doreNew,
 });
 
 </script>

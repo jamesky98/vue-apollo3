@@ -822,7 +822,12 @@ const { mutate: saveCaseS, onDone: saveCaseSOnDone, onError: saveCaseSError } = 
 saveCaseSOnDone(result => {
   if (!addBtnDisabled.value) {
     //簡單模式
-    refgetAllCase();
+    refgetAllCase().then(res=>{
+      // DataTable select nowCaseID
+      dt1.rows(function ( idx, data, node ) {
+        return (data.id===nowCaseID.value)?true:false
+      }).select();
+    });
     infomsg.value = "ID:" + nowCaseID.value + "完成儲存";
     // alert1.value = true;
   }

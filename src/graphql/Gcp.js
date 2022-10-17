@@ -210,6 +210,77 @@ const GETRECPERSON = gql`
   }
 `;
 
+const DELGCP = gql`
+  mutation DelGCP($delGcpId: String!) {
+    delGCP(id: $delGcpId) {
+      id
+    }
+  }
+`;
+
+const UPDATEGCPRECORD = gql`
+  mutation UpdateGcpRecord(
+    $updateGcpRecordId: Int!
+    $gcpId: String
+    $projectId: Int
+    $date: Date
+    $person: String
+    $status: String
+    $coorE: Float
+    $coorN: Float
+    $coorH: Float
+    $closePhoto: String
+    $farPhoto1: String
+    $farPhoto2: String
+    $farPhoto3: String
+    $obstruction: String
+    $comment: String
+  ) {
+    updateGcpRecord(
+      id: $updateGcpRecordId
+      gcp_id: $gcpId
+      project_id: $projectId
+      date: $date
+      person: $person
+      status: $status
+      coor_E: $coorE
+      coor_N: $coorN
+      coor_h: $coorH
+      close_photo: $closePhoto
+      far_photo1: $farPhoto1
+      far_photo2: $farPhoto2
+      far_photo3: $farPhoto3
+      obstruction: $obstruction
+      comment: $comment
+    ) {
+      id
+      gcp_id
+      project_id
+      date
+      person
+      status
+      coor_E
+      coor_N
+      coor_h
+      close_photo
+      far_photo1
+      far_photo2
+      far_photo3
+      obstruction
+      comment
+    }
+  }
+`;
+
+const DELGCPRECORD = gql`
+  mutation DelGcpRecord($delGcpRecordId: Int!) {
+    delGcpRecord(id: $delGcpRecordId) {
+      id
+      gcp_id
+    }
+  }
+`;
+
 export default {
   GETRECORDBYPID,
   GETALLGCP,
@@ -219,4 +290,7 @@ export default {
   UPDATEGCP,
   GETRECORDBYID,
   GETRECPERSON,
+  DELGCP,
+  UPDATEGCPRECORD,
+  DELGCPRECORD,
 };

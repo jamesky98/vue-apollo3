@@ -62,6 +62,9 @@ const props = defineProps({
 
 // 案件詳細編輯資料==========start
 // 案件之詳細資料
+const selectUcObj = ref();
+const selectReportObj = ref();
+
 const nowCaseTitle = inject("nowCaseTitle"); //報告抬頭
 const nowCaseAddress = inject("nowCaseAddress"); //報告地址
 // 申請
@@ -207,7 +210,6 @@ const nowCaseFixUploadDL = computed(() => {
     return undefined;
   }
 });
-
 
 const nowCaseATreport = ref(""); // 空三報表檔(上傳PrintOut.0)
 const nowCaseATreportDL = computed(() => {
@@ -450,12 +452,11 @@ getNowCaseF((result) => {
     nowCaseKv.value = getData.k_v;
     nowCaseCalResult.value = getData.recal_table ? getData.recal_table : "";
     nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table : "";
-    nowCaseUcModel.value = getData.uc_model;
-    selectUcModel.value = getData.uc_model;
+    
+
     // 出具報告
     nowCaseHasLOGO.value = getData.has_logo;
-    nowCaseReportTemp.value = getData.report_template;
-    selectReportTemp.value = getData.report_template;
+    
 
     nowCaseReportEdit.value = getData.report_edit;
     if(getData.complete_date){
@@ -486,8 +487,21 @@ getNowCaseF((result) => {
         getData.report_scan;
     }
 
-    getUcList(); // 取得不確定度模組清單，並填入下拉選單
-    getRptList(); // 取得報告範本清單，並填入下拉選單
+    // 不確定度模組
+    getUcList().then(res=>{
+      nowCaseUcModel.value = getData.uc_model;
+      selectUcModel.value = getData.uc_model;
+      if(selectUcObj.value){
+        selectUcObj.value.doreNew();
+      }
+    }); // 取得不確定度模組清單，並填入下拉選單
+    getRptList().then(res=>{
+      nowCaseReportTemp.value = getData.report_template;
+      selectReportTemp.value = getData.report_template;
+      if(selectReportObj.value){
+        selectReportObj.value.doreNew();
+      }
+    }); // 取得報告範本清單，並填入下拉選單
   }
 });
 refgetNowCaseF();
@@ -1048,7 +1062,7 @@ const {
     eoFile: nowCaseEO.value,
     recalTable: nowCaseCalResult.value,
     uccalTable: nowCaseUcResult.value,
-    ucModel: selectUcModel.value,
+    ucModel: selectUcModel.value + "",
   },
 }));
 saveRecord01Error((error) => {
@@ -1056,6 +1070,7 @@ saveRecord01Error((error) => {
 });
 saveRecord01OnDone(() => {
   refgetNowCaseF();
+  // updateKey.value += 1;
   // console.log(nowCaseCalResult.value)
   // console.log('nowCaseChkPersonID: ',nowCaseChkPersonID.value);
   // console.log('selectChkPersonID: ',selectChkPersonID.value);
@@ -1240,6 +1255,7 @@ uploadFileOnDone((result) => {
       break;
     case "ReportScanUpload":
       nowCaseReportScan.value = result.data.uploadFile.filename;
+      document.getElementById('nowCasePDF-viewer').contentWindow.location.reload();
       saveRecord01();
       break;
   }
@@ -1545,7 +1561,7 @@ getUcListOnDone((result) => {
   if (!result.loading && result.data.getUclist) {
     nowCaseUcModelMU.value = result.data.getUclist.map((x) => {
       return { text: x, value: x };
-    });nowCaseUcModelMU.value.unshift({text: "-未選取-", value: -1})
+    });nowCaseUcModelMU.value.unshift({text: "-未選取-", value: '-1'})
   }
 });
 
@@ -1806,7 +1822,7 @@ getRptListOnDone((result) => {
   if (!result.loading && result.data.getRptlist) {
     nowCaseReportTempMU.value = result.data.getRptlist.map((x) => {
       return { text: x, value: x };
-    });
+    });nowCaseReportTempMU.value.unshift({text: "-未選取-", value: '-1'})
   }
 });
 
@@ -2320,7 +2336,8 @@ defineExpose({
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="發布日期"
                       v-model="nowCaseRefPrjPublishDate" />
                   </MDBCol>
-                  <SelectUc />
+                  <!-- 參考值選單 -->
+                  <SelectUc ref="selectUcObj" />
                 </MDBRow>
               </MDBCol>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
@@ -2407,7 +2424,7 @@ defineExpose({
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
-                    <MDBBtn size="sm" color="primary" :disabled="selectUcModel === '' && !rGroup[2]"
+                    <MDBBtn size="sm" color="primary" :disabled="!selectUcModel || selectUcModel === '-1' || !rGroup[2]"
                       @click="uploadBtn('ATreportUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" :href="nowCaseATreportDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
@@ -2576,7 +2593,7 @@ defineExpose({
                         <MDBSwitch :disabled="!rGroup[2]" label="具TAF-LOGO" v-model="nowCaseHasLOGO" />
                       </MDBCol>
                       <!-- 選擇報告範本 -->
-                      <SelectRptTemp />
+                      <SelectRptTemp ref="selectReportObj" />
 
                       <MDBCol lg="6" class="mb-3">
                         <MDBDatepicker required size="sm" v-model="nowCaseCompleteDate" format="YYYY-MM-DD"
@@ -2584,7 +2601,7 @@ defineExpose({
                       </MDBCol>
 
                       <MDBCol col="12" class="mb-3">
-                        <MDBBtn :disabled="!rGroup[2] || !selectReportTemp || !nowCaseCompleteDate" size="sm" color="secondary" @click="buildReportBtn()">產生報告
+                        <MDBBtn :disabled="!rGroup[2] || !selectReportTemp || selectReportTemp==='-1' || !nowCaseCompleteDate" size="sm" color="secondary" @click="buildReportBtn()">產生報告
                         </MDBBtn>
                       </MDBCol>
                       <!-- 報告編輯檔 -->

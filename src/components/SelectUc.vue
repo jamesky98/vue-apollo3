@@ -15,7 +15,16 @@ const rGroup = inject("rGroup");
   const nowCaseUcModelDOM = ref();
 
 onMounted(()=>{
+  selectUcModel.value = nowCaseUcModel.value;
   nowCaseUcModelDOM.value.setValue(nowCaseUcModel.value);
+});
+
+function doreNew(){
+  nowCaseUcModelDOM.value.setValue(nowCaseUcModel.value);
+}
+
+defineExpose({
+  doreNew,
 });
 
 </script>
