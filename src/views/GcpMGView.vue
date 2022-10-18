@@ -33,6 +33,8 @@ import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
 
+import OpenMap from "../components/Map.vue";
+
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
@@ -106,6 +108,7 @@ const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
 const notProssing = ref(false);
+const openMapDOM = ref();
 
 const activeTabId1 = ref('filter');
 const activeTabId2 = ref('ptRecord');
@@ -431,6 +434,7 @@ function statusRender(data,type,row){
 let dt_gcp;
 const table_gcp = ref(); 
 const data_gcp = ref([]);
+provide("gcpCoor", data_gcp);
 const columns_gcp = [
   {title:"啟用", data:"enable",width:"4rem",className: 'dt-center',render: (data,type,row) => {
     if(data===1){
@@ -484,6 +488,7 @@ getAllGcpOnDone(result=>{
   if(!result.loading){
     // console.log(result.data.getAllGcp);
     data_gcp.value = result.data.getAllGcp;
+    openMapDOM.value.loadFeatures();
     notProssing.value = true;
     updateKey.value = updateKey.value + 1;
   }
@@ -741,22 +746,7 @@ function nowPrjChange(e){
 
 // 歷年量測列表==========End
 
-// 加載表格選取事件
-onMounted(function () {
-  dt_gcp = table_gcp.value.dt();
-  dt_gcp.on('select', function (e, dt, type, indexes) {
-    nowGcpId.value = dt.rows(indexes).data()[0].id;
-    // refgetGcpByPId({ gcpId: nowGcpId.value });
-    refgetRcordByPId({ gcpId: nowGcpId.value });
-    getGcpById({getGcpByIdId: nowGcpId.value});
-  });
 
-  dt_hist = table_hist.value.dt();
-  dt_hist.on('select', function (e, dt, type, indexes) {
-    nowPRecordId.value = dt.rows(indexes).data()[0].id;
-    getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
-  });
-});
 
 // 檔案上傳==========Start
 const uploadType = ref("");
@@ -873,6 +863,26 @@ uploadFileOnDone((result) => {
 });
 
 // 檔案上傳==========End
+
+
+
+
+// 加載表格選取事件
+onMounted(function () {
+  dt_gcp = table_gcp.value.dt();
+  dt_gcp.on('select', function (e, dt, type, indexes) {
+    nowGcpId.value = dt.rows(indexes).data()[0].id;
+    // refgetGcpByPId({ gcpId: nowGcpId.value });
+    refgetRcordByPId({ gcpId: nowGcpId.value });
+    getGcpById({getGcpByIdId: nowGcpId.value});
+  });
+
+  dt_hist = table_hist.value.dt();
+  dt_hist.on('select', function (e, dt, type, indexes) {
+    nowPRecordId.value = dt.rows(indexes).data()[0].id;
+    getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
+  });
+});
 
 </script>
 <template>
@@ -1258,9 +1268,8 @@ uploadFileOnDone((result) => {
         <!-- 右方列表 -->
         <MDBCol md="6" xl="3" class="h-100">
           <MDBRow style="margin-left: auto;height: calc(100% - 1rem);" class="my-2 bg-light border border-5 rounded-8 shadow-4">
-            <MDBCol col="12" class="h-100">
-              地圖
-              
+            <MDBCol col="12" class="h-100 p-2">
+              <OpenMap ref="openMapDOM" />
             </MDBCol>
           </MDBRow>
         </MDBCol>
