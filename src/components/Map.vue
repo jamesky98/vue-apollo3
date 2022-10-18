@@ -24,7 +24,7 @@ import {Circle, Fill, Stroke, Style, Text as TextStyle} from 'ol/style';
 import Point from 'ol/geom/Point';
 
 const propData = inject('gcpCoor');
-
+const dt_gcp = inject('dt_gcp');
 const map = ref();
 const osmLayer = new TileLayer({source: new OSM()});
 const width = 2;
@@ -34,7 +34,10 @@ const ptLayer = new VectorLayer({
   source: new VectorSource(),
   style: pointstyles,
 });
+const select = new SelectInteraction({style: selectStyle});
+let selectedFeatures = select.getFeatures();
 
+// 圖層樣式
 function pointstyles(feature){
   let pointText = feature.get('name');
   return new Style({
@@ -63,6 +66,7 @@ function pointstyles(feature){
     }),
   })
 }
+// 被選樣式
 function selectStyle(feature) {
   let selected = pointstyles(feature).clone();
   selected.getText().getStroke().setColor('#FAEDF0');
@@ -84,9 +88,7 @@ function selectStyle(feature) {
   // selected.getImage().getStroke().setColor('#FF5677')
   return selected;
 }
-
-
-
+// 載入點位
 function loadFeatures(){
   if(map.value){
     let ptFeatures = [];
@@ -110,13 +112,40 @@ function loadFeatures(){
     });
   }
 }
-
-
+// 文查圖
+function selectPtFeature(ptName){
+  selectedFeatures.clear();
+  ptLayer.getSource().getFeatures().forEach(function (e){
+    if (e.get('name')===ptName){
+      selectedFeatures.push(e);
+      map.value.getView().setCenter(e.getGeometry().getCoordinates());
+    }
+  });
+}
+// 圖查文
+select.on('select',e=>{
+  if(e.target.getFeatures().getArray().length>0){
+    let ptID =e.target.getFeatures().getArray()[0].get('name');
+    console.log('ptID', ptID);
+    console.log('dt_gcp', dt_gcp);
+    
+    dt_gcp.value.rows(function ( idx, data, node ) {
+      return (data.id===ptID)?true:false
+    }).select();
+    // table.row(ptID).select();
+    // var orderId = table.rows({order: 'current'}).indexes().indexOf(parseInt(ptID));
+    // var page_index = parseInt((orderId-1)/table.page.len());
+    // console.log('orderId:'+orderId);
+    // console.log('page_index:'+page_index);
+    // table.page(page_index).draw( 'page' );
+  }
+});
 
 onMounted(function () {
   proj4.defs("EPSG:3826","+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs");
   register(proj4);
   console.log("init map");
+
   new Promise((resolve, reject)=>{
     map.value = new Map({
       target: 'map',
@@ -130,19 +159,21 @@ onMounted(function () {
       interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
     });
 
-    let select = new SelectInteraction({style: selectStyle});
+    
     map.value.addInteraction(select);
-
     return resolve("Success!");
   }).then((res)=>{
     console.log("map OK");
     // 載入坐標點
     loadFeatures();
+    // 建立選擇池
+    
   });
 });
 
 defineExpose({
   loadFeatures,
+  selectPtFeature,
 });
 
 </script>

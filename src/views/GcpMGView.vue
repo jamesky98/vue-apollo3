@@ -431,7 +431,8 @@ function statusRender(data,type,row){
 }
 
 // 點位基本列表==========Start
-let dt_gcp;
+const dt_gcp = ref();
+provide("dt_gcp", dt_gcp);
 const table_gcp = ref(); 
 const data_gcp = ref([]);
 provide("gcpCoor", data_gcp);
@@ -864,17 +865,16 @@ uploadFileOnDone((result) => {
 
 // 檔案上傳==========End
 
-
-
-
 // 加載表格選取事件
 onMounted(function () {
-  dt_gcp = table_gcp.value.dt();
-  dt_gcp.on('select', function (e, dt, type, indexes) {
+  dt_gcp.value = table_gcp.value.dt();
+  dt_gcp.value.on('select', function (e, dt, type, indexes) {
     nowGcpId.value = dt.rows(indexes).data()[0].id;
     // refgetGcpByPId({ gcpId: nowGcpId.value });
     refgetRcordByPId({ gcpId: nowGcpId.value });
     getGcpById({getGcpByIdId: nowGcpId.value});
+    // 文查圖
+    openMapDOM.value.selectPtFeature(nowGcpId.value);
   });
 
   dt_hist = table_hist.value.dt();
