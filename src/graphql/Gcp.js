@@ -61,6 +61,9 @@ const GETALLGCP = gql`
             code
           }
           method
+          year
+          month
+          organizer
         }
         date
         person
@@ -81,6 +84,10 @@ const GETALLGCP = gql`
       contact_id
       gcp_contact {
         name
+        address
+        person
+        tel
+        comment
       }
       comment
     }
@@ -199,6 +206,15 @@ const GETRECORDBYID = gql`
       comment
       ref_project {
         project_code
+        cal_type_id
+        cal_type {
+          name
+          code
+        }
+        method
+        year
+        month
+        organizer
       }
     }
   }

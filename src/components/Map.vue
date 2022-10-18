@@ -10,6 +10,7 @@ import { Map, View } from 'ol';
 // layers
 import TileLayer from 'ol/layer/Tile';
 import VectorLayer from 'ol/layer/Vector';
+import LayerGroup from 'ol/layer/Group';
 // source
 import OSM from 'ol/source/OSM';
 import VectorSource from 'ol/source/Vector';
@@ -22,6 +23,10 @@ import {DragRotateAndZoom, defaults as defaultInteractions, Select as SelectInte
 import {Circle, Fill, Stroke, Style, Text as TextStyle} from 'ol/style';
 // geom
 import Point from 'ol/geom/Point';
+// 3-rd
+import 'ol-layerswitcher/dist/ol-layerswitcher.css';
+import LayerSwitcher from 'ol-layerswitcher';
+import { BaseLayerOptions, GroupLayerOptions } from 'ol-layerswitcher';
 
 const propData = inject('gcpCoor');
 const dt_gcp = inject('dt_gcp');
@@ -36,6 +41,11 @@ const ptLayer = new VectorLayer({
 });
 const select = new SelectInteraction({style: selectStyle});
 let selectedFeatures = select.getFeatures();
+
+const layerSwitcher = new LayerSwitcher({
+  reverse: true,
+  groupSelectStyle: 'group'
+});
 
 // 圖層樣式
 function pointstyles(feature){
@@ -126,25 +136,15 @@ function selectPtFeature(ptName){
 select.on('select',e=>{
   if(e.target.getFeatures().getArray().length>0){
     let ptID =e.target.getFeatures().getArray()[0].get('name');
-    console.log('ptID', ptID);
-    console.log('dt_gcp', dt_gcp);
-    
     dt_gcp.value.rows(function ( idx, data, node ) {
       return (data.id===ptID)?true:false
     }).select();
-    // table.row(ptID).select();
-    // var orderId = table.rows({order: 'current'}).indexes().indexOf(parseInt(ptID));
-    // var page_index = parseInt((orderId-1)/table.page.len());
-    // console.log('orderId:'+orderId);
-    // console.log('page_index:'+page_index);
-    // table.page(page_index).draw( 'page' );
   }
 });
 
 onMounted(function () {
   proj4.defs("EPSG:3826","+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs");
   register(proj4);
-  console.log("init map");
 
   new Promise((resolve, reject)=>{
     map.value = new Map({
@@ -158,16 +158,12 @@ onMounted(function () {
       controls: defaultControls().extend([new FullScreen()]),
       interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
     });
-
-    
     map.value.addInteraction(select);
+    map.value.addControl(layerSwitcher);
     return resolve("Success!");
   }).then((res)=>{
-    console.log("map OK");
     // 載入坐標點
     loadFeatures();
-    // 建立選擇池
-    
   });
 });
 

@@ -75,21 +75,21 @@ refgetNowUser();
 const rGroup =computed(()=>{
   let result=[];
   // rGroup[0]最高權限
-  // rGroup[1]技術主管專用
+  // rGroup[1]技術主管以上專用
   // rGroup[2]技術人員專用(非己不可改)
   // rGroup[3]最低權限
   // rGroup[4]完全開放
   switch (myUserRole.value){
-    case 0:
+    case 0://訪客
         result = [false,false,false,false,false];
       break;
-    case 1:
+    case 1://校正人員
         result = [false,false,false,false,false];
       break;
-    case 2:
+    case 2://技術主管
       result = [false,true,false,true,true];
       break;
-    case 3:
+    case 3://系統負責人
       result = [true,true,true,true,true];
     break;
   }
@@ -492,8 +492,17 @@ getAllGcpOnDone(result=>{
     openMapDOM.value.loadFeatures();
     notProssing.value = true;
     updateKey.value = updateKey.value + 1;
+    selectNowGCP();
   }
 });
+
+function selectNowGCP(){
+  if(nowGcpId.value){
+    dt_gcp.value.rows(function ( idx, data, node ) {
+      return (data.id===nowGcpId.value)?true:false
+    }).select();
+  }
+}
 
 // 查詢GCPbyID
 const { mutate: getGcpById, onDone: getGcpByIdOnDone, onError: getGcpByIdError } = useMutation(GcpGQL.GETGCPBYID);
@@ -541,7 +550,7 @@ getGcpByIdOnDone(result=>{
 // 儲存
 const { mutate: saveGcp, onDone: saveGcpOnDone, onError: saveGcpError } = useMutation(GcpGQL.UPDATEGCP);
 saveGcpOnDone(result=>{
-  infomsg.value = "點位 " + result.data.updateGCP.id + "儲存完畢"
+  infomsg.value = "點位 " + result.data.updateGCP.id + "儲存完畢";
 });
 function saveGcpBtn(){
   saveGcp({
@@ -644,6 +653,11 @@ getRcordByPId(result=>{
   if(!result.loading){
     // console.log(result.data.getGcpRecordsByGCPId);
     data_hist.value = result.data.getGcpRecordsByGCPId;
+    if(nowPRecordId.value){
+      dt_hist.rows(function ( idx, data, node ) {
+        return (data.id===nowPRecordId.value)?true:false
+      }).select();
+    }
   }
 });
 // 查詢Record單筆紀錄
@@ -698,7 +712,7 @@ function saveGcpRecordBtn(){
     obstruction: nowPRecordObs.value,
     comment: nowPRecordCom.value,
   }).then(res=>{
-    getAllGcp()
+    getAllGcp();
   }).then(res=>{
     refgetRcordByPId({ gcpId: nowGcpId.value });
   }).then(res=>{
@@ -870,7 +884,6 @@ onMounted(function () {
   dt_gcp.value = table_gcp.value.dt();
   dt_gcp.value.on('select', function (e, dt, type, indexes) {
     nowGcpId.value = dt.rows(indexes).data()[0].id;
-    // refgetGcpByPId({ gcpId: nowGcpId.value });
     refgetRcordByPId({ gcpId: nowGcpId.value });
     getGcpById({getGcpByIdId: nowGcpId.value});
     // 文查圖
@@ -914,8 +927,8 @@ onMounted(function () {
                     <MDBCol lg="5" class="h-100 border-start">
                       <MDBRow>
                         <MDBCol col="12" class="py-2 border-bottom">
-                          <MDBBtn size="sm" color="primary" @click="newGcpBtn">新增</MDBBtn>
-                          <MDBBtn size="sm" color="primary" @click="saveGcpBtn">儲存</MDBBtn>
+                          <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newGcpBtn">新增</MDBBtn>
+                          <MDBBtn :disabled="!rGroup[1] || !nowGcpId" size="sm" color="primary" @click="saveGcpBtn">儲存</MDBBtn>
                           <!-- <MDBBtn size="sm" color="primary" @click="delGcp">刪除</MDBBtn> -->
                           <MDBPopconfirm :disabled="!rGroup[1] || !nowGcpId" class="btn-sm btn-danger me-auto" message="刪除後無法恢復，確定刪除嗎？"
                             cancelText="取消" confirmText="確定" @confirm="delGcp">
@@ -936,8 +949,9 @@ onMounted(function () {
                           <MDBTabPane tabId="filter" class="h-100">
                             <MDBRow>
                               <MDBCol col="12" class="py-2 border-bottom">
-                                <MDBBtn size="sm" color="primary" @click="clearfilter">清除</MDBBtn>
-                                <MDBBtn size="sm" color="primary" @click="dofilter">篩選</MDBBtn>
+                                <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="clearfilter">清除</MDBBtn>
+                                <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="dofilter">篩選</MDBBtn>
+                                <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="selectNowGCP">test</MDBBtn>
                               </MDBCol>
                             </MDBRow>
                             <MDBRow class="overflow-auto align-content-start" style="height: calc(100% - 3rem);">
@@ -999,7 +1013,7 @@ onMounted(function () {
                                         class="img-allfluid" />
                                     </MDBLightbox>
                                     <div style="position: absolute; right: 1rem; bottom: 0.2rem;">
-                                      <MDBBtn size="sm" color="primary" @click.prevent="uploadBtn('GcpSimage')">上傳</MDBBtn>
+                                      <MDBBtn :disabled="!rGroup[1] || !nowGcpId" size="sm" color="primary" @click.prevent="uploadBtn('GcpSimage')">上傳</MDBBtn>
                                       <MDBBtn tag="a" :href="nowGcpSimageDL" download size="sm" color="secondary">下載</MDBBtn>
                                     </div>
                                   <!-- </MDBCol> -->
@@ -1025,7 +1039,7 @@ onMounted(function () {
                                   class="img-allfluid" />
                                 </MDBLightbox>
                                 <div style="position: absolute; right: 1rem; bottom: 1rem;">
-                                  <MDBBtn size="sm" color="primary" @click.prevent="uploadBtn('GcpDespImg')">上傳</MDBBtn>
+                                  <MDBBtn :disabled="!rGroup[1] || !nowGcpId" size="sm" color="primary" @click.prevent="uploadBtn('GcpDespImg')">上傳</MDBBtn>
                                   <MDBBtn tag="a" :href="nowGcpDespImgDL" download size="sm" color="secondary">下載</MDBBtn>
                                 </div>
                               </MDBCol>
@@ -1084,8 +1098,8 @@ onMounted(function () {
                     <MDBCol lg="5" class="h-100 border-start">
                       <MDBRow>
                         <MDBCol col="12" class="py-2 border-bottom">
-                          <MDBBtn size="sm" color="primary" @click="newPRecordBtn">新增</MDBBtn>
-                          <MDBBtn size="sm" color="primary" @click="saveGcpRecordBtn">儲存</MDBBtn>
+                          <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newPRecordBtn">新增</MDBBtn>
+                          <MDBBtn :disabled="!rGroup[1] || !nowPRecordId" size="sm" color="primary" @click="saveGcpRecordBtn">儲存</MDBBtn>
                           <!-- <MDBBtn size="sm" color="primary" @click="delGcpRecord">刪除</MDBBtn> -->
                           <MDBPopconfirm :disabled="!rGroup[1] || !nowPRecordId" class="btn-sm btn-danger me-auto" message="刪除後無法恢復，確定刪除嗎？"
                             cancelText="取消" confirmText="確定" @confirm="delGcpRecord">
@@ -1161,7 +1175,7 @@ onMounted(function () {
                                           alt="近照" 
                                           class="img-allfluid" />
                                         <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
-                                          <MDBBtn size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg0')">上傳</MDBBtn>
+                                          <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg0')">上傳</MDBBtn>
                                           <MDBBtn tag="a" :href="nowPRecordImg0DL" download size="sm" color="secondary">下載</MDBBtn>
                                         </div>
                                       </MDBCol>
@@ -1178,7 +1192,7 @@ onMounted(function () {
                                           alt="遠照1" 
                                           class="img-allfluid" />
                                         <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
-                                          <MDBBtn size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg1')">上傳</MDBBtn>
+                                          <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg1')">上傳</MDBBtn>
                                           <MDBBtn tag="a" :href="nowPRecordImg1DL" download size="sm" color="secondary">下載</MDBBtn>
                                         </div>
                                       </MDBCol>
@@ -1195,7 +1209,7 @@ onMounted(function () {
                                           alt="遠照2" 
                                           class="img-allfluid" />
                                         <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
-                                          <MDBBtn size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg2')">上傳</MDBBtn>
+                                          <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg2')">上傳</MDBBtn>
                                           <MDBBtn tag="a" :href="nowPRecordImg2DL" download size="sm" color="secondary">下載</MDBBtn>
                                         </div>
                                       </MDBCol>
@@ -1212,7 +1226,7 @@ onMounted(function () {
                                           alt="遠照3" 
                                           class="img-allfluid" />
                                         <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
-                                          <MDBBtn size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg3')">上傳</MDBBtn>
+                                          <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg3')">上傳</MDBBtn>
                                           <MDBBtn tag="a" :href="nowPRecordImg3DL" download size="sm" color="secondary">下載</MDBBtn>
                                         </div>
                                       </MDBCol>
@@ -1246,7 +1260,7 @@ onMounted(function () {
                                         </MDBInput>
                                       </MDBCol>
                                       <MDBCol col="12" class="mt-2">
-                                        <MDBBtn size="sm" color="primary" @click="uploadBtn('PRecordImgObs')">上傳</MDBBtn>
+                                        <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click="uploadBtn('PRecordImgObs')">上傳</MDBBtn>
                                         <MDBBtn tag="a" :href="nowPRecordObsDL" download size="sm" color="secondary">下載</MDBBtn>
                                       </MDBCol>
                                     </MDBRow>
