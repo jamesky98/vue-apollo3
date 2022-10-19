@@ -171,7 +171,7 @@ const nowGcpStyleDOM = ref();
 
 const nowGcpSimage = ref("");
 const nowGcpSimageDL = computed(()=>{
-  if(nowGcpDespImg.value){
+  if(nowGcpSimage.value){
     return "04_GCP/Pt/" + nowGcpSimage.value + "?t=" + Math.random()
   }else{
     return ""
@@ -777,46 +777,72 @@ function uploadBtn(inputId) {
     case "GcpDespImg":
       inputDOM.setAttribute("accept","image/*");
       break;
+      case "PRecordImg0":
+      inputDOM.setAttribute("accept","image/*");
+      break;
+      case "PRecordImg1":
+      inputDOM.setAttribute("accept","image/*");
+      break;
+      case "PRecordImg2":
+      inputDOM.setAttribute("accept","image/*");
+      break;
+      case "PRecordImg3":
+      inputDOM.setAttribute("accept","image/*");
+      break;
+      case "PRecordImgObs":
+      inputDOM.setAttribute("accept","image/*");
+      break;
   }
   inputDOM.click();
 }
 // 檔案選擇器選擇事件
 const upFile = ref();
 async function uploadChenge(e) {
-  upFile.value = e.target.files[0];
+  let selFileName;
+  let subExt;
+  if(e.type==='drop'){
+    upFile.value = e.dataTransfer.files[0];
+    selFileName = e.dataTransfer.files[0].name;
+    subExt = path.extname(selFileName);
+  }else{
+    upFile.value = e.target.files[0];
+    selFileName = e.target.value;
+  }
+  subExt = path.extname(selFileName);
+
   let subpath;
   let newName = "";
-  if (!uploadType.value) {
+  if (!uploadType.value || !nowGcpId.value) {
     return;
   }
   switch (uploadType.value) {
     case "GcpSimage":
       subpath = "04_GCP/Pt"
-      newName = nowGcpId.value + "-A" + path.extname(e.target.value);
+      newName = nowGcpId.value + "-A" + subExt;
       break;
     case "GcpDespImg":
       subpath = "04_GCP/Pt"
-      newName = nowGcpId.value + "-B" + path.extname(e.target.value);
+      newName = nowGcpId.value + "-B" + subExt;
       break;
     case "PRecordImg0":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
-      newName = nowGcpId.value + "-1" + path.extname(e.target.value);
+      newName = nowGcpId.value + "-1" + subExt;
       break;
     case "PRecordImg1":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
-      newName = nowGcpId.value + "-2" + path.extname(e.target.value);
+      newName = nowGcpId.value + "-2" + subExt;
       break;
     case "PRecordImg2":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
-      newName = nowGcpId.value + "-3" + path.extname(e.target.value);
+      newName = nowGcpId.value + "-3" + subExt;
       break;
     case "PRecordImg3":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
-      newName = nowGcpId.value + "-4" + path.extname(e.target.value);
+      newName = nowGcpId.value + "-4" + subExt;
       break;
     case "PRecordImgObs":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
-      newName = nowGcpId.value + "-C" + path.extname(e.target.value);
+      newName = nowGcpId.value + "-C" + subExt;
       break;
   }
   await uploadFile({
@@ -877,6 +903,16 @@ uploadFileOnDone((result) => {
   inputDOM.value = "";
 });
 
+// drop
+function cancelDefault(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  return false;
+}
+function dropFile(e){
+  uploadType.value = e.target.id;
+  uploadChenge(e);
+}
 // 檔案上傳==========End
 
 // 加載表格選取事件
@@ -1002,20 +1038,27 @@ onMounted(function () {
                                 </MDBRow>
                               </MDBCol>
                               <!-- 右方航拍略圖 -->
-                              <MDBCol xl="6" style="height: calc(100% - 4.5rem); position:relative;" class="ps-0">
-                                  <!-- <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg h-100" style="position:relative;"> -->
-                                    <MDBLightbox zoomLevel="0.25" class="text-center h-100 overflow-hidden img-thumbnail lightboxImg">
+                              <MDBCol xl="6" style="height: calc(100% - 4.5rem);" class="ps-0">
+                                    <!-- 圖片 -->
+                                    <MDBLightbox zoomLevel="0.25" class="text-center h-100 overflow-hidden img-thumbnail lightboxImg" style="position:relative;">
                                       <MDBLightboxItem 
+                                        id="GcpSimage"
                                         :src="nowGcpSimageDL" 
                                         :fullScreenSrc="nowGcpSimageDL"
                                         onerror="this.src='nosrc.png'"
                                         alt="航拍略圖" 
-                                        class="img-allfluid" />
+                                        class="img-allfluid" 
+                                        @drop.prevent="dropFile($event)"
+                                        @dragover.prevent="cancelDefault($event)"
+                                        @dragenter.prevent="cancelDefault($event)" />
+                                      <!-- 按鈕 -->
+                                      <div v-show="nowGcpSimage" class="imgtitle">{{nowGcpSimage}}</div>
+                                      <button v-show="nowGcpSimage" class="imgcancel btn p-0" @click.prevent="nowGcpSimage=''"></button>
+                                      <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                        <MDBBtn :disabled="!rGroup[1] || !nowGcpId" size="sm" color="primary" @click.prevent="uploadBtn('GcpSimage')">上傳</MDBBtn>
+                                        <MDBBtn tag="a" :href="nowGcpSimageDL" download size="sm" color="secondary">下載</MDBBtn>
+                                      </div>
                                     </MDBLightbox>
-                                    <div style="position: absolute; right: 1rem; bottom: 0.2rem;">
-                                      <MDBBtn :disabled="!rGroup[1] || !nowGcpId" size="sm" color="primary" @click.prevent="uploadBtn('GcpSimage')">上傳</MDBBtn>
-                                      <MDBBtn tag="a" :href="nowGcpSimageDL" download size="sm" color="secondary">下載</MDBBtn>
-                                    </div>
                                   <!-- </MDBCol> -->
                               </MDBCol>
 
@@ -1029,19 +1072,27 @@ onMounted(function () {
                           <MDBTabPane tabId="description" class="h-100">
                             <MDBRow class="overflow-auto align-content-start h-100">
                               <!-- 左方點之記略圖 -->
-                              <MDBCol xl="6" class="text-center h-100 p-2" style="position:relative;">
-                                <MDBLightbox zoomLevel="0.25" class="h-100 overflow-hidden img-thumbnail lightboxImg">
+                              <MDBCol xl="6" class="text-center h-100 p-2">
+                                <!-- 圖片 -->
+                                <MDBLightbox zoomLevel="0.25" class="h-100 overflow-hidden img-thumbnail lightboxImg" style="position:relative;">
                                   <MDBLightboxItem 
-                                  :src="nowGcpDespImgDL" 
-                                  :fullScreenSrc="nowGcpDespImgDL"
-                                  onerror="this.src='nosrc.png'"
-                                  alt="點之記略圖" 
-                                  class="img-allfluid" />
+                                    id="GcpDespImg"
+                                    :src="nowGcpDespImgDL" 
+                                    :fullScreenSrc="nowGcpDespImgDL"
+                                    onerror="this.src='nosrc.png'"
+                                    alt="點之記略圖" 
+                                    class="img-allfluid"
+                                    @drop.prevent="dropFile($event)"
+                                    @dragover.prevent="cancelDefault($event)"
+                                    @dragenter.prevent="cancelDefault($event)" />
+                                  <!-- 按鈕 -->
+                                  <div v-show="nowGcpDespImg" class="imgtitle">{{nowGcpDespImg}}</div>
+                                  <button v-show="nowGcpDespImg" class="imgcancel btn p-0" @click.prevent="nowGcpDespImg=''"></button>
+                                  <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                    <MDBBtn :disabled="!rGroup[1] || !nowGcpId" size="sm" color="primary" @click.prevent="uploadBtn('GcpDespImg')">上傳</MDBBtn>
+                                    <MDBBtn tag="a" :href="nowGcpDespImgDL" download size="sm" color="secondary">下載</MDBBtn>
+                                  </div>
                                 </MDBLightbox>
-                                <div style="position: absolute; right: 1rem; bottom: 1rem;">
-                                  <MDBBtn :disabled="!rGroup[1] || !nowGcpId" size="sm" color="primary" @click.prevent="uploadBtn('GcpDespImg')">上傳</MDBBtn>
-                                  <MDBBtn tag="a" :href="nowGcpDespImgDL" download size="sm" color="secondary">下載</MDBBtn>
-                                </div>
                               </MDBCol>
 
                               <!-- 右文 -->
@@ -1087,7 +1138,7 @@ onMounted(function () {
             <MDBCol col="12" style="height: 50%;">
               <MDBRow class="h-100">
                 <MDBCol col="12" class="border border-5 rounded-8 shadow-4 mb-2" style="height: calc(100% - 0.5rem)">
-                  <MDBRow class="h-100" style="position:relative ;">
+                  <MDBRow class="h-100 overflow-auto" style="position:relative ;">
                     <!-- 分割左 -->
                     <MDBCol lg="7" class="h-100 overflow-auto pt-2" style="position: relative ;">
                       <div style="position:absolute;">歷史紀錄 點號：<span class="text-info">{{nowGcpId}}</span></div>
@@ -1168,12 +1219,20 @@ onMounted(function () {
                                   <MDBCol xl="6">
                                     <MDBRow>
                                       <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                        <!-- 圖片 -->
                                         <MDBLightboxItem 
+                                          id="PRecordImg0"
                                           :src="nowPRecordImg0DL" 
                                           :fullScreenSrc="nowPRecordImg0DL"
                                           onerror="this.src='nosrc.png'"
                                           alt="近照" 
-                                          class="img-allfluid" />
+                                          class="img-allfluid"
+                                          @drop.prevent="dropFile($event)"
+                                          @dragover.prevent="cancelDefault($event)"
+                                          @dragenter.prevent="cancelDefault($event)" />
+                                        <!-- 按鈕 -->
+                                        <div v-show="nowPRecordImg0" class="imgtitle">{{nowPRecordImg0}}</div>
+                                        <button v-show="nowPRecordImg0" class="imgcancel btn p-0" @click.prevent="nowPRecordImg0=''"></button>
                                         <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                           <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg0')">上傳</MDBBtn>
                                           <MDBBtn tag="a" :href="nowPRecordImg0DL" download size="sm" color="secondary">下載</MDBBtn>
@@ -1185,12 +1244,20 @@ onMounted(function () {
                                   <MDBCol xl="6">
                                     <MDBRow>
                                       <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                        <!-- 圖片 -->
                                         <MDBLightboxItem 
+                                          id="PRecordImg1"
                                           :src="nowPRecordImg1DL" 
                                           :fullScreenSrc="nowPRecordImg1DL"
                                           onerror="this.src='nosrc.png'"
                                           alt="遠照1" 
-                                          class="img-allfluid" />
+                                          class="img-allfluid"
+                                          @drop.prevent="dropFile($event)"
+                                          @dragover.prevent="cancelDefault($event)"
+                                          @dragenter.prevent="cancelDefault($event)" />
+                                        <!-- 按鈕 -->
+                                        <div v-show="nowPRecordImg1" class="imgtitle">{{nowPRecordImg1}}</div>
+                                        <button v-show="nowPRecordImg1" class="imgcancel btn p-0" @click.prevent="nowPRecordImg1=''"></button>
                                         <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                           <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg1')">上傳</MDBBtn>
                                           <MDBBtn tag="a" :href="nowPRecordImg1DL" download size="sm" color="secondary">下載</MDBBtn>
@@ -1202,12 +1269,20 @@ onMounted(function () {
                                   <MDBCol xl="6">
                                     <MDBRow>
                                       <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                        <!-- 圖片 -->
                                         <MDBLightboxItem 
+                                          id="PRecordImg2"
                                           :src="nowPRecordImg2DL" 
                                           :fullScreenSrc="nowPRecordImg2DL"
                                           onerror="this.src='nosrc.png'"
                                           alt="遠照2" 
-                                          class="img-allfluid" />
+                                          class="img-allfluid"
+                                          @drop.prevent="dropFile($event)"
+                                          @dragover.prevent="cancelDefault($event)"
+                                          @dragenter.prevent="cancelDefault($event)" />
+                                        <!-- 按鈕 -->
+                                        <div v-show="nowPRecordImg2" class="imgtitle">{{nowPRecordImg2}}</div>
+                                        <button v-show="nowPRecordImg2" class="imgcancel btn p-0" @click.prevent="nowPRecordImg2=''"></button>
                                         <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                           <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg2')">上傳</MDBBtn>
                                           <MDBBtn tag="a" :href="nowPRecordImg2DL" download size="sm" color="secondary">下載</MDBBtn>
@@ -1219,12 +1294,20 @@ onMounted(function () {
                                   <MDBCol xl="6">
                                     <MDBRow>
                                       <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                        <!-- 圖片 -->
                                         <MDBLightboxItem 
+                                          id="PRecordImg3"
                                           :src="nowPRecordImg3DL" 
                                           :fullScreenSrc="nowPRecordImg3DL"
                                           onerror="this.src='nosrc.png'"
                                           alt="遠照3" 
-                                          class="img-allfluid" />
+                                          class="img-allfluid"
+                                          @drop.prevent="dropFile($event)"
+                                          @dragover.prevent="cancelDefault($event)"
+                                          @dragenter.prevent="cancelDefault($event)" />
+                                        <!-- 按鈕 -->
+                                        <div v-show="nowPRecordImg3" class="imgtitle">{{nowPRecordImg3}}</div>
+                                        <button v-show="nowPRecordImg3" class="imgcancel btn p-0" @click.prevent="nowPRecordImg3=''"></button>
                                         <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                           <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg3')">上傳</MDBBtn>
                                           <MDBBtn tag="a" :href="nowPRecordImg3DL" download size="sm" color="secondary">下載</MDBBtn>
@@ -1239,33 +1322,32 @@ onMounted(function () {
                           <!-- 透空圖 -->
                           <MDBTabPane tabId="obsImg" class="h-100">
                             <MDBLightbox zoomLevel="0.25" class="h-100">
-                              <MDBRow class="overflow-auto align-content-start h-100">
+                              <MDBRow class="overflow-auto align-content-start h-100 mx-0">
                                   <!-- 透空圖 -->
-                                  <MDBCol xl="12" class="h-100">
-                                    <MDBRow class="h-100">
-                                      <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: calc(100% - 6rem)">
-                                          <MDBLightboxItem 
-                                            :src="nowPRecordObsDL"
-                                            :fullScreenSrc="nowPRecordObsDL" 
-                                            onerror="this.src='nosrc.png'"
-                                            alt="透空圖" 
-                                            class="img-allfluid" />
+                                  <!-- <MDBCol xl="12" class="h-100"> -->
+                                    <!-- <MDBRow class="h-100"> -->
+                                      <MDBCol xl="12" class="text-center mt-2 overflow-hidden img-thumbnail lightboxImg" style="height: calc(100% - 1rem);position:relative;">
+                                        <!-- 圖片 -->
+                                        <MDBLightboxItem 
+                                          id="PRecordImgObs"
+                                          :src="nowPRecordObsDL"
+                                          :fullScreenSrc="nowPRecordObsDL" 
+                                          onerror="this.src='nosrc.png'"
+                                          alt="透空圖" 
+                                          class="img-allfluid"
+                                          @drop.prevent="dropFile($event)"
+                                          @dragover.prevent="cancelDefault($event)"
+                                          @dragenter.prevent="cancelDefault($event)" />
+                                        <!-- 按鈕 -->
+                                        <div v-show="nowPRecordObs" class="imgtitle">{{nowPRecordObs}}</div>
+                                        <button v-show="nowPRecordObs" class="imgcancel btn p-0" @click.prevent="nowPRecordObs=''"></button>
+                                        <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                          <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImgObs')">上傳</MDBBtn>
+                                          <MDBBtn tag="a" :href="nowPRecordObsDL" download size="sm" color="secondary">下載</MDBBtn>
+                                        </div>
                                       </MDBCol>
-                                      <div></div>
-                                      <MDBCol col="12" class="mt-2">
-                                        <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                                          label="透空圖" v-model="nowPRecordObs">
-                                          <MDBBtnClose @click.prevent="nowPRecordObs = ''"
-                                            class="btn-upload-close" />
-                                        </MDBInput>
-                                      </MDBCol>
-                                      <MDBCol col="12" class="mt-2">
-                                        <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click="uploadBtn('PRecordImgObs')">上傳</MDBBtn>
-                                        <MDBBtn tag="a" :href="nowPRecordObsDL" download size="sm" color="secondary">下載</MDBBtn>
-                                      </MDBCol>
-                                    </MDBRow>
-                                  </MDBCol>
-
+                                    <!-- </MDBRow> -->
+                                  <!-- </MDBCol> -->
                               </MDBRow>
                             </MDBLightbox>
                           </MDBTabPane>
@@ -1365,4 +1447,35 @@ tr.selected>td>span.status1 {
   max-width: 100%;
   max-height: 100%;
 }
+
+.lightboxImg .imgtitle,.lightboxImg .imgcancel,.lightboxImg button,.lightboxImg a{
+  opacity: 0.8;
+}
+
+.imgtitle{
+  position: absolute; 
+  top: 0; 
+  left: 0.2rem;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.6);
+  height: 1.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.5rem;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+.imgcancel{
+  position: absolute; 
+  top: 0; 
+  right: 0.2rem;
+  background-color: rgba(255, 0, 0, 0.8);
+  width: 1.5rem;
+  height: 1.5rem;
+  text-align: center;
+}
+.imgcancel::before{
+  content: "\2716";
+  color: white;
+}
+
 </style>
