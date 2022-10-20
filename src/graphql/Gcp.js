@@ -70,6 +70,7 @@ const GETALLGCP = gql`
         status
       }
       latest_coor {
+        id
         project_id
         coor_E
         coor_N
@@ -111,6 +112,13 @@ const GETGCPBYID = gql`
   mutation GetGcpById($getGcpByIdId: String!) {
     getGcpById(id: $getGcpByIdId) {
       id
+      latest_record {
+        id
+        project_id
+        coor_E
+        coor_N
+        coor_h
+      }
       enable
       type_code
       gcp_type {
@@ -190,6 +198,33 @@ const GETRECORDBYID = gql`
     getGcpRecordById(id: $getGcpRecordByIdId) {
       id
       gcp_id
+      gcp {
+        id
+        enable
+        type_code
+        gcp_type {
+          type_name
+        }
+        ownership
+        establishment
+        Est_date
+        pavement
+        style
+        pt_desc
+        pt_map
+        aerial_img
+        need_contact
+        contact_id
+        gcp_contact {
+          id
+          name
+          address
+          person
+          tel
+          comment
+        }
+        comment
+      }
       project_id
       date
       person
@@ -297,6 +332,27 @@ const DELGCPRECORD = gql`
   }
 `;
 
+const UPDATEGCPCONTACT = gql`
+  mutation UpdateGcpContact(
+    $updateGcpContactId: Int!
+    $name: String
+    $address: String
+    $person: String
+    $tel: String
+    $comment: String
+  ) {
+    updateGcpContact(
+      id: $updateGcpContactId
+      name: $name
+      address: $address
+      person: $person
+      tel: $tel
+      comment: $comment
+    ) {
+      id
+    }
+  }
+`;
 export default {
   GETRECORDBYPID,
   GETALLGCP,
@@ -309,4 +365,5 @@ export default {
   DELGCP,
   UPDATEGCPRECORD,
   DELGCPRECORD,
+  UPDATEGCPCONTACT,
 };
