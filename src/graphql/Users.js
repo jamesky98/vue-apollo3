@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 const CHECKTOKEN = gql`
-  query checktoken {
+  mutation CheckToken {
     checktoken
   }
 `;

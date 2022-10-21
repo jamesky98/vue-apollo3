@@ -1,6 +1,6 @@
 <script setup>
 	// 作業紀錄表(適用航空測量攝影機)
-import {ref} from 'vue';
+import {ref, onMounted} from 'vue';
 import { computed } from "@vue/reactivity";
 import { useMutation } from '@vue/apollo-composable';
 import GcpGQL from "../../graphql/Gcp";
@@ -118,6 +118,83 @@ getRecordByIdOnDone(result => {
   }
 });
 getRecordById({getGcpRecordByIdId: parseInt(props.recordID)});
+
+// 繪製透空圖
+
+function drawObsView(){
+  let canvas = document.getElementById("obsCanvas");
+  //指定繪圖方式
+  let ctx = canvas.getContext("2d");
+  
+  const gapWidth = 10.5;
+  const sortLine = 6/2;
+  let center = [120,120];
+  ctx.lineWidth = 0.5;
+  for(let i=1;i<9;i++){
+    ctx.beginPath();
+    // ctx.moveTo(100,100)
+    ctx.arc(center[0],center[1],gapWidth * i,0,Math.PI*2,true);
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.lineWidth = 1.5;
+  ctx.arc(center[0],center[1],9*gapWidth,0,Math.PI*2,true);
+  ctx.stroke();
+  
+  ctx.font = '9px Times New Roman';
+  for(let i=1;i<10;i += 2){
+    ctx.fillStyle = 'White';
+    ctx.fillRect(center[0] + 2, center[1] - (gapWidth*i) - 5, 15, 8);
+    ctx.fillStyle = 'Black';
+    ctx.fillText((90-10*i)+'°', center[0] + 3, center[1] - (gapWidth*i) + 3);  
+    
+  }
+  ctx.fillStyle = 'White';
+  ctx.fillRect(center[0], center[1], 18, 9);
+  ctx.fillStyle = 'Black';
+  ctx.fillText('天頂', center[0], center[1]+8);
+
+  
+  let rad = (gapWidth*10)+2;
+  let offset = [-6,4];
+  let coor = circleXY(center, 270 ,rad);
+  ctx.fillText(' N', coor[0]+offset[0], coor[1]+offset[1]);
+  coor = circleXY(center, 90 ,rad);
+  ctx.fillText(' S', coor[0]+offset[0], coor[1]+offset[1]);
+  coor = circleXY(center, 0 ,rad);
+  ctx.fillText(' E', coor[0]+offset[0], coor[1]+offset[1]);
+  coor = circleXY(center, 180 ,rad);
+  ctx.fillText(' W', coor[0]+offset[0], coor[1]+offset[1]);
+  ctx.lineWidth = 0.5;
+  for(let i=0;i<12;i++){
+    let ang = (270 + i*30) % 360;
+    let angTxt = (i*30) +'°';
+    if((ang%90)!==0){
+      coor = circleXY(center, ang ,rad);
+      ctx.fillText(angTxt, coor[0]+offset[0], coor[1]+offset[1]);
+    }
+    let txtRad = gapWidth*10;
+    let startPt = circleXY(center,ang,txtRad-gapWidth-sortLine);
+    let endPt = circleXY(center,ang,txtRad-gapWidth+sortLine);
+    ctx.beginPath();
+    ctx.moveTo(startPt[0],startPt[1]);
+    ctx.lineTo(endPt[0],endPt[1]);
+    ctx.stroke();
+  }
+
+}
+
+function circleXY(center,ang,radius){
+  // ang:360度制
+  let x = center[0] + radius * Math.cos(ang / 180 * Math.PI);
+  let y = center[1] + radius * Math.sin(ang / 180 * Math.PI);
+  return [x,y];
+}
+
+onMounted(()=>{
+  drawObsView();
+});
+
 </script>
 
 <template>
@@ -250,7 +327,13 @@ getRecordById({getGcpRecordByIdId: parseInt(props.recordID)});
           </tr>
           <tr style="height: 18em;vertical-align: top;">
             <td scope="col" colspan="3" class="f_03 py-2 bl_l_doble bl_b_doble bl_r">點之記說明補充：</td>
-            <td scope="col" colspan="3" width="30%" class="f_03 py-2 bl_b_doble bl_r_doble">透空圖：</td>
+            <td scope="col" colspan="3" width="30%" class="f_03 p-2 bl_b_doble bl_r_doble">
+              透空圖：
+              <div class="f_mid" style="height: calc(100% - 1.5rem);">
+                <canvas id="obsCanvas" width="230" height="230" class="mt-2"></canvas>
+              </div>
+              
+            </td>
           </tr>
         </table>
       </table>
@@ -267,7 +350,7 @@ getRecordById({getGcpRecordByIdId: parseInt(props.recordID)});
             <td scope="col" width="70%" rowspan="12" colspan="2"
               class="p-2 bl_t_doble bl_l_doble bl_b bl_r"
               style="height: 25em;">
-              <img :src="nowGcpDespImgDL" class="img-allfluid" />
+              <img :src="nowGcpDespImgDL" onerror="this.src=''" class="img-allfluid" />
             </td>
             <td scope="col" class="f_04 f_mid p-0 bl_t_doble bl_r_doble bl_b">{{nowPRecordPtId}}</td>
           </tr>
@@ -309,32 +392,30 @@ getRecordById({getGcpRecordByIdId: parseInt(props.recordID)});
             <td 
               scope="col" colspan="2" 
               class="f_05 py-2 bl_l_doble bl_b bl_r">
-              {{nowGcpDespStr}}<span v-if="nowGcpContactCom">[{{nowGcpContactCom}}]</span>
+              {{nowGcpDespStr}}<span v-if="nowGcpContactCom" style="color: red;">[{{nowGcpContactCom}}]</span>
             </td>
             <td scope="col" class="f_05 py-2 bl_r_doble bl_b">地址：{{nowGcpContactAds}}</td>
           </tr>
           <tr>
             <td scope="col" width="50%" 
-              class="bl_l_doble bl_b bl_r"
-              style="height: 10em;">
+              class="photo_h bl_l_doble bl_b bl_r">
               <!-- 遠1 -->
-              <img :src="nowPRecordImg1DL" class="img-allfluid" />
+              <img :src="nowPRecordImg1DL" onerror="this.src=''" class="img-allfluid" />
             </td>
-            <td scope="col" colspan="2" class="bl_r_doble bl_b">
+            <td scope="col" colspan="2" class="photo_h bl_r_doble bl_b">
               <!-- 近照 -->
-              <img :src="nowPRecordImg0DL" class="img-allfluid" />
+              <img :src="nowPRecordImg0DL" onerror="this.src=''" class="img-allfluid" />
             </td>
           </tr>
           <tr>
             <td scope="col" 
-              class="bl_l_doble bl_b_doble bl_r"
-              style="height: 10em;">
+              class="photo_h bl_l_doble bl_b_doble bl_r">
               <!-- 遠2 -->
-              <img :src="nowPRecordImg2DL" class="img-allfluid" />
+              <img :src="nowPRecordImg2DL" onerror="this.src=''" class="img-allfluid" />
             </td>
-            <td scope="col" colspan="2" class="bl_r_doble bl_b_doble">
+            <td scope="col" colspan="2" class="photo_h bl_r_doble bl_b_doble">
               <!-- 遠3 -->
-              <img :src="nowPRecordImg3DL" class="img-allfluid" />
+              <img :src="nowPRecordImg3DL" onerror="this.src=''" class="img-allfluid" />
             </td>
           </tr>
         </table>
@@ -453,7 +534,7 @@ getRecordById({getGcpRecordByIdId: parseInt(props.recordID)});
 /* 表格 */
 td{
   height: 2em;
-  padding-left: 0.5em;
+  padding-left: 0.3em;
 }
 
 /* 框線 */
@@ -553,6 +634,10 @@ td{
   /* font-weight:bold; */
 }
 
+/* 照片 */
+.photo_h{
+  height: 14rem;
+}
 .img-allfluid{
   height: auto;
   max-width: 100%;

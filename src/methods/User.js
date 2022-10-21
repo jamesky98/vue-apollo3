@@ -20,6 +20,7 @@ function logIn(result) {
     localStorage.setItem("USER_NAME2", result.data.login.user.user_name2);
     localStorage.setItem("USER_ROLE", result.data.login.user.role);
     localStorage.setItem("USER_AC", result.data.login.user.active);
+    console.log("localStorage In")
     router.push("/main");
   } else {
     logOut();

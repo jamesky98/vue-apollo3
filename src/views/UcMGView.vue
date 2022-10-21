@@ -25,14 +25,15 @@ import { computed } from "@vue/reactivity";
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
 import { logIn, logOut, toTWDate } from '../methods/User';
-import router from '../router';
-const { onResult: getchecktoken, refetch: refgetCheckToken } = useQuery(UsersGQL.CHECKTOKEN);
-getchecktoken(result => {
+
+const { mutate: getchecktoken, onDone: getchecktokenOnDone } = useMutation(UsersGQL.CHECKTOKEN);
+getchecktokenOnDone(result => {
+  // console.log(result.data)
   if (!result.data.checktoken) {
     logOut();
   }
 });
-refgetCheckToken();
+getchecktoken();
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);

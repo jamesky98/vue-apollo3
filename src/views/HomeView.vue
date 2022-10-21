@@ -1,13 +1,13 @@
 <script setup>
 
 // 判斷token狀況
-import { useQuery } from '@vue/apollo-composable';
+import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
 import { logIn, logOut, toTWDate } from '../methods/User';
 import router from '../router';
-const { onResult: getchecktoken, refetch: refgetCheckToken } = useQuery(UsersGQL.CHECKTOKEN);
-getchecktoken(result => {
-  console.log("checktoken");
+
+const { mutate: getchecktoken, onDone: getchecktokenOnDone } = useMutation(UsersGQL.CHECKTOKEN);
+getchecktokenOnDone(result => {
   if (!result.data.checktoken) {
     logOut();
   }else{
@@ -15,7 +15,7 @@ getchecktoken(result => {
     router.push("/main");
   }
 });
-refgetCheckToken();
+getchecktoken();
 
 </script>
 <template>

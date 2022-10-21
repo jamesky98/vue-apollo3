@@ -8,14 +8,14 @@ import { logIn, logOut, toTWDate } from './methods/User';
 // import { ref } from "vue";
 // 判斷token狀況
 // const hasToken = ref(result.data.checktoken);
-const { onResult:getchecktoken } = useQuery(UsersGQL.CHECKTOKEN);
-getchecktoken(result => {
-  if (!result.data.checktoken) {
-    logOut();
-  } else {
-    // router.push('/main');
-  }
-});
+// const { onResult:getchecktoken } = useQuery(UsersGQL.CHECKTOKEN);
+// getchecktoken(result => {
+//   if (!result.data.checktoken) {
+//     logOut();
+//   } else {
+//     // router.push('/main');
+//   }
+// });
 
 </script>
 
@@ -28,9 +28,9 @@ getchecktoken(result => {
 @import 'datatables.net-dt';
 @import 'datatables.net-bs5';
 @import "@fortawesome/fontawesome-free/css/all.min.css";
-@import "./assets/cwtexyen.css";
+/* @import "./assets/cwtexyen.css";
 @import "./assets/Roboto.css";
-@import "./assets/notosanstc.css";
+@import "./assets/notosanstc.css"; */
 
 
 html, body, #app{
