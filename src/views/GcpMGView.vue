@@ -48,8 +48,10 @@ getchecktoken(result => {
 });
 refgetCheckToken();
 
+
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
+
 // 取得權限==========Start
 // const myUserId = ref("");
 const myUserName = ref("");
@@ -130,9 +132,12 @@ const selGcpStatusDOM = ref();
 const selGcpContact = ref("");
 const selGcpContactMU = ref([]);
 const selGcpContactDOM = ref();
+// select over
 
-const nowGcpEnable = ref(true);
 const nowGcpId = ref("");
+const nowGcpRecordId = ref("");
+const nowGcpEnable = ref(true);
+
 
 const nowGcpTypeCode = ref("");
 const nowGcpTypeCodeMU = ref([]);
@@ -194,6 +199,7 @@ const nowGcpNeedContact = ref(false);
 const nowGcpContactId = ref("");
 const nowGcpContactMU = ref([]);
 const nowGcpContactDOM = ref();
+const nowGcpContactName = ref("");
 
 const nowGcpContactAds = ref("");
 const nowGcpContactPrs = ref("");
@@ -344,6 +350,15 @@ getAllContact(result=>{
   }
 });
 refgetAllContact();
+function updateContact(){
+  // let newoption = nowGcpContactId.value;
+  // let findid = nowGcpContactMU.value.findIndex(x => x.value===newoption);
+  if(nowGcpContactName.value!==""){
+    nowGcpContactMU.value.push({text: nowGcpContactName.value, value: -2})
+    nowGcpContactDOM.value.setValue(-2);
+    nowGcpContactName.value = "";
+  }
+}
 
 // 清除篩選
 function clearfilter(){
@@ -472,7 +487,7 @@ const tboption_gcp = {
   responsive: true,
   language: {
     info: '共 _TOTAL_ 筆資料',
-  }
+  },
 };
 // 查詢AllGCP
 const { mutate: getAllGcp, onDone: getAllGcpOnDone, onError: getAllGcpError } = useMutation(
@@ -509,7 +524,7 @@ const { mutate: getGcpById, onDone: getGcpByIdOnDone, onError: getGcpByIdError }
 getGcpByIdOnDone(result=>{
   let getData = result.data.getGcpById;
   nowGcpEnable.value = (getData.enable===1)?true:false;
-  
+  nowGcpRecordId.value = getData.latest_record.id;
   nowGcpTypeCode.value = getData.type_code;
   nowGcpTypeCodeDOM.value.setValue(nowGcpTypeCode.value);
 
@@ -552,22 +567,33 @@ const { mutate: saveGcp, onDone: saveGcpOnDone, onError: saveGcpError } = useMut
 saveGcpOnDone(result=>{
   infomsg.value = "點位 " + result.data.updateGCP.id + "儲存完畢";
 });
+const { mutate: saveGcpContact, onDone: saveGcpContactOnDone, onError: saveGcpContactError } = useMutation(GcpGQL.UPDATEGCPCONTACT);
+
 function saveGcpBtn(){
-  saveGcp({
-    updateGcpId: (nowGcpId.value)?nowGcpId.value:'-1',
-    enable: (nowGcpEnable.value)?1:0,
-    typeCode: (nowGcpTypeCode.value && nowGcpTypeCode.value!==-1)?parseInt(nowGcpTypeCode.value):null,
-    ownership: nowGcpOwnerShip.value,
-    establishment: nowGcpEstablishment.value,
-    estDate: parseInt(nowGcpEstDate.value),
-    pavement: (nowGcpPavement.value && nowGcpPavement.value!=='-1')?nowGcpPavement.value:null,
-    style: (nowGcpStyle.value && nowGcpStyle.value!=='-1')?nowGcpStyle.value:null,
-    ptDesc: nowGcpDespStr.value,
-    ptMap: nowGcpDespImg.value,
-    aerialImg: nowGcpSimage.value,
-    needContact: (nowGcpNeedContact.value)?1:0,
-    contactId: (nowGcpContactId.value && nowGcpContactId.value!==-1)?parseInt(nowGcpContactId.value):null,
-    comment: nowGcpComment.value,
+  saveGcpContact({
+    updateGcpContactId: nowGcpContactId.value,
+    name: document.querySelector('#contactSelectDOM div input').value,
+    address: nowGcpContactAds.value,
+    person: nowGcpContactPrs.value,
+    tel: nowGcpContactTel.value,
+    comment: nowGcpContactCom.value,
+  }).then(res=>{
+    return saveGcp({
+      updateGcpId: (nowGcpId.value)?nowGcpId.value:'-1',
+      enable: (nowGcpEnable.value)?1:0,
+      typeCode: (nowGcpTypeCode.value && nowGcpTypeCode.value!==-1)?parseInt(nowGcpTypeCode.value):null,
+      ownership: nowGcpOwnerShip.value,
+      establishment: nowGcpEstablishment.value,
+      estDate: parseInt(nowGcpEstDate.value),
+      pavement: (nowGcpPavement.value && nowGcpPavement.value!=='-1')?nowGcpPavement.value:null,
+      style: (nowGcpStyle.value && nowGcpStyle.value!=='-1')?nowGcpStyle.value:null,
+      ptDesc: nowGcpDespStr.value,
+      ptMap: nowGcpDespImg.value,
+      aerialImg: nowGcpSimage.value,
+      needContact: (nowGcpNeedContact.value)?1:0,
+      contactId: (nowGcpContactId.value && nowGcpContactId.value!==-1)?parseInt(nowGcpContactId.value):null,
+      comment: nowGcpComment.value,
+    })
   }).then(res=>{getAllGcp()});
 }
 
@@ -642,7 +668,7 @@ const tboption_hist = {
   responsive: true,
   language: {
     info: '共 _TOTAL_ 筆資料',
-  }
+  },
 };
 // 查詢Record歷年紀錄
 const { onResult: getRcordByPId, refetch: refgetRcordByPId } = useQuery(
@@ -955,9 +981,20 @@ onMounted(function () {
                       <div :class="{ 'hiddenSpinner': notProssing}" style="position: absolute; left: 50%; top: 10rem;">
                         <MDBSpinner size="md" color="primary" />Loading...
                       </div>
-                      <div style="position:absolute;">目前點號：<span class="text-info">{{nowGcpId}}</span></div>
+                      <div style="position:absolute;">目前點號：<span class="text-info">{{nowGcpId}} - {{nowGcpRecordId}}</span></div>
                       <DataTable :data="data_gcp" :columns="columns_gcp" :options="tboption_gcp" ref="table_gcp"
                         style="font-size: smaller;" class="display w-100 compact" />
+                      
+                      <div id="gcpbtn" class="gcptools">
+                        <RouterLink target="_blank" :to="{
+                            path: '/sicltab13',
+                            query: { recordID: nowGcpRecordId },
+                          }">
+                          <MDBBtn size="sm" color="primary">列印調查表</MDBBtn>
+                        </RouterLink>
+
+                        <MDBBtn size="sm" color="primary" @click="">列印全部調查表</MDBBtn>
+                      </div>
                     </MDBCol>
                     <!-- 分割右 -->
                     <MDBCol lg="5" class="h-100 border-start">
@@ -1111,8 +1148,15 @@ onMounted(function () {
                               <MDBCol xl="6" class="mt-2">
                                 <MDBSwitch label="需聯絡" labelClass="fs-7" v-model="nowGcpNeedContact" />
                               </MDBCol>
-                              <MDBSelect size="sm" class="mt-2 col-12" label="機關名稱" v-model:options="nowGcpContactMU"
-                                v-model:selected="nowGcpContactId" ref="nowGcpContactDOM" />
+                              <MDBSelect id="contactSelectDOM" size="sm" class="mt-2 col-12" 
+                                label="機關名稱" 
+                                v-model:options="nowGcpContactMU"
+                                v-model:selected="nowGcpContactId" 
+                                ref="nowGcpContactDOM" 
+                                @close="updateContact()">
+                                <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowGcpContactName" />
+                              </MDBSelect>
+
                               <MDBCol xl="12" class="mt-2">
                                 <MDBInput size="sm" type="text" label="地址" v-model="nowGcpContactAds" />
                               </MDBCol>
@@ -1138,7 +1182,7 @@ onMounted(function () {
             <MDBCol col="12" style="height: 50%;">
               <MDBRow class="h-100">
                 <MDBCol col="12" class="border border-5 rounded-8 shadow-4 mb-2" style="height: calc(100% - 0.5rem)">
-                  <MDBRow class="h-100 overflow-auto" style="position:relative ;">
+                  <MDBRow class="h-100 overflow-auto">
                     <!-- 分割左 -->
                     <MDBCol lg="7" class="h-100 overflow-auto pt-2" style="position: relative ;">
                       <div style="position:absolute;">歷史紀錄 點號：<span class="text-info">{{nowGcpId}}</span></div>
@@ -1183,6 +1227,7 @@ onMounted(function () {
                               </MDBCol>
 
                               <MDBSelect filter size="sm" class="mt-2 col-xl-6 notext" 
+                                label="作業人員" 
                                 v-model:options="nowPRecordPersonMU"
                                 v-model:selected="nowPRecordPerson" 
                                 ref="nowPRecordPersonDOM"
@@ -1477,5 +1522,15 @@ tr.selected>td>span.status1 {
   content: "\2716";
   color: white;
 }
+.gcptools{
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+}
+@media screen and (max-width: 767px){
+.dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_paginate {
+    float: left;
+    text-align: left;
+}}
 
 </style>

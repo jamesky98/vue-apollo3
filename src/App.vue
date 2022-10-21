@@ -27,7 +27,6 @@ getchecktoken(result => {
 
 @import 'datatables.net-dt';
 @import 'datatables.net-bs5';
-@import 'datatables.net-searchbuilder-bs5';
 @import "@fortawesome/fontawesome-free/css/all.min.css";
 @import "./assets/cwtexyen.css";
 @import "./assets/Roboto.css";
