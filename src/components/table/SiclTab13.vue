@@ -7,7 +7,7 @@ import GcpGQL from "../../graphql/Gcp";
 
 // 引入點號
 const props = defineProps({
-	recordID: Number
+	recordID: String
 });
 
 const nowPRecordPtId = ref("");
@@ -121,11 +121,11 @@ getRecordById({getGcpRecordByIdId: parseInt(props.recordID)});
 </script>
 
 <template>
-
-	<div class="header fstyle02 w-100">
+  <!-- 頁首頁尾 -->
+	<div class="header f_02 w-100">
 		<div>內政部國土測繪中心　測量儀器校正實驗室</div>
 	</div>
-	<div class="footer fstyle02 w-100">
+	<div class="footer f_02 w-100">
 		<table  width="100%" style="border: hidden;">
 			<tr>
 				<td width="33%" style="text-align: left;border: hidden;">文件編號：SICL-4-47-0</td>
@@ -135,168 +135,218 @@ getRecordById({getGcpRecordByIdId: parseInt(props.recordID)});
 		</table>
 	</div>
 
-	<div class="page">
-		<table width="100%">
-			<!-- 表單名稱 -->
-			<div class="fstyle01">
-				<div class="fstyle01C" style="margin-bottom: 10px;">校正標點位調查表</div>
-			</div>
-			<div class="fstyle02">編號：</div>
-			<table width="100%" cellspacing=0 cellpadding=0 class="sicltab01">
-				<tr>
-          <td scope="col">作業編號</td>
-          <td scope="col"></td>
-          <td scope="col" colspan="2">作業人員</td>
-          <td scope="col" colspan="2"></td>
-        </tr>
-        <tr>
-          <td scope="col" width="15%">點號</td>
-          <td scope="col" width="35%">{{nowPRecordPtId}}</td>
-          <td scope="col" colspan="2" width="15%">作業日期</td>
-          <td scope="col" colspan="2" width="35%"></td>
-        </tr>
-        <tr>
-          <td scope="col">現況</td>
-          <td scope="col"><span class="wingdings2">&#163;</span>正常 <span class="wingdings2">&#163;</span>遺失損毀</td>
-          <td scope="col" colspan="2">作業類型</td>
-          <td scope="col" colspan="2"><span class="wingdings2">&#163;</span>巡查 <span class="wingdings2">&#163;</span>參考值量測</td>
-        </tr>
-        <tr>
-          <td scope="col">已拍攝</td>
-          <td scope="col" colspan="5">
-            <span class="wingdings2">&#163;</span>近照	
-            <span class="wingdings2">&#163;</span>遠照1	
-            <span class="wingdings2">&#163;</span>遠照2	
-            <span class="wingdings2">&#163;</span>遠照3</td>
-        </tr>
-        <tr>
-          <td scope="col" colspan="6">基本資料 <span class="wingdings2">&#163;</span>是否需修改 (需修改則填寫下面資訊)</td>
-        </tr>
-        <tr>
-          <td scope="col">測設機關</td>
-          <td scope="col" colspan="3"></td>
-          <td scope="col" width="15%">測設日期</td>
-          <td scope="col" colspan="2" width="20%">XXX</td>
-        </tr>
-        <tr>
-          <td scope="col">類別</td>
-          <td scope="col" colspan="5">
-            □ 大校正場用標	□ 小校正場用標	□ 大小共用標<br/>
-            □ 光達標	□ 光達校正物<br/>
-            □ 網形控制點	□ 備用點位
-          </td>
-        </tr>
-        <tr>
-          <td scope="col">標心規格</td>
-          <td scope="col">
-            □ 鋼釘<br/>
-            □ 鋼片
-          </td>
-          <td scope="col" colspan="2">舖面</td>
-          <td scope="col" colspan="2">
-            □ 道路面	□ 空地地面<br/>
-            □ 人行道	□ 建物頂樓
-          </td>
-        </tr>
-        <tr>
-          <td scope="col">土地產權</td>
-          <td scope="col" colspan="5">□ 公有地	□ 私有地</td>
-        </tr>
-        <tr>
-          <td scope="col" colspan="6">聯絡資訊</td>
-        </tr>
-        <tr>
-          <td scope="col">聯絡機關</td>
-          <td scope="col" colspan="5">OOOO</td>
-        </tr>
-        <tr>
-          <td scope="col">聯絡人</td>
-          <td scope="col" colspan="5">OOOO</td>
-        </tr>
-        <tr>
-          <td scope="col">電話</td>
-          <td scope="col" colspan="5">OOOO</td>
-        </tr>
-        <tr>
-          <td scope="col">地址</td>
-          <td scope="col" colspan="5">OOOO</td>
-        </tr>
-        <tr>
-          <td scope="col" colspan="3" width="60%">點之記說明補充：</td>
-          <td scope="col" colspan="3">透空圖：</td>
-        </tr>
-			</table>
-		</table>
-	</div>
+  <div class="page-gap"></div>
   <div class="page">
-			<table width="100%" cellspacing=0 cellpadding=0 class="sicltab01">
-				<tr>
-          <td scope="col" width="67%" rowspan="12" colspan="2">
-            <img :src="nowGcpDespImgDL" class="img-allfluid" />
-          </td>
-          <td scope="col">{{nowPRecordPtId}}</td>
-        </tr>
-        <tr>
-          <td scope="col">前次作業：{{nowPRecordPrjCode}}</td>
-        </tr>
-        <tr>
-          <td scope="col">前次日期：{{nowPRecordDateStr}}</td>
-        </tr>
-        <tr>
-          <td scope="col">前次人員：{{nowPRecordPerson}}</td>
-        </tr>
-        <tr>
-          <td scope="col">類別：{{nowGcpTypeCodeName}}</td>
-        </tr>
-        <tr>
-          <td scope="col">測設機關：{{nowGcpEstablishment}}</td>
-        </tr>
-        <tr>
-          <td scope="col">測設年月：{{nowGcpEstDate}}</td>
-        </tr>
-        <tr>
-          <td scope="col">舖面：{{nowGcpPavement}}</td>
-        </tr>
-        <tr>
-          <td scope="col">標心規格：{{nowGcpStyle}}</td>
-        </tr>
-        <tr>
-          <td scope="col">聯絡機關：{{nowGcpContactName}}</td>
-        </tr>
-        <tr>
-          <td scope="col">聯絡人：{{nowGcpContactPrs}}</td>
-        </tr>
-        <tr>
-          <td scope="col">電話：{{nowGcpContactTel}}</td>
-        </tr>
-        <tr>
-          <td scope="col" colspan="2">{{nowGcpDespStr}}<span v-if="nowGcpContactCom">[{{nowGcpContactCom}}]</span></td>
-          <td scope="col">地址：{{nowGcpContactAds}}</td>
-        </tr>
-        <tr>
-          <td scope="col" width="50%">
-            <img :src="nowPRecordImg1DL" class="img-allfluid" />
-          </td>
-          <td scope="col" colspan="2">
-            <img :src="nowPRecordImg0DL" class="img-allfluid" />
-          </td>
-        </tr>
-        <tr>
-          <td scope="col">
-            <img :src="nowPRecordImg2DL" class="img-allfluid" />
-          </td>
-          <td scope="col" colspan="2">
-            <img :src="nowPRecordImg3DL" class="img-allfluid" />
-          </td>
-        </tr>
-			</table>
-	</div>
+    <div class="page_content">
+      <table width="100%">
+        <!-- 表單名稱 -->
+        <div class="f_01 f_C f_bolder" style="margin-bottom: 10px;">校正標點位調查表</div>
+
+        <div class="f_03 mb-2">編號：</div>
+        <table width="100%" cellspacing=0 cellpadding=0>
+          <tr>
+            <td scope="col" width="13%" class="f_03 bl_t_doble bl_l_doble bl_b bl_r">作業編號</td>
+            <td scope="col" width="26%" class="bl_t_doble bl_b bl_r"></td>
+            <td scope="col" width="13%" colspan="2" class="f_03 bl_t_doble bl_b bl_r">作業人員</td>
+            <td scope="col" colspan="2" class="bl_t_doble bl_b bl_r_doble"></td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_03 bl_l_doble bl_b bl_r">點號</td>
+            <td scope="col" class="f_03 bl_b bl_r">{{nowPRecordPtId}}</td>
+            <td scope="col" colspan="2" class="f_03 bl_b bl_r">作業日期</td>
+            <td scope="col" colspan="2" class="bl_b bl_r_doble"></td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_03 bl_l_doble bl_b bl_r">現況</td>
+            <td scope="col" class="f_03  bl_b bl_r"><span class="wingdings2">&#163;</span>正常 <span class="wingdings2">&#163;</span>遺失損毀</td>
+            <td scope="col" colspan="2" class="f_03 bl_b bl_r">作業類型</td>
+            <td scope="col" colspan="2" class="f_03 bl_b bl_r_doble"><span class="wingdings2">&#163;</span>巡查 <span class="wingdings2">&#163;</span>參考值量測</td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_03 bl_l_doble bl_b bl_r">已拍攝</td>
+            <td scope="col" colspan="5" class="f_03 bl_b bl_r_doble">
+              <span class="wingdings2">&#163;</span>近照	
+              <span class="wingdings2">&#163;</span>遠照1	
+              <span class="wingdings2">&#163;</span>遠照2	
+              <span class="wingdings2">&#163;</span>遠照3</td>
+          </tr>
+          <tr>
+            <td scope="col" colspan="6" class="f_03 f_B bggray2 bl_l_doble bl_b bl_r_doble">
+              基本資料 &emsp; &emsp;
+              <span class="wingdings2">&#163;</span>
+              是否需修改 (需修改則填寫下面資訊)
+            </td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_03 bl_l_doble bl_b bl_r">測設機關</td>
+            <td scope="col" colspan="3" class="bl_b bl_r"></td>
+            <td scope="col" width="15%" class="f_03 bl_b bl_r">測設日期</td>
+            <td scope="col" colspan="2" width="20%" class="bl_b bl_r_doble"></td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_03 bl_l_doble bl_b bl_r">類別</td>
+            <td scope="col" colspan="5" class="f_03 px-0 py-2 bl_b bl_r_doble">
+              <table width="100%">
+                <tr>
+                  <td style="height: 1em;"><span class="wingdings2">&#163;</span>大校正場用標</td>
+                  <td style="height: 1em;"><span class="wingdings2">&#163;</span>小校正場用標</td>
+                  <td style="height: 1em;"><span class="wingdings2">&#163;</span>大小共用標</td>
+                </tr>
+                <tr>
+                  <td style="height: 1em;"><span class="wingdings2">&#163;</span>光達標</td>
+                  <td style="height: 1em;"><span class="wingdings2">&#163;</span>光達校正物</td>
+                </tr>
+                <tr>
+                  <td style="height: 1em;"><span class="wingdings2">&#163;</span>網形控制點</td>
+                  <td style="height: 1em;"><span class="wingdings2">&#163;</span>備用點位</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_03 bl_l_doble bl_b bl_r">標心規格</td>
+            <td scope="col" class="f_03 bl_b bl_r">
+              <span class="wingdings2">&#163;</span>鋼釘<br/>
+              <span class="wingdings2">&#163;</span>鋼片
+            </td>
+            <td scope="col" colspan="2" class="f_03 bl_b bl_r">舖面</td>
+            <td scope="col" colspan="2" class="f_03 px-0 py-2 bl_b bl_r_doble">
+              <table>
+                <tr>
+                  <td style="height: 1em;"><span class="wingdings2">&#163;</span>道路面</td>
+                  <td style="height: 1em;"><span class="wingdings2">&#163;</span>空地地面</td>
+                </tr>
+                <tr>
+                  <td style="height: 1em;"><span class="wingdings2">&#163;</span>人行道</td>
+                  <td style="height: 1em;"><span class="wingdings2">&#163;</span>建物頂樓</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_03 bl_l_doble bl_b bl_r">土地產權</td>
+            <td scope="col" colspan="5" class="f_03 bl_b bl_r_doble">
+              <span class="wingdings2">&#163;</span>公有地	<span class="wingdings2">&#163;</span>私有地
+            </td>
+          </tr>
+          <tr>
+            <td scope="col" colspan="6" class="f_03 bl_l_doble bl_b bl_r_doble">聯絡資訊</td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_03 bl_l_doble bl_b bl_r">聯絡機關</td>
+            <td scope="col" colspan="5" class="bl_b bl_r_doble"></td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_03 bl_l_doble bl_b bl_r">聯絡人</td>
+            <td scope="col" colspan="5" class="bl_b bl_r_doble"></td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_03 bl_l_doble bl_b bl_r">電話</td>
+            <td scope="col" colspan="5" class="bl_b bl_r_doble"></td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_03 bl_l_doble bl_b bl_r">地址</td>
+            <td scope="col" colspan="5" class="bl_b bl_r_doble"></td>
+          </tr>
+          <tr style="height: 18em;vertical-align: top;">
+            <td scope="col" colspan="3" class="f_03 py-2 bl_l_doble bl_b_doble bl_r">點之記說明補充：</td>
+            <td scope="col" colspan="3" width="30%" class="f_03 py-2 bl_b_doble bl_r_doble">透空圖：</td>
+          </tr>
+        </table>
+      </table>
+    
+    </div>
+  </div>
+  <div class="page-gap"></div>
+  <div class="page">
+    <div class="page_content">
+      <div class="f_01 f_C f_bolder" style="margin-bottom: 10px;">校正標點位紀錄</div>
+        <table width="100%" cellspacing=0 cellpadding=0>
+          <tr>
+            <!-- 點之記 -->
+            <td scope="col" width="70%" rowspan="12" colspan="2"
+              class="p-2 bl_t_doble bl_l_doble bl_b bl_r"
+              style="height: 25em;">
+              <img :src="nowGcpDespImgDL" class="img-allfluid" />
+            </td>
+            <td scope="col" class="f_04 f_mid p-0 bl_t_doble bl_r_doble bl_b">{{nowPRecordPtId}}</td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_05 bl_r_doble bl_b">前次作業：{{nowPRecordPrjCode}}</td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_05 bl_r_doble bl_b">前次日期：{{nowPRecordDateStr}}</td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_05 bl_r_doble bl_b">前次人員：{{nowPRecordPerson}}</td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_05 bl_r_doble bl_b">類別：{{nowGcpTypeCodeName}}</td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_05 bl_r_doble bl_b">測設機關：{{nowGcpEstablishment}}</td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_05 bl_r_doble bl_b">測設年月：{{nowGcpEstDate}}</td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_05 bl_r_doble bl_b">舖面：{{nowGcpPavement}}</td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_05 bl_r_doble bl_b">標心規格：{{nowGcpStyle}}</td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_05 bl_r_doble bl_b">聯絡機關：{{nowGcpContactName}}</td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_05 bl_r_doble bl_b">聯絡人：{{nowGcpContactPrs}}</td>
+          </tr>
+          <tr>
+            <td scope="col" class="f_05 bl_r_doble bl_b">電話：{{nowGcpContactTel}}</td>
+          </tr>
+          <tr style="height: 6em;vertical-align: top;">
+            <!-- 點之記說明 -->
+            <td 
+              scope="col" colspan="2" 
+              class="f_05 py-2 bl_l_doble bl_b bl_r">
+              {{nowGcpDespStr}}<span v-if="nowGcpContactCom">[{{nowGcpContactCom}}]</span>
+            </td>
+            <td scope="col" class="f_05 py-2 bl_r_doble bl_b">地址：{{nowGcpContactAds}}</td>
+          </tr>
+          <tr>
+            <td scope="col" width="50%" 
+              class="bl_l_doble bl_b bl_r"
+              style="height: 10em;">
+              <!-- 遠1 -->
+              <img :src="nowPRecordImg1DL" class="img-allfluid" />
+            </td>
+            <td scope="col" colspan="2" class="bl_r_doble bl_b">
+              <!-- 近照 -->
+              <img :src="nowPRecordImg0DL" class="img-allfluid" />
+            </td>
+          </tr>
+          <tr>
+            <td scope="col" 
+              class="bl_l_doble bl_b_doble bl_r"
+              style="height: 10em;">
+              <!-- 遠2 -->
+              <img :src="nowPRecordImg2DL" class="img-allfluid" />
+            </td>
+            <td scope="col" colspan="2" class="bl_r_doble bl_b_doble">
+              <!-- 遠3 -->
+              <img :src="nowPRecordImg3DL" class="img-allfluid" />
+            </td>
+          </tr>
+        </table>
+    </div>
+  </div>
+  <div class="page-gap"></div>
 </template>
 <style>
 @media screen {
 	html, body{
 		width: 210mm;
-		height: 297mm;
+		/* height: 297mm; */
 		margin-left: auto;
 		margin-right: auto;
 	}
@@ -312,6 +362,8 @@ getRecordById({getGcpRecordByIdId: parseInt(props.recordID)});
 		position: relative;
 		width: 210mm;
 		height: 297mm;
+    margin-left: auto;
+		margin-right: auto;
 		padding-top: 1.5cm;
 		padding-bottom: 1.5cm;
 		padding-left: 2cm;
@@ -320,29 +372,22 @@ getRecordById({getGcpRecordByIdId: parseInt(props.recordID)});
 	.page-gap{
 		height: 20px;
 	}
-	tr,td {
-		border: 1px solid;
-		page-break-inside: avoid;
-		/* white-space:nowrap; */
-		/* overflow: hidden; */
-		/* height: 30px; */
-	}
-
 }
 @page {
   size: A4 portrait; /* 混合使用 */
-  margin: 1cm 2cm; /* 邊界與內容的距離 */
+  margin: 0.5cm 2cm; /* 頁緣扣頁首頁尾 */
 	orphans:0;
   widows:0;
 }
 @media print{
 	html, body{
+    width: 100%;
 		height: 100%;
 		margin: 0;
 		counter-reset: page-number;
 		print-color-adjust: exact;
 		-webkit-print-color-adjust: exact;
-		/* border: 1px solid red; */
+		/* border: 1px solid green; */
 	}
 	.header{
 		position: fixed;
@@ -356,8 +401,10 @@ getRecordById({getGcpRecordByIdId: parseInt(props.recordID)});
 		position: relative;
 		width: 100%;
 		height: 100%;
-		padding-top: 1.5cm;
-		padding-bottom: 1.5cm;
+		padding-top: 1cm;
+		padding-bottom: 1cm;
+		padding-left: 0cm;
+		padding-right: 0cm;
 		page-break-inside: avoid;
 		page-break-before: always;
 	}
@@ -378,14 +425,6 @@ getRecordById({getGcpRecordByIdId: parseInt(props.recordID)});
 	.noprint{
 		display: none;
 	}
-	tr,td {
-		border: 1.5px solid;
-		page-break-inside: avoid;
-		/* white-space:nowrap; */
-		/* overflow: hidden; */
-		/* height: 30px; */
-	}
-	
 }
 .wingdings2{
 		font-family: 'Wingdings 2';
@@ -404,77 +443,114 @@ getRecordById({getGcpRecordByIdId: parseInt(props.recordID)});
 	background-color: #d9d9d9;
 }
 
-.sicltab01 {
-  border: 3px solid;
-  border-collapse: collapse;
+/* 頁面 */
+.page_content{
+  width: auto;
+  height: auto;
+  /* border: 1px solid rebeccapurple; */
 }
 
-.fstyle01, .fstyle01C, .fstyle02, .fstyle02mid, .fstyle02V, .fstyle02Vleft, .fstyle03, .fstyle03mid{
-	font-family: "Times New Roman", 標楷體;
+/* 表格 */
+td{
+  height: 2em;
+  padding-left: 0.5em;
 }
 
-.fbolder{
+/* 框線 */
+.bl_all{
+  border: 1px solid;
+}
+.bl_t{
+  border-top: 1px solid;
+}
+.bl_b{
+  border-bottom: 1px solid;
+}
+.bl_l{
+  border-left: 1px solid;
+}
+.bl_r{
+  border-right: 1px solid;
+}
+
+.bl_t_doble{
+  border-top: 5px double;
+}
+.bl_b_doble{
+  border-bottom: 5px double;
+}
+.bl_l_doble{
+  border-left: 5px double;
+}
+.bl_r_doble{
+  border-right: 5px double;
+}
+
+/* 字型 */
+/* 粗體 */
+.f_bolder{
 	font-weight:bolder;
 }
-
-.fstyle01, .fstyle01C{
-	text-align: center;
-  font-size: 24pt;
+.f_bold{
   font-weight:bold;
+}
+/* 靠左 */
+.f_left{
+	text-align: left;
+}
+/* 靠右 */
+.f_right{
+	text-align: right;
+}
+/* 置中 */
+.f_mid{
+	text-align: center;
+}
+/* 中文加寬 */
+.f_C{
+  letter-spacing: 5px;
+}
+
+/* 標題字 */
+.f_01{
+  font-family: "Times New Roman", 標楷體;
+  text-align: center;
+  font-size: 20pt;
 	line-height: 1;
 }
-
-.fstyle01C{
-	letter-spacing: 5px;
-}
-
-.fstyle02, .fstyle02mid{
-	padding: 3px 10px 3px 10px;
-  font-size: 11pt;
+/* 頁首頁尾註記 */
+.f_02{
+  font-family: "Times New Roman", 標楷體;
+  /* padding: 3px 10px 3px 10px; */
+  font-size: 12pt;
 	line-height: 2;
 	letter-spacing: 0px;
-	font-weight:normal;
+  /* font-weight:bold; */
 }
 
-.fstyle02{
-	text-align: left;
-}
-.fstyle02mid{
-	text-align: center;
-}
-
-.fstyle02V, .fstyle02Vleft{
-	margin-left: auto;
-	margin-right: auto;
-  font-size: 12pt;
-	font-weight:normal;
-	/* line-height: 1; */
-	writing-mode: vertical-lr;
-  text-orientation: mixed;
-	white-space:nowrap;
+/* 內文 */
+.f_03{
+  /* 'Noto Sans TC','cwTeXYen', Roboto, Helvetica, Arial, sans-serif; */
+  font-family: sans-serif, 標楷體;
+  font-size: 14pt;
+  line-height: 1;
+  font-weight:bold;
 }
 
-.fstyle02V{
-	text-align: center;
+/* 點號 */
+.f_04{
+  font-family: sans-serif, 標楷體;
+  font-size: 18pt;
+  line-height: 1;
+  font-weight:bold;
 }
 
-.fstyle02Vleft{
-	text-align: left;
-  padding-top: 10px;
-}
-
-.fstyle03, .fstyle03mid{
-	padding: 0;
-  font-size: 8pt;
-  font-weight:normal;
-	line-height: 1;
-}
-
-.fstyle03{
-	text-align: left;
-}
-.fstyle03mid{
-	text-align: center;
+/* 紀錄 */
+.f_05{
+  font-family: sans-serif, 標楷體;
+  font-size: 11pt;
+  line-height:1;
+  /* font-weight:bold; */
 }
 
 .img-allfluid{
