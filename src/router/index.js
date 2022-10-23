@@ -196,6 +196,15 @@ const router = createRouter({
         title: "點位調查表",
       },
     },
+    {
+      path: "/sicltab14",
+      name: "sicltab14",
+      component: () => import("../components/table/SiclTab14.vue"),
+      props: (route) => route.query,
+      meta: {
+        title: "點位調查表",
+      },
+    },
   ],
 });
 

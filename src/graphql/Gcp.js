@@ -52,7 +52,49 @@ const GETALLGCP = gql`
     ) {
       id
       gcp_record {
+        id
+        gcp_id
+        gcp {
+          id
+          enable
+          type_code
+          gcp_type {
+            type_name
+          }
+          ownership
+          establishment
+          Est_date
+          pavement
+          style
+          pt_desc
+          pt_map
+          aerial_img
+          need_contact
+          contact_id
+          gcp_contact {
+            id
+            name
+            address
+            person
+            tel
+            comment
+          }
+          comment
+        }
         project_id
+        date
+        person
+        status
+        coor_E
+        coor_N
+        coor_h
+        close_photo
+        far_photo1
+        far_photo2
+        far_photo3
+        obstruction
+        ismodify
+        comment
         ref_project {
           project_code
           cal_type_id
@@ -65,9 +107,6 @@ const GETALLGCP = gql`
           month
           organizer
         }
-        date
-        person
-        status
       }
       latest_coor {
         id

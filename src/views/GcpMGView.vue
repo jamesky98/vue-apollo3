@@ -132,6 +132,18 @@ const selGcpStatusDOM = ref();
 const selGcpContact = ref("");
 const selGcpContactMU = ref([]);
 const selGcpContactDOM = ref();
+
+const nowSelParams = computed(()=>{
+  let paramsObj ={
+    projectId: (parseInt(selPrjCode.value) > -1)?parseInt(selPrjCode.value):null,
+    getAllGcpId: (selGcpId.value && selGcpId.value!=="")?selGcpId.value:null,
+    enable: (parseInt(selGcpEnable.value) > -1)?parseInt(selGcpEnable.value):null,
+    status: (selGcpStatus.value && selGcpStatus.value!==-1)?selGcpStatus.value:null,
+    contactId: (parseInt(selGcpContact.value) > -1)?parseInt(selGcpContact.value):null,
+  }
+  // console.log(JSON.stringify(paramsObj))
+  return JSON.stringify(paramsObj);
+});
 // select over
 
 const nowGcpId = ref("");
@@ -992,8 +1004,12 @@ onMounted(function () {
                           }">
                           <MDBBtn size="sm" color="primary">列印調查表</MDBBtn>
                         </RouterLink>
-
-                        <MDBBtn size="sm" color="primary" @click="">列印全部調查表</MDBBtn>
+                        <RouterLink target="_blank" :to="{
+                            path: '/sicltab13',
+                            query: { selParams: nowSelParams },
+                          }">
+                          <MDBBtn size="sm" color="primary">列印全部調查表</MDBBtn>
+                        </RouterLink>
                       </div>
                     </MDBCol>
                     <!-- 分割右 -->
