@@ -251,7 +251,10 @@ getAllCust(result=>{
 });
 refgetAllCust();
 
-const { onResult: getselCust, refetch: refgetselCust } = useQuery(CustGQL.GETCUSTBYID);
+const { onResult: getselCust, refetch: refgetselCust } = useQuery(
+  CustGQL.GETCUSTBYID,()=>({
+    getCustByIdId: -1
+  }));
 getselCust(result=>{
   if(!result.loading && result.data.getCustById){
     let getData = result.data.getCustById;
@@ -700,7 +703,7 @@ onMounted(function () {
   dt_cust = table_cust.value.dt();
   dt_cust.on('select', function (e, dt, type, indexes) {
     nowCustId.value = dt.rows(indexes).data()[0].id;
-    refgetselCust({getCustByIdId: parseInt(nowCustId.value)});
+    refgetselCust({getCustByIdId: (parseInt(nowCustId.value))?parseInt(nowCustId.value):-1});
   });
 
   dt_Item = table_Item.value.dt();

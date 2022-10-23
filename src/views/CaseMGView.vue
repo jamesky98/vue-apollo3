@@ -337,7 +337,7 @@ getAllCust(result => {
 const { result: selCustData, loading: loadselCust, onResult: getselCust, refetch: refgetselCust } = useQuery(
   CustGQL.GETCUSTBYID,
   () => ({
-    getCustByIdId: parseInt(seletCustId.value)
+    getCustByIdId: (parseInt(seletCustId.value))?parseInt(seletCustId.value):-1
   })
 );
 getselCust(result => {
