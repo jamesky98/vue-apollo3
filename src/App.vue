@@ -40,5 +40,83 @@ html, body, #app{
   /* font-family: Roboto, Helvetica, Arial, sans-serif; */
   font-family: 'Noto Sans TC','cwTeXYen', Roboto, Helvetica, Arial, sans-serif;
 }
+.hiddenSpinner {
+  display: none;
+}
+.datatable tbody tr:last-child {
+  border-bottom: rgba(0, 0, 0, 0);
+  height: auto;
+}
+tr > td > span.status89{
+  color: #DE3163;
+}
+tr.selected > td >span.status89 {
+  color: white;
+}
+
+tr>td>span.status7 {
+  color: green;
+}
+tr.selected>td>span.status7 {
+  color: white;
+}
+
+tr>td>span.status6 {
+  color: #F39C12;
+}
+tr.selected>td>span.status6 {
+  color: white;
+}
+
+tr>td>span.status45 {
+  color: #6495ED;
+}
+tr.selected>td>span.status45 {
+  color: white;
+}
+
+tr>td>span.status23 {
+  color: #FF7F50;
+}
+tr.selected>td>span.status23 {
+  color: white;
+}
+
+tr>td>span.status1 {
+  color: Gray;
+}
+tr.selected>td>span.status1 {
+  color: white;
+}
+
+.nav-tabs .nav-link{
+  padding: 0.75rem 1rem;
+}
+tr>td>span.typeF {
+  color: #6495ED;
+}
+
+tr.selected>td>span.typeF {
+  color: white;
+}
+
+tr>td>span.typeI {
+  color: #229954;
+}
+
+tr.selected>td>span.typeI {
+  color: white;
+}
+
+tr>td>span.typeJ {
+  color: #FF7F50;
+}
+
+tr.selected>td>span.typeJ {
+  color: white;
+}
+div.dataTables_filter {
+  padding-top: 0.85em;
+}
 
 </style>

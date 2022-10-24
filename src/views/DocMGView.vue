@@ -170,9 +170,9 @@ function updateDocContext(e, dt, type, indexes){
     docTypeSelect.value.setValue(parseInt(getDocData.doc_type));
     nowDocName.value = getDocData.name;
     nowVer.value = getDocData.ver;
-    if (getDocData.release_date === null){
-      nowReleaseDate.value="";
-      itemRelDate.value.inputValue = "";
+    if (!getDocData.release_date){
+      nowReleaseDate.value=" ";
+      // itemRelDate.value.inputValue = "";
     }else{
       nowReleaseDate.value = getDocData.release_date.split("T")[0];
     }
@@ -184,13 +184,13 @@ function updateDocContext(e, dt, type, indexes){
       pdfPath.value = "pdfjs-dist/web/viewer.html?file=../../../02_DOC/" + getDocData.doc_level + "/" + getDocData.upload;
     }
     nowEdUpload.value = getDocData.editable_upload;
-    if (getDocData.expiration_date === null) {
-      nowExpDate.value = "";
-      itemExpDate.value.inputValue = "";
+    if (!getDocData.expiration_date) {
+      nowExpDate.value = " ";
+      // itemExpDate.value.inputValue = "";
     } else {
       nowExpDate.value = getDocData.expiration_date.split("T")[0];
     }
-    nowExpDate.value = (getDocData.expiration_date) ? getDocData.expiration_date.split("T")[0] : "";
+    nowExpDate.value = (getDocData.expiration_date) ? getDocData.expiration_date.split("T")[0] : " ";
     nowComment.value = getDocData.comment;
   }
 }
@@ -488,8 +488,8 @@ const { mutate: addDoc, onDone: addDocOnDone, onError: addDocError } = useMutati
       docType: parseInt(nowDocType.value),
       name: nowDocName.value,
       ver: nowVer.value,
-      releaseDate: (nowReleaseDate.value === "") ? null : (nowReleaseDate.value.trim() + "T00:00:00.000Z"),
-      expirationDate: (nowExpDate.value === "") ? null : (nowExpDate.value.trim() + "T00:00:00.000Z"),
+      releaseDate: (nowReleaseDate.value.trim() === "") ? null : (nowReleaseDate.value.trim() + "T00:00:00.000Z"),
+      expirationDate: (nowExpDate.value.trim() === "") ? null : (nowExpDate.value.trim() + "T00:00:00.000Z"),
       parentId: (nowParents.value === "") ? null : nowParents.value,
       upload: (nowUpload.value === "") ? null : nowUpload.value,
       editableUpload: (nowEdUpload.value === "") ? null : nowEdUpload.value,
@@ -514,13 +514,13 @@ function addDocBtn(){
   docTypeSelect.value.setValue("");
   nowDocName.value ="";
   nowVer.value ="";
-  nowReleaseDate.value ="";
-  itemRelDate.value.inputValue=""
+  nowReleaseDate.value =" ";
+  // itemRelDate.value.inputValue=""
   nowParents.value ="";
   nowUpload.value ="";
   nowEdUpload.value ="";
-  nowExpDate.value ="";
-  itemExpDate.value.inputValue = ""
+  nowExpDate.value =" ";
+  // itemExpDate.value.inputValue = ""
 }
 // 編輯表單-複製並新增
 function copyAddDocBtn() {
@@ -558,8 +558,8 @@ const { mutate: saveDoc, onDone: saveDocOnDone, onError: saveDocError } = useMut
       docType: parseInt(nowDocType.value),
       name: nowDocName.value,
       ver: nowVer.value,
-      releaseDate: (nowReleaseDate.value === "") ? null : (nowReleaseDate.value.trim() + "T00:00:00.000Z"),
-      expirationDate: (nowExpDate.value === "") ? null : (nowExpDate.value.trim() + "T00:00:00.000Z"),
+      releaseDate: (nowReleaseDate.value.trim() === "") ? null : (nowReleaseDate.value.trim() + "T00:00:00.000Z"),
+      expirationDate: (nowExpDate.value.trim() === "") ? null : (nowExpDate.value.trim() + "T00:00:00.000Z"),
       parentId: (nowParents.value === "") ? null : nowParents.value,
       upload: (nowUpload.value === "") ? null : nowUpload.value,
       editableUpload: (nowEdUpload.value === "") ? null : nowEdUpload.value,
@@ -604,7 +604,7 @@ function saveDocBtn() {
       alert("請輸入文件階層 !!");
       return;
     }
-    if (nowReleaseDate.value === "") {
+    if (nowReleaseDate.value.trim() === "") {
       alert("請輸入發行日 !!");
       return;
     }
@@ -653,7 +653,7 @@ function saveDocBtn() {
     uploadDoc({ 
       file: upFile.value,
       subpath: nowDocLevel.value + "",
-      newfilename: nowDocIDed.value + "_" + nowReleaseDate.value.replaceAll("-", "") + path.extname(e.target.value),
+      newfilename: nowDocIDed.value + "_" + nowReleaseDate.value.replaceAll("-", "").trim() + path.extname(e.target.value),
     });
   }
 
@@ -868,7 +868,8 @@ function zoompdfView(){
             top:0;
             left:0.7rem;
             height: calc(100% - 1rem);
-            width: 1rem;" 
+            width: 1rem;
+            border-radius: 0.25rem 0 0 0.25rem;" 
             class="my-2 p-0 btn btn-info" 
             @click.prevent="zoompdfView"
             v-html="showPDFIcon" >
@@ -896,9 +897,9 @@ function zoompdfView(){
   border-bottom: rgba(0,0,0,0);
   height: auto;
 }
-div.dataTables_filter {
+/* div.dataTables_filter {
   padding-top: 0.85em;
-}
+} */
 .colnowarp {
   white-space: nowrap;
 }

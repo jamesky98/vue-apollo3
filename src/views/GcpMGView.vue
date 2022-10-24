@@ -2,7 +2,7 @@
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import path from "path-browserify";
-import { ref, reactive, onMounted, provide, inject } from "vue";
+import { ref, reactive, onMounted, provide } from "vue";
 import {
   MDBInput,
   MDBCol,
@@ -106,6 +106,7 @@ provide("NavItem",NavItem);
 
 const updateKey = ref(0);
 const updateKey2 = ref(0);
+const updateKey3 = ref(0);
 const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
@@ -328,7 +329,6 @@ getAllPrj(result=>{
 });
 refgetAllPrj().then(res=>{
   selPrjCode.value = selPrjCodeMU.value[1].value;
-  // console.log(selPrjCode.value);
   selPrjCodeDOM.value.setValue(selPrjCode.value);
   getAllGcp();
 });
@@ -515,9 +515,9 @@ const { mutate: getAllGcp, onDone: getAllGcpOnDone, onError: getAllGcpError } = 
 getAllGcpOnDone(result=>{
   if(!result.loading){
     // console.log(result.data.getAllGcp);
+    notProssing.value = true;
     data_gcp.value = result.data.getAllGcp;
     openMapDOM.value.loadFeatures();
-    notProssing.value = true;
     updateKey.value = updateKey.value + 1;
     selectNowGCP();
   }
@@ -671,7 +671,7 @@ const columns_hist = [
 const tboption_hist = {
   dom: 'fti',
   select: {style: 'single',info: false},
-  order: [[1, 'desc']],
+  order: [[4, 'desc']],
   scrollY: 'calc(50vh - 12.5rem)',
   scrollX: true,
   lengthChange: false,
@@ -701,35 +701,39 @@ getRcordByPId(result=>{
 // 查詢Record單筆紀錄
 const { mutate: getRecordById, onDone: getRecordByIdOnDone, onError: getRecordByIdError } = useMutation(GcpGQL.GETRECORDBYID);
 getRecordByIdOnDone(result=>{
-  let getData = result.data.getGcpRecordById;
-  nowPRecordPtId.value = getData.gcp_id;
-  nowPRecordPrjId.value = getData.project_id;
-  nowPRecordPrjIdDOM.value.setValue(nowPRecordPrjId.value);
+  if(result.data.getGcpRecordById){
+    let getData = result.data.getGcpRecordById;
+    nowPRecordPtId.value = getData.gcp_id;
+    nowPRecordPrjId.value = getData.project_id;
+    nowPRecordPrjIdDOM.value.setValue(nowPRecordPrjId.value);
 
-  nowPRecordPrjCode.value = (getData.ref_project)?getData.ref_project.project_code:"";
-  nowPRecordDate.value = (getData.date)?(getData.date.split("T")[0]):"";
-  nowPRecordPerson.value = getData.person;
-  nowPRecordPersonDOM.value.setValue(nowPRecordPerson.value);
+    nowPRecordPrjCode.value = (getData.ref_project)?getData.ref_project.project_code:"";
+    nowPRecordDate.value = (getData.date)?(getData.date.split("T")[0]):" ";
+    nowPRecordPerson.value = getData.person;
+    nowPRecordPersonDOM.value.setValue(nowPRecordPerson.value);
 
-  nowPRecordPtStatus.value = getData.status;
-  nowPRecordPtStatusDOM.value.setValue(nowPRecordPtStatus.value);
+    nowPRecordPtStatus.value = getData.status;
+    nowPRecordPtStatusDOM.value.setValue(nowPRecordPtStatus.value);
 
-  nowPRecordE.value = getData.coor_E;
-  nowPRecordN.value = getData.coor_N;
-  nowPRecordh.value = getData.coor_h;
-  nowPRecordCom.value = getData.comment;
-  nowPRecordImg0.value = getData.close_photo;
-  nowPRecordImg1.value = getData.far_photo1;
-  nowPRecordImg2.value = getData.far_photo2;
-  nowPRecordImg3.value = getData.far_photo3;
-  nowPRecordObs.value = getData.obstruction; //透空圖
+    nowPRecordE.value = getData.coor_E;
+    nowPRecordN.value = getData.coor_N;
+    nowPRecordh.value = getData.coor_h;
+    nowPRecordCom.value = getData.comment;
+    nowPRecordImg0.value = getData.close_photo;
+    nowPRecordImg1.value = getData.far_photo1;
+    nowPRecordImg2.value = getData.far_photo2;
+    nowPRecordImg3.value = getData.far_photo3;
+    nowPRecordObs.value = getData.obstruction; //透空圖
 
-  updateKey2.value=updateKey2.value+1;
+    updateKey2.value=updateKey2.value+1;
+  }
 });
 
 // 儲存
 const { mutate: saveGcpRecord, onDone: saveGcpRecordOnDone, onError: saveGcpRecordError } = useMutation(GcpGQL.UPDATEGCPRECORD);
 saveGcpRecordOnDone(result=>{
+  nowPRecordId.value = result.data.updateGcpRecord.id;
+  nowGcpId.value = result.data.updateGcpRecord.gcp_id;
   infomsg.value = "點位 " + result.data.updateGcpRecord.gcp_id + "紀錄儲存完畢"
 });
 function saveGcpRecordBtn(){
@@ -737,12 +741,12 @@ function saveGcpRecordBtn(){
     updateGcpRecordId: (parseInt(nowPRecordId.value))?parseInt(nowPRecordId.value):-1,
     gcpId: (nowPRecordPtId.value)?nowPRecordPtId.value:null,
     projectId: (parseInt(nowPRecordPrjId.value) && parseInt(nowPRecordPrjId.value)!==-1)?parseInt(nowPRecordPrjId.value):null,
-    date: (nowPRecordDate.value === "")? null: nowPRecordDate.value.trim() + "T00:00:00.000Z",
-    person: nowPRecordPerson.value,
-    status: nowPRecordPtStatus.value,
-    coorE: nowPRecordE.value,
-    coorN: nowPRecordN.value,
-    coorH: nowPRecordh.value,
+    date: (nowPRecordDate.value.trim() === "")? null: nowPRecordDate.value.trim() + "T00:00:00.000Z",
+    person: (nowPRecordPerson.value && nowPRecordPerson.value!==-1)?nowPRecordPerson.value:"",
+    status: (nowPRecordPtStatus.value && nowPRecordPtStatus.value!==-1)?nowPRecordPtStatus.value:null,
+    coorE: (parseFloat(nowPRecordE.value))?parseFloat(nowPRecordE.value):null,
+    coorN: (parseFloat(nowPRecordN.value))?parseFloat(nowPRecordN.value):null,
+    coorH: (parseFloat(nowPRecordh.value))?parseFloat(nowPRecordh.value):null,
     closePhoto: nowPRecordImg0.value,
     farPhoto1: nowPRecordImg1.value,
     farPhoto2: nowPRecordImg2.value,
@@ -764,14 +768,12 @@ function newPRecordBtn(){
   nowPRecordPtId.value = nowGcpId.value;
   nowPRecordPrjId.value = -1;
   nowPRecordPrjIdDOM.value.setValue(nowPRecordPrjId.value);
-
   nowPRecordPrjCode.value = "";
-
-  nowPRecordDate.value = "";
-  nowPRecordDateDOM.value.value.inputValue="";
-
+  nowPRecordDate.value = " ";
   nowPRecordPerson.value = "";
+  nowPRecordPersonDOM.value.setValue(-1);
   nowPRecordPtStatus.value = "";
+  nowPRecordPtStatusDOM.value.setValue(-1);
   nowPRecordE.value = "";
   nowPRecordN.value = "";
   nowPRecordh.value = "";
@@ -784,16 +786,26 @@ function newPRecordBtn(){
 }
 // 刪除
 const { mutate: delGcpRecord, onDone: delGcpRecordOnDone, onError: delGcpRecordError } = useMutation(
-  GcpGQL.DELGCPRECORD,()=>({
-    variables: {
-      delGcpRecordId: nowPRecordId.value,
-}}));
+  GcpGQL.DELGCPRECORD);
 delGcpRecordOnDone(result=>{
   infomsg.value = "點位 " + result.data.delGcpRecord.gcp_id + "紀錄刪除完畢"
 });
+function delGcpRecordBtn(){
+  delGcpRecord({
+    delGcpRecordId: parseInt(nowPRecordId.value)
+  }).then(res=>{
+    getAllGcp();
+  }).then(res=>{
+    refgetRcordByPId({ gcpId: nowGcpId.value });
+  }).then(res=>{
+    getRecordById({getGcpRecordByIdId: -1});
+  });
+
+}
+
 
 // 作業編號下拉式選取
-function nowPrjChange(e){
+function nowPrjClose(e){
   nowPRecordPrjCode.value = nowPRecordPrjIdDOM.value.inputValue;
 }
 
@@ -953,6 +965,36 @@ function dropFile(e){
 }
 // 檔案上傳==========End
 
+// 收合地圖==========Start
+const showLeftData = ref(true);
+const leftMAPmd = ref("6");
+const leftMAPxl = ref("9");
+const rightMAPmd = ref("6");
+const rightMAPxl = ref("3");
+const showMAPIcon = ref('<i class="fas fa-angle-double-left"></i>');
+function zoomMapView(){
+  if(showLeftData.value){
+    // 準備關閉
+    showLeftData.value = false;
+    leftMAPmd.value = "6"
+    leftMAPxl.value = "6"
+    rightMAPmd.value = "6";
+    rightMAPxl.value = "6";
+    showMAPIcon.value = '<i class="fas fa-angle-double-right"></i>';
+    updateKey3.value=updateKey3.value+1;
+  }else{  
+    // 準備開啟
+    showLeftData.value = true;
+    leftMAPmd.value = "6"
+    leftMAPxl.value = "9"
+    rightMAPmd.value = "6";
+    rightMAPxl.value = "3";
+    showMAPIcon.value = '<i class="fas fa-angle-double-left"></i>';
+    updateKey3.value=updateKey3.value+1;
+  }
+}
+// 收合地圖==========End
+
 // 加載表格選取事件
 onMounted(function () {
   dt_gcp.value = table_gcp.value.dt();
@@ -981,7 +1023,7 @@ onMounted(function () {
       <!-- 主體 -->
       <MDBRow style="height: calc(100% - 6.5em);margin-left:0;margin-right:0;overflow-x:hidden;overflow-y:auto;" class="w-100">
         <!-- 左方列表 -->
-        <MDBCol md="6" xl="9" class="h-100">
+        <MDBCol :md="leftMAPmd" :xl="leftMAPxl" class="h-100">
           <MDBRow class="h-100">
             <!-- 左上列表 -->
             <MDBCol col="12" style="height: 50%;">
@@ -989,11 +1031,11 @@ onMounted(function () {
                 <MDBCol col="12" style="height: calc(100% - 1rem);" class="border border-5 rounded-8 shadow-4 my-2">
                   <MDBRow class="h-100 overflow-auto">
                     <!-- 分割左 -->
-                    <MDBCol lg="7" class="h-100 overflow-auto pt-2" style="position: relative ;">
+                    <MDBCol lg="7" class="h-100 overflow-auto" style="position: relative ;">
                       <div :class="{ 'hiddenSpinner': notProssing}" style="position: absolute; left: 50%; top: 10rem;">
                         <MDBSpinner size="md" color="primary" />Loading...
                       </div>
-                      <div style="position:absolute;">目前點號：<span class="text-info">{{nowGcpId}} - {{nowGcpRecordId}}</span></div>
+                      <div class="mt-2" style="position:absolute;">目前點號：<span class="text-info">{{nowGcpId}} - {{nowGcpRecordId}}</span></div>
                       <DataTable :data="data_gcp" :columns="columns_gcp" :options="tboption_gcp" ref="table_gcp"
                         style="font-size: smaller;" class="display w-100 compact" />
                       
@@ -1210,10 +1252,10 @@ onMounted(function () {
                       <MDBRow>
                         <MDBCol col="12" class="py-2 border-bottom">
                           <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newPRecordBtn">新增</MDBBtn>
-                          <MDBBtn :disabled="!rGroup[1] || !nowPRecordId" size="sm" color="primary" @click="saveGcpRecordBtn">儲存</MDBBtn>
+                          <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveGcpRecordBtn">儲存</MDBBtn>
                           <!-- <MDBBtn size="sm" color="primary" @click="delGcpRecord">刪除</MDBBtn> -->
                           <MDBPopconfirm :disabled="!rGroup[1] || !nowPRecordId" class="btn-sm btn-danger me-auto" message="刪除後無法恢復，確定刪除嗎？"
-                            cancelText="取消" confirmText="確定" @confirm="delGcpRecord">
+                            cancelText="取消" confirmText="確定" @confirm="delGcpRecordBtn">
                             刪除
                           </MDBPopconfirm>
                         </MDBCol>
@@ -1236,7 +1278,7 @@ onMounted(function () {
                                 <MDBInput readonly size="sm" type="text" label="點號" v-model="nowPRecordPtId" />
                               </MDBCol>
                               <MDBSelect size="sm" class="mt-2 col-xl-6" label="作業編號" v-model:options="nowPRecordPrjIdMU"
-                                v-model:selected="nowPRecordPrjId" ref="nowPRecordPrjIdDOM" @close="nowPrjChange($event)"/>
+                                v-model:selected="nowPRecordPrjId" ref="nowPRecordPrjIdDOM" @close="nowPrjClose($event)"/>
                               <MDBCol xl="6" class="mt-2">
                                 <MDBDatepicker size="sm" v-model="nowPRecordDate" format=" YYYY-MM-DD " label="紀錄日期"
                                   ref="nowPRecordDateDOM" />
@@ -1423,10 +1465,16 @@ onMounted(function () {
           </MDBRow>
         </MDBCol>
         <!-- 右方列表 -->
-        <MDBCol md="6" xl="3" class="h-100">
-          <MDBRow style="margin-left: auto;height: calc(100% - 1rem);" class="my-2 bg-light border border-5 rounded-8 shadow-4">
+        <MDBCol :md="rightMAPmd" :xl="rightMAPxl" class="h-100">
+          <MDBRow style="position:relative ;margin-left: auto;height: calc(100% - 1rem);border-radius: 0rem 1.25rem 1.25rem 0;" class="my-2 bg-light border border-5 shadow-4">
+            <button 
+              style="position:absolute;top:-0.3rem;left:-0.6rem;height: calc(100% + 0.65rem);width: 1rem;border-radius: 0.25rem 0 0 0.25rem;" 
+              class="m-0 p-0 btn btn-info" 
+              @click.prevent="zoomMapView"
+              v-html="showMAPIcon" >
+            </button>
             <MDBCol col="12" class="h-100 p-2">
-              <OpenMap ref="openMapDOM" />
+              <OpenMap ref="openMapDOM" :key="updateKey3"/>
             </MDBCol>
           </MDBRow>
         </MDBCol>
@@ -1437,55 +1485,7 @@ onMounted(function () {
   </MDBContainer>
 </template>
 <style>
-.datatable tbody tr:last-child {
-  border-bottom: rgba(0, 0, 0, 0);
-  height: auto;
-}
-tr > td > span.status89{
-  color: #DE3163;
-}
-tr.selected > td >span.status89 {
-  color: white;
-}
 
-tr>td>span.status7 {
-  color: green;
-}
-tr.selected>td>span.status7 {
-  color: white;
-}
-
-tr>td>span.status6 {
-  color: #F39C12;
-}
-tr.selected>td>span.status6 {
-  color: white;
-}
-
-tr>td>span.status45 {
-  color: #6495ED;
-}
-tr.selected>td>span.status45 {
-  color: white;
-}
-
-tr>td>span.status23 {
-  color: #FF7F50;
-}
-tr.selected>td>span.status23 {
-  color: white;
-}
-
-tr>td>span.status1 {
-  color: Gray;
-}
-tr.selected>td>span.status1 {
-  color: white;
-}
-
-.nav-tabs .nav-link{
-  padding: 0.75rem 1rem;
-}
 .btn-upload-close {
   position: absolute;
   top: 0.25em;
@@ -1500,9 +1500,7 @@ tr.selected>td>span.status1 {
 .fs-7{
   font-size: 0.8rem;
 }
-.hiddenSpinner {
-  display: none;
-}
+
 .img-allfluid{
   height: auto;
   max-width: 100%;

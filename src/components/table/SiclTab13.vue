@@ -40,6 +40,7 @@ getAllGcpOnDone(result=>{
   }
 });
 
+// 填入資料
 function resToFixDataObj(getData){
   let fixData = {};
   fixData.nowPRecordPtId = getData.gcp_id;
@@ -106,7 +107,7 @@ function resToFixDataObj(getData){
   return fixData
 }
 
-
+// 判斷單筆或多筆
 if(props.selParams){
   let parms = JSON.parse(props.selParams);
   getAllGcp(

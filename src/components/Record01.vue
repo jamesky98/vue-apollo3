@@ -384,16 +384,10 @@ getNowCaseF((result) => {
     nowCaseCamReport.value = getData.cam_report;
     nowCasePlanMap.value = getData.plan_map;
     // 送件
-    if(getData.receive_date){
-      nowCaseRecDate.value = getData.receive_date.split("T")[0];
-    }else{
-      nowCaseRecDate.value = "";
-    }
-    if(getData.fly_date){
-      nowCaseFlyDate.value = getData.fly_date.split("T")[0];
-    }else{
-      nowCaseFlyDate.value = "";
-    }
+
+    nowCaseRecDate.value = (getData.receive_date)?getData.receive_date.split("T")[0]:" ";
+    nowCaseFlyDate.value = (getData.fly_date)?getData.fly_date.split("T")[0]:" ";
+    
     nowCaseGSDac.value = getData.gsd_ac;
     nowCaseStrNSac.value = getData.strip_ns_ac;
     nowCaseStrEWac.value = getData.strip_ew_ac;
@@ -410,18 +404,16 @@ getNowCaseF((result) => {
     nowCaseErrData.value = getData.err_data;
     nowCaseErrPhoto.value = getData.err_photo;
     // 校正
-    if(getData.start_Date){
-      nowCaseStartDate.value = getData.start_Date.split("T")[0];
-    }else{
-      nowCaseStartDate.value = "";
-    }
+    
+    nowCaseStartDate.value = (getData.start_Date)?getData.start_Date.split("T")[0]:" ";
+    
     nowCaseRefPrjID.value = getData.ref_id;
     nowCaseRefPrjCode.value = getData.ref_project
       ? getData.ref_project.project_code
       : "";
     nowCaseRefPrjPublishDate.value = getData.ref_project
       ? getData.ref_project.publish_date.split("T")[0]
-      : "";
+      : " ";
     nowCaseRefEqpt.value = (getData.ref_project) ? getData.ref_project.ref_use_eqpt : null;
     nowCaseTotPt.value = (getData.total_pt || getData.total_pt === 0) ? getData.total_pt.toString() : null;
     nowCaseMeaPt.value = (getData.meas_pt || getData.meas_pt === 0) ? getData.meas_pt.toString() : null;
@@ -459,20 +451,18 @@ getNowCaseF((result) => {
     
 
     nowCaseReportEdit.value = getData.report_edit;
-    if(getData.complete_date){
-      nowCaseCompleteDate.value = getData.complete_date.split("T")[0];
-    }else{
-      nowCaseCompleteDate.value = "";
-    }
+    
+    nowCaseCompleteDate.value = (getData.complete_date)?getData.complete_date.split("T")[0]:" ";
+    
     nowCaseChkDate.value = getData.chk_date
       ? getData.chk_date.split("T")[0]
-      : "";
+      : " ";
     nowCaseChkPersonID.value = getData.chk_person_id;
     selectChkPersonID.value = getData.chk_person_id;
 
     nowCaseSignDate.value = getData.sign_date
       ? getData.sign_date.split("T")[0]
-      : "";
+      : " ";
     nowCaseSignPersonID.value = getData.sign_person_id;
     selectSignPersonID.value = getData.sign_person_id;
 
@@ -905,7 +895,7 @@ function shownPrjModal() {
     let getData = dt.rows(indexes).data()[0];
     seletPrjID.value = getData.id;
     seletPrjCode.value = getData.project_code;
-    seletPrjPublishDate.value = getData.publish_date.split("T")[0];
+    seletPrjPublishDate.value = (getData.publish_date)?getData.publish_date.split("T")[0]:" ";
   });
   refgetAllPrj();
 }
@@ -918,17 +908,17 @@ function gotoPrjMG() {
 // 清除量測作業篩選條件
 function clearPrjFilter() {
   filterPrjCode.value = "";
-  filterPrjPubDateStart.value = "";
-  filterPrjPubDateEnd.value = "";
+  filterPrjPubDateStart.value = " ";
+  filterPrjPubDateEnd.value = " ";
 }
 
 // 執行量測作業篩選
 function doPrjFilter() {
   let where = {};
   if (filterPrjCode.value !== "") where.projectCode = filterPrjCode.value;
-  if (filterPrjPubDateStart.value !== "")
+  if (filterPrjPubDateStart.value.trim() !== "")
     where.pubdateStart = filterPrjPubDateStart.value;
-  if (filterPrjPubDateEnd.value !== "")
+  if (filterPrjPubDateEnd.value.trim() !== "")
     where.pubdateEnd = filterPrjPubDateEnd.value;
 
   varAllPrj.value = where;
@@ -980,11 +970,11 @@ const {
     camReport: nowCaseCamReport.value,
     planMap: nowCasePlanMap.value,
     receiveDate:
-      nowCaseRecDate.value === ""
+      nowCaseRecDate.value.trim() === ""
         ? null
         : nowCaseRecDate.value.trim() + "T00:00:00.000Z",
     flyDate:
-      nowCaseFlyDate.value === ""
+      nowCaseFlyDate.value.trim() === ""
         ? null
         : nowCaseFlyDate.value.trim() + "T00:00:00.000Z",
     stripNsAc: parseInt(nowCaseStrNSac.value),
@@ -1005,7 +995,7 @@ const {
     distorCorrVer: nowCaseDistVer.value,
     undistortion: nowCaseUndist.value,
     startDate:
-      nowCaseStartDate.value === ""
+      nowCaseStartDate.value.trim() === ""
         ? null
         : nowCaseStartDate.value.trim() + "T00:00:00.000Z",
     refId: parseInt(nowCaseRefPrjID.value),
@@ -1037,17 +1027,17 @@ const {
     stdFile: nowCaseSTDExl.value,
     reportEdit: nowCaseReportEdit.value,
     chkDate:
-      nowCaseChkDate.value === ""
+      nowCaseChkDate.value.trim() === ""
         ? null
         : nowCaseChkDate.value.trim() + "T00:00:00.000Z",
     chkPersonId:
       selectChkPersonID.value === "" ? null : parseInt(selectChkPersonID.value),
     completeDate:
-      nowCaseCompleteDate.value === ""
+      nowCaseCompleteDate.value.trim() === ""
         ? null
         : nowCaseCompleteDate.value.trim() + "T00:00:00.000Z",
     signDate:
-      nowCaseSignDate.value === ""
+      nowCaseSignDate.value.trim() === ""
         ? null
         : nowCaseSignDate.value.trim() + "T00:00:00.000Z",
     signPersonId:

@@ -238,19 +238,19 @@ getEmpbyID(result => {
     nowEmpModifyDate.value = (getData.modify_date)?getData.modify_date.split("T")[0]:"";
     nowEmpName.value = getData.name;
     nowEmpIDNumber.value = getData.id_number;
-    nowEmpBirthday.value = (getData.birth_date)?getData.birth_date.split("T")[0]:"";
+    nowEmpBirthday.value = (getData.birth_date)?getData.birth_date.split("T")[0]:" ";
     nowEmpJobTitle.value = getData.job_title;
     if(getData.Appointment_date){
       nowEmpAppDate.value = getData.Appointment_date.split("T")[0];
     }else{
-      nowEmpAppDate.value = "";
-      nowEmpAppDateDOM.value.inputValue="";
+      nowEmpAppDate.value = " ";
+      // nowEmpAppDateDOM.value.inputValue="";
     }
     if(getData.resignation_date){
       nowEmpResDate.value = getData.resignation_date.split("T")[0];
     }else{
-      nowEmpResDate.value = "";
-      nowEmpResDateDOM.value.inputValue="";
+      nowEmpResDate.value = " ";
+      // nowEmpResDateDOM.value.inputValue="";
     }
     nowEmpResUpload.value = getData.resign_upload;
     nowEmpAddress.value = getData.address;
@@ -332,10 +332,10 @@ function newEmpBtn(){
   nowEmpBirthday.value = "";
   nowEmpBirthdayDOM.value.inputValue = "";
   nowEmpJobTitle.value = "";
-  nowEmpAppDate.value = "";
-  nowEmpAppDateDOM.value.inputValue = "";
-  nowEmpResDate.value = "";
-  nowEmpResDateDOM.value.inputValue = "";
+  nowEmpAppDate.value = " ";
+  // nowEmpAppDateDOM.value.inputValue = "";
+  nowEmpResDate.value = " ";
+  // nowEmpResDateDOM.value.inputValue = "";
   nowEmpResUpload.value = "";
   nowEmpAddress.value = "";
   nowEmpTel.value = "";
@@ -356,10 +356,10 @@ const {
     labEeId: nowEmpLabID.value,
     name: nowEmpName.value,
     idNumber: nowEmpIDNumber.value,
-    birthDate: (nowEmpBirthday.value==="")?null:nowEmpBirthday.value.trim() + "T00:00:00.000Z",
+    birthDate: (nowEmpBirthday.value.trim()==="")?null:nowEmpBirthday.value.trim() + "T00:00:00.000Z",
     jobTitle: nowEmpJobTitle.value,
-    appointmentDate: (nowEmpAppDate.value==="")?null:nowEmpAppDate.value.trim() + "T00:00:00.000Z",
-    resignationDate: (nowEmpResDate.value==="")?null:nowEmpResDate.value.trim() + "T00:00:00.000Z",
+    appointmentDate: (nowEmpAppDate.value.trim()==="")?null:nowEmpAppDate.value.trim() + "T00:00:00.000Z",
+    resignationDate: (nowEmpResDate.value.trim()==="")?null:nowEmpResDate.value.trim() + "T00:00:00.000Z",
     resignUpload: nowEmpResUpload.value,
     address: nowEmpAddress.value,
     tel: nowEmpTel.value,
@@ -418,12 +418,12 @@ getTrainByIdOnDone(result=>{
   nowTrainName.value = getData.train_name;
   nowTrainNameDOM.value.setValue(nowTrainName.value);
 
-  nowTrainEndDate.value = (getData.end_date)?getData.end_date.split("T")[0]:"";
+  // nowTrainEndDate.value = (getData.end_date)?getData.end_date.split("T")[0]:" ";
   if(getData.end_date){
     nowTrainEndDate.value = getData.end_date.split("T")[0];
   }else{
-    nowTrainEndDate.value = "";
-    nowTrainEndDateDOM.value.inputValue="";
+    nowTrainEndDate.value = " ";
+    // nowTrainEndDateDOM.value.inputValue="";
   }
   nowTrainInstitution.value = getData.train_institution
   nowTrainInstitutionDOM.value.setValue(nowTrainInstitution.value);
@@ -470,8 +470,8 @@ function newTrainBtn(){
   nowTrainName.value = "";
   nowTrainNameDOM.value.setValue("");
 
-  nowTrainEndDate.value = "";
-  nowTrainEndDateDOM.value.inputValue = "";
+  nowTrainEndDate.value = " ";
+  // nowTrainEndDateDOM.value.inputValue = "";
   nowTrainInstitution.value = "";
   nowTrainInstitutionDOM.value.setValue("");
 
@@ -488,7 +488,7 @@ const {
   variables: {
     personId: parseInt(nowTrainPersonID.value),
     trainName: nowTrainName.value,
-    endDate: (nowTrainEndDate.value === "")? null:nowTrainEndDate.value.trim() + "T00:00:00.000Z",
+    endDate: (nowTrainEndDate.value.trim() === "")? null:nowTrainEndDate.value.trim() + "T00:00:00.000Z",
     trainInstitution: nowTrainInstitution.value,
     certificateNo: nowTrainCertiNo.value,
     upload: nowTrainUpload.value,
@@ -510,7 +510,7 @@ const {
     trainId: parseInt(nowTrainID.value),
     personId: parseInt(nowTrainPersonID.value),
     trainName: nowTrainName.value,
-    endDate: (nowTrainEndDate.value === "")? null:nowTrainEndDate.value.trim() + "T00:00:00.000Z",
+    endDate: (nowTrainEndDate.value.trim() === "")? null:nowTrainEndDate.value.trim() + "T00:00:00.000Z",
     trainInstitution: nowTrainInstitution.value,
     certificateNo: nowTrainCertiNo.value,
     upload: nowTrainUpload.value,
@@ -608,8 +608,8 @@ getEmpowerByIdOnDone(result=>{
   if(getData.assessment_date){
     nowEmpowerAssDate.value = getData.assessment_date.split("T")[0];
   }else{
-    nowEmpowerAssDate.value = "";
-    nowEmpowerAssDateDOM.value.inputValue="";
+    nowEmpowerAssDate.value = " ";
+    // nowEmpowerAssDateDOM.value.inputValue="";
   }
   nowEmpowerSupID.value = getData.lab_supervisor;
   nowEmpowerSupDOM.value.setValue(nowEmpowerSupID.value);
@@ -617,14 +617,14 @@ getEmpowerByIdOnDone(result=>{
   if(getData.empower_date){
     nowEmpowerDate.value = getData.empower_date.split("T")[0];
   }else{
-    nowEmpowerDate.value = "";
-    nowEmpowerDateDOM.value.inputValue="";
+    nowEmpowerDate.value = " ";
+    // nowEmpowerDateDOM.value.inputValue="";
   }
   if(getData.suspension_date){
     nowEmpowerSusDate.value = getData.suspension_date.split("T")[0];
   }else{
-    nowEmpowerSusDate.value = "";
-    nowEmpowerSusDateDOM.value.inputValue="";
+    nowEmpowerSusDate.value = " ";
+    // nowEmpowerSusDateDOM.value.inputValue="";
   }
   nowEmpowerTabUpload.value = getData.table_upload;
   nowEmpowerAprvUpload.value = getData.approval_doc;
@@ -674,13 +674,13 @@ function newEmpowerBtn(){
   nowEmpowerRoleDOM.value.setValue("");
   nowEmpowerAssResult.value = "";
   nowEmpowerAssID.value = "";
-  nowEmpowerAssDate.value = "";
-  nowEmpowerAssDateDOM.value.inputValue = "";
+  nowEmpowerAssDate.value = " ";
+  // nowEmpowerAssDateDOM.value.inputValue = "";
   nowEmpowerSupID.value = "";
-  nowEmpowerDate.value = "";
-  nowEmpowerDateDOM.value.inputValue = "";
-  nowEmpowerSusDate.value = "";
-  nowEmpowerSusDateDOM.value.inputValue = "";
+  nowEmpowerDate.value = " ";
+  // nowEmpowerDateDOM.value.inputValue = "";
+  nowEmpowerSusDate.value = " ";
+  // nowEmpowerSusDateDOM.value.inputValue = "";
   nowEmpowerTabUpload.value = "";
   nowEmpowerAprvUpload.value = "";
   nowEmpowerComment.value = "";
@@ -698,10 +698,10 @@ const {
     roleType: nowEmpowerRole.value,
     assessmentResult: nowEmpowerAssResult.value,
     assessor: parseInt(nowEmpowerAssID.value),
-    assessmentDate: (nowEmpowerAssDate.value === "")? null:nowEmpowerAssDate.value.trim() + "T00:00:00.000Z",
+    assessmentDate: (nowEmpowerAssDate.value.trim() === "")? null:nowEmpowerAssDate.value.trim() + "T00:00:00.000Z",
     labSupervisor: parseInt(nowEmpowerSupID.value),
-    empowerDate: (nowEmpowerDate.value === "")? null:nowEmpowerDate.value.trim() + "T00:00:00.000Z",
-    suspensionDate: (nowEmpowerSusDate.value === "")? null:nowEmpowerSusDate.value.trim() + "T00:00:00.000Z",
+    empowerDate: (nowEmpowerDate.value.trim() === "")? null:nowEmpowerDate.value.trim() + "T00:00:00.000Z",
+    suspensionDate: (nowEmpowerSusDate.value.trim() === "")? null:nowEmpowerSusDate.value.trim() + "T00:00:00.000Z",
     tableUpload: nowEmpowerTabUpload.value,
     approvalDoc: nowEmpowerAprvUpload.value,
     comment: nowEmpowerComment.value,
@@ -725,10 +725,10 @@ const {
     roleType: nowEmpowerRole.value,
     assessmentResult: nowEmpowerAssResult.value,
     assessor: parseInt(nowEmpowerAssID.value),
-    assessmentDate: (nowEmpowerAssDate.value === "")? null:nowEmpowerAssDate.value.trim() + "T00:00:00.000Z",
+    assessmentDate: (nowEmpowerAssDate.value.trim() === "")? null:nowEmpowerAssDate.value.trim() + "T00:00:00.000Z",
     labSupervisor: parseInt(nowEmpowerSupID.value),
-    empowerDate: (nowEmpowerDate.value === "")? null:nowEmpowerDate.value.trim() + "T00:00:00.000Z",
-    suspensionDate: (nowEmpowerSusDate.value === "")? null:nowEmpowerSusDate.value.trim() + "T00:00:00.000Z",
+    empowerDate: (nowEmpowerDate.value.trim() === "")? null:nowEmpowerDate.value.trim() + "T00:00:00.000Z",
+    suspensionDate: (nowEmpowerSusDate.value.trim() === "")? null:nowEmpowerSusDate.value.trim() + "T00:00:00.000Z",
     tableUpload: nowEmpowerTabUpload.value,
     approvalDoc: nowEmpowerAprvUpload.value,
     comment: nowEmpowerComment.value,
@@ -1609,9 +1609,9 @@ refgetSupList();
   height: auto;
 }
 
-div.dataTables_filter {
+/* div.dataTables_filter {
   padding-top: 0.85em;
-}
+} */
 
 .btn-upload-close {
   position: absolute;

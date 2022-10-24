@@ -189,29 +189,30 @@ function loadFeatures(){
   if(map.value){
     let ptFeatures = [];
     ptLayer.getSource().clear();
-
-    // console.log(ptLayer);
-    for(let i=0;i<propData.value.length;i++){
-      if(propData.value[i].latest_coor){
-        const x = parseFloat(propData.value[i].latest_coor.coor_E);
-        const y = parseFloat(propData.value[i].latest_coor.coor_N);  
-        if(x && y){
-          ptFeatures.push(new Feature(
-            {
-              name: propData.value[i].id,
-              geometry: new Point([x, y]),
-            }
-          ));
+    // console.log(propData.value.length);
+    if(propData.value.length>0){
+      for(let i=0;i<propData.value.length;i++){
+        if(propData.value[i].latest_coor){
+          const x = parseFloat(propData.value[i].latest_coor.coor_E);
+          const y = parseFloat(propData.value[i].latest_coor.coor_N);  
+          if(x && y){
+            ptFeatures.push(new Feature(
+              {
+                name: propData.value[i].id,
+                geometry: new Point([x, y]),
+              }
+            ));
+          }
         }
       }
+      ptLayer.getSource().addFeatures(ptFeatures);
+      //縮放視窗至目標範圍
+      map.value.getView().fit(ptLayer.getSource().getExtent(),{
+        size: map.value.getSize(),
+        padding: [50,50,50,50],
+        duration: 1000
+      });
     }
-    ptLayer.getSource().addFeatures(ptFeatures);
-    //縮放視窗至目標範圍
-    map.value.getView().fit(ptLayer.getSource().getExtent(),{
-      size: map.value.getSize(),
-      padding: [50,50,50,50],
-      duration: 1000
-    });
   }
 }
 // 文查圖
@@ -235,8 +236,7 @@ select.on('select',e=>{
 });
 
 onMounted(function () {
-  
-
+  // console.log('map onMounted');
   new Promise((resolve, reject)=>{
     map.value = new Map({
       target: 'map',

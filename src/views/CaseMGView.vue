@@ -480,10 +480,10 @@ function caseDoFilter() {
     itemChop: (caseChopSEL.value)?caseChopSEL.value:null,
     itemModel: (caseModelSEL.value)?caseModelSEL.value:null,
     itemSn: (caseSelnumSEL.value)?caseSelnumSEL.value:null,
-    appdateStart: (caseAppDateStartSEL.value)?(caseAppDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
-    appdateEnd: (caseAppDateEndtSEL.value)?(caseAppDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
-    paydateStart: (casePayDateStartSEL.value)?(casePayDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
-    paydateEnd: (casePayDateEndtSEL.value)?(casePayDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
+    appdateStart: (caseAppDateStartSEL.value.trim())?(caseAppDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
+    appdateEnd: (caseAppDateEndtSEL.value.trim())?(caseAppDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
+    paydateStart: (casePayDateStartSEL.value.trim())?(casePayDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
+    paydateEnd: (casePayDateEndtSEL.value.trim())?(casePayDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
   });
 }
 // 清除條件
@@ -497,15 +497,15 @@ function caseClearFilter() {
   caseModelFilter.value.setValue("");
   caseSelnumSEL.value = "";
 
-  caseAppDateStartSEL.value = "";
-  caseAppDateStartFilter.value.inputValue = ""
-  caseAppDateEndtSEL.value = "";
-  caseAppDateEndFilter.value.inputValue = ""
+  caseAppDateStartSEL.value = " ";
+  // caseAppDateStartFilter.value.inputValue = ""
+  caseAppDateEndtSEL.value = " ";
+  // caseAppDateEndFilter.value.inputValue = ""
 
-  casePayDateStartSEL.value = "";
-  casePayDateStartFilter.value.inputValue = ""
-  casePayDateEndtSEL.value = "";
-  casePayDateEndFilter.value.inputValue = ""
+  casePayDateStartSEL.value = " ";
+  // casePayDateStartFilter.value.inputValue = ""
+  casePayDateEndtSEL.value = " ";
+  // casePayDateEndFilter.value.inputValue = ""
 
 }
 // 篩選=========end
@@ -726,7 +726,7 @@ getNowCaseS(result => {
     let getData = result.data.getCasebyID;
     nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
     nowCaseItemID.value = (getData.item_id)?getData.item_id:"";
-    nowCaseAppDate.value = (getData.app_date) ? getData.app_date.split("T")[0] : "";
+    nowCaseAppDate.value = (getData.app_date) ? getData.app_date.split("T")[0] : " ";
     nowCaseTypeName.value = getData.cal_type_cal_typeTocase_base.name;
     nowCaseTypeId.value = getData.cal_type
     nowCaseCustId.value = getData.cus_id
@@ -744,8 +744,8 @@ getNowCaseS(result => {
     if (getData.pay_date) {
       nowCasePayDate.value = getData.pay_date.split("T")[0];
     } else {
-      nowCasePayDate.value = "";
-      nowCasePayDateDOM.value.inputValue = "";
+      nowCasePayDate.value = " ";
+      // nowCasePayDateDOM.value.inputValue = "";
     }
     refgetCaseOperator({
       roleType:'校正人員',
@@ -811,7 +811,7 @@ const saveCaseSVar = computed(()=>{
     purpose: nowCasePurpose.value,
     itemId: (nowCaseItemID.value === "") ? null : parseInt(nowCaseItemID.value),
     charge: parseInt(nowCaseCharge.value),
-    payDate: (nowCasePayDate.value === "") ? null : (nowCasePayDate.value.trim() + "T00:00:00.000Z"),
+    payDate: (nowCasePayDate.value.value.trim() === "") ? null : (nowCasePayDate.value.trim() + "T00:00:00.000Z"),
     agreement: nowCaseAgreement.value,
     leaderId: parseInt(nowCaseLeader.value),
     operatorsId: parseInt(nowCaseOperator.value),
@@ -927,7 +927,7 @@ function getAppDateByCaseId() {
   } else {
     // 填入日期
     addCaseAppDate.value = checkstr;
-    addCaseAppDateDOM.value.inputValue = checkstr;
+    // addCaseAppDateDOM.value.inputValue = checkstr;
   }
 }
 // 新增案件==確認
@@ -937,7 +937,7 @@ const { mutate: addCase, onDone: addCaseOnDone, onError: addCaseError } = useMut
     variables: {
       creatCaseId: addCaseID.value,
       calType: parseInt(addCaseTypeIdSEL.value),
-      appDate: (addCaseAppDate.value === "") ? null : (addCaseAppDate.value.trim() + "T00:00:00.000Z"),
+      appDate: (addCaseAppDate.value.trim() === "") ? null : (addCaseAppDate.value.trim() + "T00:00:00.000Z"),
       purpose: addCasePurpose.value,
     }
   })
@@ -1078,10 +1078,10 @@ function getCaseByAPI() {
   let body = {};
   if (apiCaseID.value || apiCaseID.value !== '') { body.id = apiCaseID.value }
   if (apiCalTypeID.value || apiCalTypeID.value !== '') { body.code = apiCalTypeID.value }
-  if (apiStartDate.value || apiStartDate.value !== '') {
+  if (apiStartDate.value || apiStartDate.value.trim() !== '') {
     body.startDate = (apiStartDate.value).replaceAll("-", "/");
   }
-  if (apiEndDate.value || apiEndDate.value !== '') {
+  if (apiEndDate.value || apiEndDate.value.trim() !== '') {
     body.endDate = (apiEndDate.value).replaceAll("-", "/");
   }
   // console.log(body);
@@ -1850,9 +1850,9 @@ const {
   height: auto;
 }
 
-div.dataTables_filter {
+/* div.dataTables_filter {
   padding-top: 0.85em;
-}
+} */
 
 .colAlignRight {
   text-align: right;
@@ -1903,30 +1903,6 @@ tr>td>span.status1 {
 }
 
 tr.selected>td>span.status1 {
-  color: white;
-}
-
-tr>td>span.typeF {
-  color: #6495ED;
-}
-
-tr.selected>td>span.typeF {
-  color: white;
-}
-
-tr>td>span.typeI {
-  color: #229954;
-}
-
-tr.selected>td>span.typeI {
-  color: white;
-}
-
-tr>td>span.typeJ {
-  color: #FF7F50;
-}
-
-tr.selected>td>span.typeJ {
   color: white;
 }
 

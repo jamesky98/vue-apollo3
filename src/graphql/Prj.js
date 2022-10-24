@@ -84,12 +84,40 @@ const CALREFGCP = gql`
   }
 `;
 
-
-// const SAVEPRJ = gql``;
+const SAVEPRJ = gql`
+  mutation UpdateRefPrj(
+    $updateRefPrjId: Int!
+    $projectCode: String
+    $calTypeId: Int
+    $method: String
+    $year: Int
+    $month: Int
+    $organizer: String
+    $startDate: Date
+    $endDate: Date
+    $publishDate: Date
+  ) {
+    updateRefPrj(
+      id: $updateRefPrjId
+      project_code: $projectCode
+      cal_type_id: $calTypeId
+      method: $method
+      year: $year
+      month: $month
+      organizer: $organizer
+      start_date: $startDate
+      end_date: $endDate
+      publish_date: $publishDate
+    ) {
+      id
+      project_code
+    }
+  }
+`;
 
 export default {
   GETALLPRJ,
   GETPRJBYID,
   CALREFGCP,
-  // SAVEPRJ,
+  SAVEPRJ,
 };
