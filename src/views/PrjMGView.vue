@@ -348,6 +348,10 @@ function inputRecord(POfile){
         console.log(inputArray)
         inputGcpRd({
           records: inputArray
+        }).then(res=>{
+          // 更新gcp table
+          notProssing2.value = false;
+          getRcordByPrj({projectId: parseInt(nowPrjId.value)});
         });
       }
     }
