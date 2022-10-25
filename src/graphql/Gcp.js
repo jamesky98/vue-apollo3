@@ -9,10 +9,6 @@ const GETRECORDBYPID = gql`
       ref_project {
         project_code
         cal_type_id
-        cal_type {
-          name
-          code
-        }
         method
         year
         month
@@ -98,10 +94,6 @@ const GETALLGCP = gql`
         ref_project {
           project_code
           cal_type_id
-          cal_type {
-            name
-            code
-          }
           method
           year
           month
@@ -281,10 +273,6 @@ const GETRECORDBYID = gql`
       ref_project {
         project_code
         cal_type_id
-        cal_type {
-          name
-          code
-        }
         method
         year
         month
@@ -392,6 +380,7 @@ const UPDATEGCPCONTACT = gql`
     }
   }
 `;
+
 export default {
   GETRECORDBYPID,
   GETALLGCP,

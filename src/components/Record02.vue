@@ -30,6 +30,7 @@ import {
   MDBTabPane,
 } from 'mdb-vue-ui-kit';
 import { useQuery, useMutation } from '@vue/apollo-composable';
+import ToolsGQL from "../graphql/Tools";
 import CaseGQL from "../graphql/Cases";
 import EmpGQL from "../graphql/Employee";
 import ItemGQL from "../graphql/Item";
@@ -1078,7 +1079,7 @@ async function uploadChenge(e) {
 
 // 上傳檔案
 const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
-  CaseGQL.UPLOADFILE
+  ToolsGQL.UPLOADFILE
 );
 uploadFileOnDone((result) => {
   // console.log("uploadFile")
@@ -1215,7 +1216,7 @@ computeUcOnDone((result) => {
 });
 // 呼叫計算不確定度=======End
 
-// 量測作業表格==========Start
+//#region 量測作業表格==========Start
 let dt1;
 const table1 = ref();
 const data1 = ref([]);
@@ -1468,9 +1469,9 @@ async function ptCloudAvg(POfile, ptIndex) {
   }
 }
 
-// 量測作業表格==========End
+//#endregion 量測作業表格==========End
 
-// 產生報告==========Start
+//#region 產生報告==========Start
 const pramRptStr = ref("");
 // 按鈕觸發動作
 function buildReportBtn() {

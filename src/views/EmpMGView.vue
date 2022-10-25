@@ -20,6 +20,7 @@ import {
   MDBPopconfirm,
   MDBSelect,
 } from 'mdb-vue-ui-kit';
+import ToolsGQL from "../graphql/Tools";
 import CaseGQL from "../graphql/Cases";
 import EmpGQL from "../graphql/Employee";
 
@@ -1109,7 +1110,7 @@ async function uploadChenge(e) {
 }
 // 上傳檔案
 const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
-  CaseGQL.UPLOADFILE
+  ToolsGQL.UPLOADFILE
 );
 uploadFileOnDone((result) => {
   // 儲存(更新)上傳紀錄資料

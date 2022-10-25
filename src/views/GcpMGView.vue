@@ -24,7 +24,7 @@ import {
   MDBLightboxItem,
   MDBSpinner,
 } from 'mdb-vue-ui-kit';
-import CaseGQL from "../graphql/Cases";
+import ToolsGQL from "../graphql/Tools";
 import GcpGQL from "../graphql/Gcp";
 import PrjGQL from "../graphql/Prj";
 
@@ -52,7 +52,7 @@ getchecktoken();
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
 
-// 取得權限==========Start
+//#region 取得權限==========Start
 // const myUserId = ref("");
 const myUserName = ref("");
 // const myUserName2 = ref("");
@@ -97,9 +97,9 @@ const rGroup =computed(()=>{
   }
   return result;
 });
-// 取得權限==========End
+//#endregion 取得權限==========End
 
-// 參數==========Start
+//#region 參數==========Start
 // infomation
 const NavItem = ref("gcps");
 provide("NavItem",NavItem);
@@ -303,9 +303,9 @@ const nowPRecordObsDL = computed(()=>{
 });
 
 
-// 參數==========End
+//#endregion 參數==========End
 
-// 下拉式篩選清單填入==========Start
+//#region 下拉式篩選清單填入==========Start
 // 作業編號清單
 const { onResult: getAllPrj, refetch: refgetAllPrj } = useQuery(PrjGQL.GETALLPRJ);
 getAllPrj(result=>{
@@ -423,9 +423,9 @@ function updateRecPerson(){
   }
 }
 
-// 下拉式篩選清單填入==========End
+//#endregion 下拉式篩選清單填入==========End
 
-// 點位狀態顯示樣式
+//#region 點位狀態顯示樣式
 function statusRender(data,type,row){
   let markicon="";
   let classn="";
@@ -456,8 +456,9 @@ function statusRender(data,type,row){
   }
   return "<span class='" + classn +"'>" + markicon + data + "</span>"
 }
+//#endregion 點位狀態顯示樣式
 
-// 點位基本列表==========Start
+//#region 點位基本列表==========Start
 const dt_gcp = ref();
 provide("dt_gcp", dt_gcp);
 const table_gcp = ref(); 
@@ -519,7 +520,6 @@ getAllGcpOnDone(result=>{
     data_gcp.value = result.data.getAllGcp;
     openMapDOM.value.loadFeatures();
     updateKey.value = updateKey.value + 1;
-    selectNowGCP();
   }
 });
 
@@ -649,9 +649,9 @@ const { mutate: delGcp, onDone: delGcpOnDone, onError: delGcpError } = useMutati
 delGcpOnDone(result=>{
   infomsg.value = "點位 " + result.data.delGCP.id + "刪除完畢"
 });
-// 點位基本列表==========End
+//#endregion 點位基本列表==========End
 
-// 歷年量測列表==========Start
+//#region 歷年量測列表==========Start
 let dt_hist;
 const table_hist = ref(); 
 const data_hist = ref([]);
@@ -689,15 +689,21 @@ const { onResult: getRcordByPId, refetch: refgetRcordByPId } = useQuery(
 );
 getRcordByPId(result=>{
   if(!result.loading){
-    // console.log(result.data.getGcpRecordsByGCPId);
     data_hist.value = result.data.getGcpRecordsByGCPId;
-    if(nowPRecordId.value){
-      dt_hist.rows(function ( idx, data, node ) {
-        return (data.id===nowPRecordId.value)?true:false
-      }).select();
-    }
   }
 });
+
+function selectNowGCPRecord(){
+  if(!isGcpTbSelect){
+    dt_hist.value.rows(function ( idx, data, node ) {
+      return (data.id===nowPRecordId.value)?true:false
+    }).select();
+    isGcpTbSelect = true;
+  }else{
+    dt_hist.row(':eq(0)').select();
+  }
+}
+
 // 查詢Record單筆紀錄
 const { mutate: getRecordById, onDone: getRecordByIdOnDone, onError: getRecordByIdError } = useMutation(GcpGQL.GETRECORDBYID);
 getRecordByIdOnDone(result=>{
@@ -803,17 +809,14 @@ function delGcpRecordBtn(){
 
 }
 
-
 // 作業編號下拉式選取
 function nowPrjClose(e){
   nowPRecordPrjCode.value = nowPRecordPrjIdDOM.value.inputValue;
 }
 
-// 歷年量測列表==========End
+//#endregion 歷年量測列表==========End
 
-
-
-// 檔案上傳==========Start
+//#region 檔案上傳==========Start
 const uploadType = ref("");
 function uploadBtn(inputId) {
   // 由按鈕啟動檔案選擇器
@@ -903,7 +906,7 @@ async function uploadChenge(e) {
 }
 // 上傳檔案
 const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
-  CaseGQL.UPLOADFILE
+  ToolsGQL.UPLOADFILE
 );
 uploadFileOnDone((result) => {
   // console.log("uploadFile")
@@ -963,9 +966,9 @@ function dropFile(e){
   uploadType.value = e.target.id;
   uploadChenge(e);
 }
-// 檔案上傳==========End
+//#endregion 檔案上傳==========End
 
-// 收合地圖==========Start
+//#region 收合地圖==========Start
 const showLeftData = ref(true);
 const leftMAPmd = ref("6");
 const leftMAPxl = ref("9");
@@ -993,26 +996,43 @@ function zoomMapView(){
     updateKey3.value=updateKey3.value+1;
   }
 }
-// 收合地圖==========End
+//#endregion 收合地圖==========End
 
-// 加載表格選取事件
+//#region 加載表格選取事件
+let isGcpTbSelect = true;
 onMounted(function () {
   dt_gcp.value = table_gcp.value.dt();
   dt_gcp.value.on('select', function (e, dt, type, indexes) {
+    isGcpTbSelect = true;
     nowGcpId.value = dt.rows(indexes).data()[0].id;
-    refgetRcordByPId({ gcpId: nowGcpId.value });
-    getGcpById({getGcpByIdId: nowGcpId.value});
-    // 文查圖
-    openMapDOM.value.selectPtFeature(nowGcpId.value);
+    getGcpById({getGcpByIdId: nowGcpId.value}).then(res=>{
+      refgetRcordByPId({ gcpId: nowGcpId.value });
+    }).then(res=>{
+      // 文查圖
+      openMapDOM.value.selectPtFeature(nowGcpId.value);
+    });
   });
+  dt_gcp.value.on('draw', function (e, dt, type, indexes) {
+    selectNowGCP();
+  });
+  
 
   dt_hist = table_hist.value.dt();
   dt_hist.on('select', function (e, dt, type, indexes) {
     nowPRecordId.value = dt.rows(indexes).data()[0].id;
     getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
+    e.preventDefault();
+    e.stopPropagation();
   });
-});
+  dt_hist.on('draw', function (e, dt, type, indexes) {
+    // dt_hist.row(':eq(0)').select();
+    selectNowGCPRecord();
+    e.preventDefault();
+    e.stopPropagation();
+  });
 
+});
+//#endregion 加載表格選取事件
 </script>
 <template>
   <input type="file" id="AllUpload" @change="uploadChenge($event)" style="display: none" />

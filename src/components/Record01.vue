@@ -34,6 +34,7 @@ import {
   MDBLightboxItem,
 } from "mdb-vue-ui-kit";
 import { useQuery, useMutation } from "@vue/apollo-composable";
+import ToolsGQL from "../graphql/Tools";
 import CaseGQL from "../graphql/Cases";
 import EmpGQL from "../graphql/Employee";
 import ItemGQL from "../graphql/Item";
@@ -1183,7 +1184,7 @@ async function uploadChenge(e) {
 }
 // 上傳檔案
 const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
-  CaseGQL.UPLOADFILE
+  ToolsGQL.UPLOADFILE
 );
 uploadFileOnDone((result) => {
   // console.log("uploadFile")

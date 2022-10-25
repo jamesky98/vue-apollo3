@@ -1,6 +1,7 @@
 <script setup>
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
+import path from "path-browserify";
 import { ref, reactive, onMounted, provide } from "vue";
 import {
   MDBInput,
@@ -12,8 +13,13 @@ import {
   MDBSpinner,
   MDBBtn,
   MDBPopconfirm,
+  MDBTabs,
+  MDBTabNav,
+  MDBTabItem,
+  MDBTabContent,
+  MDBTabPane,
 } from 'mdb-vue-ui-kit';
-import CaseGQL from "../graphql/Cases";
+import ToolsGQL from "../graphql/Tools";
 import GcpGQL from "../graphql/Gcp";
 import PrjGQL from "../graphql/Prj";
 
@@ -38,7 +44,7 @@ getchecktoken();
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
 
-// 取得權限==========Start
+//#region 取得權限==========Start
 // const myUserId = ref("");
 const myUserName = ref("");
 // const myUserName2 = ref("");
@@ -83,16 +89,18 @@ const rGroup =computed(()=>{
   }
   return result;
 });
-// 取得權限==========End
+//#endregion 取得權限==========End
 
-// 參數==========Start
+//#region 參數==========Start
 // infomation
 const NavItem = ref("prjs");
 provide("NavItem",NavItem);
 const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
+const activeTabId1 = ref("gcp_mg");
 const notProssing = ref(false);
+const notProssing2 = ref(true);
 
 const updateKey = ref(0);
 
@@ -129,10 +137,9 @@ const nowPrjPublishDateDOM = ref("");
 const nowGcpId = ref("");
 const nowGcpRecordId = ref("");
 
-// 參數==========End
+//#endregion 參數==========End
 
-
-// 測量作業列表==========Start
+//#region 測量作業列表==========Start
 const dt_prj = ref();
 const table_prj = ref(); 
 const data_prj = ref([]);
@@ -226,7 +233,7 @@ getPrjById(result=>{
 refgetPrjById();
 
 // 查詢校正項目列表
-const { onResult: getCaseCalType, refetch: refgetCaseCalType } = useQuery(CaseGQL.GETCASECALTYPE);
+const { onResult: getCaseCalType, refetch: refgetCaseCalType } = useQuery(PrjGQL.GETCASECALTYPE);
 getCaseCalType(result=>{
   if(!result.loading && result.data.getCaseCalType){
     nowPrjCalTypeMU.value = result.data.getCaseCalType.map(x => {
@@ -292,14 +299,143 @@ function savePrjBtn(){
 }
 
 // 刪除
+const { mutate: delPrj, onDone: delPrjOnDone, onError: delPrjError } = useMutation(PrjGQL.DELPRJ);
+delPrjOnDone(result=>{
+  infomsg.value = "編號 " + result.data.delRefPrj.project_code + "儲存完畢";
+});
 
-// 測量作業列表==========End
+// 匯入紀錄
+const { mutate: inputGcpRd, onDone: inputGcpRdOnDone, onError: inputGcpRdError } = useMutation(PrjGQL.INPUTGCPRECORDS);
+inputGcpRdOnDone(result=>{
+  console.log(result.data.inputGCPRecords);
+});
+function inputRecord(POfile){
+  if (POfile) {
+    let inputArray = [];
+    const fReader = new FileReader();
+    fReader.onloadend = function (evt) {
+      if (evt.target.readyState == FileReader.DONE) {
+        // 全文件轉換成行
+        let allTextLines = evt.target.result.split(/\r\n|\n/);
+        // 逐行解析
+        let i = 0;
+        let ptData = [];
+        let lineString = "";
+        for(let i=0;i<allTextLines.length;i++){
+          lineString = allTextLines[i].trim();
+          if (lineString !== "") {
+            let ptObj = {};
+            ptData = lineString.split("\t");
+            ptObj.gcp_id = ptData[1];
+            ptObj.project_id = parseInt(nowPrjId.value);
+            ptObj.date = new Date(ptData[3]).toISOString();
+            ptObj.person = ptData[4];
+            ptObj.status = ptData[5];
+            ptObj.coor_E = (parseFloat(ptData[6]))?parseFloat(ptData[6]):null;
+            ptObj.coor_N = (parseFloat(ptData[7]))?parseFloat(ptData[7]):null;
+            ptObj.coor_h = (parseFloat(ptData[8]))?parseFloat(ptData[8]):null;
+            ptObj.close_photo = ptData[1] + '-1.jpg';
+            ptObj.far_photo1 = ptData[1] + '-2.jpg';
+            ptObj.far_photo2 = ptData[1] + '-3.jpg';
+            ptObj.far_photo3 = ptData[1] + '-4.jpg';
+            ptObj.obstruction = null;
+            ptObj.ismodify = (ptData[9])?1:0;
+            ptObj.comment = (ptData[10])?ptData[10]:null;
 
+            inputArray.push(ptObj);
+          }
+        }
+        console.log(inputArray)
+        inputGcpRd({
+          records: inputArray
+        });
+      }
+    }
+    //真正執行以文字方式載入檔案
+    fReader.readAsText(POfile);
+  }
 
+  // 歸零
+  let inputDOM;
+  inputDOM = document.getElementById("AllUpload");
+  inputDOM.value = "";
+}
+//#endregion 測量作業列表==========End
 
+//#region 參考值管理==========Start
+const dt_gcp = ref();
+const table_gcp = ref(); 
+const data_gcp = ref([]);
+const columns_gcp = [
+  {title:"序號", data:"id", defaultContent: "-", visible: false},
+  {title:"點號", data:"gcp_id", defaultContent: "-"},
+  {title:"狀態", data:"status", defaultContent: "-", render: statusRender},
+  {title:"清查人", data:"person", defaultContent: "-"},
+  {title:"清查日", data:"date", defaultContent: "-", render: (data) => {
+      return toTWDate(data);}},
+  {title:"類別", data:"gcp.gcp_type.type_name", defaultContent: "-"},
+  {title:"坐標E", data:"coor_E", defaultContent: "-"},
+  {title:"坐標N", data:"coor_N", defaultContent: "-"},
+  {title:"坐標h", data:"coor_h", defaultContent: "-"},
+];
+const tboption_gcp = {
+  dom: 'fti',
+  select: {style: 'single',info: false},
+  order: [[1, 'desc']],
+  scrollY: 'calc(100vh - 18rem)',
+  scrollX: true,
+  lengthChange: false,
+  searching: true,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  },
+};
 
+// 查詢record by prj
+const { mutate: getRcordByPrj, onDone: getRcordByPrjOnDone, onError: getRcordByPrjError } = useMutation(PrjGQL.CALREFGCP);
+getRcordByPrjOnDone(result=>{
+  data_gcp.value = result.data.calRefGcp;
+  notProssing2.value = true;
+});
 
-// 檔案上傳==========Start
+//#endregion 參考值管理==========End
+
+//#region 點位狀態顯示樣式
+function statusRender(data,type,row){
+  let markicon="";
+  let classn="";
+  switch (data) {
+    case "遺失":
+      markicon = '<i class="fas fa-lg fa-times"></i>';
+      classn = "status89";
+      break;
+    case "損毀":
+      markicon = '<i class="fas fa-skull-crossbones"></i>';
+      classn = "status89";
+      break;
+    case "正常":
+      markicon = '<i class="fas fa-check"></i>';
+      classn = "status7";
+      break;
+    case "不適用":
+      markicon = '<i class="fas fa-ban"></i>';
+      classn = "status23";
+      break;
+    case "停用":
+      markicon = '<i class="fas fa-ban"></i>';
+      classn = "status23";
+      break;
+    default:
+      markicon = '<i class="fas fa-exclamation-circle"></i>';
+      classn = "status1";
+  }
+  return "<span class='" + classn +"'>" + markicon + data + "</span>"
+}
+//#endregion 點位狀態顯示樣式
+
+//#region 檔案上傳==========Start
 const uploadType = ref("");
 function uploadBtn(inputId) {
   // 由按鈕啟動檔案選擇器
@@ -307,25 +443,28 @@ function uploadBtn(inputId) {
   const inputDOM = document.getElementById("AllUpload");
   inputDOM.setAttribute("accept","");
   switch (inputId) {
+    case "inputRecord":
+      // inputDOM.setAttribute("accept",".csv");
+      break;
     case "GcpSimage":
       inputDOM.setAttribute("accept","image/*");
       break;
     case "GcpDespImg":
       inputDOM.setAttribute("accept","image/*");
       break;
-      case "PRecordImg0":
+    case "PRecordImg0":
       inputDOM.setAttribute("accept","image/*");
       break;
-      case "PRecordImg1":
+    case "PRecordImg1":
       inputDOM.setAttribute("accept","image/*");
       break;
-      case "PRecordImg2":
+    case "PRecordImg2":
       inputDOM.setAttribute("accept","image/*");
       break;
-      case "PRecordImg3":
+    case "PRecordImg3":
       inputDOM.setAttribute("accept","image/*");
       break;
-      case "PRecordImgObs":
+    case "PRecordImgObs":
       inputDOM.setAttribute("accept","image/*");
       break;
   }
@@ -345,51 +484,63 @@ async function uploadChenge(e) {
     selFileName = e.target.value;
   }
   subExt = path.extname(selFileName);
-
   let subpath;
   let newName = "";
-  if (!uploadType.value || !nowGcpId.value) {
+  let isUpload = false;
+  if (!uploadType.value) {
     return;
   }
   switch (uploadType.value) {
+    case "inputRecord":
+      inputRecord(upFile.value);
+      break;
     case "GcpSimage":
       subpath = "04_GCP/Pt"
       newName = nowGcpId.value + "-A" + subExt;
+      isUpload = true;
       break;
     case "GcpDespImg":
       subpath = "04_GCP/Pt"
       newName = nowGcpId.value + "-B" + subExt;
+      isUpload = true;
       break;
     case "PRecordImg0":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
       newName = nowGcpId.value + "-1" + subExt;
+      isUpload = true;
       break;
     case "PRecordImg1":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
       newName = nowGcpId.value + "-2" + subExt;
+      isUpload = true;
       break;
     case "PRecordImg2":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
       newName = nowGcpId.value + "-3" + subExt;
+      isUpload = true;
       break;
     case "PRecordImg3":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
       newName = nowGcpId.value + "-4" + subExt;
+      isUpload = true;
       break;
     case "PRecordImgObs":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
       newName = nowGcpId.value + "-C" + subExt;
+      isUpload = true;
       break;
   }
-  await uploadFile({
-    file: upFile.value,
-    subpath: subpath,
-    newfilename: newName,
-  });
+  if (isUpload){
+    await uploadFile({
+      file: upFile.value,
+      subpath: subpath,
+      newfilename: newName,
+    });
+  }
 }
 // 上傳檔案
 const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
-  CaseGQL.UPLOADFILE
+  ToolsGQL.UPLOADFILE
 );
 uploadFileOnDone((result) => {
   // console.log("uploadFile")
@@ -449,7 +600,7 @@ function dropFile(e){
   uploadType.value = e.target.id;
   uploadChenge(e);
 }
-// 檔案上傳==========End
+//#endregion 檔案上傳==========End
 
 // 加載表格選取事件
 onMounted(function () {
@@ -457,11 +608,12 @@ onMounted(function () {
   dt_prj.value.on('select', function (e, dt, type, indexes) {
     nowPrjId.value = dt.rows(indexes).data()[0].id;
     refgetPrjById({ getPrjByIdId: parseInt(nowPrjId.value) });
-    // getGcpById({getGcpByIdId: nowGcpId.value});
+    notProssing2.value = false;
+    getRcordByPrj({projectId: parseInt(nowPrjId.value)});
   });
 
-  // dt_hist = table_hist.value.dt();
-  // dt_hist.on('select', function (e, dt, type, indexes) {
+  dt_gcp.value = table_gcp.value.dt();
+  // dt_gcp.on('select', function (e, dt, type, indexes) {
   //   nowPRecordId.value = dt.rows(indexes).data()[0].id;
   //   getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
   // });
@@ -498,13 +650,17 @@ onMounted(function () {
                       <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="createPrj">新增</MDBBtn>
                       <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="savePrjBtn">儲存</MDBBtn>
                       <MDBPopconfirm :disabled="!rGroup[1] || !nowPrjId" class="btn-sm btn-danger me-auto" message="刪除後無法恢復，確定刪除嗎？"
-                        cancelText="取消" confirmText="確定" @confirm="">
+                        cancelText="取消" confirmText="確定" @confirm="delPrj">
                         刪除
                       </MDBPopconfirm>
+                      <MDBBtn :disabled="!rGroup[1] || !nowPrjId" size="sm" color="primary" @click="uploadBtn('inputRecord')">匯入紀錄</MDBBtn>
                     </MDBCol>
                   </MDBRow>
                   <MDBRow class="overflow-auto align-content-start" style="height: calc(100% - 3rem);">
                     <!-- 資料 -->
+                    <MDBCol col="12" class="mt-2">
+                      資料編輯
+                    </MDBCol>
                     <MDBCol xl="6" class="mt-2">
                       <MDBInput readonly size="sm" type="text" label="序號" v-model="nowPrjId" />
                     </MDBCol>
@@ -547,7 +703,44 @@ onMounted(function () {
         <!-- 右方列表 -->
         <MDBCol md="8" xl="8" class="h-100">
           <MDBRow style="margin-left: auto;height: calc(100% - 1rem);" class="my-2 bg-light border border-5 rounded-8 shadow-4">
-            <MDBCol col="12">
+            <MDBCol col="12" class="h-100">
+                <!-- Tabs -->
+                <MDBTabs v-model="activeTabId1">
+                  <!-- Tabs navs -->
+                  <MDBTabNav tabsClasses="">
+                    <MDBTabItem tabId="gcp_mg" href="gcp_mg">參考值管理</MDBTabItem>
+                    <MDBTabItem tabId="item_mg" href="item_mg">標準件管理</MDBTabItem>
+                  </MDBTabNav>
+                  <!-- Tabs Content -->
+                  <MDBTabContent :key="updateKey" style="height: calc(100% - 3rem);">
+                    <!-- 參考值管理 -->
+                    <MDBTabPane tabId="gcp_mg" class="h-100">
+                      <MDBRow class="h-100">
+                        <MDBCol lg="5" class="h-100 border-end" style="position:relative ;">
+                          <div :class="{ 'hiddenSpinner': notProssing2}" style="position: absolute; left: 50%; top: 10rem;">
+                            <MDBSpinner size="md" color="primary" />Loading...
+                          </div>
+                          <DataTable :data="data_gcp" :columns="columns_gcp" :options="tboption_gcp" ref="table_gcp"
+                            style="font-size: smaller;" class="display w-100 compact" />
+                        </MDBCol>
+                        <MDBCol lg="7" class="h-100">
+                          表單
+                        </MDBCol>
+                      </MDBRow>                    
+                    </MDBTabPane>
+                    <!-- 標準件管理 -->
+                    <MDBTabPane tabId="item_mg" class="h-100">
+                      <MDBRow class="h-100">
+                        <MDBCol lg="5" class="h-100 border-end">
+                          列表
+                        </MDBCol>
+                        <MDBCol lg="7" class="h-100">
+                          表單
+                        </MDBCol> 
+                      </MDBRow> 
+                    </MDBTabPane>
+                  </MDBTabContent>
+                </MDBTabs>
             </MDBCol>
           </MDBRow>
         </MDBCol>

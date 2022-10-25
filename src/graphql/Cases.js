@@ -807,19 +807,6 @@ const SAVECASERECORD02 = gql`
   }
 }
 `;
-const UPLOADFILE = gql`
-  mutation UploadFile(
-    $file: Upload!
-    $subpath: String!
-    $newfilename: String!
-  ) {
-    uploadFile(file: $file, subpath: $subpath, newfilename: $newfilename) {
-      filename
-      mimetype
-      encoding
-    }
-  }
-`;
 
 const COMPUTEUC = gql`
   mutation ComputeUc($parm: String, $ucModel: String) {
@@ -965,7 +952,6 @@ export default {
   DELCASE,
   SAVECASESIMPLE,
   SAVECASERECORD01,
-  UPLOADFILE,
   COMPUTEUC,
   GETUCLIST,
   BUILDREPORT01,

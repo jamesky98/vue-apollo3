@@ -63,10 +63,19 @@ const CALREFGCP = gql`
     ) {
       id
       gcp_id
-      gcp {
-        type_code
-      }
       project_id
+      ref_project {
+        project_code
+        cal_type_id
+        cal_type {
+          name
+          code
+        }
+        method
+        year
+        month
+        organizer
+      }
       date
       person
       status
@@ -80,6 +89,31 @@ const CALREFGCP = gql`
       obstruction
       ismodify
       comment
+      gcp {
+        enable
+        type_code
+        gcp_type {
+          type_name
+        }
+        ownership
+        establishment
+        Est_date
+        pavement
+        style
+        pt_desc
+        pt_map
+        aerial_img
+        need_contact
+        contact_id
+        gcp_contact {
+          name
+          address
+          person
+          tel
+          comment
+        }
+        comment
+      }
     }
   }
 `;
@@ -114,10 +148,37 @@ const SAVEPRJ = gql`
     }
   }
 `;
+const DELPRJ = gql`
+  mutation DelRefPrj($delRefPrjId: Int!) {
+    delRefPrj(id: $delRefPrjId) {
+      id
+      project_code
+    }
+  }
+`;
+
+const INPUTGCPRECORDS = gql`
+mutation InputGCPRecords($records: [gcp_records]) {
+  inputGCPRecords(records: $records)
+}
+`;
+
+const GETCASECALTYPE = gql`
+  query GetCaseCalType {
+    getCaseCalType {
+      id
+      name
+      code
+    }
+  }
+`;
 
 export default {
   GETALLPRJ,
   GETPRJBYID,
   CALREFGCP,
   SAVEPRJ,
+  DELPRJ,
+  INPUTGCPRECORDS,
+  GETCASECALTYPE,
 };
