@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 const GETRECORDBYPID = gql`
-  query GetGcpRecordsByGCPId($gcpId: String!) {
+  mutation GetGcpRecordsByGCPId($gcpId: String!) {
     getGcpRecordsByGCPId(gcp_id: $gcpId) {
       id
       gcp_id

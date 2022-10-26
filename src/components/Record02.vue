@@ -58,6 +58,7 @@ const props = defineProps({
 });
 
 // 案件詳細編輯資料==========start
+const publicPath = inject('publicPath');
 // 案件之詳細資料
 const selectUcObj = ref();
 const selectReportObj = ref();
@@ -110,7 +111,7 @@ const nowCaseFOV = ref(""); // 最大掃描角FOV
 const nowCaseLrReport = ref(""); // LiDAR規格
 const nowCaseLrReportDL = computed(() => {
   if (nowCaseLrReport.value && nowCaseLrReport.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseLrReport.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseLrReport.value;
   } else {
     return undefined;
   }
@@ -119,7 +120,7 @@ const nowCaseLrReportDL = computed(() => {
 const nowCasePosReport = ref(""); // POS規格
 const nowCasePosReportDL = computed(() => {
   if (nowCasePosReport.value && nowCasePosReport.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCasePosReport.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePosReport.value;
   } else {
     return undefined;
   }
@@ -128,7 +129,7 @@ const nowCasePosReportDL = computed(() => {
 const nowCasePlanMap = ref(""); // 航線規劃圖
 const nowCasePlanMapDL = computed(() => {
   if (nowCasePlanMap.value && nowCasePlanMap.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCasePlanMap.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePlanMap.value;
   } else {
     return undefined;
   }
@@ -152,7 +153,7 @@ const nowCaseFOVac = ref(""); // 最大掃描角FOV
 const nowCaseFlyMapAc = ref(""); // 實際航線圖
 const nowCaseFlyMapAcDL = computed(() => {
   if (nowCaseFlyMapAc.value && nowCaseFlyMapAc.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseFlyMapAc.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseFlyMapAc.value;
   } else {
     return undefined;
   }
@@ -161,7 +162,7 @@ const nowCaseFlyMapAcDL = computed(() => {
 const nowCaseRecTable = ref(""); // 掃描紀錄表
 const nowCaseRecTableDL = computed(() => {
   if (nowCaseRecTable.value && nowCaseRecTable.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseRecTable.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseRecTable.value;
   } else {
     return undefined;
   }
@@ -171,7 +172,7 @@ const nowCaseLASNo = ref(""); // 點雲檔案數
 const nowCaseOther = ref(""); // 設備佐證照片
 const nowCaseOtherDL = computed(() => {
   if (nowCaseOther.value && nowCaseOther.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseOther.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseOther.value;
   } else {
     return undefined;
   }
@@ -230,7 +231,7 @@ provide("nowCaseReportTempMU", nowCaseReportTempMU);
 const nowCaseReportEdit = ref(""); //校正報告編輯檔
 const nowCaseReportEditDL = computed(() => {
   if (nowCaseReportEdit.value && nowCaseReportEdit.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseReportEdit.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseReportEdit.value;
   } else {
     return undefined;
   }
@@ -262,7 +263,7 @@ provide("nowCaseSignPersonMU", nowCaseSignPersonMU);
 const nowCaseReportScan = ref(""); //校正報告掃描檔
 const nowCaseReportScanDL = computed(() => {
   if (nowCaseReportScan.value && nowCaseReportScan.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseReportScan.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseReportScan.value;
   } else {
     return undefined;
   }
@@ -273,7 +274,7 @@ const nowCasePDFPath = computed(() => {
   if (!nowCaseReportScan.value || nowCaseReportScan.value === '') {
     return "pdfjs-dist/web/viewer.html"
   } else {
-    return "pdfjs-dist/web/viewer.html?file=../../../06_Case/" +
+    return "pdfjs-dist/web/viewer.html?file=" + publicPath.value + "06_Case/" +
       props.caseID + "/" + nowCaseReportScan.value;
   }
 });

@@ -62,6 +62,8 @@ const props = defineProps({
 });
 
 // 案件詳細編輯資料==========start
+const publicPath = inject('publicPath');
+
 // 案件之詳細資料
 const selectUcObj = ref();
 const selectReportObj = ref();
@@ -103,7 +105,7 @@ const nowCaseAGL = ref(""); // 飛航離地高
 const nowCaseCamReport = ref(""); // 像機率定報告
 const nowCaseCamReportDL = computed(() => {
   if (nowCaseCamReport.value && nowCaseCamReport.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseCamReport.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseCamReport.value;
   } else {
     return undefined;
   }
@@ -111,7 +113,7 @@ const nowCaseCamReportDL = computed(() => {
 const nowCasePlanMap = ref(""); // 航線規劃圖
 const nowCasePlanMapDL = computed(() => {
   if (nowCasePlanMap.value && nowCasePlanMap.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCasePlanMap.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePlanMap.value;
   } else {
     return undefined;
   }
@@ -134,7 +136,7 @@ const nowCaseAGLac = ref(""); // 實際飛航離地高
 const nowCaseCamUpload = ref(""); // 上傳像機參數
 const nowCaseCamDL = computed(() => {
   if (nowCaseCamUpload.value && nowCaseCamUpload.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseCamUpload.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseCamUpload.value;
   } else {
     return undefined;
   }
@@ -142,7 +144,7 @@ const nowCaseCamDL = computed(() => {
 const nowCaseFlyMapAc = ref(""); // 實際航線規劃圖
 const nowCaseFlyMapAcDL = computed(() => {
   if (nowCaseFlyMapAc.value && nowCaseFlyMapAc.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseFlyMapAc.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseFlyMapAc.value;
   } else {
     return undefined;
   }
@@ -150,7 +152,7 @@ const nowCaseFlyMapAcDL = computed(() => {
 const nowCaseRecTable = ref(""); // 影像檢核紀錄表
 const nowCaseRecTableDL = computed(() => {
   if (nowCaseRecTable.value && nowCaseRecTable.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseRecTable.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseRecTable.value;
   } else {
     return undefined;
   }
@@ -158,7 +160,7 @@ const nowCaseRecTableDL = computed(() => {
 const nowCaseEO = ref(""); //外方位資料檔
 const nowCaseEODL = computed(() => {
   if (nowCaseEO.value && nowCaseEO.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseEO.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseEO.value;
   } else {
     return undefined;
   }
@@ -167,7 +169,7 @@ const nowCasePhotoNo = ref(""); //送校影像數
 const nowCaseOther = ref(""); //設備佐證照片
 const nowCaseOtherDL = computed(() => {
   if (nowCaseOther.value && nowCaseOther.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseOther.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseOther.value;
   } else {
     return undefined;
   }
@@ -196,7 +198,7 @@ const nowCaseFreeStd = ref(""); //自由網中誤差
 const nowCaseFreeUpload = ref(""); //自由網專案檔
 const nowCaseFreeUploadDL = computed(() => {
   if (nowCaseFreeUpload.value && nowCaseFreeUpload.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseFreeUpload.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseFreeUpload.value;
   } else {
     return undefined;
   }
@@ -206,7 +208,7 @@ const nowCaseFixStd = ref(""); // 強制網中誤差
 const nowCaseFixUpload = ref(""); // 強制網專案檔
 const nowCaseFixUploadDL = computed(() => {
   if (nowCaseFixUpload.value && nowCaseFixUpload.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseFixUpload.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseFixUpload.value;
   } else {
     return undefined;
   }
@@ -215,7 +217,7 @@ const nowCaseFixUploadDL = computed(() => {
 const nowCaseATreport = ref(""); // 空三報表檔(上傳PrintOut.0)
 const nowCaseATreportDL = computed(() => {
   if (nowCaseATreport.value && nowCaseATreport.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseATreport.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseATreport.value;
   } else {
     return undefined;
   }
@@ -234,7 +236,7 @@ const nowCaseSTDv = ref(""); //高程不確定度(自動計算)
 const nowCaseRsultFile = ref(""); // 計算成果表(自動計算)
 const nowCaseRsultFileDL = computed(() => {
   if (nowCaseRsultFile.value && nowCaseRsultFile.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseRsultFile.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseRsultFile.value;
   } else {
     return undefined;
   }
@@ -244,7 +246,7 @@ const nowCaseRsultFileDL = computed(() => {
 const nowCaseNetGraph = ref(""); //網形圖(上傳)
 const nowCaseNetGraphDL = computed(() => {
   if (nowCaseNetGraph.value && nowCaseNetGraph.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseNetGraph.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseNetGraph.value;
   } else {
     return undefined;
   }
@@ -253,7 +255,7 @@ const nowCaseNetGraphDL = computed(() => {
 const nowCaseGCPGraph = ref(""); //點位分布圖(上傳)
 const nowCaseGCPGraphDL = computed(() => {
   if (nowCaseGCPGraph.value && nowCaseGCPGraph.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseGCPGraph.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseGCPGraph.value;
   } else {
     return undefined;
   }
@@ -262,7 +264,7 @@ const nowCaseGCPGraphDL = computed(() => {
 const nowCaseSTDExl = ref(""); //不確定度計算表(上傳)
 const nowCaseSTDExlDL = computed(() => {
   if (nowCaseSTDExl.value && nowCaseSTDExl.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseSTDExl.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseSTDExl.value;
   } else {
     return undefined;
   }
@@ -294,7 +296,7 @@ provide("nowCaseReportTempMU", nowCaseReportTempMU);
 const nowCaseReportEdit = ref(""); //校正報告編輯檔
 const nowCaseReportEditDL = computed(() => {
   if (nowCaseReportEdit.value && nowCaseReportEdit.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseReportEdit.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseReportEdit.value;
   } else {
     return undefined;
   }
@@ -327,7 +329,7 @@ const selectPsData = ref();
 const nowCaseReportScan = ref(""); //校正報告掃描檔
 const nowCaseReportScanDL = computed(() => {
   if (nowCaseReportScan.value && nowCaseReportScan.value !== "") {
-    return "06_Case/" + props.caseID + "/" + nowCaseReportScan.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseReportScan.value;
   } else {
     return undefined;
   }
@@ -472,7 +474,7 @@ getNowCaseF((result) => {
       nowCasePDFPath.value = "pdfjs-dist/web/viewer.html";
     } else {
       nowCasePDFPath.value =
-        "pdfjs-dist/web/viewer.html?file=../../../06_Case/" +
+        "pdfjs-dist/web/viewer.html?file=" + publicPath.value + "06_Case/" +
         props.caseID +
         "/" +
         getData.report_scan;

@@ -1,11 +1,11 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+// import { RouterLink, RouterView } from 'vue-router'
 // import HelloWorld from '@/components/HelloWorld.vue'
-import router from './router'
-import { useQuery } from '@vue/apollo-composable';
-import UsersGQL from "./graphql/Users";
-import { logIn, logOut, toTWDate } from './methods/User';
-// import { ref } from "vue";
+// import router from './router'
+// import { useQuery } from '@vue/apollo-composable';
+// import UsersGQL from "./graphql/Users";
+// import { logIn, logOut, toTWDate } from './methods/User';
+import { ref, provide, inject } from "vue";
 // 判斷token狀況
 // const hasToken = ref(result.data.checktoken);
 // const { onResult:getchecktoken } = useQuery(UsersGQL.CHECKTOKEN);
@@ -16,6 +16,8 @@ import { logIn, logOut, toTWDate } from './methods/User';
 //     // router.push('/main');
 //   }
 // });
+const publicPath = ref(import.meta.env.VITE_GRAPHQL_PUBLIC);
+provide("publicPath", publicPath);
 
 </script>
 

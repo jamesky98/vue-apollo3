@@ -2,7 +2,7 @@
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import path from "path-browserify";
-import { ref, reactive, onMounted, provide } from "vue";
+import { ref, reactive, onMounted, provide, inject } from "vue";
 import {
   MDBInput,
   MDBSelect,
@@ -328,7 +328,7 @@ function inputRecord(POfile){
             ptData = lineString.split("\t");
             ptObj.gcp_id = ptData[1];
             ptObj.project_id = parseInt(nowPrjId.value);
-            ptObj.date = new Date(ptData[3]).toISOString();
+            ptObj.date = new Date(ptData[3]+' GMT+0000').toISOString();
             ptObj.person = ptData[4];
             ptObj.status = ptData[5];
             ptObj.coor_E = (parseFloat(ptData[6]))?parseFloat(ptData[6]):null;
@@ -345,7 +345,7 @@ function inputRecord(POfile){
             inputArray.push(ptObj);
           }
         }
-        console.log(inputArray)
+        // console.log(inputArray)
         inputGcpRd({
           records: inputArray
         }).then(res=>{

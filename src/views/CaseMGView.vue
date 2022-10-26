@@ -3,7 +3,7 @@ import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import Record01 from "../components/Record01.vue";
 import Record02 from "../components/Record02.vue";
-import { ref, reactive, onMounted, provide } from "vue";
+import { ref, reactive, onMounted, provide, inject } from "vue";
 import path from "path-browserify";
 import {
   MDBInput,
@@ -116,6 +116,8 @@ const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
 const updateKey = ref(0);
+const publicPath = inject('publicPath');
+
 // 案件列表=========start
 let dt1;
 const table1 = ref();
@@ -1312,13 +1314,13 @@ function saveAPIRecord(nowData) {
           // 下載camReport
           result = dlFromAPI({
             fromUrl: nowData.COL24,
-            toSubPath: "06_Case/" + nowData.caseid,
+            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
             toFileName: "01_CamReport" + path.extname(nowData.COL24),
           }).then(res=>{ 
             // 下載planMap
             dlFromAPI({
             fromUrl: nowData.COL25,
-            toSubPath: "06_Case/" + nowData.caseid,
+            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
             toFileName: "02_PlanDwg" + path.extname(nowData.COL25),
             })
           }).then(res=>{ 
@@ -1330,20 +1332,20 @@ function saveAPIRecord(nowData) {
           let preresult = res;
           result = dlFromAPI({
             fromUrl: nowData.COL28,
-            toSubPath: "06_Case/" + nowData.caseid,
+            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
             toFileName: "01_LrReport" + path.extname(nowData.COL28),
           }).then(res=>{  
             // 下載planMap
             dlFromAPI({
             fromUrl: nowData.COL29,
-            toSubPath: "06_Case/" + nowData.caseid,
+            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
             toFileName: "02_POSReport" + path.extname(nowData.COL29),
             })
           }).then(res=>{  
             // 下載planMap
             dlFromAPI({
             fromUrl: nowData.COL30,
-            toSubPath: "06_Case/" + nowData.caseid,
+            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
             toFileName: "03_LrPlan" + path.extname(nowData.COL30),
             })
           }).then(res=>{

@@ -1,7 +1,7 @@
 <script setup>
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
-import { ref, reactive, onMounted, provide } from "vue";
+import { ref, reactive, onMounted, provide, inject } from "vue";
 import path, { join } from "path-browserify";
 import {
   MDBInput,
@@ -100,6 +100,7 @@ const rGroup = computed(() => {
 // 取得權限==========End
 
 // Information
+const publicPath = inject('publicPath');
 const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
@@ -126,7 +127,7 @@ const nowEmpResDateDOM = ref();
 const nowEmpResUpload = ref("");
 const nowEmpResUploadDL = computed(() => {
   if (nowEmpResUpload.value && nowEmpResUpload.value !== "") {
-    return "05_Person/" + nowEmpID.value + "/resignation/" + nowEmpResUpload.value;
+    return publicPath.value + "05_Person/" + nowEmpID.value + "/resignation/" + nowEmpResUpload.value;
   } else {
     return undefined;
   }
@@ -159,7 +160,7 @@ const nowTrainCertiNo = ref("");
 const nowTrainUpload = ref("");
 const nowTrainUploadDL = computed(() => {
   if (nowTrainUpload.value && nowTrainUpload.value !== "") {
-    return "05_Person/" + nowEmpID.value + "/Train/" + nowTrainUpload.value;
+    return publicPath.value + "05_Person/" + nowEmpID.value + "/Train/" + nowTrainUpload.value;
   } else {
     return undefined;
   }
@@ -199,7 +200,7 @@ const nowEmpowerSusDateDOM = ref();
 const nowEmpowerTabUpload = ref("");
 const nowEmpowerTabUploadDL = computed(() => {
   if (nowEmpowerTabUpload.value && nowEmpowerTabUpload.value !== "") {
-    return "05_Person/" + nowEmpID.value + "/Empower/" + nowEmpowerTabUpload.value;
+    return publicPath.value + "05_Person/" + nowEmpID.value + "/Empower/" + nowEmpowerTabUpload.value;
   } else {
     return undefined;
   }
@@ -207,7 +208,7 @@ const nowEmpowerTabUploadDL = computed(() => {
 const nowEmpowerAprvUpload = ref("");
 const nowEmpowerAprvUploadDL = computed(() => {
   if (nowEmpowerAprvUpload.value && nowEmpowerAprvUpload.value !== "") {
-    return "05_Person/" + nowEmpID.value + "/Empower/" + nowEmpowerAprvUpload.value;
+    return publicPath.value + "05_Person/" + nowEmpID.value + "/Empower/" + nowEmpowerAprvUpload.value;
   } else {
     return undefined;
   }

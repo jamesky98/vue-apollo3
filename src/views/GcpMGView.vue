@@ -2,7 +2,7 @@
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import path from "path-browserify";
-import { ref, reactive, onMounted, provide } from "vue";
+import { ref, reactive, onMounted, provide, inject } from "vue";
 import {
   MDBInput,
   MDBCol,
@@ -101,6 +101,7 @@ const rGroup =computed(()=>{
 
 //#region 參數==========Start
 // infomation
+const publicPath = inject('publicPath');
 const NavItem = ref("gcps");
 provide("NavItem",NavItem);
 
@@ -190,7 +191,7 @@ const nowGcpStyleDOM = ref();
 const nowGcpSimage = ref("");
 const nowGcpSimageDL = computed(()=>{
   if(nowGcpSimage.value){
-    return "04_GCP/Pt/" + nowGcpSimage.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/Pt/" + nowGcpSimage.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -201,7 +202,7 @@ const nowGcpComment = ref("");
 const nowGcpDespImg = ref("");
 const nowGcpDespImgDL = computed(()=>{
   if(nowGcpDespImg.value){
-    return "04_GCP/Pt/" + nowGcpDespImg.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/Pt/" + nowGcpDespImg.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -260,7 +261,7 @@ const nowPRecordCom = ref("");
 const nowPRecordImg0 = ref("");
 const nowPRecordImg0DL = computed(()=>{
   if(nowPRecordImg0.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -269,7 +270,7 @@ const nowPRecordImg0DL = computed(()=>{
 const nowPRecordImg1 = ref("");
 const nowPRecordImg1DL = computed(()=>{
   if(nowPRecordImg1.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -278,7 +279,7 @@ const nowPRecordImg1DL = computed(()=>{
 const nowPRecordImg2 = ref("");
 const nowPRecordImg2DL = computed(()=>{
   if(nowPRecordImg2.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -287,7 +288,7 @@ const nowPRecordImg2DL = computed(()=>{
 const nowPRecordImg3 = ref("");
 const nowPRecordImg3DL = computed(()=>{
   if(nowPRecordImg3.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -296,7 +297,7 @@ const nowPRecordImg3DL = computed(()=>{
 const nowPRecordObs = ref("");
 const nowPRecordObsDL = computed(()=>{
   if(nowPRecordObs.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordObs.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordObs.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -317,11 +318,11 @@ getAllPrj(result=>{
       recordPrjList.push({ text: x.project_code, value: parseInt(x.id)});
     }); 
     mulist.sort((a,b)=>{
-      return (a.project_code > b.project_code)?1:-1;
+      return (a.text < b.text)?1:-1;
     });mulist.unshift({ text: "-未選取-", value: -1 });
 
     recordPrjList.sort((a,b)=>{
-      return (a.project_code > b.project_code)?1:-1;
+      return (a.text < b.text)?1:-1;
     });recordPrjList.unshift({ text: "-未選取-", value: -1 });
     selPrjCodeMU.value = mulist;
     nowPRecordPrjIdMU.value = recordPrjList;
@@ -332,6 +333,7 @@ refgetAllPrj().then(res=>{
   selPrjCodeDOM.value.setValue(selPrjCode.value);
   getAllGcp();
 });
+
 // 啟用狀態清單
 selGcpEnableMU.value = [
   {text: "-未選取-", value: -1},
@@ -516,20 +518,13 @@ const { mutate: getAllGcp, onDone: getAllGcpOnDone, onError: getAllGcpError } = 
 getAllGcpOnDone(result=>{
   if(!result.loading){
     // console.log(result.data.getAllGcp);
+    // console.log("getAllGcpOnDone");
     notProssing.value = true;
     data_gcp.value = result.data.getAllGcp;
     openMapDOM.value.loadFeatures();
     updateKey.value = updateKey.value + 1;
   }
 });
-
-function selectNowGCP(){
-  if(nowGcpId.value){
-    dt_gcp.value.rows(function ( idx, data, node ) {
-      return (data.id===nowGcpId.value)?true:false
-    }).select();
-  }
-}
 
 // 查詢GCPbyID
 const { mutate: getGcpById, onDone: getGcpByIdOnDone, onError: getGcpByIdError } = useMutation(GcpGQL.GETGCPBYID);
@@ -652,7 +647,7 @@ delGcpOnDone(result=>{
 //#endregion 點位基本列表==========End
 
 //#region 歷年量測列表==========Start
-let dt_hist;
+const dt_hist = ref();;
 const table_hist = ref(); 
 const data_hist = ref([]);
 const columns_hist = [
@@ -683,31 +678,19 @@ const tboption_hist = {
   },
 };
 // 查詢Record歷年紀錄
-const { onResult: getRcordByPId, refetch: refgetRcordByPId } = useQuery(
-  GcpGQL.GETRECORDBYPID,
-  ()=>({gcpId:""})
-);
-getRcordByPId(result=>{
+const { onDone: getRcordByPIdonDone, mutate: getRcordByPId } = useMutation(GcpGQL.GETRECORDBYPID);
+getRcordByPIdonDone(result=>{
   if(!result.loading){
+    // console.log("getRcordByPId onResult")
     data_hist.value = result.data.getGcpRecordsByGCPId;
   }
 });
-
-function selectNowGCPRecord(){
-  if(!isGcpTbSelect){
-    dt_hist.value.rows(function ( idx, data, node ) {
-      return (data.id===nowPRecordId.value)?true:false
-    }).select();
-    isGcpTbSelect = true;
-  }else{
-    dt_hist.row(':eq(0)').select();
-  }
-}
 
 // 查詢Record單筆紀錄
 const { mutate: getRecordById, onDone: getRecordByIdOnDone, onError: getRecordByIdError } = useMutation(GcpGQL.GETRECORDBYID);
 getRecordByIdOnDone(result=>{
   if(result.data.getGcpRecordById){
+    // console.log("getRecordByIdOnDone")
     let getData = result.data.getGcpRecordById;
     nowPRecordPtId.value = getData.gcp_id;
     nowPRecordPrjId.value = getData.project_id;
@@ -760,11 +743,9 @@ function saveGcpRecordBtn(){
     obstruction: nowPRecordObs.value,
     comment: nowPRecordCom.value,
   }).then(res=>{
-    getAllGcp();
-  }).then(res=>{
-    refgetRcordByPId({ gcpId: nowGcpId.value });
-  }).then(res=>{
-    getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
+    // console.log("1-save getAllGcp");
+    nowRcdIdFromDT2 = nowPRecordId.value;
+    return getAllGcp();
   });
 }
 
@@ -800,13 +781,8 @@ function delGcpRecordBtn(){
   delGcpRecord({
     delGcpRecordId: parseInt(nowPRecordId.value)
   }).then(res=>{
-    getAllGcp();
-  }).then(res=>{
-    refgetRcordByPId({ gcpId: nowGcpId.value });
-  }).then(res=>{
-    getRecordById({getGcpRecordByIdId: -1});
+    return getAllGcp();
   });
-
 }
 
 // 作業編號下拉式選取
@@ -999,40 +975,88 @@ function zoomMapView(){
 //#endregion 收合地圖==========End
 
 //#region 加載表格選取事件
-let isGcpTbSelect = true;
+let nowRcdIdFromDT1 = null;
+let nowRcdIdFromDT2 = null;
 onMounted(function () {
   dt_gcp.value = table_gcp.value.dt();
   dt_gcp.value.on('select', function (e, dt, type, indexes) {
-    isGcpTbSelect = true;
+    // console.log("dt_gcp select")
+    nowRcdIdFromDT1 = dt.rows(indexes).data()[0].gcp_record[0].id;
     nowGcpId.value = dt.rows(indexes).data()[0].id;
     getGcpById({getGcpByIdId: nowGcpId.value}).then(res=>{
-      refgetRcordByPId({ gcpId: nowGcpId.value });
+      // console.log("dt_gcp select getGcpById")
+      return getRcordByPId({ gcpId: nowGcpId.value });
     }).then(res=>{
       // 文查圖
       openMapDOM.value.selectPtFeature(nowGcpId.value);
     });
   });
   dt_gcp.value.on('draw', function (e, dt, type, indexes) {
+    // console.log("dt_gcp draw")
     selectNowGCP();
   });
   
 
-  dt_hist = table_hist.value.dt();
-  dt_hist.on('select', function (e, dt, type, indexes) {
+  dt_hist.value = table_hist.value.dt();
+  dt_hist.value.on('select', function (e, dt, type, indexes) {
+    // console.log("dt_hist select")
     nowPRecordId.value = dt.rows(indexes).data()[0].id;
     getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
     e.preventDefault();
     e.stopPropagation();
   });
-  dt_hist.on('draw', function (e, dt, type, indexes) {
-    // dt_hist.row(':eq(0)').select();
+  dt_hist.value.on('draw', function (e, dt, type, indexes) {
+    // console.log("dt_hist draw")
     selectNowGCPRecord();
     e.preventDefault();
     e.stopPropagation();
   });
-
 });
+
+function selectNowGCP(){
+  if(nowGcpId.value){
+    dt_gcp.value.rows(function ( idx, data, node ) {
+      return (data.id===nowGcpId.value)?true:false
+    }).select();
+  }
+}
+
+function selectNowGCPRecord(){
+  // console.log("nowRcdIdFromDT1",nowRcdIdFromDT1);
+  // console.log("nowRcdIdFromDT2",nowRcdIdFromDT2);
+  // console.log("dt count",dt_hist.value.rows().count());
+  if(nowRcdIdFromDT2){
+    // console.log("use 2-nowRcdIdFromDT2 select");
+    dt_hist.value.rows(function ( idx, data, node ) {
+      return (data.id===nowRcdIdFromDT2)?true:false
+    }).select();
+    nowRcdIdFromDT1 = null;
+    nowRcdIdFromDT2 = null;
+    return ;
+  }else if(nowRcdIdFromDT1){
+    // console.log("use 1-nowRcdIdFromDT1 select");
+    dt_hist.value.rows(function ( idx, data, node ) {
+      return (data.id===nowRcdIdFromDT1)?true:false
+    }).select();
+    nowRcdIdFromDT1 = null;
+    nowRcdIdFromDT2 = null;
+    return ;
+  }else{
+    // 總數大於0則選擇第1筆，否則不動作
+    if(dt_hist.value.rows().count()>0){
+      dt_hist.value.row(':eq(0)').select();
+    }
+  }
+}
+
 //#endregion 加載表格選取事件
+
+function testfun(){
+  console.log(new Date('2022/07/08 GMT+0000'));
+  console.log(new Date('2022/07/08 GMT+0000').toISOString());
+}
+
+
 </script>
 <template>
   <input type="file" id="AllUpload" @change="uploadChenge($event)" style="display: none" />
@@ -1102,7 +1126,7 @@ onMounted(function () {
                               <MDBCol col="12" class="py-2 border-bottom">
                                 <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="clearfilter">清除</MDBBtn>
                                 <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="dofilter">篩選</MDBBtn>
-                                <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="selectNowGCP">test</MDBBtn>
+                                <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="testfun">test</MDBBtn>
                               </MDBCol>
                             </MDBRow>
                             <MDBRow class="overflow-auto align-content-start" style="height: calc(100% - 3rem);">
@@ -1263,7 +1287,7 @@ onMounted(function () {
                   <MDBRow class="h-100 overflow-auto">
                     <!-- 分割左 -->
                     <MDBCol lg="7" class="h-100 overflow-auto pt-2" style="position: relative ;">
-                      <div style="position:absolute;">歷史紀錄 點號：<span class="text-info">{{nowGcpId}}</span></div>
+                      <div style="position:absolute;">歷史紀錄 點號：<span class="text-info">{{nowGcpId}} - {{nowPRecordId}}</span></div>
                       <DataTable :data="data_hist" :columns="columns_hist" :options="tboption_hist" ref="table_hist"
                         style="font-size: smaller;" class="display w-100 compact" />
                     </MDBCol>

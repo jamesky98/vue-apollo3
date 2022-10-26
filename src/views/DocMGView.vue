@@ -1,7 +1,7 @@
 <script setup>
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
-import { ref, reactive, onMounted, provide } from "vue";
+import { ref, reactive, onMounted, provide, inject } from "vue";
 import path from "path-browserify";
 import {
   MDBInput,
@@ -94,6 +94,7 @@ const NavItem = ref("docs");
 provide("NavItem",NavItem);
 const infomsg = ref("");
 const alert1 = ref(false);
+const publicPath = inject('publicPath');
 
 const activeTabId1 = ref('filter');
 const activeTabId2 = ref('histroy');
@@ -128,13 +129,13 @@ const itemRelDate = ref();
 const nowParents = ref("");
 const nowUpload = ref("");
 const nowDownLoad = computed(()=>{
-  return "02_DOC/" + nowDocLevel.value + "/" + nowUpload.value
+  return publicPath.value + "02_DOC/" + nowDocLevel.value + "/" + nowUpload.value
 });
 // PDF Viewer ?file=../../../test.pdf
 const pdfPath = ref("pdfjs-dist/web/viewer.html");
 const nowEdUpload = ref("");
 const nowEdDownLoad = computed(() => {
-  return "02_DOC/" + nowDocLevel.value + "/" + nowEdUpload.value
+  return publicPath.value + "02_DOC/" + nowDocLevel.value + "/" + nowEdUpload.value
 });
 
 const nowExpDate = ref("");
@@ -181,7 +182,8 @@ function updateDocContext(e, dt, type, indexes){
     if (!getDocData.upload){
       pdfPath.value = "pdfjs-dist/web/viewer.html";  
     }else{
-      pdfPath.value = "pdfjs-dist/web/viewer.html?file=../../../02_DOC/" + getDocData.doc_level + "/" + getDocData.upload;
+      pdfPath.value = "pdfjs-dist/web/viewer.html?file=" + publicPath.value + "02_DOC/" + getDocData.doc_level + "/" + getDocData.upload;
+      // console.log(pdfPath.value)
     }
     nowEdUpload.value = getDocData.editable_upload;
     if (!getDocData.expiration_date) {
@@ -633,7 +635,7 @@ function saveDocBtn() {
         updateDocId: parseInt(nowIDed.value),
         upload: nowUpload.value,
       });
-      pdfPath.value = "pdfjs-dist/web/viewer.html?file=../../../02_DOC/" + nowDocLevel.value + "/" + nowUpload.value;
+      pdfPath.value = "pdfjs-dist/web/viewer.html?file="+ publicPath.value + "02_DOC/" + nowDocLevel.value + "/" + nowUpload.value;
       
       // console.log(pdfPath.value);
     }else{
