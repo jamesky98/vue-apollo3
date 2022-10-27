@@ -18,6 +18,10 @@ import {
   MDBTabItem,
   MDBTabContent,
   MDBTabPane,
+  MDBTextarea,
+  MDBLightbox,
+  MDBLightboxItem,
+  MDBSwitch,
 } from 'mdb-vue-ui-kit';
 import ToolsGQL from "../graphql/Tools";
 import GcpGQL from "../graphql/Gcp";
@@ -93,6 +97,7 @@ const rGroup =computed(()=>{
 
 //#region 參數==========Start
 // infomation
+const publicPath = inject('publicPath');
 const NavItem = ref("prjs");
 provide("NavItem",NavItem);
 const infomsg = ref("");
@@ -103,6 +108,7 @@ const notProssing = ref(false);
 const notProssing2 = ref(true);
 
 const updateKey = ref(0);
+const updateKey2 = ref(0);
 
 const nowPrjId = ref("");
 const nowPrjCode = ref("");
@@ -134,8 +140,153 @@ const nowPrjEndDateDOM = ref();
 const nowPrjPublishDate = ref("");
 const nowPrjPublishDateDOM = ref("");
 
-const nowGcpId = ref("");
-const nowGcpRecordId = ref("");
+// 參考值表單
+// 基本資料
+const nowPRecordPtId = ref("");
+const nowGcpEnable = ref(true);
+
+const nowGcpTypeCode = ref("");
+const nowGcpTypeCodeMU = ref([]);
+const nowGcpTypeCodeDOM = ref();
+
+const nowGcpOwnerShip = ref("");
+const nowGcpOwnerShipMU = ref([
+  {text: "-未選取-", value: "-1"},
+  {text: "公有地", value: "公有地"},
+  {text: "私有地", value: "私有地"},
+]);
+const nowGcpOwnerShipDOM = ref();
+
+const nowGcpEstablishment = ref("");
+const nowGcpEstDate = ref("");
+
+const nowGcpPavement = ref("");
+const nowGcpPavementMU = ref([
+  {text: "-未選取-", value: "-1"},
+  {text: "道路面", value: "道路面"},
+  {text: "建物頂樓", value: "建物頂樓"},
+  {text: "人行道", value: "人行道"},
+  {text: "空地地面", value: "空地地面"},
+  {text: "泥土面", value: "泥土面"},
+  {text: "水泥面", value: "水泥面"},
+]);
+const nowGcpPavementDOM = ref();
+
+const nowGcpStyle = ref("");
+const nowGcpStyleMU = ref([
+  {text: "-未選取-", value: "-1"},
+  {text: "鋼釘", value: "鋼釘"},
+  {text: "鋼片", value: "鋼片"},
+]);
+const nowGcpStyleDOM = ref();
+
+const nowGcpSimage = ref("");
+const nowGcpSimageDL = computed(()=>{
+  if(nowGcpSimage.value){
+    return publicPath.value + "04_GCP/Pt/" + nowGcpSimage.value + "?t=" + Math.random()
+  }else{
+    return ""
+  }
+});
+
+const nowGcpComment = ref("");
+
+const nowGcpDespImg = ref("");
+const nowGcpDespImgDL = computed(()=>{
+  if(nowGcpDespImg.value){
+    return publicPath.value + "04_GCP/Pt/" + nowGcpDespImg.value + "?t=" + Math.random()
+  }else{
+    return ""
+  }
+});
+
+const nowGcpDespStr = ref("");
+const nowGcpNeedContact = ref(false);
+const nowGcpContactId = ref("");
+const nowGcpContactMU = ref([]);
+const nowGcpContactDOM = ref();
+const nowGcpContactName = ref("");
+
+const nowGcpContactAds = ref("");
+const nowGcpContactPrs = ref("");
+const nowGcpContactTel = ref("");
+const nowGcpContactCom = ref("");
+
+// 紀錄資料
+const nowPRecordId = ref("");
+
+const nowPRecordPrjId = ref("");
+const nowPRecordPrjIdMU = ref([]);
+const nowPRecordPrjIdDOM = ref();
+const nowPRecordPrjCode = ref("");
+
+const nowPRecordDate = ref("");
+const nowPRecordDateDOM = ref();
+
+const nowPRecordPerson = ref("");
+const nowPRecordPersonMU = ref([]);
+const nowPRecordPersonDOM = ref();
+
+const nowPRecordPtStatus = ref("");
+const nowPRecordPtStatusMU = ref(JSON.parse(inject('ptStatusMU')));
+const nowPRecordPtStatusDOM = ref();
+
+const nowPRecordE = ref("");
+const nowPRecordN = ref("");
+const nowPRecordh = ref("");
+const nowPRecordCoor = computed(()=>{
+  if(nowPRecordE.value && nowPRecordN.value && nowPRecordh.value){
+    return parseFloat(nowPRecordE.value).toFixed(3) + ", " + parseFloat(nowPRecordN.value).toFixed(3) + ", " + parseFloat(nowPRecordh.value).toFixed(3);
+  }else{
+    return ""
+  }
+});
+
+const nowPRecordCom = ref("");
+const nowPRecordImg0 = ref("");
+const nowPRecordImg0DL = computed(()=>{
+  if(nowPRecordImg0.value){
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value + "?t=" + Math.random()
+  }else{
+    return ""
+  }
+});
+
+const nowPRecordImg1 = ref("");
+const nowPRecordImg1DL = computed(()=>{
+  if(nowPRecordImg1.value){
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value + "?t=" + Math.random()
+  }else{
+    return ""
+  }
+});
+
+const nowPRecordImg2 = ref("");
+const nowPRecordImg2DL = computed(()=>{
+  if(nowPRecordImg2.value){
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value + "?t=" + Math.random()
+  }else{
+    return ""
+  }
+});
+
+const nowPRecordImg3 = ref("");
+const nowPRecordImg3DL = computed(()=>{
+  if(nowPRecordImg3.value){
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value + "?t=" + Math.random()
+  }else{
+    return ""
+  }
+});
+
+const nowPRecordObs = ref("");
+const nowPRecordObsDL = computed(()=>{
+  if(nowPRecordObs.value){
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordObs.value + "?t=" + Math.random()
+  }else{
+    return ""
+  }
+});
 
 //#endregion 參數==========End
 
@@ -381,11 +532,12 @@ const columns_gcp = [
   {title:"坐標E", data:"coor_E", defaultContent: "-"},
   {title:"坐標N", data:"coor_N", defaultContent: "-"},
   {title:"坐標h", data:"coor_h", defaultContent: "-"},
+  {title:"備註", data:"comment", defaultContent: "-"},
 ];
 const tboption_gcp = {
   dom: 'fti',
   select: {style: 'single',info: false},
-  order: [[1, 'desc']],
+  order: [[1, 'asc']],
   scrollY: 'calc(100vh - 18rem)',
   scrollX: true,
   lengthChange: false,
@@ -404,6 +556,259 @@ getRcordByPrjOnDone(result=>{
   notProssing2.value = true;
 });
 
+
+// 作業編號清單
+const { onResult: getAllPrjlist, refetch: refgetAllPrjlist } = useQuery(PrjGQL.GETALLPRJ);
+getAllPrjlist(result=>{
+  if(!result.loading && result.data.getAllPrj){
+    let recordPrjList=[];
+    result.data.getAllPrj.map(x => {
+      recordPrjList.push({ text: x.project_code, value: parseInt(x.id)});
+    }); 
+
+    recordPrjList.sort((a,b)=>{
+      return (a.text < b.text)?1:-1;
+    });recordPrjList.unshift({ text: "-未選取-", value: -1 });
+    nowPRecordPrjIdMU.value = recordPrjList;
+  }
+});
+refgetAllPrjlist();
+function nowPrjClose(e){
+  if(nowPRecordPrjId.value===-1){
+    nowPRecordPrjCode.value = ""  
+  }else{
+    nowPRecordPrjCode.value = document.querySelector('#PrjMGSelPrjId input').value;
+  }
+}
+
+// 查詢Record單筆紀錄
+const { mutate: getRecordById, onDone: getRecordByIdOnDone, onError: getRecordByIdError } = useMutation(GcpGQL.GETRECORDBYID);
+getRecordByIdOnDone(result=>{
+  if(result.data.getGcpRecordById){
+    // console.log("getRecordByIdOnDone")
+    let getData = result.data.getGcpRecordById;
+    let getBase = result.data.getGcpRecordById.gcp;
+    nowPRecordPtId.value = getData.gcp_id;
+    nowPRecordPrjId.value = getData.project_id;
+    nowPRecordPrjIdDOM.value.setValue(nowPRecordPrjId.value);
+
+    nowPRecordPrjCode.value = (getData.ref_project)?getData.ref_project.project_code:"";
+    nowPRecordDate.value = (getData.date)?(getData.date.split("T")[0]):" ";
+    nowPRecordPerson.value = getData.person;
+    nowPRecordPersonDOM.value.setValue(nowPRecordPerson.value);
+
+    nowPRecordPtStatus.value = getData.status;
+    nowPRecordPtStatusDOM.value.setValue(nowPRecordPtStatus.value);
+
+    nowPRecordE.value = getData.coor_E;
+    nowPRecordN.value = getData.coor_N;
+    nowPRecordh.value = getData.coor_h;
+    nowPRecordCom.value = getData.comment;
+    nowPRecordImg0.value = getData.close_photo;
+    nowPRecordImg1.value = getData.far_photo1;
+    nowPRecordImg2.value = getData.far_photo2;
+    nowPRecordImg3.value = getData.far_photo3;
+    nowPRecordObs.value = getData.obstruction; //透空圖
+
+    // 基本資料
+    nowGcpEnable.value = (getBase.enable===1)?true:false;
+    nowGcpTypeCode.value = getBase.type_code;
+    nowGcpTypeCodeDOM.value.setValue(nowGcpTypeCode.value);
+    nowGcpOwnerShip.value = getBase.ownership;
+    nowGcpOwnerShipDOM.value.setValue(nowGcpOwnerShip.value);
+    nowGcpEstablishment.value = getBase.establishment;
+    nowGcpEstDate.value = getBase.Est_date;
+    nowGcpPavement.value = getBase.pavement;
+    nowGcpPavementDOM.value.setValue(nowGcpPavement.value);
+    nowGcpStyle.value = getBase.style;
+    nowGcpStyleDOM.value.setValue(nowGcpStyle.value);
+    nowGcpSimage.value = getBase.aerial_img;
+    nowGcpComment.value = getBase.comment;
+    nowGcpDespImg.value = getBase.pt_map;
+    nowGcpDespStr.value = getBase.pt_desc;
+    nowGcpNeedContact.value = (getBase.need_contact===1)?true:false;
+    nowGcpContactId.value = getBase.contact_id;
+    nowGcpContactDOM.value.setValue(nowGcpContactId.value);
+    if(getBase.gcp_contact){
+      nowGcpContactAds.value = getBase.gcp_contact.address;
+      nowGcpContactPrs.value = getBase.gcp_contact.person;
+      nowGcpContactTel.value = getBase.gcp_contact.tel;
+      nowGcpContactCom.value = getBase.gcp_contact.comment;
+    }else{
+      nowGcpContactAds.value = "";
+      nowGcpContactPrs.value = "";
+      nowGcpContactTel.value = "";
+      nowGcpContactCom.value = "";
+    }
+
+    updateKey2.value=updateKey2.value+1;
+  }
+});
+
+// 新增
+function newPRecordBtn(){
+  // 基本資料
+  nowGcpEnable.value = true;
+  nowGcpTypeCode.value = -1;
+  nowGcpTypeCodeDOM.value.setValue(nowGcpTypeCode.value);
+  nowGcpOwnerShip.value = "-1";
+  nowGcpOwnerShipDOM.value.setValue(nowGcpOwnerShip.value);
+  nowGcpEstablishment.value = "";
+  nowGcpEstDate.value = "";
+  nowGcpPavement.value = "-1";
+  nowGcpPavementDOM.value.setValue(nowGcpPavement.value);
+  nowGcpStyle.value = "-1";
+  nowGcpStyleDOM.value.setValue(nowGcpStyle.value);
+  nowGcpDespStr.value = "";
+  nowGcpDespImg.value = "";
+  nowGcpSimage.value = "";
+  nowGcpNeedContact.value = false;
+  nowGcpContactId.value = -1;
+  nowGcpContactDOM.value.setValue(nowGcpContactId.value);
+  nowGcpComment.value = "";
+  nowGcpContactAds.value = "";
+  nowGcpContactPrs.value = "";
+  nowGcpContactTel.value = "";
+  nowGcpContactCom.value = "";
+
+  // 紀錄資料
+  nowPRecordId.value = "";
+  nowPRecordPtId.value = "";
+  nowPRecordPrjId.value = parseInt(nowPrjId.value);
+  nowPRecordPrjIdDOM.value.setValue(nowPRecordPrjId.value);
+  nowPRecordPrjCode.value = "";
+  nowPRecordDate.value = " ";
+  nowPRecordPerson.value = "";
+  nowPRecordPersonDOM.value.setValue(-1);
+  nowPRecordPtStatus.value = "";
+  nowPRecordPtStatusDOM.value.setValue(-1);
+  nowPRecordE.value = "";
+  nowPRecordN.value = "";
+  nowPRecordh.value = "";
+  nowPRecordCom.value = "";
+  nowPRecordImg0.value = "";
+  nowPRecordImg1.value = "";
+  nowPRecordImg2.value = "";
+  nowPRecordImg3.value = "";
+  nowPRecordObs.value = "";
+
+  dt_gcp.value.rows().deselect();
+}
+
+// 儲存
+const { mutate: saveGcp, onDone: saveGcpOnDone, onError: saveGcpError } = useMutation(GcpGQL.UPDATEGCP);
+const { mutate: saveGcpContact, onDone: saveGcpContactOnDone, onError: saveGcpContactError } = useMutation(GcpGQL.UPDATEGCPCONTACT);
+const { mutate: saveGcpRecord, onDone: saveGcpRecordOnDone, onError: saveGcpRecordError } = useMutation(GcpGQL.UPDATEGCPRECORD);
+
+function saveGcpRecordBtn(){
+  // 點號 作業編號 為必要
+  if(nowPRecordPtId.value && nowPRecordPrjId.value && parseInt(nowPRecordPrjId).value!==-1){
+    let result = saveGcpContact({
+      updateGcpContactId: nowGcpContactId.value,
+      name: document.querySelector('#contactSelectDOM div input').value,
+      address: nowGcpContactAds.value,
+      person: nowGcpContactPrs.value,
+      tel: nowGcpContactTel.value,
+      comment: nowGcpContactCom.value,
+    }).then(res=>{
+      return saveGcp({
+        updateGcpId: (nowPRecordPtId.value)?nowPRecordPtId.value:'-1',
+        enable: (nowGcpEnable.value)?1:0,
+        typeCode: (nowGcpTypeCode.value && nowGcpTypeCode.value!==-1)?parseInt(nowGcpTypeCode.value):null,
+        ownership: nowGcpOwnerShip.value,
+        establishment: nowGcpEstablishment.value,
+        estDate: parseInt(nowGcpEstDate.value),
+        pavement: (nowGcpPavement.value && nowGcpPavement.value!=='-1')?nowGcpPavement.value:null,
+        style: (nowGcpStyle.value && nowGcpStyle.value!=='-1')?nowGcpStyle.value:null,
+        ptDesc: nowGcpDespStr.value,
+        ptMap: nowGcpDespImg.value,
+        aerialImg: nowGcpSimage.value,
+        needContact: (nowGcpNeedContact.value)?1:0,
+        contactId: (nowGcpContactId.value && nowGcpContactId.value!==-1)?parseInt(nowGcpContactId.value):null,
+        comment: nowGcpComment.value,
+      })
+    }).then(res=>{
+      return saveGcpRecord({
+        updateGcpRecordId: (parseInt(nowPRecordId.value))?parseInt(nowPRecordId.value):-1,
+        gcpId: (nowPRecordPtId.value)?nowPRecordPtId.value:null,
+        projectId: (parseInt(nowPRecordPrjId.value) && parseInt(nowPRecordPrjId.value)!==-1)?parseInt(nowPRecordPrjId.value):null,
+        date: (nowPRecordDate.value.trim() === "")? null: nowPRecordDate.value.trim() + "T00:00:00.000Z",
+        person: (nowPRecordPerson.value && nowPRecordPerson.value!==-1)?nowPRecordPerson.value:"",
+        status: (nowPRecordPtStatus.value && nowPRecordPtStatus.value!==-1)?nowPRecordPtStatus.value:null,
+        coorE: (parseFloat(nowPRecordE.value))?parseFloat(nowPRecordE.value):null,
+        coorN: (parseFloat(nowPRecordN.value))?parseFloat(nowPRecordN.value):null,
+        coorH: (parseFloat(nowPRecordh.value))?parseFloat(nowPRecordh.value):null,
+        closePhoto: nowPRecordImg0.value,
+        farPhoto1: nowPRecordImg1.value,
+        farPhoto2: nowPRecordImg2.value,
+        farPhoto3: nowPRecordImg3.value,
+        obstruction: nowPRecordObs.value,
+        comment: nowPRecordCom.value,
+      })
+    }).then(res=>{
+      // 更新列表
+      notProssing2.value = false;
+      return getRcordByPrj({projectId: parseInt(nowPrjId.value)});
+    });
+
+    // infomsg.value = "點位 " + result.data.updateGcpRecord.gcp_id + "紀錄儲存完畢"
+  }
+}
+
+// 刪除
+function delGcpRecordBtn(){
+
+}
+
+// 類別清單
+const { onResult: getGcpType, refetch: refgetGcpType } = useQuery(GcpGQL.GETGCPTYPE);
+getGcpType(result=>{
+  if(!result.loading && result.data.getGcpType){
+    nowGcpTypeCodeMU.value = result.data.getGcpType.map(x => {
+      return { text: x.type_name, value: parseInt(x.code) }
+    });nowGcpTypeCodeMU.value.unshift({ text: "-未選取-", value: -1 });
+  }
+});
+refgetGcpType();
+
+// 清查人員清單
+const { mutate: getRecPerson, onDone: getRecPersonOnDone, onError: getRecPersonError } = useMutation(GcpGQL.GETRECPERSON);
+getRecPersonOnDone(result=>{
+  let getData = result.data.getAllRecPersonList;
+  nowPRecordPersonMU.value = getData.map(x => {
+      return { text: x, value: x }
+    });nowPRecordPersonMU.value.unshift({ text: "-未選取-", value: -1 });
+});
+getRecPerson();
+function updateRecPerson(){
+  let newoption = nowPRecordPerson.value;
+  let findid = nowPRecordPersonMU.value.findIndex(x => x.value===newoption);
+  if(findid===-1){
+    nowPRecordPersonMU.value.push({text: newoption, value: newoption})
+    nowPRecordPersonDOM.value.setValue(newoption);
+  }
+}
+
+// 聯絡機關清單
+const { onResult: getAllContact, refetch: refgetAllContact } = useQuery(GcpGQL.GETALLCONTACT);
+getAllContact(result=>{
+  if(!result.loading && result.data.getAllContact){
+    // 資料區
+    nowGcpContactMU.value = result.data.getAllContact.map(x => {
+      return { text: x.name, value: parseInt(x.id) }
+    });nowGcpContactMU.value.unshift({ text: "-未選取-", value: -1 });
+  }
+});
+refgetAllContact();
+function updateContact(){
+  // let newoption = nowGcpContactId.value;
+  // let findid = nowGcpContactMU.value.findIndex(x => x.value===newoption);
+  if(nowGcpContactName.value!==""){
+    nowGcpContactMU.value.push({text: nowGcpContactName.value, value: -2})
+    nowGcpContactDOM.value.setValue(-2);
+    nowGcpContactName.value = "";
+  }
+}
 //#endregion 參考值管理==========End
 
 //#region 點位狀態顯示樣式
@@ -438,6 +843,21 @@ function statusRender(data,type,row){
   return "<span class='" + classn +"'>" + markicon + data + "</span>"
 }
 //#endregion 點位狀態顯示樣式
+
+// 收合資料
+const baseShow = ref(false);
+const recordShow = ref(true);
+function collapseDIV(e, src){
+  // console.log(e);
+  switch (src){
+    case 'baseclick':
+      baseShow.value = !baseShow.value;
+      break;
+    case 'recordclick':
+      recordShow.value = !recordShow.value;
+      break;
+  }
+}
 
 //#region 檔案上傳==========Start
 const uploadType = ref("");
@@ -500,37 +920,37 @@ async function uploadChenge(e) {
       break;
     case "GcpSimage":
       subpath = "04_GCP/Pt"
-      newName = nowGcpId.value + "-A" + subExt;
+      newName = nowPRecordPtId.value + "-A" + subExt;
       isUpload = true;
       break;
     case "GcpDespImg":
       subpath = "04_GCP/Pt"
-      newName = nowGcpId.value + "-B" + subExt;
+      newName = nowPRecordPtId.value + "-B" + subExt;
       isUpload = true;
       break;
     case "PRecordImg0":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
-      newName = nowGcpId.value + "-1" + subExt;
+      newName = nowPRecordPtId.value + "-1" + subExt;
       isUpload = true;
       break;
     case "PRecordImg1":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
-      newName = nowGcpId.value + "-2" + subExt;
+      newName = nowPRecordPtId.value + "-2" + subExt;
       isUpload = true;
       break;
     case "PRecordImg2":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
-      newName = nowGcpId.value + "-3" + subExt;
+      newName = nowPRecordPtId.value + "-3" + subExt;
       isUpload = true;
       break;
     case "PRecordImg3":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
-      newName = nowGcpId.value + "-4" + subExt;
+      newName = nowPRecordPtId.value + "-4" + subExt;
       isUpload = true;
       break;
     case "PRecordImgObs":
       subpath = "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value;
-      newName = nowGcpId.value + "-C" + subExt;
+      newName = nowPRecordPtId.value + "-C" + subExt;
       isUpload = true;
       break;
   }
@@ -617,10 +1037,13 @@ onMounted(function () {
   });
 
   dt_gcp.value = table_gcp.value.dt();
-  // dt_gcp.on('select', function (e, dt, type, indexes) {
-  //   nowPRecordId.value = dt.rows(indexes).data()[0].id;
-  //   getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
-  // });
+  dt_gcp.value.on('select', function (e, dt, type, indexes) {
+    // console.log("dt_gcp select")
+    nowPRecordId.value = dt.rows(indexes).data()[0].id;
+    getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
+    e.preventDefault();
+    e.stopPropagation();
+  });
 });
 
 </script>
@@ -728,7 +1151,317 @@ onMounted(function () {
                             style="font-size: smaller;" class="display w-100 compact" />
                         </MDBCol>
                         <MDBCol lg="7" class="h-100">
-                          表單
+                          <MDBRow>
+                            <MDBCol col="12" class="py-2 border-bottom">
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newPRecordBtn">新增</MDBBtn>
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveGcpRecordBtn">儲存</MDBBtn>
+                              <MDBPopconfirm :disabled="!rGroup[1] || !nowPRecordId" 
+                                class="btn-sm btn-danger me-auto" 
+                                message="刪除後無法恢復，確定刪除嗎？"
+                                cancelText="取消" confirmText="確定" 
+                                @confirm="delGcpRecordBtn">
+                                刪除
+                              </MDBPopconfirm>
+                            </MDBCol>
+                          </MDBRow>
+                          <!-- 參考值表單 -->
+                          <MDBRow :key="updateKey2" class="overflow-auto align-content-start mx-0" style="height: calc(100% - 3rem);">
+                            <MDBCol xl="12" class="mt-2">
+                              目前點號：<span class="text-info">{{nowPRecordPtId}} - {{nowPRecordId}}</span>
+                            </MDBCol>
+                            <!-- 基本資料 -->
+                            <MDBCol col="12" class="rounded-top-5 bg-info text-white" @click="collapseDIV($event,'baseclick')">
+                              基本資料
+                            </MDBCol>
+                            <MDBCol col="12" class="mb-2 pb-2 border rounded-bottom-5">
+                              <MDBRow v-show="baseShow">
+                                <MDBCol col="12" class="mt-2">
+                                  <MDBSwitch label="啟用" labelClass="fs-7" v-model="nowGcpEnable" />
+                                </MDBCol>
+                                <MDBCol md="6" xl="4" class="mt-2">
+                                  <MDBInput size="sm" type="text" label="點號" v-model="nowPRecordPtId" />
+                                </MDBCol>
+                                <MDBSelect size="sm" class="mt-2 col-md-6 col-xl-4" label="類別" v-model:options="nowGcpTypeCodeMU"
+                                  v-model:selected="nowGcpTypeCode" ref="nowGcpTypeCodeDOM" />
+                                <MDBSelect size="sm" class="mt-2 col-md-6 col-xl-4" label="周圍舖面" v-model:options="nowGcpPavementMU"
+                                  v-model:selected="nowGcpPavement" ref="nowGcpPavementDOM" />
+                                <MDBSelect size="sm" class="mt-2 col-md-6 col-xl-4" label="土地產權" v-model:options="nowGcpOwnerShipMU"
+                                  v-model:selected="nowGcpOwnerShip" ref="nowGcpOwnerShipDOM" />
+                                <MDBSelect size="sm" class="mt-2 col-md-6 col-xl-4" label="標心樣式" v-model:options="nowGcpStyleMU"
+                                  v-model:selected="nowGcpStyle" ref="nowGcpStyleDOM" />
+                                <MDBCol md="12" xl="8" class="mt-2">
+                                  <MDBInput size="sm" type="text" label="測設機關" v-model="nowGcpEstablishment" />
+                                </MDBCol>
+                                <MDBCol md="6" xl="4" class="mt-2">
+                                  <MDBInput size="sm" type="text" label="測設年月" v-model="nowGcpEstDate" />
+                                </MDBCol>
+                                <MDBCol col="12" class="mt-2">
+                                  <MDBTextarea size="sm" label="點位備註" rows="2" v-model="nowGcpComment" />
+                                </MDBCol>
+
+                                <!-- 航照圖及點之記 -->
+                                <MDBLightbox zoomLevel="0.25" style="height: 9.5rem;">
+                                  <MDBRow class="overflow-auto align-content-start h-100">
+                                    <!-- 航拍略圖 -->
+                                    <MDBCol xl="6">
+                                      <MDBRow>
+                                        <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                          <!-- 圖片 -->
+                                          <MDBLightboxItem 
+                                            id="GcpSimage"
+                                            :src="nowGcpSimageDL" 
+                                            :fullScreenSrc="nowGcpSimageDL"
+                                            onerror="this.src='nosrc.png'"
+                                            alt="航拍略圖" 
+                                            class="img-allfluid"
+                                            @drop.prevent="dropFile($event)"
+                                            @dragover.prevent="cancelDefault($event)"
+                                            @dragenter.prevent="cancelDefault($event)" />
+                                          <!-- 按鈕 -->
+                                          <div v-show="nowGcpSimage" class="imgtitle">{{nowGcpSimage}}</div>
+                                          <button v-show="nowGcpSimage" class="imgcancel btn p-0" @click.prevent="nowGcpSimage=''"></button>
+                                          <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                            <MDBBtn :disabled="!rGroup[1] || !nowPRecordPtId" size="sm" color="primary" @click.prevent="uploadBtn('GcpSimage')">上傳</MDBBtn>
+                                            <MDBBtn tag="a" :href="nowGcpSimageDL" download size="sm" color="secondary">下載</MDBBtn>
+                                          </div>
+                                        </MDBCol>
+                                      </MDBRow>
+                                    </MDBCol>
+                                    <!-- 點之記略圖 -->
+                                    <MDBCol xl="6">
+                                      <MDBRow>
+                                        <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                          <!-- 圖片 -->
+                                          <MDBLightboxItem 
+                                            id="GcpDespImg"
+                                            :src="nowGcpDespImgDL" 
+                                            :fullScreenSrc="nowGcpDespImgDL"
+                                            onerror="this.src='nosrc.png'"
+                                            alt="點之記略圖" 
+                                            class="img-allfluid"
+                                            @drop.prevent="dropFile($event)"
+                                            @dragover.prevent="cancelDefault($event)"
+                                            @dragenter.prevent="cancelDefault($event)" />
+                                          <!-- 按鈕 -->
+                                          <div v-show="nowGcpDespImg" class="imgtitle">{{nowGcpDespImg}}</div>
+                                          <button v-show="nowGcpDespImg" class="imgcancel btn p-0" @click.prevent="nowGcpDespImg=''"></button>
+                                          <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                            <MDBBtn :disabled="!rGroup[1] || !nowPRecordPtId" size="sm" color="primary" @click.prevent="uploadBtn('GcpDespImg')">上傳</MDBBtn>
+                                            <MDBBtn tag="a" :href="nowGcpDespImgDL" download size="sm" color="secondary">下載</MDBBtn>
+                                          </div>
+                                        </MDBCol>
+                                      </MDBRow>
+                                    </MDBCol>
+                                  </MDBRow>
+                                </MDBLightbox>
+                                <!-- 點之記說明 -->
+                                <MDBCol col="12" class="h-100">
+                                  <MDBTextarea size="sm" class="mt-2" label="點之記說明" rows="3" v-model="nowGcpDespStr" />
+                                </MDBCol>
+                                <!-- 聯絡機關 -->
+                                <MDBCol col="12" class="mt-2">
+                                  <MDBSwitch label="需聯絡" labelClass="fs-7" v-model="nowGcpNeedContact" />
+                                </MDBCol>
+                                <MDBSelect id="contactSelectDOM" size="sm" class="mt-2 col-12" 
+                                  label="機關名稱" 
+                                  v-model:options="nowGcpContactMU"
+                                  v-model:selected="nowGcpContactId" 
+                                  ref="nowGcpContactDOM" 
+                                  @close="updateContact()">
+                                  <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowGcpContactName" />
+                                </MDBSelect>
+
+                                <MDBCol col="12" class="mt-2">
+                                  <MDBInput size="sm" type="text" label="地址" v-model="nowGcpContactAds" />
+                                </MDBCol>
+                                <MDBCol md="6" class="mt-2">
+                                  <MDBInput size="sm" type="text" label="聯絡對象" v-model="nowGcpContactPrs" />
+                                </MDBCol>
+                                <MDBCol md="6" class="mt-2">
+                                  <MDBInput size="sm" type="text" label="聯絡電話" v-model="nowGcpContactTel" />
+                                </MDBCol>
+                                <MDBCol col="12" class="mt-2">
+                                  <MDBTextarea size="sm" label="聯絡備註" rows="2" v-model="nowGcpContactCom" />
+                                </MDBCol>
+                              </MDBRow>
+                            </MDBCol>
+                            <!-- 紀錄資料 -->
+                            <MDBCol col="12" class="rounded-top-5 bg-info text-white" @click="collapseDIV($event,'recordclick')">
+                              紀錄資料
+                            </MDBCol>
+                            <MDBCol col="12" class="mb-2 pb-2 border rounded-bottom-5">
+                              <MDBRow v-show="recordShow">
+                                <MDBCol md="6" xl="4" class="mt-2">
+                                  <MDBInput readonly size="sm" type="text" label="索引" v-model="nowPRecordId" />
+                                </MDBCol>
+                                <MDBSelect id="PrjMGSelPrjId" size="sm" class="mt-2 col-md-6 col-xl-4" label="作業編號" v-model:options="nowPRecordPrjIdMU"
+                                  v-model:selected="nowPRecordPrjId" ref="nowPRecordPrjIdDOM" @close="nowPrjClose($event)"/>
+                                <MDBCol md="6" xl="4" class="mt-2">
+                                  <MDBDatepicker size="sm" v-model="nowPRecordDate" format=" YYYY-MM-DD " label="紀錄日期"
+                                    ref="nowPRecordDateDOM" />
+                                </MDBCol>
+                                <MDBSelect filter size="sm" class="mt-2 col-md-6 col-xl-4" 
+                                  label="作業人員" 
+                                  v-model:options="nowPRecordPersonMU"
+                                  v-model:selected="nowPRecordPerson" 
+                                  ref="nowPRecordPersonDOM"
+                                  @close="updateRecPerson()">
+                                  <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowPRecordPerson" />
+                                </MDBSelect>
+                                <MDBSelect size="sm" class="mt-2 col-md-6 col-xl-4" label="點位狀況" v-model:options="nowPRecordPtStatusMU"
+                                  v-model:selected="nowPRecordPtStatus" ref="nowPRecordPtStatusDOM" />
+                                <div></div>
+                                <MDBCol md="6" xl="4" class="mt-2">
+                                  <MDBInput size="sm" type="text" label="E坐標" v-model="nowPRecordE" />
+                                </MDBCol>
+                                <MDBCol md="6" xl="4" class="mt-2">
+                                  <MDBInput size="sm" type="text" label="N坐標" v-model="nowPRecordN" />
+                                </MDBCol>
+                                <MDBCol md="6" xl="4" class="mt-2">
+                                  <MDBInput size="sm" type="text" label="h坐標" v-model="nowPRecordh" />
+                                </MDBCol>
+                                <MDBCol xl="12" class="mt-2">
+                                  <MDBInput readonly size="sm" type="text" v-model="nowPRecordCoor" />
+                                </MDBCol>
+                                <MDBCol col="12" class="mt-2">
+                                  <MDBTextarea size="sm" label="清查備註" rows="2" v-model="nowPRecordCom" />
+                                </MDBCol>
+                                <!-- 照片 -->
+                                <MDBLightbox zoomLevel="0.25" style="height: 19rem;">
+                                  <MDBRow class="overflow-auto align-content-start h-100">
+                                      <!-- 近照 -->
+                                      <MDBCol xl="6">
+                                        <MDBRow>
+                                          <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                            <!-- 圖片 -->
+                                            <MDBLightboxItem 
+                                              id="PRecordImg0"
+                                              :src="nowPRecordImg0DL" 
+                                              :fullScreenSrc="nowPRecordImg0DL"
+                                              onerror="this.src='nosrc.png'"
+                                              alt="近照" 
+                                              class="img-allfluid"
+                                              @drop.prevent="dropFile($event)"
+                                              @dragover.prevent="cancelDefault($event)"
+                                              @dragenter.prevent="cancelDefault($event)" />
+                                            <!-- 按鈕 -->
+                                            <div v-show="nowPRecordImg0" class="imgtitle">{{nowPRecordImg0}}</div>
+                                            <button v-show="nowPRecordImg0" class="imgcancel btn p-0" @click.prevent="nowPRecordImg0=''"></button>
+                                            <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                              <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg0')">上傳</MDBBtn>
+                                              <MDBBtn tag="a" :href="nowPRecordImg0DL" download size="sm" color="secondary">下載</MDBBtn>
+                                            </div>
+                                          </MDBCol>
+                                        </MDBRow>
+                                      </MDBCol>
+                                      <!-- 遠照1 -->
+                                      <MDBCol xl="6">
+                                        <MDBRow>
+                                          <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                            <!-- 圖片 -->
+                                            <MDBLightboxItem 
+                                              id="PRecordImg1"
+                                              :src="nowPRecordImg1DL" 
+                                              :fullScreenSrc="nowPRecordImg1DL"
+                                              onerror="this.src='nosrc.png'"
+                                              alt="遠照1" 
+                                              class="img-allfluid"
+                                              @drop.prevent="dropFile($event)"
+                                              @dragover.prevent="cancelDefault($event)"
+                                              @dragenter.prevent="cancelDefault($event)" />
+                                            <!-- 按鈕 -->
+                                            <div v-show="nowPRecordImg1" class="imgtitle">{{nowPRecordImg1}}</div>
+                                            <button v-show="nowPRecordImg1" class="imgcancel btn p-0" @click.prevent="nowPRecordImg1=''"></button>
+                                            <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                              <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg1')">上傳</MDBBtn>
+                                              <MDBBtn tag="a" :href="nowPRecordImg1DL" download size="sm" color="secondary">下載</MDBBtn>
+                                            </div>
+                                          </MDBCol>
+                                        </MDBRow>
+                                      </MDBCol>
+                                      <!-- 遠照2 -->
+                                      <MDBCol xl="6">
+                                        <MDBRow>
+                                          <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                            <!-- 圖片 -->
+                                            <MDBLightboxItem 
+                                              id="PRecordImg2"
+                                              :src="nowPRecordImg2DL" 
+                                              :fullScreenSrc="nowPRecordImg2DL"
+                                              onerror="this.src='nosrc.png'"
+                                              alt="遠照2" 
+                                              class="img-allfluid"
+                                              @drop.prevent="dropFile($event)"
+                                              @dragover.prevent="cancelDefault($event)"
+                                              @dragenter.prevent="cancelDefault($event)" />
+                                            <!-- 按鈕 -->
+                                            <div v-show="nowPRecordImg2" class="imgtitle">{{nowPRecordImg2}}</div>
+                                            <button v-show="nowPRecordImg2" class="imgcancel btn p-0" @click.prevent="nowPRecordImg2=''"></button>
+                                            <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                              <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg2')">上傳</MDBBtn>
+                                              <MDBBtn tag="a" :href="nowPRecordImg2DL" download size="sm" color="secondary">下載</MDBBtn>
+                                            </div>
+                                          </MDBCol>
+                                        </MDBRow>
+                                      </MDBCol>
+                                      <!-- 遠照3 -->
+                                      <MDBCol xl="6">
+                                        <MDBRow>
+                                          <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                            <!-- 圖片 -->
+                                            <MDBLightboxItem 
+                                              id="PRecordImg3"
+                                              :src="nowPRecordImg3DL" 
+                                              :fullScreenSrc="nowPRecordImg3DL"
+                                              onerror="this.src='nosrc.png'"
+                                              alt="遠照3" 
+                                              class="img-allfluid"
+                                              @drop.prevent="dropFile($event)"
+                                              @dragover.prevent="cancelDefault($event)"
+                                              @dragenter.prevent="cancelDefault($event)" />
+                                            <!-- 按鈕 -->
+                                            <div v-show="nowPRecordImg3" class="imgtitle">{{nowPRecordImg3}}</div>
+                                            <button v-show="nowPRecordImg3" class="imgcancel btn p-0" @click.prevent="nowPRecordImg3=''"></button>
+                                            <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                              <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg3')">上傳</MDBBtn>
+                                              <MDBBtn tag="a" :href="nowPRecordImg3DL" download size="sm" color="secondary">下載</MDBBtn>
+                                            </div>
+                                          </MDBCol>
+                                        </MDBRow>
+                                      </MDBCol>
+                                      <!-- 透空圖 -->
+                                      <MDBCol xl="6">
+                                        <MDBRow>
+                                          <MDBCol class="text-center mx-2 mt-2 p-0 overflow-hidden img-thumbnail lightboxImg" style="height: 8.75rem;position:relative;">
+                                            <!-- 圖片 -->
+                                            <MDBLightboxItem 
+                                              id="PRecordImgObs"
+                                              :src="nowPRecordObsDL" 
+                                              :fullScreenSrc="nowPRecordObsDL"
+                                              onerror="this.src='nosrc.png'"
+                                              alt="透空圖" 
+                                              class="img-allfluid"
+                                              @drop.prevent="dropFile($event)"
+                                              @dragover.prevent="cancelDefault($event)"
+                                              @dragenter.prevent="cancelDefault($event)" />
+                                            <!-- 按鈕 -->
+                                            <div v-show="nowPRecordObs" class="imgtitle">{{nowPRecordObs}}</div>
+                                            <button v-show="nowPRecordObs" class="imgcancel btn p-0" @click.prevent="nowPRecordObs=''"></button>
+                                            <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
+                                              <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImgObs')">上傳</MDBBtn>
+                                              <MDBBtn tag="a" :href="nowPRecordObsDL" download size="sm" color="secondary">下載</MDBBtn>
+                                            </div>
+                                          </MDBCol>
+                                        </MDBRow>
+                                      </MDBCol>
+
+                                  </MDBRow>
+                                </MDBLightbox>
+                              </MDBRow>
+                            </MDBCol>
+
+                          </MDBRow>
+
                         </MDBCol>
                       </MDBRow>                    
                     </MDBTabPane>
@@ -754,3 +1487,5 @@ onMounted(function () {
     </MDBRow>
   </MDBContainer>
 </template>
+<style>
+</style>

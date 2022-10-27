@@ -571,6 +571,24 @@ getAllTrain(result=>{
   }
 });
 
+function updateTrainName(){
+  let newoption = nowTrainName.value;
+  let findid = nowTrainNameMU.value.findIndex(x => x.value===newoption);
+  if(findid===-1){
+    nowTrainNameMU.value.push({text: newoption, value: newoption})
+    nowTrainNameDOM.value.setValue(newoption);
+  }
+}
+
+function updateTrainInstitution(){
+  let newoption = nowTrainInstitution.value;
+  let findid = nowTrainInstitutionMU.value.findIndex(x => x.value===newoption);
+  if(findid===-1){
+    nowTrainInstitutionMU.value.push({text: newoption, value: newoption})
+    nowTrainInstitutionDOM.value.setValue(newoption);
+  }
+}
+
 // Table 訓練列表==========End
 
 // Table 授權列表==========Start
@@ -751,7 +769,7 @@ function saveEmpowerBtn(){
   }
 }
 
-// 刪除訓練
+// 刪除授權
 const {
   mutate: delEmpower,
   onDone: delEmpowerOnDone,
@@ -1272,7 +1290,7 @@ refgetSupList();
                 </MDBCol>
                 <MDBCol col="12" class="overflow-auto" style="height: calc(100% - 4rem);">
                   <MDBRow>
-                    <MDBCol lg="6">
+                    <MDBCol xl="6">
                       <MDBRow>
                         <MDBCol md="4" class="mt-3">
                           <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="員工編號" v-model="nowEmpID" />
@@ -1412,21 +1430,23 @@ refgetSupList();
                                   </MDBCol>
                                   <div></div>
 
-                                  <MDBSelect filter :disabled="!rGroup[2]" size="sm" class="mt-3 col-md-12 notext" v-model:options="nowTrainNameMU"
-                                    v-model:selected="nowTrainName" ref="nowTrainNameDOM"/>
-                                  <MDBCol md="12" class="" style="position: relative ;">
-                                    <div style="position:absolute;top: -1.85rem;z-index=10;width: calc(100% - 3.25rem);">
-                                      <MDBInput :disabled="!rGroup[2]" class="noborder" required size="sm" type="text" label="訓練名稱" v-model="nowTrainName"/>
-                                    </div>
-                                  </MDBCol>
-                                  
-                                  <MDBSelect filter :disabled="!rGroup[2]" size="sm" class="mt-3 col-md-12 notext" v-model:options="nowTrainInstitutionMU"
-                                    v-model:selected="nowTrainInstitution" ref="nowTrainInstitutionDOM"/>
-                                  <MDBCol md="12" class="" style="position: relative ;">
-                                    <div style="position:absolute;top: -1.85rem;z-index=10;width: calc(100% - 3.25rem);">
-                                      <MDBInput :disabled="!rGroup[2]" class="noborder" required size="sm" type="text" label="開課單位" v-model="nowTrainInstitution" />
-                                    </div>
-                                  </MDBCol>
+                                  <MDBSelect filter :disabled="!rGroup[2]" size="sm" class="mt-3 col-xl-12" 
+                                    label="課程名稱" 
+                                    v-model:options="nowTrainNameMU"
+                                    v-model:selected="nowTrainName" 
+                                    ref="nowTrainNameDOM"
+                                    @close="updateTrainName()">
+                                    <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowTrainName" />
+                                  </MDBSelect>
+
+                                  <MDBSelect filter :disabled="!rGroup[2]" size="sm" class="mt-3 col-xl-12" 
+                                    label="開課單位" 
+                                    v-model:options="nowTrainInstitutionMU"
+                                    v-model:selected="nowTrainInstitution" 
+                                    ref="nowTrainInstitutionDOM"
+                                    @close="updateTrainInstitution()">
+                                    <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowTrainInstitution" />
+                                  </MDBSelect>
 
                                   <MDBCol md="6" class="mt-3">
                                     <MDBDatepicker required size="sm" v-model="nowTrainEndDate" format="YYYY-MM-DD" label="結訓日期"
@@ -1683,11 +1703,4 @@ tr.selected>td>span.typeJ {
   color: white;
 }
 
-div.notext input,div.notext input.select-input.focused{
-  color:rgba(0, 0, 0, 0)
-}
-
-input.noborder~div.form-notch div.form-notch-leading,input.noborder~div.form-notch div.form-notch-middle,input.noborder~div.form-notch div.form-notch-trailing{
-  border: none;
-}
 </style>

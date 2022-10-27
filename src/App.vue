@@ -19,6 +19,16 @@ import { ref, provide, inject } from "vue";
 const publicPath = ref(import.meta.env.VITE_GRAPHQL_PUBLIC);
 provide("publicPath", publicPath);
 
+const ptStatusMU = JSON.stringify([
+  {text: "-未選取-", value: -1},
+  {text: "正常", value: "正常"},
+  {text: "遺失", value: "遺失"},
+  {text: "損毀", value: "損毀"},
+  {text: "不適用", value: "不適用"},
+  {text: "停用", value: "停用"},
+]);
+provide("ptStatusMU", ptStatusMU);
+
 </script>
 
 <template>
@@ -120,5 +130,63 @@ tr.selected>td>span.typeJ {
 div.dataTables_filter {
   padding-top: 0.85em;
 }
+.img-allfluid{
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
 
+.lightboxImg .imgtitle,.lightboxImg .imgcancel,.lightboxImg button,.lightboxImg a{
+  opacity: 0.8;
+}
+
+.imgtitle{
+  position: absolute; 
+  top: 0; 
+  left: 0.2rem;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.6);
+  height: 1.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.5rem;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+.imgcancel{
+  position: absolute; 
+  top: 0; 
+  right: 0.2rem;
+  background-color: rgba(255, 0, 0, 0.8);
+  width: 1.5rem;
+  height: 1.5rem;
+  text-align: center;
+}
+.imgcancel::before{
+  content: "\2716";
+  color: white;
+}
+
+.datatable tbody tr:last-child {
+  border-bottom: rgba(0,0,0,0);
+  height: auto;
+}
+.rounded-top-5 {
+  border-top-right-radius: 0.5rem !important;
+  border-top-left-radius: 0.5rem !important;
+}
+
+.rounded-top-7 {
+  border-top-right-radius: 1rem !important;
+  border-top-left-radius: 1rem !important;
+}
+
+.rounded-bottom-5 {
+  border-bottom-right-radius: 0.5rem !important;
+  border-bottom-left-radius: 0.5rem !important;
+}
+
+.rounded-bottom-7 {
+  border-bottom-right-radius: 1rem !important;
+  border-bottom-left-radius: 1rem !important;
+}
 </style>

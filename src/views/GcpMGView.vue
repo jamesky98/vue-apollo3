@@ -128,7 +128,7 @@ const selGcpEnableMU = ref([]);
 const selGcpEnableDOM = ref();
 
 const selGcpStatus = ref("");
-const selGcpStatusMU = ref([]);
+const selGcpStatusMU = ref(JSON.parse(inject('ptStatusMU')));
 const selGcpStatusDOM = ref();
 
 const selGcpContact = ref("");
@@ -148,6 +148,7 @@ const nowSelParams = computed(()=>{
 });
 // select over
 
+// 基本資料
 const nowGcpId = ref("");
 const nowGcpRecordId = ref("");
 const nowGcpEnable = ref(true);
@@ -235,14 +236,7 @@ const nowPRecordPersonMU = ref([]);
 const nowPRecordPersonDOM = ref();
 
 const nowPRecordPtStatus = ref("");
-const nowPRecordPtStatusMU = ref([
-  {text: "-未選取-", value: -1},
-  {text: "正常", value: "正常"},
-  {text: "遺失", value: "遺失"},
-  {text: "損毀", value: "損毀"},
-  {text: "不適用", value: "不適用"},
-  {text: "停用", value: "停用"},
-]);
+const nowPRecordPtStatusMU = ref(JSON.parse(inject('ptStatusMU')));
 const nowPRecordPtStatusDOM = ref();
 
 const nowPRecordE = ref("");
@@ -250,7 +244,7 @@ const nowPRecordN = ref("");
 const nowPRecordh = ref("");
 const nowPRecordCoor = computed(()=>{
   if(nowPRecordE.value && nowPRecordN.value && nowPRecordh.value){
-    return parseFloat(nowPRecordE.value).toFixed(3) + "," + parseFloat(nowPRecordN.value).toFixed(3) + "," + parseFloat(nowPRecordh.value).toFixed(3);
+    return parseFloat(nowPRecordE.value).toFixed(3) + ", " + parseFloat(nowPRecordN.value).toFixed(3) + ", " + parseFloat(nowPRecordh.value).toFixed(3);
   }else{
     return ""
   }
@@ -339,15 +333,6 @@ selGcpEnableMU.value = [
   {text: "-未選取-", value: -1},
   {text: "啟用", value: 1},
   {text: "未啟用", value: 0},
-];
-// 點位狀態清單
-selGcpStatusMU.value = [
-  {text: "-未選取-", value: -1},
-  {text: "正常", value: "正常"},
-  {text: "遺失", value: "遺失"},
-  {text: "損毀", value: "損毀"},
-  {text: "不適用", value: "不適用"},
-  {text: "停用", value: "停用"},
 ];
 // 聯絡機關清單
 const { onResult: getAllContact, refetch: refgetAllContact } = useQuery(GcpGQL.GETALLCONTACT);
@@ -612,7 +597,9 @@ function newGcpBtn(){
   nowGcpTypeCode.value = -1;
   nowGcpTypeCodeDOM.value.setValue(nowGcpTypeCode.value);
 
-  nowGcpOwnerShip.value = "";
+  nowGcpOwnerShip.value = "-1";
+  nowGcpOwnerShipDOM.value.setValue(nowGcpOwnerShip.value);
+
   nowGcpEstablishment.value = "";
   nowGcpEstDate.value = "";
 
@@ -787,7 +774,11 @@ function delGcpRecordBtn(){
 
 // 作業編號下拉式選取
 function nowPrjClose(e){
-  nowPRecordPrjCode.value = nowPRecordPrjIdDOM.value.inputValue;
+  if(nowPRecordPrjId.value===-1){
+    nowPRecordPrjCode.value = ""  
+  }else{
+    nowPRecordPrjCode.value = document.querySelector('#GCPMGSelPrjId input').value;
+  }
 }
 
 //#endregion 歷年量測列表==========End
@@ -1321,7 +1312,7 @@ function testfun(){
                               <MDBCol xl="6" class="mt-2">
                                 <MDBInput readonly size="sm" type="text" label="點號" v-model="nowPRecordPtId" />
                               </MDBCol>
-                              <MDBSelect size="sm" class="mt-2 col-xl-6" label="作業編號" v-model:options="nowPRecordPrjIdMU"
+                              <MDBSelect id="GCPMGSelPrjId" size="sm" class="mt-2 col-xl-6" label="作業編號" v-model:options="nowPRecordPrjIdMU"
                                 v-model:selected="nowPRecordPrjId" ref="nowPRecordPrjIdDOM" @close="nowPrjClose($event)"/>
                               <MDBCol xl="6" class="mt-2">
                                 <MDBDatepicker size="sm" v-model="nowPRecordDate" format=" YYYY-MM-DD " label="紀錄日期"
@@ -1545,41 +1536,6 @@ function testfun(){
   font-size: 0.8rem;
 }
 
-.img-allfluid{
-  height: auto;
-  max-width: 100%;
-  max-height: 100%;
-}
-
-.lightboxImg .imgtitle,.lightboxImg .imgcancel,.lightboxImg button,.lightboxImg a{
-  opacity: 0.8;
-}
-
-.imgtitle{
-  position: absolute; 
-  top: 0; 
-  left: 0.2rem;
-  color: white;
-  background-color: rgba(0, 0, 0, 0.6);
-  height: 1.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.5rem;
-  padding-left: 0.2rem;
-  padding-right: 0.2rem;
-}
-.imgcancel{
-  position: absolute; 
-  top: 0; 
-  right: 0.2rem;
-  background-color: rgba(255, 0, 0, 0.8);
-  width: 1.5rem;
-  height: 1.5rem;
-  text-align: center;
-}
-.imgcancel::before{
-  content: "\2716";
-  color: white;
-}
 .gcptools{
   position: absolute;
   right: 0.5rem;

@@ -827,30 +827,6 @@ testUcOnDone(result=>{
   </MDBContainer>
 </template>
 <style>
-.datatable tbody tr:last-child {
-  border-bottom: rgba(0,0,0,0);
-  height: auto;
-}
-.rounded-top-5 {
-  border-top-right-radius: 0.5rem !important;
-  border-top-left-radius: 0.5rem !important;
-}
-
-.rounded-top-7 {
-  border-top-right-radius: 1rem !important;
-  border-top-left-radius: 1rem !important;
-}
-
-.rounded-bottom-5 {
-  border-bottom-right-radius: 0.5rem !important;
-  border-bottom-left-radius: 0.5rem !important;
-}
-
-.rounded-bottom-7 {
-  border-bottom-right-radius: 1rem !important;
-  border-bottom-left-radius: 1rem !important;
-}
-
 .addParamBtn{
   width: 100%;
   line-height: 0.5;
