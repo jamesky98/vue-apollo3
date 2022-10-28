@@ -50,6 +50,34 @@ const GETPRJBYID = gql`
       start_date
       end_date
       publish_date
+      ref_use_eqpt {
+        id
+        project_id
+        eqpt_check_id
+        ref_eqpt_check {
+          eq_ck_id
+          ref_eqpt_id
+          ref_eqpt {
+            serial_number
+            chop
+            model
+            type
+            cal_cycle
+            comment
+            ref_eqpt_type {
+              type
+            }
+          }
+          chek_type
+          check_date
+          report_id
+          cal_org
+          cal_org_id
+          pass
+          result
+          comment
+        }
+      }
     }
   }
 `;

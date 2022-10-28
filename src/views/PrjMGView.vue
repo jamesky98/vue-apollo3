@@ -106,6 +106,7 @@ const alertColor = ref("primary");
 const activeTabId1 = ref("gcp_mg");
 const notProssing = ref(false);
 const notProssing2 = ref(true);
+const notProssing3 = ref(true);
 
 const updateKey = ref(0);
 const updateKey2 = ref(0);
@@ -379,6 +380,11 @@ getPrjById(result=>{
     nowPrjStartDate.value = (getData.start_date)?(getData.start_date.split("T")[0]):" ";
     nowPrjEndDate.value = (getData.end_date)?(getData.end_date.split("T")[0]):" ";
     nowPrjPublishDate.value = (getData.publish_date)?(getData.publish_date.split("T")[0]):" ";
+
+    let getEqpt = result.data.getPrjById.ref_use_eqpt;
+    if(getEqpt){
+      data_eqpt.value = getEqpt;
+    }
   }
 });
 refgetPrjById();
@@ -747,6 +753,7 @@ function saveGcpRecordBtn(){
       })
     }).then(res=>{
       // 更新列表
+      infomsg.value = "點位 " + res.data.updateGcpRecord.gcp_id + "紀錄儲存完畢"
       notProssing2.value = false;
       return getRcordByPrj({projectId: parseInt(nowPrjId.value)});
     });
@@ -756,8 +763,17 @@ function saveGcpRecordBtn(){
 }
 
 // 刪除
+const { mutate: delGcpRecord, onDone: delGcpRecordOnDone, onError: delGcpRecordError } = useMutation(
+  GcpGQL.DELGCPRECORD);
+delGcpRecordOnDone(result=>{
+  infomsg.value = "點位 " + result.data.delGcpRecord.gcp_id + "紀錄刪除完畢"
+});
 function delGcpRecordBtn(){
-
+  delGcpRecord({
+    delGcpRecordId: parseInt(nowPRecordId.value)
+  }).then(res=>{
+    return getRcordByPrj({projectId: parseInt(nowPrjId.value)});
+  });
 }
 
 // 類別清單
@@ -844,7 +860,41 @@ function statusRender(data,type,row){
 }
 //#endregion 點位狀態顯示樣式
 
-// 收合資料
+//#region 標準件管理==========End
+const dt_eqpt = ref();
+const table_eqpt = ref(); 
+const data_eqpt = ref([]);
+const columns_eqpt = [
+  {title:"索引", data:"id", defaultContent: "-", visible: false},
+  {title:"查核索引", data:"eqpt_check_id", defaultContent: "-"},
+  {title:"儀器類別", data:"ref_eqpt_check.ref_eqpt.ref_eqpt_type.type", defaultContent: "-"},
+  {title:"廠牌", data:"status", defaultContent: "-"},
+  {title:"型號", data:"person", defaultContent: "-"},
+  {title:"序號", data:"person", defaultContent: "-"},
+  {title:"報告編號", data:"person", defaultContent: "-"},
+  {title:"校正日", data:"date", defaultContent: "-", render: (data) => {
+      return toTWDate(data);}},
+  {title:"校正機關", data:"comment", defaultContent: "-"},
+];
+const tboption_eqpt = {
+  dom: 'fti',
+  select: {style: 'single',info: false},
+  order: [[1, 'asc']],
+  scrollY: 'calc(100vh - 18rem)',
+  scrollX: true,
+  lengthChange: false,
+  searching: true,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  },
+};
+
+
+//#endregion 標準件管理==========End
+
+//#region 收合資料
 const baseShow = ref(false);
 const recordShow = ref(true);
 function collapseDIV(e, src){
@@ -858,6 +908,7 @@ function collapseDIV(e, src){
       break;
   }
 }
+//#endregion 收合資料
 
 //#region 檔案上傳==========Start
 const uploadType = ref("");
@@ -1143,6 +1194,7 @@ onMounted(function () {
                     <!-- 參考值管理 -->
                     <MDBTabPane tabId="gcp_mg" class="h-100">
                       <MDBRow class="h-100">
+                        <!-- 列表 -->
                         <MDBCol lg="5" class="h-100 border-end" style="position:relative ;">
                           <div :class="{ 'hiddenSpinner': notProssing2}" style="position: absolute; left: 50%; top: 10rem;">
                             <MDBSpinner size="md" color="primary" />Loading...
@@ -1150,6 +1202,7 @@ onMounted(function () {
                           <DataTable :data="data_gcp" :columns="columns_gcp" :options="tboption_gcp" ref="table_gcp"
                             style="font-size: smaller;" class="display w-100 compact" />
                         </MDBCol>
+                        <!-- 表單 -->
                         <MDBCol lg="7" class="h-100">
                           <MDBRow>
                             <MDBCol col="12" class="py-2 border-bottom">
@@ -1468,9 +1521,25 @@ onMounted(function () {
                     <!-- 標準件管理 -->
                     <MDBTabPane tabId="item_mg" class="h-100">
                       <MDBRow class="h-100">
+                        <!-- 列表 -->
                         <MDBCol lg="5" class="h-100 border-end">
-                          列表
+                          <!-- 功能列 -->
+                          <MDBRow>
+                            <MDBCol col="12" class="py-2 border-bottom">
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newPRecordBtn">新增</MDBBtn>
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveGcpRecordBtn">儲存</MDBBtn>
+                            </MDBCol>
+                          </MDBRow>
+                          <MDBRow class="overflow-auto align-content-start mx-0" style="position:relative; height: fcalc(100% - 3rem);">
+                            <div :class="{ 'hiddenSpinner': notProssing3}" style="position: absolute; left: 50%; top: 10rem;">
+                              <MDBSpinner size="md" color="primary" />Loading...
+                            </div>
+                            <DataTable :data="data_eqpt" :columns="columns_eqpt" :options="tboption_eqpt" ref="table_eqpt"
+                              style="font-size: smaller;" class="display w-100 compact" />
+                          
+                          </MDBRow>
                         </MDBCol>
+                        <!-- 表單 -->
                         <MDBCol lg="7" class="h-100">
                           表單
                         </MDBCol> 
