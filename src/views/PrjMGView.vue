@@ -110,6 +110,7 @@ const notProssing3 = ref(true);
 
 const updateKey = ref(0);
 const updateKey2 = ref(0);
+const updateKey3 = ref(0);
 
 const nowPrjId = ref("");
 const nowPrjCode = ref("");
@@ -288,6 +289,12 @@ const nowPRecordObsDL = computed(()=>{
     return ""
   }
 });
+
+// 標準件
+const nowEqptType = ref("");
+const nowEqptTypeMU = ref([]);
+const nowEqptTypeDOM = ref();
+
 
 //#endregion 參數==========End
 
@@ -866,21 +873,29 @@ const table_eqpt = ref();
 const data_eqpt = ref([]);
 const columns_eqpt = [
   {title:"索引", data:"id", defaultContent: "-", visible: false},
-  {title:"查核索引", data:"eqpt_check_id", defaultContent: "-"},
+  {title:"查核紀錄", data:"eqpt_check_id", defaultContent: "-"},
   {title:"儀器類別", data:"ref_eqpt_check.ref_eqpt.ref_eqpt_type.type", defaultContent: "-"},
-  {title:"廠牌", data:"status", defaultContent: "-"},
-  {title:"型號", data:"person", defaultContent: "-"},
-  {title:"序號", data:"person", defaultContent: "-"},
-  {title:"報告編號", data:"person", defaultContent: "-"},
-  {title:"校正日", data:"date", defaultContent: "-", render: (data) => {
+  {title:"廠牌", data:"ref_eqpt_check.ref_eqpt.chop", defaultContent: "-"},
+  {title:"型號", data:"ref_eqpt_check.ref_eqpt.model", defaultContent: "-"},
+  {title:"序號", data:"ref_eqpt_check.ref_eqpt.serial_number", defaultContent: "-"},
+  {title:"報告編號", data:"ref_eqpt_check.report_id", defaultContent: "-"},
+  {title:"校正日", data:"ref_eqpt_check.check_date", defaultContent: "-", render: (data) => {
       return toTWDate(data);}},
-  {title:"校正機關", data:"comment", defaultContent: "-"},
+  {title:"校正機關", data:"ref_eqpt_check.cal_org", defaultContent: "-"},
+  {title:"已儲存", data:"saved", defaultContent: "-", render: (data, type, row, meta) => {
+    let myrow = dt_eqpt.value.row(meta.row).node();
+    if(data){
+      myrow.classList.remove("unsaved");
+    }else{
+      myrow.classList.add("unsaved");
+    }
+    return data}},
 ];
 const tboption_eqpt = {
   dom: 'fti',
   select: {style: 'single',info: false},
-  order: [[1, 'asc']],
-  scrollY: 'calc(100vh - 18rem)',
+  order: [[6, 'asc']],
+  scrollY: 'calc(100vh - 21rem)',
   scrollX: true,
   lengthChange: false,
   searching: true,
@@ -891,8 +906,84 @@ const tboption_eqpt = {
   },
 };
 
+const dt_eqpt2 = ref();
+const table_eqpt2 = ref(); 
+const data_eqpt2 = ref([]);
+const columns_eqpt2 = [
+  {title:"有效", data:"id", defaultContent: "-"},  
+  {title:"索引", data:"id", defaultContent: "-", visible: false},
+  {title:"儀器類別", data:"ref_eqpt_type.type", defaultContent: "-"},
+  {title:"廠牌", data:"chop", defaultContent: "-"},
+  {title:"型號", data:"model", defaultContent: "-"},
+  {title:"序號", data:"serial_number", defaultContent: "-"},
+  {title:"校正週期", data:"cal_cycle", defaultContent: "-"},
+];
+const tboption_eqpt2 = {
+  dom: 'ft',
+  select: {style: 'single',info: false},
+  order: [[1, 'asc']],
+  scrollY: 'calc(50vh - 13.5rem)',
+  scrollX: true,
+  lengthChange: false,
+  searching: true,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  },
+};
 
+// 查詢標準件列表
+const { mutate: getEqptByPrj, onDone: getEqptByPrjOnDone, onError: getEqptByPrjError } = useMutation(PrjGQL.GETEQPTBYRRJID);
+getEqptByPrjOnDone(result=>{
+  let getData = result.data.getEqptByPrj;
+  getData.map(x=>{
+    x.saved = true;
+  })
+  data_eqpt.value = getData;
+  notProssing3.value = true;
+});
+
+// 查詢全標準件
+const { onResult: getAllEqpt, refetch: refgetAllEqpt } = useQuery(PrjGQL.GETALLEQPT);
+getAllEqpt(result=>{
+  if(!result.loading){
+    data_eqpt2.value = result.data.getAllEqpt;
+  }
+});
+refgetAllEqpt({type: (nowEqptType.value && nowEqptType.value!==-1)?nowEqptType.value:null});
+
+// 查詢標準件類型下拉式清單
+const { onResult: getEqptType, refetch: refgetEqptType } = useQuery(PrjGQL.GETEQPTTYPE);
+getEqptType(result=>{
+  if(!result.loading){
+    nowEqptTypeMU.value = result.data.getEqptType.map(x => {
+      return { text: x.type, value: parseInt(x.eqpt_type_id) }
+    }); nowEqptTypeMU.value.unshift({ text: "-未選取-", value: -1 });
+  }
+});
+refgetEqptType();
+// 切換標準件類型
+function changeEqptType(){
+  console.log(nowEqptType.value);
+  refgetAllEqpt({type: (nowEqptType.value && nowEqptType.value!==-1)?nowEqptType.value:null});
+}
+
+
+
+function updatTable(){
+  if(dt_eqpt.value) dt_eqpt.value.draw();
+  if(dt_eqpt2.value) dt_eqpt2.value.draw();
+}
+
+function  showLOG(context) {
+  console.log(context,nowEqptType.value)
+}
 //#endregion 標準件管理==========End
+
+
+
+
 
 //#region 收合資料
 const baseShow = ref(false);
@@ -1085,6 +1176,10 @@ onMounted(function () {
     refgetPrjById({ getPrjByIdId: parseInt(nowPrjId.value) });
     notProssing2.value = false;
     getRcordByPrj({projectId: parseInt(nowPrjId.value)});
+    notProssing3.value = false;
+    getEqptByPrj({getEqptByPrjId: parseInt(nowPrjId.value)});
+
+    updatTable()
   });
 
   dt_gcp.value = table_gcp.value.dt();
@@ -1095,6 +1190,9 @@ onMounted(function () {
     e.preventDefault();
     e.stopPropagation();
   });
+
+  dt_eqpt.value = table_eqpt.value.dt();
+  dt_eqpt2.value = table_eqpt2.value.dt();
 });
 
 </script>
@@ -1124,7 +1222,7 @@ onMounted(function () {
                 <MDBCol col="12" style="height: 50%;" class="">
                   <MDBRow class="align-content-start">
                     <!-- 功能按鈕 -->
-                    <MDBCol col="12" class="py-2 border-bottom">
+                    <MDBCol col="12" class="d-flex py-2 border-bottom">
                       <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="createPrj">新增</MDBBtn>
                       <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="savePrjBtn">儲存</MDBBtn>
                       <MDBPopconfirm :disabled="!rGroup[1] || !nowPrjId" class="btn-sm btn-danger me-auto" message="刪除後無法恢復，確定刪除嗎？"
@@ -1183,14 +1281,14 @@ onMounted(function () {
           <MDBRow style="margin-left: auto;height: calc(100% - 1rem);" class="my-2 bg-light border border-5 rounded-8 shadow-4">
             <MDBCol col="12" class="h-100">
                 <!-- Tabs -->
-                <MDBTabs v-model="activeTabId1">
+                <MDBTabs v-model="activeTabId1" @shown="updatTable">
                   <!-- Tabs navs -->
                   <MDBTabNav tabsClasses="">
                     <MDBTabItem tabId="gcp_mg" href="gcp_mg">參考值管理</MDBTabItem>
                     <MDBTabItem tabId="item_mg" href="item_mg">標準件管理</MDBTabItem>
                   </MDBTabNav>
                   <!-- Tabs Content -->
-                  <MDBTabContent :key="updateKey" style="height: calc(100% - 3rem);">
+                  <MDBTabContent style="height: calc(100% - 3rem);">
                     <!-- 參考值管理 -->
                     <MDBTabPane tabId="gcp_mg" class="h-100">
                       <MDBRow class="h-100">
@@ -1525,12 +1623,14 @@ onMounted(function () {
                         <MDBCol lg="5" class="h-100 border-end">
                           <!-- 功能列 -->
                           <MDBRow>
-                            <MDBCol col="12" class="py-2 border-bottom">
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newPRecordBtn">新增</MDBBtn>
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveGcpRecordBtn">儲存</MDBBtn>
+                            <MDBCol col="12" class="d-flex py-2 border-bottom">
+                              <span class="me-auto">作業使用之標準件</span>
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="secondary" @click="">全複製</MDBBtn>
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="secondary" @click="">貼上</MDBBtn>
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="">儲存</MDBBtn>
                             </MDBCol>
                           </MDBRow>
-                          <MDBRow class="overflow-auto align-content-start mx-0" style="position:relative; height: fcalc(100% - 3rem);">
+                          <MDBRow class="overflow-auto align-content-start" style="position:relative; height: fcalc(100% - 3rem);">
                             <div :class="{ 'hiddenSpinner': notProssing3}" style="position: absolute; left: 50%; top: 10rem;">
                               <MDBSpinner size="md" color="primary" />Loading...
                             </div>
@@ -1541,7 +1641,26 @@ onMounted(function () {
                         </MDBCol>
                         <!-- 表單 -->
                         <MDBCol lg="7" class="h-100">
-                          表單
+                          <!-- 左上 -->
+                          <MDBRow class="h-50 border-bottom overflow-auto align-content-start">
+                            <span>查詢標準件</span>
+                            <MDBSelect filter size="sm" class="mt-2" 
+                              style="display:contents ;"
+                              label="儀器類型" 
+                              v-model:options="nowEqptTypeMU"
+                              v-model:selected="nowEqptType" 
+                              ref="nowEqptTypeDOM"
+                              @change="changeEqptType" />
+                            <DataTable :data="data_eqpt2" :columns="columns_eqpt2" :options="tboption_eqpt2" ref="table_eqpt2"
+                              style="font-size: smaller;" class="display w-100 compact" />
+                          </MDBRow>
+                          <!-- 左下 -->
+                          <MDBRow class="h-50">
+                            <!-- 左下左(按鈕) -->
+                            <div style="width: 4rem;" class="h-100 border"></div>
+                            <!-- 左下右(表單) -->
+                            <div style="width: calc(100% - 4rem);" class="h-100 border"></div>
+                          </MDBRow>
                         </MDBCol> 
                       </MDBRow> 
                     </MDBTabPane>
@@ -1557,4 +1676,7 @@ onMounted(function () {
   </MDBContainer>
 </template>
 <style>
+.unsaved{
+  color:rgba(255, 0, 0, 0.5)
+}
 </style>
