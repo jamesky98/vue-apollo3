@@ -294,7 +294,26 @@ const nowPRecordObsDL = computed(()=>{
 const nowEqptType = ref("");
 const nowEqptTypeMU = ref([]);
 const nowEqptTypeDOM = ref();
+const nowEqptId = ref("");
 
+// 查核紀錄
+const nowChkId = ref("");
+const nowChkType = ref("");
+const nowChkDate = ref("");
+const nowChkReportId = ref("");
+const nowChkCalOrg = ref("");
+const nowChkCalOrgCode = ref("");
+const nowChkCalPass = ref("");
+const nowChkCalResult = ref(""); //報告檔案
+const nowChkCalResultDL = computed(()=>{
+  if(nowChkCalResult.value){
+    return publicPath.value + "01_Equipment/" + nowEqptId.value + "/" + nowChkCalResult.value
+  }else{
+    return ""
+  }
+});
+
+const nowChkCalComment = ref("");
 
 //#endregion 參數==========End
 
@@ -895,7 +914,7 @@ const tboption_eqpt = {
   dom: 'fti',
   select: {style: 'single',info: false},
   order: [[6, 'asc']],
-  scrollY: 'calc(100vh - 21rem)',
+  scrollY: 'calc(100vh - 23rem)',
   scrollX: true,
   lengthChange: false,
   searching: true,
@@ -905,35 +924,7 @@ const tboption_eqpt = {
     info: '共 _TOTAL_ 筆資料',
   },
 };
-
-const dt_eqpt2 = ref();
-const table_eqpt2 = ref(); 
-const data_eqpt2 = ref([]);
-const columns_eqpt2 = [
-  {title:"有效", data:"id", defaultContent: "-"},  
-  {title:"索引", data:"id", defaultContent: "-", visible: false},
-  {title:"儀器類別", data:"ref_eqpt_type.type", defaultContent: "-"},
-  {title:"廠牌", data:"chop", defaultContent: "-"},
-  {title:"型號", data:"model", defaultContent: "-"},
-  {title:"序號", data:"serial_number", defaultContent: "-"},
-  {title:"校正週期", data:"cal_cycle", defaultContent: "-"},
-];
-const tboption_eqpt2 = {
-  dom: 'ft',
-  select: {style: 'single',info: false},
-  order: [[1, 'asc']],
-  scrollY: 'calc(50vh - 13.5rem)',
-  scrollX: true,
-  lengthChange: false,
-  searching: true,
-  paging: false,
-  responsive: true,
-  language: {
-    info: '共 _TOTAL_ 筆資料',
-  },
-};
-
-// 查詢標準件列表
+// 查詢量測作業內標準件列表
 const { mutate: getEqptByPrj, onDone: getEqptByPrjOnDone, onError: getEqptByPrjError } = useMutation(PrjGQL.GETEQPTBYRRJID);
 getEqptByPrjOnDone(result=>{
   let getData = result.data.getEqptByPrj;
@@ -944,6 +935,43 @@ getEqptByPrjOnDone(result=>{
   notProssing3.value = true;
 });
 
+
+const dt_eqpt2 = ref();
+const table_eqpt2 = ref(); 
+const data_eqpt2 = ref([]);
+const columns_eqpt2 = [
+  {title:"索引", data:"ref_equpt_id", defaultContent: "-", visible: false},
+  {title:"儀器類別", data:"ref_eqpt_type.type", defaultContent: "-"},
+  {title:"廠牌", data:"chop", defaultContent: "-"},
+  {title:"型號", data:"model", defaultContent: "-"},
+  {title:"序號", data:"serial_number", defaultContent: "-"},
+  {title:"最新校正日", data:"latest_chk.check_date", defaultContent: "-", render: (data) => {
+    return toTWDate(data);}},
+  {title:"校正週期", data:"cal_cycle", defaultContent: "-",className: 'dt-center'},
+  {title:"有效", data:"latest_chk.check_date", defaultContent: "-",className: 'dt-center', render: (data, type, row, meta) => {
+    let isValid;
+    let cycal = parseFloat(row.cal_cycle.slice(0,-1));
+    if(new Date()-new Date(data) < cycal * 365.25 * 24 * 60 * 60 * 1000 ){
+      isValid='<i class="fas fa-lg fa-check-circle text-success"></i>'
+    }else{
+      isValid='<i class="fas fa-lg fa-times-circle text-danger"></i>'
+    }
+    return isValid;}}, 
+];
+const tboption_eqpt2 = {
+  dom: 'ft',
+  select: {style: 'single',info: false},
+  order: [[1, 'asc']],
+  scrollY: 'calc(45vh - 13.5rem)',
+  scrollX: true,
+  lengthChange: false,
+  searching: true,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  },
+};
 // 查詢全標準件
 const { onResult: getAllEqpt, refetch: refgetAllEqpt } = useQuery(PrjGQL.GETALLEQPT);
 getAllEqpt(result=>{
@@ -970,19 +998,78 @@ function changeEqptType(){
 }
 
 
+const dt_chk = ref();
+const table_chk = ref(); 
+const data_chk = ref([]);
+const columns_chk = [
+  {title:"有效", data:"check_date", defaultContent: "-",className: 'dt-center', render: (data, type, row, meta) => {
+    let isValid;
+    let cycal = parseFloat(row.ref_eqpt.cal_cycle.slice(0,-1));
+    if(new Date()-new Date(data) < cycal * 365.25 * 24 * 60 * 60 * 1000 ){
+      isValid='<i class="fas fa-lg fa-check-circle text-success"></i>'
+    }else{
+      isValid='<i class="fas fa-lg fa-times-circle text-danger"></i>'
+    }
+    return isValid;}},  
+  {title:"通過", data:"pass", defaultContent: "-", render: (data, type, row, meta) => {
+    let isValid;
+    if(data){
+      isValid='<span class="text-info">pass</span>'
+    }else{
+      isValid='<span class="text-danger">NoPass</span>'
+    }
+    return isValid;}},
+  {title:"索引", data:"eq_ck_id", defaultContent: "-", visible: false},
+  {title:"週期", data:"ref_eqpt.cal_cycle", defaultContent: "-"},
+  {title:"校正日", data:"check_date", defaultContent: "-", render: (data) => {
+    return toTWDate(data);}},
+  {title:"報告編號", data:"report_id", defaultContent: "-"},
+  {title:"校正實驗室", data:"cal_org", defaultContent: "-", visible: false},
+];
+const tboption_chk = {
+  dom: 't',
+  select: {style: 'single',info: false},
+  order: [[2, 'desc']],
+  scrollY: 'calc(50vh - 22rem)',
+  scrollX: true,
+  lengthChange: false,
+  searching: false,
+  paging: false,
+  responsive: true,
+  language: {
+    info: '共 _TOTAL_ 筆資料',
+  },
+};
+// 查詢查核紀錄By標準件
+const { mutate: getChkByEqpt, onDone: getChkByEqptOnDone, onError: getChkByEqptError } = useMutation(PrjGQL.GETCHKBYEQPTID);
+getChkByEqptOnDone(result=>{
+  data_chk.value = result.data.getChkByEqptId;
+});
+// 查詢查核紀錄By Id
+const { mutate: getChkById, onDone: getChkByIdOnDone, onError: getChkByIdError } = useMutation(PrjGQL.GETCHKBYID);
+getChkByIdOnDone(result=>{
+  let getData = result.data.getChkById;
+  nowChkType.value = getData.chek_type;
+  nowChkDate.value = (getData.check_date)?getData.check_date.split('T')[0]:"";
+  nowChkReportId.value = getData.report_id;
+  nowChkCalOrg.value = getData.cal_org;
+  nowChkCalOrgCode.value = getData.cal_org_id;
+  nowChkCalPass.value = (getData.pass)?'pass':'NoPass';
+  nowChkCalResult.value = getData.result;
+  nowChkCalComment.value = getData.comment;
+  
+});
 
 function updatTable(){
   if(dt_eqpt.value) dt_eqpt.value.draw();
   if(dt_eqpt2.value) dt_eqpt2.value.draw();
+  if(dt_chk.value) dt_chk.value.draw();
 }
 
 function  showLOG(context) {
   console.log(context,nowEqptType.value)
 }
 //#endregion 標準件管理==========End
-
-
-
 
 
 //#region 收合資料
@@ -1192,7 +1279,22 @@ onMounted(function () {
   });
 
   dt_eqpt.value = table_eqpt.value.dt();
+
   dt_eqpt2.value = table_eqpt2.value.dt();
+  dt_eqpt2.value.on('select', function (e, dt, type, indexes) {
+    nowEqptId.value = dt.rows(indexes).data()[0].ref_equpt_id;
+    getChkByEqpt({refEqptId: parseInt(nowEqptId.value)});
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  
+  dt_chk.value = table_chk.value.dt();
+  dt_chk.value.on('select', function (e, dt, type, indexes) {
+    nowChkId.value = dt.rows(indexes).data()[0].eq_ck_id;
+    getChkById({eqCkId: parseInt(nowChkId.value)});
+    e.preventDefault();
+    e.stopPropagation();
+  });
 });
 
 </script>
@@ -1278,7 +1380,7 @@ onMounted(function () {
         </MDBCol>
         <!-- 右方列表 -->
         <MDBCol md="8" xl="8" class="h-100">
-          <MDBRow style="margin-left: auto;height: calc(100% - 1rem);" class="my-2 bg-light border border-5 rounded-8 shadow-4">
+          <MDBRow style="margin-left: auto;height: calc(100% - 1rem);" class="my-2 bg-light border border-5 rounded-8 shadow-4 overflow-auto">
             <MDBCol col="12" class="h-100">
                 <!-- Tabs -->
                 <MDBTabs v-model="activeTabId1" @shown="updatTable">
@@ -1642,10 +1744,9 @@ onMounted(function () {
                         <!-- 表單 -->
                         <MDBCol lg="7" class="h-100">
                           <!-- 左上 -->
-                          <MDBRow class="h-50 border-bottom overflow-auto align-content-start">
-                            <span>查詢標準件</span>
-                            <MDBSelect filter size="sm" class="mt-2" 
-                              style="display:contents ;"
+                          <MDBRow style="height: 45%;" class="border-bottom overflow-auto align-content-start">
+                            <MDBCol col="6"><span>查詢標準件</span></MDBCol>
+                            <MDBSelect filter size="sm" class="mt-2 col-6" 
                               label="儀器類型" 
                               v-model:options="nowEqptTypeMU"
                               v-model:selected="nowEqptType" 
@@ -1655,11 +1756,52 @@ onMounted(function () {
                               style="font-size: smaller;" class="display w-100 compact" />
                           </MDBRow>
                           <!-- 左下 -->
-                          <MDBRow class="h-50">
+                          <MDBRow style="height: 55%;">
                             <!-- 左下左(按鈕) -->
-                            <div style="width: 4rem;" class="h-100 border"></div>
+                            <div style="width: 4rem;" class="h-100 border-end">
+
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="secondary" @click="">加入</MDBBtn>
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="secondary" @click="">移除</MDBBtn>
+                            
+                            </div>
                             <!-- 左下右(表單) -->
-                            <div style="width: calc(100% - 4rem);" class="h-100 border"></div>
+                            <div style="width: calc(100% - 4rem);" class="h-100">
+                              <MDBRow class="h-100 overflow-auto align-content-start">
+                                <MDBCol>查核紀錄：<span class="text-info">{{nowChkId}}</span></MDBCol>
+                                <DataTable :data="data_chk" :columns="columns_chk" :options="tboption_chk" ref="table_chk"
+                                  style="font-size: smaller;" class="display w-100 compact" />
+                                
+                                <MDBCol md="6" xl="4" class="mt-2">
+                                  <MDBInput readonly size="sm" type="text" label="校正類型" v-model="nowChkType" />
+                                </MDBCol>
+                                <MDBCol md="6" xl="4" class="mt-2">
+                                  <MDBInput readonly size="sm" type="text" label="校正日" v-model="nowChkDate" />
+                                </MDBCol>
+                                <div></div>
+                                <MDBCol col="8" class="mt-2">
+                                  <MDBInput readonly size="sm" type="text" label="報告編號" v-model="nowChkReportId" style="display:inline-block;" />
+                                </MDBCol>
+                                <MDBCol col="4" class="mt-2 ">
+                                  <MDBBtn tag="a" :href="nowChkCalResultDL" download size="sm" color="secondary">下載</MDBBtn>
+                                </MDBCol>
+                                <div></div>
+                                <MDBCol col="8" class="mt-2">
+                                  <MDBInput readonly size="sm" type="text" label="校正實驗室" v-model="nowChkCalOrg" />
+                                </MDBCol>
+                                <MDBCol col="4" class="mt-2">
+                                  <MDBInput readonly size="sm" type="text" label="實驗室編號" v-model="nowChkCalOrgCode" />
+                                </MDBCol>
+                                <div></div>
+                                <MDBCol md="6" xl="4" class="mt-2">
+                                  <MDBInput readonly size="sm" type="text" label="通過" v-model="nowChkCalPass" />
+                                </MDBCol>
+                                <div></div>
+                                <MDBCol col="12" class="mt-2">
+                                  <MDBTextarea size="sm" label="備註" rows="2" v-model="nowChkCalComment" />
+                                </MDBCol>
+
+                              </MDBRow>
+                            </div>
                           </MDBRow>
                         </MDBCol> 
                       </MDBRow> 

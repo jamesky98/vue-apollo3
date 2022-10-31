@@ -218,8 +218,14 @@ query GetAllEqpt($type: Int) {
     }
     cal_cycle
     comment
-    ref_eqpt_check {
+    latest_chk {
       check_date
+      report_id
+      cal_org
+      cal_org_id
+      pass
+      result
+      comment
     }
   }
 }
@@ -230,6 +236,50 @@ query GetEqptType {
   getEqptType {
     eqpt_type_id
     type
+  }
+}
+`;
+
+const GETCHKBYEQPTID = gql`
+mutation GetChkByEqptId($refEqptId: Int) {
+  getChkByEqptId(ref_eqpt_id: $refEqptId) {
+    eq_ck_id
+    ref_eqpt_id
+    ref_eqpt {
+      chop
+      model
+      serial_number
+      ref_eqpt_type {
+        type
+      }
+      cal_cycle
+      comment
+    }
+    chek_type
+    check_date
+    report_id
+    cal_org
+    cal_org_id
+    pass
+    result
+    comment
+  }
+}
+`;
+
+const GETCHKBYID = gql`
+mutation GetChkById($eqCkId: Int) {
+  getChkById(eq_ck_id: $eqCkId) {
+    eq_ck_id
+    ref_eqpt_id
+    chek_type
+    check_date
+    report_id
+    cal_org
+    cal_org_id
+    pass
+    result
+    comment
   }
 }
 `;
@@ -245,4 +295,6 @@ export default {
   GETEQPTBYRRJID,
   GETALLEQPT,
   GETEQPTTYPE,
+  GETCHKBYEQPTID,
+  GETCHKBYID,
 };
