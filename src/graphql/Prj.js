@@ -272,6 +272,18 @@ mutation GetChkById($eqCkId: Int) {
   getChkById(eq_ck_id: $eqCkId) {
     eq_ck_id
     ref_eqpt_id
+    ref_eqpt {
+      ref_equpt_id
+      serial_number
+      chop
+      model
+      type
+      ref_eqpt_type {
+        type
+      }
+      cal_cycle
+      comment
+    }
     chek_type
     check_date
     report_id

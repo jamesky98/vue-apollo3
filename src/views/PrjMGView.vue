@@ -315,6 +315,11 @@ const nowChkCalResultDL = computed(()=>{
 
 const nowChkCalComment = ref("");
 
+// 作業與查核之連結紀錄
+const nowLinkId = ref("");
+const nowLinkChkId = ref("");
+const nowLinkDel = ref([]);
+
 //#endregion 參數==========End
 
 //#region 測量作業列表==========Start
@@ -891,7 +896,14 @@ const dt_eqpt = ref();
 const table_eqpt = ref(); 
 const data_eqpt = ref([]);
 const columns_eqpt = [
-  {title:"索引", data:"id", defaultContent: "-", visible: false},
+  {title:"索引", data:"id", defaultContent: "-", visible: true, render: (data, type, row, meta) => {
+    let myrow = dt_eqpt.value.row(meta.row).node();
+    if(data){
+      myrow.classList.remove("unsaved");
+    }else{
+      myrow.classList.add("unsaved");
+    }
+    return data}},
   {title:"查核紀錄", data:"eqpt_check_id", defaultContent: "-"},
   {title:"儀器類別", data:"ref_eqpt_check.ref_eqpt.ref_eqpt_type.type", defaultContent: "-"},
   {title:"廠牌", data:"ref_eqpt_check.ref_eqpt.chop", defaultContent: "-"},
@@ -901,14 +913,14 @@ const columns_eqpt = [
   {title:"校正日", data:"ref_eqpt_check.check_date", defaultContent: "-", render: (data) => {
       return toTWDate(data);}},
   {title:"校正機關", data:"ref_eqpt_check.cal_org", defaultContent: "-"},
-  {title:"已儲存", data:"saved", defaultContent: "-", render: (data, type, row, meta) => {
-    let myrow = dt_eqpt.value.row(meta.row).node();
-    if(data){
-      myrow.classList.remove("unsaved");
-    }else{
-      myrow.classList.add("unsaved");
-    }
-    return data}},
+  // {title:"已儲存", data:"saved", defaultContent: "-", render: (data, type, row, meta) => {
+  //   let myrow = dt_eqpt.value.row(meta.row).node();
+  //   if(data){
+  //     myrow.classList.remove("unsaved");
+  //   }else{
+  //     myrow.classList.add("unsaved");
+  //   }
+  //   return data}},
 ];
 const tboption_eqpt = {
   dom: 'fti',
@@ -1060,6 +1072,7 @@ getChkByIdOnDone(result=>{
   
 });
 
+// 更新表格顯示(欄寬)
 function updatTable(){
   if(dt_eqpt.value) dt_eqpt.value.draw();
   if(dt_eqpt2.value) dt_eqpt2.value.draw();
@@ -1069,6 +1082,49 @@ function updatTable(){
 function  showLOG(context) {
   console.log(context,nowEqptType.value)
 }
+
+// 加入查核紀錄
+function addChk(){
+  getChkById({eqCkId: parseInt(nowChkId.value)}).then(res=>{
+    // console.log(res.data.getChkById);
+    // console.log('data_eqpt',data_eqpt.value);
+    // console.log('nowPrjId',nowPrjId.value);
+    let newLinkData={
+      eqpt_check_id: parseInt(nowChkId.value),
+      project_id: parseInt(nowPrjId.value),
+      ref_eqpt_check: res.data.getChkById,
+      saved: false,
+    };
+    // console.log('newLinkData',newLinkData);
+    if(data_eqpt.value.filter(x => x.eqpt_check_id===parseInt(nowChkId.value)).length===0){
+      data_eqpt.value.push(newLinkData);
+    }
+  });
+}
+// 移除查核紀錄
+function removeChk(){
+  // 如果有id則加入刪除池再移出dt矩陣，否則直接移出dt矩陣
+  if(nowLinkId){
+    nowLinkDel.value.push(nowLinkId.value);
+  }
+  // 移出dt矩陣
+  data_eqpt.value = data_eqpt.value.filter(x => parseInt(x.eqpt_check_id) !== parseInt(nowLinkChkId.value));
+}
+
+// 新增
+function newChk(){
+  nowChkId.value = "";
+  nowChkType.value = "";
+  nowChkDate.value = "";
+  nowChkReportId.value = "";
+  nowChkCalOrg.value = "";
+  nowChkCalOrgCode.value = "";
+  nowChkCalPass.value = "";
+  nowChkCalResult.value = "";
+  nowChkCalComment.value = "";
+}
+
+
 //#endregion 標準件管理==========End
 
 
@@ -1259,6 +1315,7 @@ function dropFile(e){
 onMounted(function () {
   dt_prj.value = table_prj.value.dt();
   dt_prj.value.on('select', function (e, dt, type, indexes) {
+    nowLinkDel.value = [];
     nowPrjId.value = dt.rows(indexes).data()[0].id;
     refgetPrjById({ getPrjByIdId: parseInt(nowPrjId.value) });
     notProssing2.value = false;
@@ -1279,11 +1336,21 @@ onMounted(function () {
   });
 
   dt_eqpt.value = table_eqpt.value.dt();
+  dt_eqpt.value.on('select', function (e, dt, type, indexes) {
+    nowLinkId.value = dt.rows(indexes).data()[0].id;
+    nowLinkChkId.value = dt.rows(indexes).data()[0].eqpt_check_id;
+    // console.log('nowLinkId',nowLinkId.value,'nowLinkChkId',nowLinkChkId.value);
+    e.preventDefault();
+    e.stopPropagation();
+  });
 
   dt_eqpt2.value = table_eqpt2.value.dt();
   dt_eqpt2.value.on('select', function (e, dt, type, indexes) {
     nowEqptId.value = dt.rows(indexes).data()[0].ref_equpt_id;
-    getChkByEqpt({refEqptId: parseInt(nowEqptId.value)});
+    
+    getChkByEqpt({refEqptId: parseInt(nowEqptId.value)}).then(res=>{
+      newChk();
+    });
     e.preventDefault();
     e.stopPropagation();
   });
@@ -1758,10 +1825,11 @@ onMounted(function () {
                           <!-- 左下 -->
                           <MDBRow style="height: 55%;">
                             <!-- 左下左(按鈕) -->
-                            <div style="width: 4rem;" class="h-100 border-end">
-
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="secondary" @click="">加入</MDBBtn>
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="secondary" @click="">移除</MDBBtn>
+                            <div style="width: 4rem;" class="h-100 border-end d-flex align-items-center">
+                              <MDBCol col="12">
+                                <MDBBtn :disabled="!rGroup[1] || !nowChkId || !nowPrjId" size="sm" color="primary" class="px-1 my-2" @click="addChk">加入</MDBBtn>
+                                <MDBBtn :disabled="!rGroup[1] || !nowLinkChkId" size="sm" color="secondary" class="px-1 my-2" @click="removeChk">移除</MDBBtn>
+                              </MDBCol>
                             
                             </div>
                             <!-- 左下右(表單) -->
