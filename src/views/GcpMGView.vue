@@ -1186,7 +1186,7 @@ function testfun(){
                                       <button v-show="nowGcpSimage" class="imgcancel btn p-0" @click.prevent="nowGcpSimage=''"></button>
                                       <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                         <MDBBtn :disabled="!rGroup[1] || !nowGcpId" size="sm" color="primary" @click.prevent="uploadBtn('GcpSimage')">上傳</MDBBtn>
-                                        <MDBBtn tag="a" :href="nowGcpSimageDL" download size="sm" color="secondary">下載</MDBBtn>
+                                        <MDBBtn tag="a" target=_blank :href="nowGcpSimageDL" download size="sm" color="secondary">下載</MDBBtn>
                                       </div>
                                     </MDBLightbox>
                                   <!-- </MDBCol> -->
@@ -1220,7 +1220,7 @@ function testfun(){
                                   <button v-show="nowGcpDespImg" class="imgcancel btn p-0" @click.prevent="nowGcpDespImg=''"></button>
                                   <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                     <MDBBtn :disabled="!rGroup[1] || !nowGcpId" size="sm" color="primary" @click.prevent="uploadBtn('GcpDespImg')">上傳</MDBBtn>
-                                    <MDBBtn tag="a" :href="nowGcpDespImgDL" download size="sm" color="secondary">下載</MDBBtn>
+                                    <MDBBtn tag="a" target=_blank :href="nowGcpDespImgDL" download size="sm" color="secondary">下載</MDBBtn>
                                   </div>
                                 </MDBLightbox>
                               </MDBCol>
@@ -1315,7 +1315,7 @@ function testfun(){
                               <MDBSelect id="GCPMGSelPrjId" size="sm" class="mt-2 col-xl-6" label="作業編號" v-model:options="nowPRecordPrjIdMU"
                                 v-model:selected="nowPRecordPrjId" ref="nowPRecordPrjIdDOM" @close="nowPrjClose($event)"/>
                               <MDBCol xl="6" class="mt-2">
-                                <MDBDatepicker size="sm" v-model="nowPRecordDate" format=" YYYY-MM-DD " label="紀錄日期"
+                                <MDBDatepicker size="sm" v-model="nowPRecordDate" format="YYYY-MM-DD" label="紀錄日期"
                                   ref="nowPRecordDateDOM" />
                               </MDBCol>
 
@@ -1373,7 +1373,7 @@ function testfun(){
                                         <button v-show="nowPRecordImg0" class="imgcancel btn p-0" @click.prevent="nowPRecordImg0=''"></button>
                                         <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                           <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg0')">上傳</MDBBtn>
-                                          <MDBBtn tag="a" :href="nowPRecordImg0DL" download size="sm" color="secondary">下載</MDBBtn>
+                                          <MDBBtn tag="a" target=_blank :href="nowPRecordImg0DL" download size="sm" color="secondary">下載</MDBBtn>
                                         </div>
                                       </MDBCol>
                                     </MDBRow>
@@ -1398,7 +1398,7 @@ function testfun(){
                                         <button v-show="nowPRecordImg1" class="imgcancel btn p-0" @click.prevent="nowPRecordImg1=''"></button>
                                         <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                           <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg1')">上傳</MDBBtn>
-                                          <MDBBtn tag="a" :href="nowPRecordImg1DL" download size="sm" color="secondary">下載</MDBBtn>
+                                          <MDBBtn tag="a" target=_blank :href="nowPRecordImg1DL" download size="sm" color="secondary">下載</MDBBtn>
                                         </div>
                                       </MDBCol>
                                     </MDBRow>
@@ -1423,7 +1423,7 @@ function testfun(){
                                         <button v-show="nowPRecordImg2" class="imgcancel btn p-0" @click.prevent="nowPRecordImg2=''"></button>
                                         <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                           <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg2')">上傳</MDBBtn>
-                                          <MDBBtn tag="a" :href="nowPRecordImg2DL" download size="sm" color="secondary">下載</MDBBtn>
+                                          <MDBBtn tag="a" target=_blank :href="nowPRecordImg2DL" download size="sm" color="secondary">下載</MDBBtn>
                                         </div>
                                       </MDBCol>
                                     </MDBRow>
@@ -1448,7 +1448,7 @@ function testfun(){
                                         <button v-show="nowPRecordImg3" class="imgcancel btn p-0" @click.prevent="nowPRecordImg3=''"></button>
                                         <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                           <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg3')">上傳</MDBBtn>
-                                          <MDBBtn tag="a" :href="nowPRecordImg3DL" download size="sm" color="secondary">下載</MDBBtn>
+                                          <MDBBtn tag="a" target=_blank :href="nowPRecordImg3DL" download size="sm" color="secondary">下載</MDBBtn>
                                         </div>
                                       </MDBCol>
                                     </MDBRow>
@@ -1481,7 +1481,7 @@ function testfun(){
                                         <button v-show="nowPRecordObs" class="imgcancel btn p-0" @click.prevent="nowPRecordObs=''"></button>
                                         <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                           <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImgObs')">上傳</MDBBtn>
-                                          <MDBBtn tag="a" :href="nowPRecordObsDL" download size="sm" color="secondary">下載</MDBBtn>
+                                          <MDBBtn tag="a" target=_blank :href="nowPRecordObsDL" download size="sm" color="secondary">下載</MDBBtn>
                                         </div>
                                       </MDBCol>
                                     <!-- </MDBRow> -->

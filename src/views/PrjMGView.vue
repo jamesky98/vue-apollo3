@@ -22,6 +22,7 @@ import {
   MDBLightbox,
   MDBLightboxItem,
   MDBSwitch,
+  MDBCheckbox,
 } from 'mdb-vue-ui-kit';
 import ToolsGQL from "../graphql/Tools";
 import GcpGQL from "../graphql/Gcp";
@@ -302,8 +303,11 @@ const nowChkType = ref("");
 const nowChkDate = ref("");
 const nowChkReportId = ref("");
 const nowChkCalOrg = ref("");
+const nowChkCalOrgMU = ref([]);
+const nowChkCalOrgDOM = ref();
+
 const nowChkCalOrgCode = ref("");
-const nowChkCalPass = ref("");
+const nowChkCalPass = ref(false);
 const nowChkCalResult = ref(""); //報告檔案
 const nowChkCalResultDL = computed(()=>{
   if(nowChkCalResult.value){
@@ -495,7 +499,7 @@ delPrjOnDone(result=>{
 // 匯入紀錄
 const { mutate: inputGcpRd, onDone: inputGcpRdOnDone, onError: inputGcpRdError } = useMutation(PrjGQL.INPUTGCPRECORDS);
 inputGcpRdOnDone(result=>{
-  console.log(result.data.inputGCPRecords);
+  // console.log(result.data.inputGCPRecords);
 });
 function inputRecord(POfile){
   if (POfile) {
@@ -896,7 +900,7 @@ const dt_eqpt = ref();
 const table_eqpt = ref(); 
 const data_eqpt = ref([]);
 const columns_eqpt = [
-  {title:"索引", data:"id", defaultContent: "-", visible: true, render: (data, type, row, meta) => {
+  {title:"索引", data:"id", defaultContent: "-", visible: false, render: (data, type, row, meta) => {
     let myrow = dt_eqpt.value.row(meta.row).node();
     if(data){
       myrow.classList.remove("unsaved");
@@ -913,14 +917,6 @@ const columns_eqpt = [
   {title:"校正日", data:"ref_eqpt_check.check_date", defaultContent: "-", render: (data) => {
       return toTWDate(data);}},
   {title:"校正機關", data:"ref_eqpt_check.cal_org", defaultContent: "-"},
-  // {title:"已儲存", data:"saved", defaultContent: "-", render: (data, type, row, meta) => {
-  //   let myrow = dt_eqpt.value.row(meta.row).node();
-  //   if(data){
-  //     myrow.classList.remove("unsaved");
-  //   }else{
-  //     myrow.classList.add("unsaved");
-  //   }
-  //   return data}},
 ];
 const tboption_eqpt = {
   dom: 'fti',
@@ -1005,7 +1001,6 @@ getEqptType(result=>{
 refgetEqptType();
 // 切換標準件類型
 function changeEqptType(){
-  console.log(nowEqptType.value);
   refgetAllEqpt({type: (nowEqptType.value && nowEqptType.value!==-1)?nowEqptType.value:null});
 }
 
@@ -1062,14 +1057,15 @@ const { mutate: getChkById, onDone: getChkByIdOnDone, onError: getChkByIdError }
 getChkByIdOnDone(result=>{
   let getData = result.data.getChkById;
   nowChkType.value = getData.chek_type;
-  nowChkDate.value = (getData.check_date)?getData.check_date.split('T')[0]:"";
+  nowChkDate.value = (getData.check_date)?getData.check_date.split('T')[0]:" ";
   nowChkReportId.value = getData.report_id;
   nowChkCalOrg.value = getData.cal_org;
+  nowChkCalOrgDOM.value.setValue((nowChkCalOrg.value)?nowChkCalOrg.value:-1);
+
   nowChkCalOrgCode.value = getData.cal_org_id;
-  nowChkCalPass.value = (getData.pass)?'pass':'NoPass';
+  nowChkCalPass.value = (getData.pass)?true:false;
   nowChkCalResult.value = getData.result;
   nowChkCalComment.value = getData.comment;
-  
 });
 
 // 更新表格顯示(欄寬)
@@ -1104,26 +1100,130 @@ function addChk(){
 // 移除查核紀錄
 function removeChk(){
   // 如果有id則加入刪除池再移出dt矩陣，否則直接移出dt矩陣
-  if(nowLinkId){
-    nowLinkDel.value.push(nowLinkId.value);
+  if(nowLinkId.value){
+    nowLinkDel.value.push(parseInt(nowLinkId.value));
   }
   // 移出dt矩陣
   data_eqpt.value = data_eqpt.value.filter(x => parseInt(x.eqpt_check_id) !== parseInt(nowLinkChkId.value));
+  // console.log('nowLinkDel',nowLinkDel.value)
 }
 
-// 新增
+// 新增Chk
 function newChk(){
   nowChkId.value = "";
-  nowChkType.value = "";
-  nowChkDate.value = "";
+  nowChkType.value = "校正";
+  nowChkDate.value = " ";
   nowChkReportId.value = "";
   nowChkCalOrg.value = "";
+  nowChkCalOrgDOM.value.setValue(-1);
+
   nowChkCalOrgCode.value = "";
-  nowChkCalPass.value = "";
+  nowChkCalPass.value = false;
   nowChkCalResult.value = "";
   nowChkCalComment.value = "";
 }
+// 儲存Chk
+const { mutate: saveRefEqptChk, onDone: saveRefEqptChkOnDone, onError: saveRefEqptChkError } = useMutation(PrjGQL.SAVEREFEQPTCHK);
+function saveChk(){
+  saveRefEqptChk({
+    eqCkId: (parseInt(nowChkId.value))?parseInt(nowChkId.value):-1,
+    refEqptId: (parseInt(nowEqptId.value))?parseInt(nowEqptId.value):null,
+    chekType: (nowChkType.value)?nowChkType.value:null,
+    checkDate: (nowChkDate.value.trim() === "")? null: nowChkDate.value.trim() + "T00:00:00.000Z",
+    reportId: (nowChkReportId.value)?nowChkReportId.value:null,
+    calOrg: (nowChkCalOrg.value)?nowChkCalOrg.value:null,
+    calOrgId: (nowChkCalOrgCode.value)?nowChkCalOrgCode.value:null,
+    pass: (nowChkCalPass.value)?true:false,
+    result: (nowChkCalResult.value)?nowChkCalResult.value:null,
+    comment: (nowChkCalComment.value)?nowChkCalComment.value:null,
+  }).then(res=>{
+    nowChkId.value = res.data.updateRefEqptChk.eq_ck_id;
+    // 更新chk table
+    return getChkByEqpt({refEqptId: parseInt(nowEqptId.value)});
+  })
+}
 
+
+// 刪除Chk
+const { mutate: delRefEqptChk, onDone: delRefEqptChkOnDone, onError: delRefEqptChkError } = useMutation(PrjGQL.DELREFEQPTCHK);
+function delChk(){
+  delRefEqptChk({eqCkId: parseInt(nowChkId.value)})
+}
+
+// 實驗室清單
+const { mutate: getChkOrgList, onDone: getChkOrgListOnDone, onError: getChkOrgListError } = useMutation(PrjGQL.GETALLCHKORGLIST);
+getChkOrgListOnDone(result=>{
+  let getData = result.data.getAllChkOrgList;
+  nowChkCalOrgMU.value = getData.map(x => {
+      return { text: x, value: x }
+    });nowChkCalOrgMU.value.unshift({ text: "-未選取-", value: -1 });
+});
+getChkOrgList();
+function updateChkOrg(){
+  let newoption = nowChkCalOrg.value;
+  let findid = nowChkCalOrgMU.value.findIndex(x => x.value===newoption);
+  if(findid===-1){
+    nowChkCalOrgMU.value.push({text: newoption, value: newoption})
+    nowChkCalOrgDOM.value.setValue(newoption);
+  }
+}
+
+
+
+// 儲存Link
+const tempLink = ref([]);
+const { mutate: savePrjEqpts, onDone: savePrjEqptsOnDone, onError: savePrjEqptsError } = useMutation(PrjGQL.SAVEPRJEQPTUSE);
+const { mutate: delPrjEqpts, onDone: delPrjEqptsOnDone, onError: delPrjEqptsError } = useMutation(PrjGQL.DELPRJEQPTUSE);
+
+function saveLink(){
+  // 先刪除nowLinkDel中的紀錄，再新增無所引的紀錄
+  let newLinkIds = [];
+  data_eqpt.value.map(x=>{
+    if(!x.id){
+      newLinkIds.push({
+        eqpt_check_id: x.eqpt_check_id,
+        project_id: x.project_id,
+      })
+    }
+  });
+
+  // 刪除被移除的紀錄
+  delPrjEqpts({
+    recordsId: nowLinkDel.value
+  }).then(res=>{
+    // 刪除池歸零
+    nowLinkDel.value = [];
+    // 新增新紀錄
+    return savePrjEqpts({records: newLinkIds})
+  }).then(res=>{
+    // 更新data_eqpt
+    notProssing3.value = false;
+    getEqptByPrj({getEqptByPrjId: parseInt(nowPrjId.value)});
+  })
+}
+
+// 複製Link
+function copyLink(){
+  tempLink.value = JSON.parse(JSON.stringify(data_eqpt.value));
+  tempLink.value.map(x =>{
+    delete x.id;
+    delete x.project_id;
+    x.saved = false;
+  });
+
+  console.log(tempLink.value);
+}
+// 貼上Link
+function pasteLink(){
+  if(nowPrjId.value && tempLink.value.length>0){
+    tempLink.value.map(x=>{
+      x.project_id = nowPrjId.value;
+    });
+    data_eqpt.value = tempLink.value;
+  }
+  // 歸零
+  tempLink.value = [];
+}
 
 //#endregion 標準件管理==========End
 
@@ -1175,6 +1275,9 @@ function uploadBtn(inputId) {
       break;
     case "PRecordImgObs":
       inputDOM.setAttribute("accept","image/*");
+      break;
+    case "ChkCalResult":
+      inputDOM.setAttribute("accept",".pdf");
       break;
   }
   inputDOM.click();
@@ -1238,6 +1341,11 @@ async function uploadChenge(e) {
       newName = nowPRecordPtId.value + "-C" + subExt;
       isUpload = true;
       break;
+    case "ChkCalResult":
+      subpath = "01_Equipment/" + nowEqptId.value;
+      newName = nowChkReportId.value + subExt;
+      isUpload = true;
+      break;
   }
   if (isUpload){
     await uploadFile({
@@ -1293,6 +1401,11 @@ uploadFileOnDone((result) => {
       nowPRecordObs.value = result.data.uploadFile.filename;
       saveGcpRecordBtn();
       break;
+    case "ChkCalResult":
+      nowChkCalResult.value = "";
+      nowChkCalResult.value = result.data.uploadFile.filename;
+      saveChk();
+      break;
   }
   let inputDOM;
   inputDOM = document.getElementById("AllUpload");
@@ -1311,7 +1424,7 @@ function dropFile(e){
 }
 //#endregion 檔案上傳==========End
 
-// 加載表格選取事件
+//#region 加載表格選取事件==========Start
 onMounted(function () {
   dt_prj.value = table_prj.value.dt();
   dt_prj.value.on('select', function (e, dt, type, indexes) {
@@ -1362,7 +1475,22 @@ onMounted(function () {
     e.preventDefault();
     e.stopPropagation();
   });
+  dt_chk.value.on('draw', function (e, dt, type, indexes) {
+    // console.log("dt_gcp draw")
+    selectNowChk(nowChkId.value, 'eq_ck_id', dt_chk.value);
+  });
 });
+
+// 一定要由onMounted裡面的draw觸發，否則dt還未渲染，會找不到物件
+function selectNowChk(nowId, col, dt){
+  if(nowId){
+    dt.rows(function ( idx, data, node ) {
+      return (data[col]===nowId)?true:false
+    }).select();
+  }
+}
+
+//#endregion 加載表格選取事件==========End
 
 </script>
 <template>
@@ -1398,7 +1526,7 @@ onMounted(function () {
                         cancelText="取消" confirmText="確定" @confirm="delPrj">
                         刪除
                       </MDBPopconfirm>
-                      <MDBBtn :disabled="!rGroup[1] || !nowPrjId" size="sm" color="primary" @click="uploadBtn('inputRecord')">匯入紀錄</MDBBtn>
+                      
                     </MDBCol>
                   </MDBRow>
                   <MDBRow class="overflow-auto align-content-start" style="height: calc(100% - 3rem);">
@@ -1427,15 +1555,15 @@ onMounted(function () {
                       <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowPrjOrganizer" />
                     </MDBSelect>
                     <MDBCol xl="6" class="mt-2">
-                      <MDBDatepicker size="sm" v-model="nowPrjStartDate" format=" YYYY-MM-DD " label="開始作業"
+                      <MDBDatepicker size="sm" v-model="nowPrjStartDate" format="YYYY-MM-DD" label="開始作業"
                         ref="nowPrjStartDateDOM" />
                     </MDBCol>
                     <MDBCol xl="6" class="mt-2">
-                      <MDBDatepicker size="sm" v-model="nowPrjEndDate" format=" YYYY-MM-DD " label="結束作業"
+                      <MDBDatepicker size="sm" v-model="nowPrjEndDate" format="YYYY-MM-DD" label="結束作業"
                         ref="nowPrjEndDateDOM" />
                     </MDBCol>
                     <MDBCol xl="6" class="mt-2">
-                      <MDBDatepicker size="sm" v-model="nowPrjPublishDate" format=" YYYY-MM-DD " label="發布日期"
+                      <MDBDatepicker size="sm" v-model="nowPrjPublishDate" format="YYYY-MM-DD" label="發布日期"
                         ref="nowPrjPublishDateDOM" />
                     </MDBCol>
 
@@ -1455,6 +1583,7 @@ onMounted(function () {
                   <MDBTabNav tabsClasses="">
                     <MDBTabItem tabId="gcp_mg" href="gcp_mg">參考值管理</MDBTabItem>
                     <MDBTabItem tabId="item_mg" href="item_mg">標準件管理</MDBTabItem>
+                    <MDBTabItem tabId="ctrl_chart" href="ctrl_chart">管制圖</MDBTabItem>
                   </MDBTabNav>
                   <!-- Tabs Content -->
                   <MDBTabContent style="height: calc(100% - 3rem);">
@@ -1472,16 +1601,19 @@ onMounted(function () {
                         <!-- 表單 -->
                         <MDBCol lg="7" class="h-100">
                           <MDBRow>
-                            <MDBCol col="12" class="py-2 border-bottom">
+                            <MDBCol col="12" class="d-flex py-2 border-bottom">
+                              <MDBBtn :disabled="!rGroup[1] || !nowPrjId" class="me-auto" size="sm" color="primary" @click="uploadBtn('inputRecord')">匯入紀錄</MDBBtn>
+
                               <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newPRecordBtn">新增</MDBBtn>
                               <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveGcpRecordBtn">儲存</MDBBtn>
                               <MDBPopconfirm :disabled="!rGroup[1] || !nowPRecordId" 
-                                class="btn-sm btn-danger me-auto" 
+                                class="btn-sm btn-danger" 
                                 message="刪除後無法恢復，確定刪除嗎？"
                                 cancelText="取消" confirmText="確定" 
                                 @confirm="delGcpRecordBtn">
                                 刪除
                               </MDBPopconfirm>
+                              
                             </MDBCol>
                           </MDBRow>
                           <!-- 參考值表單 -->
@@ -1542,7 +1674,7 @@ onMounted(function () {
                                           <button v-show="nowGcpSimage" class="imgcancel btn p-0" @click.prevent="nowGcpSimage=''"></button>
                                           <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                             <MDBBtn :disabled="!rGroup[1] || !nowPRecordPtId" size="sm" color="primary" @click.prevent="uploadBtn('GcpSimage')">上傳</MDBBtn>
-                                            <MDBBtn tag="a" :href="nowGcpSimageDL" download size="sm" color="secondary">下載</MDBBtn>
+                                            <MDBBtn tag="a" target=_blank :href="nowGcpSimageDL" download size="sm" color="secondary">下載</MDBBtn>
                                           </div>
                                         </MDBCol>
                                       </MDBRow>
@@ -1567,7 +1699,7 @@ onMounted(function () {
                                           <button v-show="nowGcpDespImg" class="imgcancel btn p-0" @click.prevent="nowGcpDespImg=''"></button>
                                           <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                             <MDBBtn :disabled="!rGroup[1] || !nowPRecordPtId" size="sm" color="primary" @click.prevent="uploadBtn('GcpDespImg')">上傳</MDBBtn>
-                                            <MDBBtn tag="a" :href="nowGcpDespImgDL" download size="sm" color="secondary">下載</MDBBtn>
+                                            <MDBBtn tag="a" target=_blank :href="nowGcpDespImgDL" download size="sm" color="secondary">下載</MDBBtn>
                                           </div>
                                         </MDBCol>
                                       </MDBRow>
@@ -1617,7 +1749,7 @@ onMounted(function () {
                                 <MDBSelect id="PrjMGSelPrjId" size="sm" class="mt-2 col-md-6 col-xl-4" label="作業編號" v-model:options="nowPRecordPrjIdMU"
                                   v-model:selected="nowPRecordPrjId" ref="nowPRecordPrjIdDOM" @close="nowPrjClose($event)"/>
                                 <MDBCol md="6" xl="4" class="mt-2">
-                                  <MDBDatepicker size="sm" v-model="nowPRecordDate" format=" YYYY-MM-DD " label="紀錄日期"
+                                  <MDBDatepicker size="sm" v-model="nowPRecordDate" format="YYYY-MM-DD" label="紀錄日期"
                                     ref="nowPRecordDateDOM" />
                                 </MDBCol>
                                 <MDBSelect filter size="sm" class="mt-2 col-md-6 col-xl-4" 
@@ -1669,7 +1801,7 @@ onMounted(function () {
                                             <button v-show="nowPRecordImg0" class="imgcancel btn p-0" @click.prevent="nowPRecordImg0=''"></button>
                                             <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                               <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg0')">上傳</MDBBtn>
-                                              <MDBBtn tag="a" :href="nowPRecordImg0DL" download size="sm" color="secondary">下載</MDBBtn>
+                                              <MDBBtn tag="a" target=_blank :href="nowPRecordImg0DL" download size="sm" color="secondary">下載</MDBBtn>
                                             </div>
                                           </MDBCol>
                                         </MDBRow>
@@ -1694,7 +1826,7 @@ onMounted(function () {
                                             <button v-show="nowPRecordImg1" class="imgcancel btn p-0" @click.prevent="nowPRecordImg1=''"></button>
                                             <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                               <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg1')">上傳</MDBBtn>
-                                              <MDBBtn tag="a" :href="nowPRecordImg1DL" download size="sm" color="secondary">下載</MDBBtn>
+                                              <MDBBtn tag="a" target=_blank :href="nowPRecordImg1DL" download size="sm" color="secondary">下載</MDBBtn>
                                             </div>
                                           </MDBCol>
                                         </MDBRow>
@@ -1719,7 +1851,7 @@ onMounted(function () {
                                             <button v-show="nowPRecordImg2" class="imgcancel btn p-0" @click.prevent="nowPRecordImg2=''"></button>
                                             <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                               <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg2')">上傳</MDBBtn>
-                                              <MDBBtn tag="a" :href="nowPRecordImg2DL" download size="sm" color="secondary">下載</MDBBtn>
+                                              <MDBBtn tag="a" target=_blank :href="nowPRecordImg2DL" download size="sm" color="secondary">下載</MDBBtn>
                                             </div>
                                           </MDBCol>
                                         </MDBRow>
@@ -1744,7 +1876,7 @@ onMounted(function () {
                                             <button v-show="nowPRecordImg3" class="imgcancel btn p-0" @click.prevent="nowPRecordImg3=''"></button>
                                             <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                               <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg3')">上傳</MDBBtn>
-                                              <MDBBtn tag="a" :href="nowPRecordImg3DL" download size="sm" color="secondary">下載</MDBBtn>
+                                              <MDBBtn tag="a" target=_blank :href="nowPRecordImg3DL" download size="sm" color="secondary">下載</MDBBtn>
                                             </div>
                                           </MDBCol>
                                         </MDBRow>
@@ -1769,7 +1901,7 @@ onMounted(function () {
                                             <button v-show="nowPRecordObs" class="imgcancel btn p-0" @click.prevent="nowPRecordObs=''"></button>
                                             <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                               <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImgObs')">上傳</MDBBtn>
-                                              <MDBBtn tag="a" :href="nowPRecordObsDL" download size="sm" color="secondary">下載</MDBBtn>
+                                              <MDBBtn tag="a" target=_blank :href="nowPRecordObsDL" download size="sm" color="secondary">下載</MDBBtn>
                                             </div>
                                           </MDBCol>
                                         </MDBRow>
@@ -1794,9 +1926,9 @@ onMounted(function () {
                           <MDBRow>
                             <MDBCol col="12" class="d-flex py-2 border-bottom">
                               <span class="me-auto">作業使用之標準件</span>
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="secondary" @click="">全複製</MDBBtn>
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="secondary" @click="">貼上</MDBBtn>
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="">儲存</MDBBtn>
+                              <MDBBtn :disabled="!rGroup[1] || data_eqpt.length===0" size="sm" color="secondary" @click="copyLink">全複製</MDBBtn>
+                              <MDBBtn :disabled="!rGroup[1] || !nowPrjId || tempLink.length===0" size="sm" color="secondary" @click="pasteLink">貼上</MDBBtn>
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveLink">儲存</MDBBtn>
                             </MDBCol>
                           </MDBRow>
                           <MDBRow class="overflow-auto align-content-start" style="position:relative; height: fcalc(100% - 3rem);">
@@ -1834,45 +1966,73 @@ onMounted(function () {
                             </div>
                             <!-- 左下右(表單) -->
                             <div style="width: calc(100% - 4rem);" class="h-100">
-                              <MDBRow class="h-100 overflow-auto align-content-start">
-                                <MDBCol>查核紀錄：<span class="text-info">{{nowChkId}}</span></MDBCol>
+                              <MDBRow class="h-100 align-content-start">
+                                <!-- 資料表 -->
                                 <DataTable :data="data_chk" :columns="columns_chk" :options="tboption_chk" ref="table_chk"
                                   style="font-size: smaller;" class="display w-100 compact" />
-                                
-                                <MDBCol md="6" xl="4" class="mt-2">
-                                  <MDBInput readonly size="sm" type="text" label="校正類型" v-model="nowChkType" />
-                                </MDBCol>
-                                <MDBCol md="6" xl="4" class="mt-2">
-                                  <MDBInput readonly size="sm" type="text" label="校正日" v-model="nowChkDate" />
-                                </MDBCol>
-                                <div></div>
-                                <MDBCol col="8" class="mt-2">
-                                  <MDBInput readonly size="sm" type="text" label="報告編號" v-model="nowChkReportId" style="display:inline-block;" />
-                                </MDBCol>
-                                <MDBCol col="4" class="mt-2 ">
-                                  <MDBBtn tag="a" :href="nowChkCalResultDL" download size="sm" color="secondary">下載</MDBBtn>
-                                </MDBCol>
-                                <div></div>
-                                <MDBCol col="8" class="mt-2">
-                                  <MDBInput readonly size="sm" type="text" label="校正實驗室" v-model="nowChkCalOrg" />
-                                </MDBCol>
-                                <MDBCol col="4" class="mt-2">
-                                  <MDBInput readonly size="sm" type="text" label="實驗室編號" v-model="nowChkCalOrgCode" />
-                                </MDBCol>
-                                <div></div>
-                                <MDBCol md="6" xl="4" class="mt-2">
-                                  <MDBInput readonly size="sm" type="text" label="通過" v-model="nowChkCalPass" />
-                                </MDBCol>
-                                <div></div>
-                                <MDBCol col="12" class="mt-2">
-                                  <MDBTextarea size="sm" label="備註" rows="2" v-model="nowChkCalComment" />
-                                </MDBCol>
-
+                                <!-- 功能按鈕 -->
+                                <MDBRow>
+                                  <MDBCol col="12" class="py-2 border-bottom">
+                                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newChk">新增</MDBBtn>
+                                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveChk">儲存</MDBBtn>
+                                    <MDBPopconfirm :disabled="!rGroup[1] || !nowChkId" 
+                                      class="btn-sm btn-danger me-auto" 
+                                      message="刪除後無法恢復，確定刪除嗎？"
+                                      cancelText="取消" confirmText="確定" 
+                                      @confirm="delChk">
+                                      刪除
+                                    </MDBPopconfirm>
+                                  </MDBCol>
+                                </MDBRow>
+                                <!-- 資料區 -->
+                                <MDBRow style="height: calc(100% - 12rem);" class="overflow-auto align-content-start">
+                                  <MDBCol class="d-flex align-items-center">
+                                    查核紀錄：<span class="text-info">{{nowChkId}}</span>
+                                  </MDBCol>
+                                  <MDBCol md="6" xl="4" class="mt-2">
+                                    <MDBInput readonly size="sm" type="text" label="校正類型" v-model="nowChkType" />
+                                  </MDBCol>
+                                  <MDBCol md="6" xl="4" class="mt-2">
+                                    <MDBDatepicker size="sm" v-model="nowChkDate" format="YYYY-MM-DD" label="校正日"
+                                      ref="nowChkDateDOM" />
+                                  </MDBCol>
+                                  <div></div>
+                                  <MDBCol col="8" class="mt-2">
+                                    <MDBInput size="sm" type="text" label="報告編號" v-model="nowChkReportId"/>
+                                  </MDBCol>
+                                  <MDBCol col="4" class="mt-2 ">
+                                    <MDBBtn :disabled="!rGroup[1] || !nowChkReportId || !nowEqptId" size="sm" color="primary" @click.prevent="uploadBtn('ChkCalResult')">上傳</MDBBtn>
+                                    <MDBBtn tag="a" target=_blank :href="nowChkCalResultDL" download size="sm" color="secondary">下載</MDBBtn>
+                                  </MDBCol>
+                                  <div></div>
+                                  <MDBSelect size="sm" class="mt-2 col-8" label="校正實驗室" 
+                                    v-model:options="nowChkCalOrgMU"
+                                    v-model:selected="nowChkCalOrg" 
+                                    ref="nowChkCalOrgDOM"
+                                    @close="updateChkOrg()">
+                                    <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowChkCalOrg" />
+                                  </MDBSelect>
+                                  <MDBCol col="4" class="mt-2">
+                                    <MDBInput size="sm" type="text" label="實驗室編號" v-model="nowChkCalOrgCode" />
+                                  </MDBCol>
+                                  <div></div>
+                                  <MDBCol md="6" xl="4" class="mt-2">
+                                    <MDBCheckbox label="通過" v-model="nowChkCalPass" />
+                                  </MDBCol>
+                                  <div></div>
+                                  <MDBCol col="12" class="mt-2">
+                                    <MDBTextarea size="sm" label="備註" rows="2" v-model="nowChkCalComment" />
+                                  </MDBCol>
+                                </MDBRow>
                               </MDBRow>
                             </div>
                           </MDBRow>
                         </MDBCol> 
                       </MDBRow> 
+                    </MDBTabPane>
+                    <!-- 管制圖 -->
+                    <MDBTabPane tabId="ctrl_chart" class="h-100">
+                      管制圖
                     </MDBTabPane>
                   </MDBTabContent>
                 </MDBTabs>

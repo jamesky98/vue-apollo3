@@ -1363,7 +1363,7 @@ refgetSupList();
                         <MDBCol col="4" class="px-0 mt-3">
                           <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('resUpload')">
                             上傳</MDBBtn>
-                          <MDBBtn tag="a" :href="nowEmpResUploadDL" download size="sm" color="secondary">下載
+                          <MDBBtn tag="a" target=_blank :href="nowEmpResUploadDL" download size="sm" color="secondary">下載
                           </MDBBtn>
                         </MDBCol>
                       </MDBRow>
@@ -1470,7 +1470,7 @@ refgetSupList();
                                   <MDBCol col="4" class="px-0 mt-3">
                                     <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('trainUpload')">
                                       上傳</MDBBtn>
-                                    <MDBBtn tag="a" :href="nowTrainUploadDL" download size="sm" color="secondary">下載
+                                    <MDBBtn tag="a" target=_blank :href="nowTrainUploadDL" download size="sm" color="secondary">下載
                                     </MDBBtn>
                                   </MDBCol>
                                   <MDBCol md="12" class="my-3">
@@ -1561,7 +1561,7 @@ refgetSupList();
                                   <MDBCol col="4" class="px-0 mt-3">
                                     <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('empowerUpload')">
                                       上傳</MDBBtn>
-                                    <MDBBtn tag="a" :href="nowEmpowerTabUploadDL" download size="sm" color="secondary">下載
+                                    <MDBBtn tag="a" target=_blank :href="nowEmpowerTabUploadDL" download size="sm" color="secondary">下載
                                     </MDBBtn>
                                   </MDBCol>
                                   <!-- 核准公文上傳 -->

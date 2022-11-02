@@ -158,9 +158,21 @@ const DELPRJ = gql`
 `;
 
 const INPUTGCPRECORDS = gql`
-mutation InputGCPRecords($records: [gcp_records]) {
-  inputGCPRecords(records: $records)
-}
+  mutation InputGCPRecords($records: [gcp_records]) {
+    inputGCPRecords(records: $records)
+  }
+`;
+
+const SAVEPRJEQPTUSE = gql`
+  mutation SavePrjEqptUse($records: [ref_use_eqpts]) {
+    savePrjEqptUse(records: $records)
+  }
+`;
+
+const DELPRJEQPTUSE = gql`
+  mutation DelPrjEqptUse($recordsId: [Int]) {
+    delPrjEqptUse(recordsId: $recordsId)
+  }
 `;
 
 const GETCASECALTYPE = gql`
@@ -174,17 +186,109 @@ const GETCASECALTYPE = gql`
 `;
 
 const GETEQPTBYRRJID = gql`
-mutation GetEqptByPrj($getEqptByPrjId: Int!) {
-  getEqptByPrj(id: $getEqptByPrjId) {
-    id
-    project_id
-    eqpt_check_id
-    ref_eqpt_check {
+  mutation GetEqptByPrj($getEqptByPrjId: Int!) {
+    getEqptByPrj(id: $getEqptByPrjId) {
+      id
+      project_id
+      eqpt_check_id
+      ref_eqpt_check {
+        ref_eqpt_id
+        ref_eqpt {
+          chop
+          model
+          serial_number
+          type
+          ref_eqpt_type {
+            type
+          }
+          cal_cycle
+          comment
+        }
+        chek_type
+        check_date
+        report_id
+        cal_org
+        cal_org_id
+        pass
+        result
+        comment
+      }
+    }
+  }
+`;
+
+const GETALLEQPT = gql`
+  query GetAllEqpt($type: Int) {
+    getAllEqpt(type: $type) {
+      ref_equpt_id
+      serial_number
+      chop
+      model
+      type
+      ref_eqpt_type {
+        type
+      }
+      cal_cycle
+      comment
+      latest_chk {
+        check_date
+        report_id
+        cal_org
+        cal_org_id
+        pass
+        result
+        comment
+      }
+    }
+  }
+`;
+
+const GETEQPTTYPE = gql`
+  query GetEqptType {
+    getEqptType {
+      eqpt_type_id
+      type
+    }
+  }
+`;
+
+const GETCHKBYEQPTID = gql`
+  mutation GetChkByEqptId($refEqptId: Int) {
+    getChkByEqptId(ref_eqpt_id: $refEqptId) {
+      eq_ck_id
       ref_eqpt_id
       ref_eqpt {
         chop
         model
         serial_number
+        ref_eqpt_type {
+          type
+        }
+        cal_cycle
+        comment
+      }
+      chek_type
+      check_date
+      report_id
+      cal_org
+      cal_org_id
+      pass
+      result
+      comment
+    }
+  }
+`;
+
+const GETCHKBYID = gql`
+  mutation GetChkById($eqCkId: Int) {
+    getChkById(eq_ck_id: $eqCkId) {
+      eq_ck_id
+      ref_eqpt_id
+      ref_eqpt {
+        ref_equpt_id
+        serial_number
+        chop
+        model
         type
         ref_eqpt_type {
           type
@@ -202,98 +306,50 @@ mutation GetEqptByPrj($getEqptByPrjId: Int!) {
       comment
     }
   }
-}
 `;
 
-const GETALLEQPT = gql`
-query GetAllEqpt($type: Int) {
-  getAllEqpt(type: $type) {
-    ref_equpt_id
-    serial_number
-    chop
-    model
-    type
-    ref_eqpt_type {
-      type
-    }
-    cal_cycle
-    comment
-    latest_chk {
-      check_date
-      report_id
-      cal_org
-      cal_org_id
-      pass
-      result
-      comment
-    }
+const GETALLCHKORGLIST = gql`
+  mutation GetAllChkOrgList {
+    getAllChkOrgList
   }
-}
 `;
 
-const GETEQPTTYPE = gql`
-query GetEqptType {
-  getEqptType {
-    eqpt_type_id
-    type
+const DELREFEQPTCHK = gql`
+  mutation DelRefEqptChk($eqCkId: Int!) {
+    delRefEqptChk(eq_ck_id: $eqCkId) {
+      eq_ck_id
+    }
   }
-}
 `;
 
-const GETCHKBYEQPTID = gql`
-mutation GetChkByEqptId($refEqptId: Int) {
-  getChkByEqptId(ref_eqpt_id: $refEqptId) {
-    eq_ck_id
-    ref_eqpt_id
-    ref_eqpt {
-      chop
-      model
-      serial_number
-      ref_eqpt_type {
-        type
-      }
-      cal_cycle
-      comment
+const SAVEREFEQPTCHK = gql`
+  mutation UpdateRefEqptChk(
+    $eqCkId: Int!
+    $refEqptId: Int
+    $chekType: String
+    $checkDate: Date
+    $reportId: String
+    $calOrg: String
+    $calOrgId: String
+    $pass: Boolean
+    $result: String
+    $comment: String
+  ) {
+    updateRefEqptChk(
+      eq_ck_id: $eqCkId
+      ref_eqpt_id: $refEqptId
+      chek_type: $chekType
+      check_date: $checkDate
+      report_id: $reportId
+      cal_org: $calOrg
+      cal_org_id: $calOrgId
+      pass: $pass
+      result: $result
+      comment: $comment
+    ) {
+      eq_ck_id
     }
-    chek_type
-    check_date
-    report_id
-    cal_org
-    cal_org_id
-    pass
-    result
-    comment
   }
-}
-`;
-
-const GETCHKBYID = gql`
-mutation GetChkById($eqCkId: Int) {
-  getChkById(eq_ck_id: $eqCkId) {
-    eq_ck_id
-    ref_eqpt_id
-    ref_eqpt {
-      ref_equpt_id
-      serial_number
-      chop
-      model
-      type
-      ref_eqpt_type {
-        type
-      }
-      cal_cycle
-      comment
-    }
-    chek_type
-    check_date
-    report_id
-    cal_org
-    cal_org_id
-    pass
-    result
-    comment
-  }
-}
 `;
 
 export default {
@@ -303,10 +359,15 @@ export default {
   SAVEPRJ,
   DELPRJ,
   INPUTGCPRECORDS,
+  SAVEPRJEQPTUSE,
+  DELPRJEQPTUSE,
   GETCASECALTYPE,
   GETEQPTBYRRJID,
   GETALLEQPT,
   GETEQPTTYPE,
   GETCHKBYEQPTID,
   GETCHKBYID,
+  GETALLCHKORGLIST,
+  DELREFEQPTCHK,
+  SAVEREFEQPTCHK,
 };

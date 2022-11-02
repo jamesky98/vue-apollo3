@@ -2134,7 +2134,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 my-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('itemCamReportUpload')">
                       上傳</MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseCamReportDL" download size="sm" color="secondary">下載
+                    <MDBBtn tag="a" target=_blank :href="nowCaseCamReportDL" download size="sm" color="secondary">下載
                     </MDBBtn>
                   </MDBCol>
                   <div></div>
@@ -2149,7 +2149,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 mb-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('planMapUpload')">上傳
                     </MDBBtn>
-                    <MDBBtn tag="a" :href="nowCasePlanMapDL" download size="sm" color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCasePlanMapDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -2228,7 +2228,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 my-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('CamUploadUpload')">上傳
                     </MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseCamDL" download size="sm" color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCaseCamDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <div></div>
                   <!-- 航線圖 -->
@@ -2242,7 +2242,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 mb-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('FlyMapAcUpload')">上傳
                     </MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseFlyMapAcDL" download size="sm" color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCaseFlyMapAcDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <!-- 航拍紀錄表 -->
                   <MDBCol col="9" class="mb-3">
@@ -2255,7 +2255,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 mb-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('RecTableUpload')">上傳
                     </MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseRecTableDL" download size="sm" color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCaseRecTableDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <!-- 外方位紀錄檔 -->
                   <MDBCol col="9" class="mb-3">
@@ -2266,7 +2266,7 @@ defineExpose({
                   </MDBCol>
                   <MDBCol required col="3" class="px-0 mb-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('EOUpload')">上傳</MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseEODL" download size="sm" color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCaseEODL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="送校影像數" v-model="nowCasePhotoNo" />
@@ -2282,7 +2282,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 mb-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('OtherUpload')">上傳
                     </MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseOtherDL" download size="sm" color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCaseOtherDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -2390,7 +2390,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 mb-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('FreeUpload')">上傳
                     </MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseFreeUploadDL" download size="sm" color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCaseFreeUploadDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="強制網中誤差(um)"
@@ -2406,7 +2406,7 @@ defineExpose({
                   </MDBCol>
                   <MDBCol col="3" class="px-0 mb-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('FixUpload')">上傳</MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseFixUploadDL" download size="sm" color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCaseFixUploadDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <!-- 空三報表檔 -->
                   <MDBCol col="8" class="mb-3">
@@ -2419,7 +2419,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 mb-3">
                     <MDBBtn size="sm" color="primary" :disabled="!selectUcModel || selectUcModel === '-1' || !rGroup[2]"
                       @click="uploadBtn('ATreportUpload')">上傳</MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseATreportDL" download size="sm" color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCaseATreportDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
@@ -2523,7 +2523,7 @@ defineExpose({
                         <MDBCol col="4" class="px-0 mb-3">
                           <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('NetGraphUpload')">
                             上傳</MDBBtn>
-                          <MDBBtn tag="a" :href="nowCaseNetGraphDL" download size="sm" color="secondary">下載</MDBBtn>
+                          <MDBBtn tag="a" target=_blank :href="nowCaseNetGraphDL" download size="sm" color="secondary">下載</MDBBtn>
                         </MDBCol>
                       </MDBRow>
                     </MDBCol>
@@ -2550,7 +2550,7 @@ defineExpose({
                         <MDBCol col="4" class="px-0 mb-3">
                           <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('GCPGraphUpload')">
                             上傳</MDBBtn>
-                          <MDBBtn tag="a" :href="nowCaseGCPGraphDL" download size="sm" color="secondary">下載</MDBBtn>
+                          <MDBBtn tag="a" target=_blank :href="nowCaseGCPGraphDL" download size="sm" color="secondary">下載</MDBBtn>
                         </MDBCol>
                       </MDBRow>
                     </MDBCol>
@@ -2608,7 +2608,7 @@ defineExpose({
                       <MDBCol col="3" class="px-0 mb-3">
                         <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('ReportEditUpload')">
                           上傳</MDBBtn>
-                        <MDBBtn id="ReportEditDownload" tag="a" :href="nowCaseReportEditDL" download size="sm"
+                        <MDBBtn id="ReportEditDownload" tag="a" target=_blank :href="nowCaseReportEditDL" download size="sm"
                           color="secondary">下載</MDBBtn>
                       </MDBCol>
                       
@@ -2631,7 +2631,7 @@ defineExpose({
                       <MDBCol col="3" class="px-0 mt-3">
                         <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('ReportScanUpload')">
                           上傳</MDBBtn>
-                        <MDBBtn tag="a" :href="nowCaseReportScanDL" download size="sm" color="secondary">下載</MDBBtn>
+                        <MDBBtn tag="a" target=_blank :href="nowCaseReportScanDL" download size="sm" color="secondary">下載</MDBBtn>
                       </MDBCol>
 
                     </MDBRow>

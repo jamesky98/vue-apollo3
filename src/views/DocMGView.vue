@@ -811,11 +811,11 @@ function zoompdfView(){
                           </MDBCol>
                           <MDBCol col="6" class="mb-3"></MDBCol>
                           <MDBCol col="6" class="mb-3">
-                            <MDBDatepicker size="sm" v-model="nowReleaseDate" format=" YYYY-MM-DD " label="發行日"
+                            <MDBDatepicker size="sm" v-model="nowReleaseDate" format="YYYY-MM-DD" label="發行日"
                               ref="itemRelDate" />
                           </MDBCol>
                           <MDBCol col="6" class="mb-3">
-                            <MDBDatepicker size="sm" v-model="nowExpDate" format=" YYYY-MM-DD " label="廢止日"
+                            <MDBDatepicker size="sm" v-model="nowExpDate" format="YYYY-MM-DD" label="廢止日"
                               ref="itemExpDate" />
                           </MDBCol>
                           <MDBCol col="12" class="mb-3">
@@ -836,7 +836,7 @@ function zoompdfView(){
                             <input type="file" accept=".pdf" id="itemUpload" @change="uploadChenge"
                               style="display: none;" />
                             <MDBBtn v-if="rGroup[1]" size="sm" color="primary" @click="uploadBtn">上傳</MDBBtn>
-                            <MDBBtn tag="a" :href="nowDownLoad" download size="sm" color="secondary">下載</MDBBtn>
+                            <MDBBtn tag="a" target=_blank :href="nowDownLoad" download size="sm" color="secondary">下載</MDBBtn>
                           </MDBCol>
                           <MDBCol col="9" class="mb-3">
                             <MDBInput style="padding-right: 2.2em;" size="sm" type="text" readonly label="編輯檔"
@@ -848,7 +848,7 @@ function zoompdfView(){
                             <input type="file" accept=".doc,.docx" id="itemExpUpload" @change="uploadChenge"
                               style="display: none;" />
                             <MDBBtn v-if="rGroup[1]" size="sm" color="primary" @click="expUploadBtn">上傳</MDBBtn>
-                            <MDBBtn tag="a" :href="nowEdDownLoad" download size="sm" color="secondary">下載</MDBBtn>
+                            <MDBBtn tag="a" target=_blank :href="nowEdDownLoad" download size="sm" color="secondary">下載</MDBBtn>
                           </MDBCol>
                           <MDBCol col="12" class="mb-3">
                             <MDBTextarea :disabled="!rGroup[1]" size="sm" label="備註" rows="2" v-model="nowComment" />

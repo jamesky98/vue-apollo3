@@ -1993,7 +1993,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 my-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('itemLrReportUpload')">上傳
                     </MDBBtn>
-                    <MDBBtn tag="a" size="sm" :href="nowCaseLrReportDL" download color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank size="sm" :href="nowCaseLrReportDL" download color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <div></div>
                   <!-- POS規格 -->
@@ -2007,7 +2007,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 mb-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('itemPOSReportUpload')">
                       上傳</MDBBtn>
-                    <MDBBtn tag="a" size="sm" :href="nowCasePosReportDL" download color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank size="sm" :href="nowCasePosReportDL" download color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <div></div>
                   <!-- 規劃圖 -->
@@ -2021,7 +2021,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 mb-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('itemLrPlanUpload')">上傳
                     </MDBBtn>
-                    <MDBBtn tag="a" size="sm" :href="nowCasePlanMapDL" download color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank size="sm" :href="nowCasePlanMapDL" download color="secondary">下載</MDBBtn>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -2093,7 +2093,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 my-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('FlyMapAcUpload')">上傳
                     </MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseFlyMapAcDL" download size="sm" color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCaseFlyMapAcDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <!-- 掃描紀錄表 -->
                   <MDBCol col="9" class="mb-3">
@@ -2106,7 +2106,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 mb-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('RecTableUpload')">上傳
                     </MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseRecTableDL" download size="sm" color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCaseRecTableDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
@@ -2123,7 +2123,7 @@ defineExpose({
                   <MDBCol col="3" class="px-0 mb-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('OtherUpload')">上傳
                     </MDBBtn>
-                    <MDBBtn tag="a" :href="nowCaseOtherDL" download size="sm" color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCaseOtherDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -2288,7 +2288,7 @@ defineExpose({
                         <input type="file" id="ReportEditUpload" @change="" style="display: none" />
                         <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click.stop="uploadBtn('ReportEditUpload')">
                           上傳</MDBBtn>
-                        <MDBBtn id="ReportEditDownload" tag="a" :href="nowCaseReportEditDL" download size="sm"
+                        <MDBBtn id="ReportEditDownload" tag="a" target=_blank :href="nowCaseReportEditDL" download size="sm"
                           color="secondary">下載</MDBBtn>
                       </MDBCol>
 
@@ -2312,7 +2312,7 @@ defineExpose({
                         <input type="file" id="ReportScanUpload" @change="uploadChenge($event)" style="display: none" />
                         <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click.stop="uploadBtn('ReportScanUpload')">
                           上傳</MDBBtn>
-                        <MDBBtn tag="a" :href="nowCaseReportScanDL" download size="sm" color="secondary">下載</MDBBtn>
+                        <MDBBtn tag="a" target=_blank :href="nowCaseReportScanDL" download size="sm" color="secondary">下載</MDBBtn>
                       </MDBCol>
 
                     </MDBRow>
