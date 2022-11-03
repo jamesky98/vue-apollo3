@@ -243,6 +243,23 @@ const GETALLEQPT = gql`
   }
 `;
 
+const GETEQPTBYID = gql`
+  mutation GetEqptById($refEquptId: Int!) {
+    getEqptById(ref_equpt_id: $refEquptId) {
+      ref_equpt_id
+      serial_number
+      chop
+      model
+      type
+      ref_eqpt_type {
+        type
+      }
+      cal_cycle
+      comment
+    }
+  }
+`;
+
 const GETEQPTTYPE = gql`
   query GetEqptType {
     getEqptType {
@@ -352,6 +369,50 @@ const SAVEREFEQPTCHK = gql`
   }
 `;
 
+const GETCHOPLIST = gql`
+  mutation GetEqptChopList {
+    getEqptChopList
+  }
+`;
+
+const GETMODELLIST = gql`
+  mutation GetEqptModelList {
+    getEqptModelList
+  }
+`;
+
+const DELREFEQPT = gql`
+  mutation DelRefEqpt($refEquptId: Int!) {
+    delRefEqpt(ref_equpt_id: $refEquptId) {
+      ref_equpt_id
+    }
+  }
+`;
+
+const SAVEREFEQPT = gql`
+  mutation UpdateRefEqpt(
+    $refEquptId: Int!
+    $chop: String
+    $model: String
+    $serialNumber: String
+    $type: Int
+    $calCycle: String
+    $comment: String
+  ) {
+    updateRefEqpt(
+      ref_equpt_id: $refEquptId
+      chop: $chop
+      model: $model
+      serial_number: $serialNumber
+      type: $type
+      cal_cycle: $calCycle
+      comment: $comment
+    ) {
+      ref_equpt_id
+    }
+  }
+`;
+
 export default {
   GETALLPRJ,
   GETPRJBYID,
@@ -364,10 +425,15 @@ export default {
   GETCASECALTYPE,
   GETEQPTBYRRJID,
   GETALLEQPT,
+  GETEQPTBYID,
   GETEQPTTYPE,
   GETCHKBYEQPTID,
   GETCHKBYID,
   GETALLCHKORGLIST,
   DELREFEQPTCHK,
   SAVEREFEQPTCHK,
+  GETCHOPLIST,
+  GETMODELLIST,
+  DELREFEQPT,
+  SAVEREFEQPT,
 };

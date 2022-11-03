@@ -101,13 +101,26 @@ const notProssing = ref(false);
 const updateKey = ref(0);
 
 // 標準件
+const selEqptType = ref("");
+const selEqptTypeMU = ref([]);
+const selEqptTypeDOM = ref();
+
+const nowEqptId = ref("");
 const nowEqptType = ref("");
 const nowEqptTypeMU = ref([]);
 const nowEqptTypeDOM = ref();
-const nowEqptId = ref("");
+
 const nowEqptChop = ref("");
+const nowEqptChopMU = ref([]);
+const nowEqptChopDOM = ref();
+
 const nowEqptModel = ref("");
+const nowEqptModelMU = ref([]);
+const nowEqptModelDOM = ref();
+
 const nowEqptSN = ref("");
+const nowEqptCycle = ref("");
+const nowEqptComment = ref("");
 
 // 查核紀錄
 const nowChkId = ref("");
@@ -182,12 +195,35 @@ getAllEqpt(result=>{
     data_eqpt2.value = result.data.getAllEqpt;
   }
 });
-refgetAllEqpt({type: (nowEqptType.value && nowEqptType.value!==-1)?nowEqptType.value:null});
+// refgetAllEqpt({type: (selEqptType.value && selEqptType.value!==-1)?selEqptType.value:null});
+
+// 查詢全標準件 By ID
+const { mutate: getEqptById, onDone: getEqptByIdOnDone, onError: getEqptByIdError } = useMutation(PrjGQL.GETEQPTBYID);
+getEqptByIdOnDone(result=>{
+  let getData = result.data.getEqptById;
+  nowEqptType.value = parseInt(getData.type);
+  nowEqptTypeDOM.value.setValue((nowEqptType.value)?nowEqptType.value:-1);
+
+  nowEqptChop.value = getData.chop;
+  nowEqptChopDOM.value.setValue((nowEqptChop.value)?nowEqptChop.value:-1);
+
+  nowEqptModel.value = getData.model;
+  nowEqptModelDOM.value.setValue((nowEqptModel.value)?nowEqptModel.value:-1);
+
+  nowEqptSN.value = getData.serial_number;
+  nowEqptCycle.value = getData.cal_cycle;
+  nowEqptComment.value = getData.comment;
+});
 
 // 查詢標準件類型下拉式清單
 const { onResult: getEqptType, refetch: refgetEqptType } = useQuery(PrjGQL.GETEQPTTYPE);
 getEqptType(result=>{
   if(!result.loading){
+    // 篩選區
+    selEqptTypeMU.value = result.data.getEqptType.map(x => {
+      return { text: x.type, value: parseInt(x.eqpt_type_id) }
+    }); selEqptTypeMU.value.unshift({ text: "-未選取-", value: -1 });
+    // 資料區
     nowEqptTypeMU.value = result.data.getEqptType.map(x => {
       return { text: x.type, value: parseInt(x.eqpt_type_id) }
     }); nowEqptTypeMU.value.unshift({ text: "-未選取-", value: -1 });
@@ -196,10 +232,91 @@ getEqptType(result=>{
 refgetEqptType();
 // 切換標準件類型
 function changeEqptType(){
-  refgetAllEqpt({type: (nowEqptType.value && nowEqptType.value!==-1)?nowEqptType.value:null});
+  refgetAllEqpt({type: (selEqptType.value && selEqptType.value!==-1)?selEqptType.value:null});
 }
 
+// 廠牌清單
+const { mutate: getChopList, onDone: getChopListOnDone, onError: getChopListError } = useMutation(PrjGQL.GETCHOPLIST);
+getChopListOnDone(result=>{
+  let getData = result.data.getEqptChopList;
+  nowEqptChopMU.value = getData.map(x => {
+      return { text: x, value: x }
+    });nowEqptChopMU.value.unshift({ text: "-未選取-", value: -1 });
+});
+getChopList();
+function updateChop(){
+  let newoption = nowEqptChop.value;
+  let findid = nowEqptChopMU.value.findIndex(x => x.value===newoption);
+  if(findid===-1){
+    nowEqptChopMU.value.push({text: newoption, value: newoption})
+    nowEqptChopDOM.value.setValue(newoption);
+  }
+}
 
+// 型號清單
+const { mutate: getEqptModelList, onDone: getEqptModelListOnDone, onError: getEqptModelListError } = useMutation(PrjGQL.GETMODELLIST);
+getEqptModelListOnDone(result=>{
+  let getData = result.data.getEqptModelList;
+  nowEqptModelMU.value = getData.map(x => {
+      return { text: x, value: x }
+    });nowEqptModelMU.value.unshift({ text: "-未選取-", value: -1 });
+});
+getEqptModelList();
+function updateModeel(){
+  let newoption = nowEqptModel.value;
+  let findid = nowEqptModelMU.value.findIndex(x => x.value===newoption);
+  if(findid===-1){
+    nowEqptModelMU.value.push({text: newoption, value: newoption})
+    nowEqptModelDOM.value.setValue(newoption);
+  }
+}
+
+// 新增
+function newEqpt(){
+  nowEqptId.value = "";
+  nowEqptType.value = -1;
+  nowEqptTypeDOM.value.setValue(-1);
+  nowEqptChop.value = "";
+  nowEqptChopDOM.value.setValue(-1);
+  nowEqptModel.value = "";
+  nowEqptModelDOM.value.setValue(-1);
+  nowEqptSN.value = "";
+  nowEqptCycle.value = "";
+  nowEqptComment.value = "";
+}
+
+// 儲存
+const { mutate: saveRefEqpt, onDone: saveRefEqptOnDone, onError: saveRefEqptError } = useMutation(PrjGQL.SAVEREFEQPT);
+function saveEqpt(){
+  saveRefEqpt({
+    refEquptId: (parseInt(nowEqptId.value))?parseInt(nowEqptId.value):-1,
+    chop: (nowEqptChop.value===-1)?null:nowEqptChop.value,
+    model: (nowEqptModel.value===-1)?null:nowEqptModel.value,
+    serialNumber: nowEqptSN.value,
+    type: (parseInt(nowEqptType.value) && parseInt(nowEqptType.value)!==-1)?parseInt(nowEqptType.value):null,
+    calCycle: nowEqptCycle.value,
+    comment: nowEqptComment.value,
+  }).then(res=>{
+    nowEqptId.value = parseInt(res.data.updateRefEqpt.ref_equpt_id);
+    return refgetAllEqpt({type: (selEqptType.value && selEqptType.value!==-1)?selEqptType.value:null});
+  });
+}
+
+// 刪除
+const { mutate: delRefEqpt, onDone: delRefEqptOnDone, onError: delRefEqptError } = useMutation(PrjGQL.DELREFEQPT);
+function delEqpt(){
+  delRefEqpt({
+    refEquptId: parseInt(nowEqptId.value)
+  }).then(res=>{
+    nowEqptId.value = null;
+    // 更新eqpt2 table
+    return refgetAllEqpt({type: (selEqptType.value && selEqptType.value!==-1)?selEqptType.value:null});
+  })
+}
+
+//#endregion 標準件管理==========End
+
+//#region 查核紀錄==========Start
 const dt_chk = ref();
 const table_chk = ref(); 
 const data_chk = ref([]);
@@ -269,7 +386,6 @@ getChkByIdOnDone(result=>{
   nowChkCalComment.value = getData.comment;
 });
 
-
 // 新增Chk
 function newChk(){
   nowChkId.value = "";
@@ -299,17 +415,22 @@ function saveChk(){
     result: (nowChkCalResult.value)?nowChkCalResult.value:null,
     comment: (nowChkCalComment.value)?nowChkCalComment.value:null,
   }).then(res=>{
-    nowChkId.value = res.data.updateRefEqptChk.eq_ck_id;
+    nowChkId.value = parseInt(res.data.updateRefEqptChk.eq_ck_id);
     // 更新chk table
     return getChkByEqpt({refEqptId: parseInt(nowEqptId.value)});
   })
 }
 
-
 // 刪除Chk
 const { mutate: delRefEqptChk, onDone: delRefEqptChkOnDone, onError: delRefEqptChkError } = useMutation(PrjGQL.DELREFEQPTCHK);
 function delChk(){
-  delRefEqptChk({eqCkId: parseInt(nowChkId.value)})
+  delRefEqptChk({
+    eqCkId: parseInt(nowChkId.value)
+  }).then(res=>{
+    nowChkId.value = null;
+    // 更新chk table
+    return getChkByEqpt({refEqptId: parseInt(nowEqptId.value)});
+  })
 }
 
 // 實驗室清單
@@ -330,20 +451,110 @@ function updateChkOrg(){
   }
 }
 
+//#endregion 查核紀錄==========End
 
+//#region 檔案上傳==========Start
+const uploadType = ref("");
+function uploadBtn(inputId) {
+  // 由按鈕啟動檔案選擇器
+  uploadType.value = inputId;
+  const inputDOM = document.getElementById("AllUpload");
+  inputDOM.setAttribute("accept","");
+  switch (inputId) {
+    case "ChkCalResult":
+      inputDOM.setAttribute("accept",".pdf");
+      break;
+  }
+  inputDOM.click();
+}
+// 檔案選擇器選擇事件
+const upFile = ref();
+async function uploadChenge(e) {
+  let selFileName;
+  let subExt;
+  if(e.type==='drop'){
+    upFile.value = e.dataTransfer.files[0];
+    selFileName = e.dataTransfer.files[0].name;
+    subExt = path.extname(selFileName);
+  }else{
+    upFile.value = e.target.files[0];
+    selFileName = e.target.value;
+  }
+  subExt = path.extname(selFileName);
+  let subpath;
+  let newName = "";
+  let isUpload = false;
+  if (!uploadType.value) {
+    return;
+  }
+  switch (uploadType.value) {
+    case "ChkCalResult":
+      subpath = "01_Equipment/" + nowEqptId.value;
+      newName = nowChkReportId.value + subExt;
+      isUpload = true;
+      break;
+  }
+  if (isUpload){
+    await uploadFile({
+      file: upFile.value,
+      subpath: subpath,
+      newfilename: newName,
+    });
+  }
+}
+// 上傳檔案
+const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
+  ToolsGQL.UPLOADFILE
+);
+uploadFileOnDone((result) => {
+  // console.log("uploadFile")
+  // 儲存(更新)上傳紀錄資料
+  if (!uploadType.value) {
+    return;
+  }
+  switch (uploadType.value) {
+    case "ChkCalResult":
+      nowChkCalResult.value = "";
+      nowChkCalResult.value = result.data.uploadFile.filename;
+      saveChk();
+      break;
+  }
+  let inputDOM;
+  inputDOM = document.getElementById("AllUpload");
+  inputDOM.value = "";
+});
 
-//#endregion 標準件管理==========End
-
+// drop
+function cancelDefault(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  return false;
+}
+function dropFile(e){
+  uploadType.value = e.target.id;
+  uploadChenge(e);
+}
+//#endregion 檔案上傳==========End
 
 //#region 加載表格選取事件==========Start
 onMounted(function () {
   dt_eqpt2.value = table_eqpt2.value.dt();
   dt_eqpt2.value.on('select', function (e, dt, type, indexes) {
     nowEqptId.value = dt.rows(indexes).data()[0].ref_equpt_id;
-    
+    // 查詢查核紀錄
     getChkByEqpt({refEqptId: parseInt(nowEqptId.value)}).then(res=>{
       newChk();
     });
+    // 查詢By ID
+    getEqptById({refEquptId: parseInt(nowEqptId.value)});
+
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  dt_eqpt2.value.on('draw', function (e, dt, type, indexes) {
+    if(nowEqptId.value){
+      selectNowId(nowEqptId.value, 'ref_equpt_id', dt_eqpt2.value);
+    }
     e.preventDefault();
     e.stopPropagation();
   });
@@ -356,16 +567,19 @@ onMounted(function () {
     e.stopPropagation();
   });
   dt_chk.value.on('draw', function (e, dt, type, indexes) {
-    // console.log("dt_gcp draw")
-    selectNowChk(nowChkId.value, 'eq_ck_id', dt_chk.value);
+    if(nowChkId.value){
+      selectNowId(nowChkId.value, 'eq_ck_id', dt_chk.value);
+    }
+    e.preventDefault();
+    e.stopPropagation();
   });
 });
 
 // 一定要由onMounted裡面的draw觸發，否則dt還未渲染，會找不到物件
-function selectNowChk(nowId, col, dt){
-  if(nowId){
+function selectNowId(nowId, col, dt){
+  if(parseInt(nowId)){
     dt.rows(function ( idx, data, node ) {
-      return (data[col]===nowId)?true:false
+      return (parseInt(data[col])===parseInt(nowId))?true:false
     }).select();
   }
 }
@@ -394,9 +608,9 @@ function selectNowChk(nowId, col, dt){
                     <MDBCol col="6"><span>標準件清單</span></MDBCol>
                     <MDBSelect filter size="sm" class="mt-2 col-6" 
                       label="儀器類型" 
-                      v-model:options="nowEqptTypeMU"
-                      v-model:selected="nowEqptType" 
-                      ref="nowEqptTypeDOM"
+                      v-model:options="selEqptTypeMU"
+                      v-model:selected="selEqptType" 
+                      ref="selEqptTypeDOM"
                       @change="changeEqptType" />
                     <DataTable :data="data_eqpt2" :columns="columns_eqpt2" :options="tboption_eqpt2" ref="table_eqpt2"
                       style="font-size: smaller;" class="display w-100 compact" />
@@ -407,13 +621,13 @@ function selectNowChk(nowId, col, dt){
                   <!-- 功能按鈕 -->
                   <MDBRow>
                     <MDBCol col="12" class="py-2 border-bottom">
-                      <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="">新增</MDBBtn>
-                      <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="">儲存</MDBBtn>
-                      <MDBPopconfirm :disabled="!rGroup[1] || !nowChkId" 
+                      <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newEqpt">新增</MDBBtn>
+                      <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveEqpt">儲存</MDBBtn>
+                      <MDBPopconfirm :disabled="!rGroup[1] || !nowEqptId" 
                         class="btn-sm btn-danger me-auto" 
                         message="刪除後無法恢復，確定刪除嗎？"
                         cancelText="取消" confirmText="確定" 
-                        @confirm="">
+                        @confirm="delEqpt">
                         刪除
                       </MDBPopconfirm>
                     </MDBCol>
@@ -425,16 +639,39 @@ function selectNowChk(nowId, col, dt){
                       標準件索引：<span class="text-info">{{nowEqptId}}</span>
                     </MDBCol>
                     <div></div>
-                    <MDBCol xl="8" class="mt-2">
-                      <MDBInput size="sm" type="text" label="廠牌" v-model="nowEqptChop"/>
-                    </MDBCol>
-                    <MDBCol xl="8" class="mt-2">
-                      <MDBInput size="sm" type="text" label="型號" v-model="nowEqptModel"/>
-                    </MDBCol>
+                    <MDBSelect filter size="sm" class="mt-2 col-xl-8" 
+                      label="儀器類型" 
+                      v-model:options="nowEqptTypeMU"
+                      v-model:selected="nowEqptType" 
+                      ref="nowEqptTypeDOM"/>
+                    
+                    <MDBSelect size="sm" class="mt-2 col-xl-8" 
+                      label="廠牌" 
+                      v-model:options="nowEqptChopMU"
+                      v-model:selected="nowEqptChop" 
+                      ref="nowEqptChopDOM"
+                      @close="updateChop()">
+                      <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowEqptChop" />
+                    </MDBSelect>
+                    
+                    <MDBSelect size="sm" class="mt-2 col-xl-8" 
+                      label="型號" 
+                      v-model:options="nowEqptModelMU"
+                      v-model:selected="nowEqptModel" 
+                      ref="nowEqptModelDOM"
+                      @close="updateModeel()">
+                      <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowEqptModel" />
+                    </MDBSelect>
+
                     <MDBCol xl="8" class="mt-2">
                       <MDBInput size="sm" type="text" label="序號" v-model="nowEqptSN"/>
                     </MDBCol>
-
+                    <MDBCol xl="8" class="mt-2">
+                      <MDBInput size="sm" type="text" label="校正週期" v-model="nowEqptCycle"/>
+                    </MDBCol>
+                    <MDBCol col="12" class="mt-2">
+                      <MDBTextarea size="sm" label="備註" rows="2" v-model="nowEqptComment" />
+                    </MDBCol>
 
                   </MDBRow>
                 </MDBCol>
