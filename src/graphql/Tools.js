@@ -15,12 +15,18 @@ const UPLOADFILE = gql`
 `;
 
 const STATCASEBYOPR = gql`
-mutation StatCaseByOpr($year: Int!) {
-  statCaseByOpr(year: $year) 
+mutation StatCaseByOpr($year: Int!, $calNum: Int!) {
+  statCaseByOpr(year: $year, calNum: $calNum)
+}
+`;
+const STATCASEMINMAXYEAR = gql`
+mutation StatCaseMinMaxYear {
+  statCaseMinMaxYear
 }
 `;
 
 export default {
   UPLOADFILE,
   STATCASEBYOPR,
+  STATCASEMINMAXYEAR,
 };

@@ -46,17 +46,124 @@ const selYearDOM = ref();
 
 
 //#region 統計資料查詢==========Start
-let chartData1 = [];
+const ctx1 = ref();
+const myChart1 = ref();
+const chartData1 = ref([]);
+// 查詢完成日期年份，並填入清單
+const { mutate: getCaseYears, onDone: getCaseYearsOnDone } = useMutation(ToolsGQL.STATCASEMINMAXYEAR);
+getCaseYearsOnDone(result=>{
+  let getData = result.data.statCaseMinMaxYear;
+  selYearMU.value = getData.map(x => {
+    return { text: x, value: x }
+  });selYearMU.value.unshift({ text: "-未選取-", value: -1 });
+})
+
+// 查詢校正人員案件數 by Year
 const { mutate: getCasebyOpr, onDone: getCasebyOprOnDone } = useMutation(ToolsGQL.STATCASEBYOPR);
-
-
-
 getCasebyOprOnDone(result=>{
-  chartData1 = result.data.statCaseByOpr;
-  console.log(chartData1);
+  console.log('2-getCasebyOprOnDone')
+  chartData1.value = result.data.statCaseByOpr;
+  console.log('3-OnDone res:',chartData1.value);
+  if(myChart1.value) myChart1.value.destroy();
+
+  console.log('4-new Chart',myChart1.value);
+  ctx1.value = document.getElementById('myChart1').getContext('2d');
+  console.log('5-ctx1',ctx1.value);
+  myChart1.value = new Chart(ctx1.value, {
+    type: 'bar',
+    data: {
+      datasets: [
+        {
+          label: '航測相機',
+          backgroundColor: bgcolorList[0],
+          borderColor: brcolorList[0],
+          borderWidth: 1,
+          borderSkipped: false,
+          data: chartData1.value,
+          parsing: {
+              yAxisKey: 'data.c1'
+          }
+        },
+        {
+          label: '空載光達',
+          backgroundColor: bgcolorList[1],
+          borderColor: brcolorList[1],
+          borderWidth: 1,
+          borderSkipped: false,
+          data: chartData1.value,
+          parsing: {
+              yAxisKey: 'data.c2'
+          }
+        },
+        {
+          label: '小像幅',
+          backgroundColor: bgcolorList[2],
+          borderColor: brcolorList[2],
+          borderWidth: 1,
+          borderSkipped: false,
+          data: chartData1.value,
+          parsing: {
+              yAxisKey: 'data.c3'
+          }
+        },
+        {
+          type: 'line',
+          label: '合計',
+          backgroundColor: bgcolorList[3],
+          borderColor: brcolorList[3],
+          borderWidth: 1,
+          data: chartData1.value,
+          parsing: {
+              yAxisKey: 'data.total'
+          }
+        },
+      ]
+    },
+    options: {
+      responsive: true,
+      parsing: {
+        xAxisKey: 'name',
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: '校正人員'
+          },
+          stacked: false,
+        },
+        y: {
+          title: {
+            display: true,
+            text: '案件數'
+          },
+          ticks: {
+            // forces step size to be 50 units
+            stepSize: 1
+          },
+          beginAtZero: true,
+          stacked: false
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: '各人員年度案件數',
+        },
+        legend: {
+          position: 'right',
+        },
+      }
+    }
+  });
 });
 
-
+function changeChart1Year(e){
+  getCasebyOpr({
+    year: (parseInt(selYear.value) && parseInt(selYear.value)!==-1)?parseInt(selYear.value)+1911:null,
+    calNum: 3
+  })
+}
 
 //#endregion 統計資料查詢==========End
 
@@ -80,50 +187,11 @@ const brcolorList = [
 
 onMounted(()=>{ 
   // 圖表1
-  const data = chartData1;
-  getCasebyOpr({
-    year: parseInt(new Date().getFullYear())
-  }).then(res=>{
-    const ctx1 = document.getElementById('myChart1').getContext('2d');
-    const myChart1 = new Chart(ctx1, {
-      type: 'bar',
-      data: {
-        datasets: [
-          {
-            label: '航測相機',
-            backgroundColor: bgcolorList[0],
-            borderColor: brcolorList[0],
-            data: chartData1,
-            parsing: {
-                yAxisKey: 'data.c1'
-            }
-          },
-          {
-            label: '空載光達',
-            backgroundColor: bgcolorList[1],
-            borderColor: brcolorList[1],
-            data: chartData1,
-            parsing: {
-                yAxisKey: 'data.c2'
-            }
-          },
-          {
-            label: '小像幅',
-            backgroundColor: bgcolorList[2],
-            borderColor: brcolorList[2],
-            data: chartData1,
-            parsing: {
-                yAxisKey: 'data.c3'
-            }
-          },
-        ]
-      },
-      options: {
-        parsing: {
-          xAxisKey: 'name',
-        }
-      }
-    });
+  console.log('0-onMounted');
+  getCaseYears().then(res=>{
+    console.log('1-getCaseYears');
+    let latestYear = res.data.statCaseMinMaxYear[0];
+    selYearDOM.value.setValue(latestYear);
   })
   
 });
@@ -207,13 +275,20 @@ onMounted(()=>{
               <!-- 加入統計圖 -->
               <MDBRow class="h-100">
                 <!-- 圖表1 -->
-                <MDBCol col="6" style="position:relative ;" class="h-50 border d-flex align-items-center justify-content-center">
-                  <MDBSelect size="sm" class="" style="position:absolute;right:0.5rem;top:0.5rem;"
-                    label="年份" 
-                    v-model:options="selYearMU"
-                    v-model:selected="selYear" 
-                    ref="selYearDOM" />
-                  <canvas id="myChart1" class="border"></canvas>
+                <MDBCol col="6"  class="h-50">
+                  <MDBRow class="h-100">
+                    <MDBSelect size="sm" class="mt-2 col-md-6"
+                      label="年份" 
+                      v-model:options="selYearMU"
+                      v-model:selected="selYear" 
+                      ref="selYearDOM" 
+                      @change="changeChart1Year($event)"/>
+                    <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
+                      <canvas id="myChart1" class="border" style="max-height: 100%; max-width: 100%"></canvas>
+                    </MDBCol>
+                  </MDBRow>
+                  
+                  
                 </MDBCol>
                 <!-- 圖表2 -->
                 <MDBCol col="6" class="h-50 border d-flex align-items-center justify-content-center">
