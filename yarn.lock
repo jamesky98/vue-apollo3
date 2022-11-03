@@ -394,6 +394,11 @@ call-bind@^1.0.2:
     function-bind "^1.1.1"
     get-intrinsic "^1.0.2"
 
+chart.js@^3.9.1:
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-3.9.1.tgz#3abf2c775169c4c71217a107163ac708515924b8"
+  integrity sha512-Ro2JbLmvg83gXF5F4sniaQ+lTbSv18E+TIf2cOeiH1Iqd2PGFOtem+DUufMZsCJwFE7ywPOpfXFBwRTGq7dh6w==
+
 clone@^1.0.4:
   version "1.0.4"
   resolved "https://registry.npmjs.org/clone/-/clone-1.0.4.tgz"
@@ -462,7 +467,7 @@ datatables.net-bs5@>=1.11.3, datatables.net-bs5@^1.12.1:
 
 datatables.net-buttons-bs5@^2.2.3:
   version "2.2.3"
-  resolved "https://registry.yarnpkg.com/datatables.net-buttons-bs5/-/datatables.net-buttons-bs5-2.2.3.tgz#816ad321142a6cc343d0a805fcbff2891387c6f1"
+  resolved "https://registry.npmjs.org/datatables.net-buttons-bs5/-/datatables.net-buttons-bs5-2.2.3.tgz"
   integrity sha512-pQVBLBkG+G85eldTxEyU7SqqIn009pirbylmRAA+Ll9KYwsbyflQOZrTqKVKH6N4ycLjyR6gwtHeLgGnK23tBQ==
   dependencies:
     datatables.net-bs5 ">=1.11.3"
@@ -471,7 +476,7 @@ datatables.net-buttons-bs5@^2.2.3:
 
 datatables.net-buttons-dt@^2.2.3:
   version "2.2.3"
-  resolved "https://registry.yarnpkg.com/datatables.net-buttons-dt/-/datatables.net-buttons-dt-2.2.3.tgz#f66d95a501c1c303d8617b875176a3665732f4f0"
+  resolved "https://registry.npmjs.org/datatables.net-buttons-dt/-/datatables.net-buttons-dt-2.2.3.tgz"
   integrity sha512-PSS8u3pWnIoniRY+VpVKjJLgXrGxPyFx1ttJW1EQ7zjQDJkM+1eXI802BIcXka/6OkZ2wQjrn4ykmgRASJ0p0w==
   dependencies:
     datatables.net-buttons ">=2.0.1"
@@ -586,7 +591,7 @@ datatables.net-searchpanes@>=1.4.0, datatables.net-searchpanes@^2.0.2:
 
 datatables.net-select-bs5@^1.4.0:
   version "1.4.0"
-  resolved "https://registry.yarnpkg.com/datatables.net-select-bs5/-/datatables.net-select-bs5-1.4.0.tgz#b62411b5a7e1dae32dfe6c2737f28338e1590eeb"
+  resolved "https://registry.npmjs.org/datatables.net-select-bs5/-/datatables.net-select-bs5-1.4.0.tgz"
   integrity sha512-CaQTMO8W3G6I/GdOp8GChASJIA/byS41sYdo6RTld79MNV/3HfdQFH6uaqcYnCcaij2NtSvKbl6frOGoj6bDVg==
   dependencies:
     datatables.net-bs5 ">=1.11.3"

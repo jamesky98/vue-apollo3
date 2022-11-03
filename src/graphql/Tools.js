@@ -14,6 +14,13 @@ const UPLOADFILE = gql`
   }
 `;
 
+const STATCASEBYOPR = gql`
+mutation StatCaseByOpr($year: Int!) {
+  statCaseByOpr(year: $year) 
+}
+`;
+
 export default {
   UPLOADFILE,
+  STATCASEBYOPR,
 };

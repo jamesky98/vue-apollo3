@@ -14,6 +14,7 @@
     "apollo-upload-client": "^17.0.0",
     "bootstrap": "5.2.0-beta1",
     "browserify-fs": "^1.0.0",
+    "chart.js": "^3.9.1",
     "datatables.net-bs5": "^1.12.1",
     "datatables.net-buttons": "^2.2.3",
     "datatables.net-buttons-bs5": "^2.2.3",

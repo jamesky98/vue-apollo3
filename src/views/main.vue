@@ -1,31 +1,26 @@
 <script setup>
-import Footer1 from "../components/Footer.vue";
+import Chart from 'chart.js/auto';
+import { getRelativePosition } from 'chart.js/helpers';
 import Navbar1 from "../components/Navbar.vue";
+import { ref, reactive, onMounted, provide, inject } from "vue";
+import { computed } from "@vue/reactivity";
 import {
-  MDBNavbar,
-  MDBNavbarBrand,
-  MDBNavbarToggler,
-  MDBNavbarNav,
-  MDBNavbarItem,
-  MDBCollapse,
-  MDBCard,
-  MDBCardBody,
-  MDBCardTitle,
-  MDBCardText,
-  MDBInput,
   MDBCol,
   MDBRow,
   MDBContainer,
-  MDBBtn,
-  MDBFooter,
   MDBIcon,
-  MDBDropdown,
-  MDBDropdownToggle,
-  MDBDropdownMenu,
-  MDBDropdownItem,
+  MDBSelect,
 } from 'mdb-vue-ui-kit';
-import { RouterLink } from 'vue-router'
-import { ref, reactive, onMounted, provide } from "vue";
+import { RouterLink } from 'vue-router';
+import ToolsGQL from "../graphql/Tools";
+// import CaseGQL from "../graphql/Cases";
+// import CustGQL from "../graphql/Cust";
+// import GcpGQL from "../graphql/Gcp";
+// import PrjGQL from "../graphql/Prj";
+// import EmpGQL from "../graphql/Employee";
+// import ItemGQL from "../graphql/Item";
+
+
 // 判斷token狀況
 import { useQuery, useMutation} from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
@@ -39,12 +34,103 @@ getchecktokenOnDone(result => {
 });
 getchecktoken();
 
-
+//#region 參數==========Start
 const NavItem = ref("main");
 provide("NavItem", NavItem);
-const username = ref(localStorage.getItem("USER_NAME2"));
-const usercode = ref(localStorage.getItem("USER_NAME"));
-const dropdown1 = ref(false);
+
+const selYear = ref("");
+const selYearMU = ref([]);
+const selYearDOM = ref();
+
+//#endregion 參數==========End
+
+
+//#region 統計資料查詢==========Start
+let chartData1 = [];
+const { mutate: getCasebyOpr, onDone: getCasebyOprOnDone } = useMutation(ToolsGQL.STATCASEBYOPR);
+
+
+
+getCasebyOprOnDone(result=>{
+  chartData1 = result.data.statCaseByOpr;
+  console.log(chartData1);
+});
+
+
+
+//#endregion 統計資料查詢==========End
+
+//#region 圖表設定==========Start
+
+const bgcolorList = [
+  'rgba(255, 99, 132, 0.2)',
+  'rgba(54, 162, 235, 0.2)',
+  'rgba(255, 206, 86, 0.2)',
+  'rgba(75, 192, 192, 0.2)',
+  'rgba(153, 102, 255, 0.2)',
+  'rgba(255, 159, 64, 0.2)'];
+const brcolorList = [
+  'rgba(255, 99, 132, 1)',
+  'rgba(54, 162, 235, 1)',
+  'rgba(255, 206, 86, 1)',
+  'rgba(75, 192, 192, 1)',
+  'rgba(153, 102, 255, 1)',
+  'rgba(255, 159, 64, 1)'];
+
+
+onMounted(()=>{ 
+  // 圖表1
+  const data = chartData1;
+  getCasebyOpr({
+    year: parseInt(new Date().getFullYear())
+  }).then(res=>{
+    const ctx1 = document.getElementById('myChart1').getContext('2d');
+    const myChart1 = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        datasets: [
+          {
+            label: '航測相機',
+            backgroundColor: bgcolorList[0],
+            borderColor: brcolorList[0],
+            data: chartData1,
+            parsing: {
+                yAxisKey: 'data.c1'
+            }
+          },
+          {
+            label: '空載光達',
+            backgroundColor: bgcolorList[1],
+            borderColor: brcolorList[1],
+            data: chartData1,
+            parsing: {
+                yAxisKey: 'data.c2'
+            }
+          },
+          {
+            label: '小像幅',
+            backgroundColor: bgcolorList[2],
+            borderColor: brcolorList[2],
+            data: chartData1,
+            parsing: {
+                yAxisKey: 'data.c3'
+            }
+          },
+        ]
+      },
+      options: {
+        parsing: {
+          xAxisKey: 'name',
+        }
+      }
+    });
+  })
+  
+});
+
+
+
+//#endregion 圖表設定==========End
 
 </script>
 
@@ -118,7 +204,41 @@ const dropdown1 = ref(false);
             </MDBCol>
             <!-- 右方統計圖 -->
             <MDBCol md="9" class="border h-100">
-              <!-- 加入統計圖 -->加入統計圖
+              <!-- 加入統計圖 -->
+              <MDBRow class="h-100">
+                <!-- 圖表1 -->
+                <MDBCol col="6" style="position:relative ;" class="h-50 border d-flex align-items-center justify-content-center">
+                  <MDBSelect size="sm" class="" style="position:absolute;right:0.5rem;top:0.5rem;"
+                    label="年份" 
+                    v-model:options="selYearMU"
+                    v-model:selected="selYear" 
+                    ref="selYearDOM" />
+                  <canvas id="myChart1" class="border"></canvas>
+                </MDBCol>
+                <!-- 圖表2 -->
+                <MDBCol col="6" class="h-50 border d-flex align-items-center justify-content-center">
+                  <canvas id="myChart2" class="border"></canvas>
+                </MDBCol>
+                <!-- 圖表3 -->
+                <MDBCol col="6" class="h-50 border d-flex align-items-center justify-content-center">
+                  <canvas id="myChart3" class="border"></canvas>
+                </MDBCol>
+                <!-- 圖表4 -->
+                <MDBCol col="6" class="h-50 border d-flex align-items-center justify-content-center">
+                  <canvas id="myChart4" class="border"></canvas>
+                </MDBCol>
+                <!-- 圖表5 -->
+                <!-- <MDBCol col="4" class="h-50 border d-flex align-items-center justify-content-center"> -->
+                  <!-- <canvas id="myChart5" class="border"></canvas> -->
+                <!-- </MDBCol> -->
+                <!-- 圖表6 -->
+                <!-- <MDBCol col="4" class="h-50 border d-flex align-items-center justify-content-center"> -->
+                  <!-- <canvas id="myChart6" class="border"></canvas> -->
+                <!-- </MDBCol> -->
+
+              </MDBRow>
+              
+              
             </MDBCol>
           </MDBRow>
         </MDBCol>
