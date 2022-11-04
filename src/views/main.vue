@@ -215,6 +215,7 @@ getCasebyMounthOnDone(result=>{
           parsing: {
               yAxisKey: 'c1o'
           },
+          stacked: true,
           stack: 'Stack 1',
         },
         {
@@ -225,6 +226,7 @@ getCasebyMounthOnDone(result=>{
           parsing: {
               yAxisKey: 'c1i'
           },
+          stacked: true,
           stack: 'Stack 1',
         },
         {
@@ -235,6 +237,7 @@ getCasebyMounthOnDone(result=>{
           parsing: {
               yAxisKey: 'c1x'
           },
+          stacked: true,
           stack: 'Stack 1',
         },
         {
@@ -245,6 +248,7 @@ getCasebyMounthOnDone(result=>{
           parsing: {
               yAxisKey: 'c2o'
           },
+          stacked: true,
           stack: 'Stack 2',
         },
         {
@@ -255,6 +259,7 @@ getCasebyMounthOnDone(result=>{
           parsing: {
               yAxisKey: 'c2i'
           },
+          stacked: true,
           stack: 'Stack 2',
         },
         {
@@ -265,6 +270,7 @@ getCasebyMounthOnDone(result=>{
           parsing: {
               yAxisKey: 'c2x'
           },
+          stacked: true,
           stack: 'Stack 2',
         },
         {
@@ -275,6 +281,7 @@ getCasebyMounthOnDone(result=>{
           parsing: {
               yAxisKey: 'c3o'
           },
+          stacked: true,
           stack: 'Stack 3',
         },
         {
@@ -285,6 +292,7 @@ getCasebyMounthOnDone(result=>{
           parsing: {
               yAxisKey: 'c3i'
           },
+          stacked: true,
           stack: 'Stack 3',
         },
         {
@@ -295,6 +303,7 @@ getCasebyMounthOnDone(result=>{
           parsing: {
               yAxisKey: 'c3x'
           },
+          stacked: true,
           stack: 'Stack 3',
         },
         {
@@ -307,6 +316,7 @@ getCasebyMounthOnDone(result=>{
           parsing: {
               yAxisKey: 'Stotalo'
           },
+          stacked: false,
           tension: 0.4
         },
         {
@@ -319,6 +329,7 @@ getCasebyMounthOnDone(result=>{
           parsing: {
               yAxisKey: 'Stotali'
           },
+          stacked: false,
           tension: 0.4
         },
       ]
@@ -345,7 +356,7 @@ getCasebyMounthOnDone(result=>{
             stepSize: 1
           },
           beginAtZero: true,
-          stacked: true,
+          
         },
       },
       plugins: {
