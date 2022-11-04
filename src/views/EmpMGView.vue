@@ -1118,7 +1118,7 @@ async function uploadChenge(e) {
       break;
     case "resUpload":
       subpath = "05_Person/" + nowEmpID.value + "/resignation";
-      newName = nowEmpID.value + "-" + nowEmpowerCalTypeID.value + "-" + nowEmpowerRole.value + "_核准公文" + path.extname(e.target.value);
+      newName = nowEmpID.value + "-解職證明_核准公文" + path.extname(e.target.value);
       break;
   }
   await uploadFile({
