@@ -55,13 +55,14 @@ getchecktoken();
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
-// 取得權限==========Start
-// const myUserId = ref("");
-const myUserName = ref("");
-// const myUserName2 = ref("");
-// const myUserEmail = ref("");
-// const myUserActive = ref(false);
-const myUserRole = ref("");
+
+//#region 取得權限==========Start
+  // const myUserId = ref("");
+  const myUserName = ref("");
+  // const myUserName2 = ref("");
+  // const myUserEmail = ref("");
+  // const myUserActive = ref(false);
+  const myUserRole = ref("");
 
 const { onResult: getNowUser, refetch: refgetNowUser } = useQuery(UsersGQL.GETNOWUSER);
 getNowUser(result => {
@@ -108,7 +109,9 @@ const rGroup = computed(() => {
   return result;
 });
 provide("rGroup", rGroup);
-// 取得權限==========End
+//#endregion 取得權限==========End
+
+//#region 參數==========Start
 // Information
 const NavItem = ref("cases");
 provide("NavItem", NavItem);
@@ -118,20 +121,132 @@ const alertColor = ref("primary");
 const updateKey = ref(0);
 const publicPath = inject('publicPath');
 
-// 案件列表=========start
+// 顧客列表
+const showCustFrom = ref(false);
+const custTabId = ref("editor");
+
+const seletCustId = ref("");
+const selCustName = ref("");
+const selCustOrgName = ref("");
+const selCustOrgNameMU = ref([]);
+const selCustOrgNameDOM = ref();
+const selCustOrgList = ref([]);
+
+const selCustTaxId = computed(() => {
+  let getData = selCustOrgList.value.filter((x) => {
+    return parseInt(x.id) === selCustOrgName.value;
+  })[0];
+  return (getData) ? getData.tax_id : "";
+});
+
+const selCustTel = ref("");
+const selCustFax = ref("");
+const selCustAddress = ref("");
+const filterCustName = ref("");
+const filterCustOrgName = ref("");
+const filterCustTaxId = ref("");
+
+// 新增案件指標
+const showCaseNew = ref(false);
+// 案件狀態
+const nowCaseStatus = ref("");
+const nowCaseStatusMU = ref([]);
+const nowCaseStatusDOM = ref();
+// 案件編號
+const nowCaseID = ref("");
+const addCaseID = ref("");
+// 申請日期
+const nowCaseAppDate = ref("");
+const addCaseAppDate = ref("");
+const addCaseAppDateDOM = ref();
+// 校正項目
+const nowCaseTypeName = ref("");
+const addCaseTypeIdSEL = ref("");
+const addCaseTypeIdMU = ref([]);
+const addCaseTypeIdDOM = ref("");
+const nowCaseTypeId = ref("");
+
+// 校正件
+const nowCaseItemID = ref("");
+provide('nowCaseItemID', nowCaseItemID);
+
+// 顧客
+const nowCaseCustId = ref("");
+const nowCaseCustOrgName = ref("");
+const nowCaseCustTaxID = ref("");
+const nowCaseCustName = ref("");
+const nowCaseCustTel = ref("");
+const nowCaseCustFax = ref("");
+const nowCaseCustAddress = ref("");
+const nowCaseTitle = ref("");
+provide("nowCaseTitle", nowCaseTitle);
+const nowCaseAddress = ref("");
+provide("nowCaseAddress", nowCaseAddress);
+// 校正目的
+const nowCasePurpose = ref("");
+const addCasePurpose = ref("");
+// 協商事項
+const nowCaseAgreement = ref("");
+// 費用
+const nowCaseCharge = ref("");
+// 繳費日
+const nowCasePayDate = ref("");
+const nowCasePayDateDOM = ref();
+// 校正人員
+const nowCaseOperator = ref("");
+const nowCaseOperatorMU = ref([]);
+const nowCaseOperatorDOM = ref();
+// 技術主管
+const nowCaseLeader = ref("");
+const nowCaseLeaderMU =ref([]);
+const nowCaseLeaderDOM = ref();
+
+// 篩選參數==========
+// 案件狀態
+const caseStatusMU = ref([]);
+const caseStatusSEL = ref("");
+const caseStatusFilter = ref();
+// 案件編號
+const caseIDSEL = ref("");
+// 校正項目
+const caseTypeMU = ref([]);
+const caseTypeSEL = ref("");
+const caseTypeFilter = ref();
+// 校正人員
+const caseOptMU = ref([]);
+const caseOptSEL = ref("");
+const caseOptFilter = ref();
+// 顧客公司
+const caseCustMU = ref([]);
+const caseCustSEL = ref("");
+const caseCustFilter = ref();
+// 廠牌
+const caseChopMU = ref([]);
+const caseChopSEL = ref("");
+const caseChopFilter = ref();
+// 型號
+const caseModelMU = ref([]);
+const caseModelSEL = ref("");
+const caseModelFilter = ref();
+// 序號
+const caseSelnumSEL = ref("");
+// 申請日
+const caseAppDateStartSEL = ref("");
+const caseAppDateStartFilter = ref();
+const caseAppDateEndtSEL = ref("");
+const caseAppDateEndFilter = ref();
+// 繳費日
+const casePayDateStartSEL = ref("");
+const casePayDateStartFilter = ref();
+const casePayDateEndtSEL = ref("");
+const casePayDateEndFilter = ref();
+
+//#endregion 參數==========End
+
+//#region 案件列表=========start
 let dt1;
 const table1 = ref();
 const data1 = ref([]);
-
-// 加載表格選取事件
-onMounted(function () {
-  dt1 = table1.value.dt();
-  dt1.on('select', function (e, dt, type, indexes) {
-    nowCaseID.value = dt.rows(indexes).data()[0].id
-    // refgetNowCaseS({getCasebyIdId: nowCaseID.value});
-  });
-});
-
 // 設定表格table1
 const columns1 = [
   {
@@ -254,7 +369,6 @@ const tboption1 = {
     info: '共 _TOTAL_ 筆資料',
   }
 };
-
 // 查詢案件資料
 const { onResult: getAllCase, refetch: refgetAllCase } = useQuery(CaseGQL.GETALLCASE);
 getAllCase(result => {
@@ -265,37 +379,13 @@ getAllCase(result => {
   }
 });
 refgetAllCase();
-// 案件列表=========end
 
-// 顧客列表=========start
+//#endregion 案件列表=========End
+
+//#region 顧客列表=========start
 let dtCust;
 const tableCust = ref();
 const dataCust = ref([]);
-const showCustFrom = ref(false);
-const custTabId = ref("editor");
-
-const seletCustId = ref("");
-const selCustName = ref("");
-const selCustOrgName = ref("");
-const selCustOrgNameMU = ref([]);
-const selCustOrgNameDOM = ref();
-const selCustOrgList = ref([]);
-
-const selCustTaxId = computed(() => {
-  let getData = selCustOrgList.value.filter((x) => {
-    return parseInt(x.id) === selCustOrgName.value;
-  })[0];
-  return (getData) ? getData.tax_id : "";
-});
-
-const selCustTel = ref("");
-const selCustFax = ref("");
-const selCustAddress = ref("");
-
-const filterCustName = ref("");
-const filterCustOrgName = ref("");
-const filterCustTaxId = ref("");
-
 // 設定表格tableCust
 const columnsCust = [
   { data: "id", title: "編號", defaultContent: "-" },
@@ -429,47 +519,9 @@ function setCustBtn() {
   nowCaseCustAddress.value = selCustAddress.value;
   showCustFrom.value = false;
 }
-// 顧客列表=========end
+//#endregion 顧客列表=========end
 
-// 篩選=========start
-// 案件狀態
-const caseStatusMU = ref([]);
-const caseStatusSEL = ref("");
-const caseStatusFilter = ref();
-// 案件編號
-const caseIDSEL = ref("");
-// 校正項目
-const caseTypeMU = ref([]);
-const caseTypeSEL = ref("");
-const caseTypeFilter = ref();
-// 校正人員
-const caseOptMU = ref([]);
-const caseOptSEL = ref("");
-const caseOptFilter = ref();
-// 顧客公司
-const caseCustMU = ref([]);
-const caseCustSEL = ref("");
-const caseCustFilter = ref();
-// 廠牌
-const caseChopMU = ref([]);
-const caseChopSEL = ref("");
-const caseChopFilter = ref();
-// 型號
-const caseModelMU = ref([]);
-const caseModelSEL = ref("");
-const caseModelFilter = ref();
-// 序號
-const caseSelnumSEL = ref("");
-// 申請日
-const caseAppDateStartSEL = ref("");
-const caseAppDateStartFilter = ref();
-const caseAppDateEndtSEL = ref("");
-const caseAppDateEndFilter = ref();
-// 繳費日
-const casePayDateStartSEL = ref("");
-const casePayDateStartFilter = ref();
-const casePayDateEndtSEL = ref("");
-const casePayDateEndFilter = ref();
+//#region 篩選=========start
 // 執行篩選
 function caseDoFilter() {
   notProssing2.value = false;
@@ -510,9 +562,9 @@ function caseClearFilter() {
   // casePayDateEndFilter.value.inputValue = ""
 
 }
-// 篩選=========end
-// 填入下拉式選單==========Start
+//#endregion 篩選=========end
 
+//#region 填入下拉式選單==========Start
 // 查詢案件狀態列表
 const { result: caseStatus, onResult: getCaseStatus, refetch: refgetCaseStatus } = useQuery(CaseGQL.GETCASESTATUS);
 getCaseStatus(result => {
@@ -567,8 +619,6 @@ function filterArrayforObj(arr,key){
   return tempArray;
 }
 
-
-
 // 查詢顧客列表
 const { result: caseAllOrg, onResult: getCaseAllOrg, refetch: refgetCaseAllOrg } = useQuery(CaseGQL.GETALLORG);
 getCaseAllOrg(result => {
@@ -610,64 +660,9 @@ getCaseAllItem(result => {
 });
 refgetCaseAllItem();
 
-// 填入下拉式選單==========end
-// 案件基本資料==========start
-// 新增案件指標
-const showCaseNew = ref(false);
-// 案件狀態
-const nowCaseStatus = ref("");
-const nowCaseStatusMU = ref([]);
-const nowCaseStatusDOM = ref();
-// 案件編號
-const nowCaseID = ref("");
-const addCaseID = ref("");
-// 申請日期
-const nowCaseAppDate = ref("");
-const addCaseAppDate = ref("");
-const addCaseAppDateDOM = ref();
-// 校正項目
-const nowCaseTypeName = ref("");
-const addCaseTypeIdSEL = ref("");
-const addCaseTypeIdMU = ref([]);
-const addCaseTypeIdDOM = ref("");
-const nowCaseTypeId = ref("");
+//#endregion 填入下拉式選單==========end
 
-// 校正件
-const nowCaseItemID = ref("");
-provide('nowCaseItemID', nowCaseItemID);
-
-// 顧客
-const nowCaseCustId = ref("");
-const nowCaseCustOrgName = ref("");
-const nowCaseCustTaxID = ref("");
-const nowCaseCustName = ref("");
-const nowCaseCustTel = ref("");
-const nowCaseCustFax = ref("");
-const nowCaseCustAddress = ref("");
-const nowCaseTitle = ref("");
-provide("nowCaseTitle", nowCaseTitle);
-const nowCaseAddress = ref("");
-provide("nowCaseAddress", nowCaseAddress);
-// 校正目的
-const nowCasePurpose = ref("");
-const addCasePurpose = ref("");
-// 協商事項
-const nowCaseAgreement = ref("");
-// 費用
-const nowCaseCharge = ref("");
-// 繳費日
-const nowCasePayDate = ref("");
-const nowCasePayDateDOM = ref();
-// 校正人員
-const nowCaseOperator = ref("");
-const nowCaseOperatorMU = ref([]);
-const nowCaseOperatorDOM = ref();
-// 技術主管
-const nowCaseLeader = ref("");
-const nowCaseLeaderDOM = ref();
-const nowCaseLeaderMU = ref([]);
-
-
+//#region 案件基本資料==========start
 // 查詢校正人員列表
 const { onResult: getCaseOperator, refetch: refgetCaseOperator } = useQuery(
   EmpGQL.GETEMPOWERBYROLE,
@@ -694,8 +689,6 @@ getCaseOperator(result => {
 });
 refgetCaseOperator();
 
-
-
 // 查詢技術主管列表
 const { onResult: getCaseLeader, refetch: refgetCaseLeader } = useQuery(
   EmpGQL.GETEMPOWERBYROLE,
@@ -705,7 +698,7 @@ const { onResult: getCaseLeader, refetch: refgetCaseLeader } = useQuery(
   })
 );
 getCaseLeader(result => {
-  // 加入評估人員選單資料
+  // 加入技術主管選單資料
   if (!result.loading && result.data.getEmpowerbyRole) {
     let mylist = [];
     mylist = result.data.getEmpowerbyRole.map(x => { return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
@@ -794,6 +787,7 @@ function openAddCaseForm() {
 }
 
 const caseBtnText = ref("編輯更多<i class='fas fa-angle-double-right'/>");
+const isAniLeft = ref(true);
 const showCaseLeftDiv = ref(true);
 const animationType = ref("slide-left-ja");
 const showCaseEditAnima = ref(false);
@@ -867,55 +861,75 @@ function saveNowCaseData() {
 }
 
 // 顯示編輯更多畫面
+
 function isAinmaDispaly(){
-  if (animationType.value === "slide-right-ja") {
+  // console.log('4-動畫停止');
+  if (!isAniLeft.value) {
+    isAniLeft.value = true;
+    // console.log('5-關閉播放');
     showCaseEditAnima.value=false;
-    animationType.value = "slide-left-ja"
+    // console.log('6-變更動畫名稱');
+    console.log('7-隱藏進階表單');
     showCaseEditR01Flag.value = false;
     showCaseEditR02Flag.value = false;
-  }else{
-    showCaseLeftDiv.value = false;
+  }else{    
+    isAniLeft.value =false;
+    // console.log('5-關閉播放');
     showCaseEditAnima.value=false;
-    animationType.value = "slide-right-ja"
+    // console.log('6-變更動畫名稱');
+    // console.log('7-隱藏基本表單');
+    showCaseLeftDiv.value = false;
   }
 }
 function showCaseEdit() {
-  if (animationType.value === "slide-right-ja") {
+  console.log('0-show按鈕事件');
+  if (!isAniLeft.value) {
+    // console.log('1-向右移==隱藏進階');
     // 向右移==隱藏進階編輯
     // 顯示左方表單
+    // console.log('2-顯示基本表單');
     showCaseLeftDiv.value = true;
     caseBtnText.value = "編輯更多<i class='fas fa-angle-double-right'/>";
     addBtnDisabled.value = false;
     //播放
+    // console.log('3-變更標籤，播放動畫');
+    animationType.value = "slide-right-ja"
     showCaseEditAnima.value=true;
-  }else if (animationType.value === "slide-left-ja") {
+  }else if (isAniLeft.value) {
+    // console.log('1-向左移==出現進階');
     // 向左移==出現進階編輯
     // 顯示進階表單
     if (nowCaseTypeId.value === 1 || nowCaseTypeId.value === 3) {
+      // 航測像機
+      // console.log('2-航測像機表單');
       showCaseEditR01Flag.value = true;
       showCaseEditR02Flag.value = false;
-      // updateKey.value=updateKey.value+1;
+
       caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
       addBtnDisabled.value = true;
       //播放
+      // console.log('3-變更標籤，播放動畫');
+      animationType.value = "slide-left-ja"
       showCaseEditAnima.value=true;
     }else if (nowCaseTypeId.value === 2) {
+      // 空載光達
+      // console.log('2-空載光達表單');
       showCaseEditR01Flag.value = false;
       showCaseEditR02Flag.value = true;
       // updateKey.value=updateKey.value+1;
       caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
       addBtnDisabled.value = true;
       //播放
+      // console.log('3-變更標籤，播放動畫');
       showCaseEditAnima.value=true;
     }else{
       // 未選案件不動作
     }
   }
 }
+//#endregion 案件基本資料==========end
 
-// 案件基本資料==========end
-
-// 新增案件表單==========start
+//#region 新增案件表單==========start
 // 新增案件==自動取得申請日
 function getAppDateByCaseId() {
   // 驗證addCaseID存在正確日期?
@@ -974,9 +988,9 @@ function AddCaseOK() {
 function AddCaseCancel() {
   showCaseNew.value = false;
 }
-// 新增案件表單==========end
+//#endregion 新增案件表單==========end
 
-// 連線取得案件==========Start
+//#region 連線取得案件==========Start
 let dtAPI;
 const tableAPI = ref();
 const dataAPI = ref([]);
@@ -1461,9 +1475,16 @@ const {
   onError: saveRecord02APIError,
 } = useMutation(CaseGQL.SAVECASERECORD02);
 
-// 連線取得案件==========End
+//#endregion 連線取得案件==========End
 
-
+// 加載表格選取事件
+onMounted(function () {
+  dt1 = table1.value.dt();
+  dt1.on('select', function (e, dt, type, indexes) {
+    nowCaseID.value = dt.rows(indexes).data()[0].id
+    // refgetNowCaseS({getCasebyIdId: nowCaseID.value});
+  });
+});
 
 </script>
 <template>
@@ -1708,7 +1729,7 @@ const {
                       <MDBBtn size="sm" :disabled="addBtnDisabled || !rGroup[3]" color="primary" @click="openAddCaseForm()">新增
                       </MDBBtn>
                       <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveNowCaseData()">儲存</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="showCaseEdit()" v-html="caseBtnText">
+                      <MDBBtn size="sm" color="primary" @click.prevent="showCaseEdit()" v-html="caseBtnText">
                       </MDBBtn>
                     </div>
                   </MDBCol>

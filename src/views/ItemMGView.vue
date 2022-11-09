@@ -398,6 +398,7 @@ function newChk(){
   nowChkCalOrgCode.value = "";
   nowChkCalPass.value = false;
   nowChkCalResult.value = "";
+  pdfPath.value = "pdfjs-dist/web/viewer.html";
   nowChkCalComment.value = "";
 }
 // 儲存Chk

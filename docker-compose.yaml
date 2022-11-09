@@ -1,0 +1,8 @@
+version: "3.8"
+services:
+  vue3: 
+    build: .
+    ports: 
+      - "4173:4173"
+    container_name: my-vue3
+    # network_mode: "host"
