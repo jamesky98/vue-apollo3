@@ -39,9 +39,9 @@ getchecktoken();
 const NavItem = ref("main");
 provide("NavItem", NavItem);
 
-const chartShow = ref([true,true,true,true]);
-const chartShowCol = ref(["6","6","6","6"]);
-const chartClass = ref(["h-50","h-50","h-50","h-50"]);
+const chartShow = ref([true,true,true,true,true,true]);
+const chartShowCol = ref(["4","4","4","4","4","4"]);
+const chartClass = ref(["h-50","h-50","h-50","h-50","h-50","h-50"]);
 
 const selYear = ref("");
 const selYearMU = ref([]);
@@ -50,6 +50,27 @@ const selYearDOM = ref();
 const selYear2 = ref("");
 const selYearMU2 = ref([]);
 const selYearDOM2 = ref();
+
+const selYear3 = ref("");
+const selYearMU3 = ref([]);
+const selYearDOM3 = ref();
+
+const selYear4 = ref("");
+const selYearMU4 = ref([]);
+const selYearDOM4 = ref();
+
+const selYear5 = ref("");
+const selYearMU5 = ref([]);
+const selYearDOM5 = ref();
+
+const selYear6 = ref("");
+const selYearMU6 = ref([]);
+const selYearDOM6 = ref();
+
+const selMounth6 = ref("");
+const selMounthMU6 = ref([]);
+const selMounthDOM6 = ref();
+
 
 // 日期模式清單
 const selDmethod = ref("");
@@ -82,7 +103,29 @@ getCaseYearsOnDone(result=>{
   selYearMU2.value = getData.map(x => {
     return { text: x, value: x }
   });selYearMU2.value.unshift({ text: "-未選取-", value: -1 });
-
+  // chart3
+  selYearMU3.value = getData.map(x => {
+    return { text: x, value: x }
+  });selYearMU3.value.unshift({ text: "-未選取-", value: -1 });
+  // chart4
+  selYearMU4.value = getData.map(x => {
+    return { text: x, value: x }
+  });selYearMU4.value.unshift({ text: "-未選取-", value: -1 });
+  // chart5
+  selYearMU5.value = getData.map(x => {
+    return { text: x, value: x }
+  });selYearMU5.value.unshift({ text: "-未選取-", value: -1 });
+  // chart6
+  let minYear = Math.min(...getData)+1911;
+  let nowYear = new Date().getFullYear();
+  for(let y=minYear;y<nowYear+1;y++){
+    selYearMU6.value.push({ text: y-1911, value: y-1911 })  
+  }
+  selYearMU6.value.reverse();
+  selYearMU6.value.unshift({ text: "-未選取-", value: -1 });
+  for(let m=1;m<13;m++){
+    selMounthMU6.value.push({ text: m, value: m })  
+  };selMounthMU6.value.unshift({ text: "-未選取-", value: -1 });
 })
 
 // 查詢校正人員案件數 by Year
@@ -90,6 +133,7 @@ const { mutate: getCasebyOpr, onDone: getCasebyOprOnDone } = useMutation(ToolsGQ
 getCasebyOprOnDone(result=>{
   // console.log('2-getCasebyOprOnDone')
   chartData1.value = result.data.statCaseByOpr;
+  // console.log(chartData1.value);
   // console.log('3-OnDone res:',chartData1.value);
   if(myChart1.value) myChart1.value.destroy();
 
@@ -102,58 +146,128 @@ getCasebyOprOnDone(result=>{
       datasets: [
         {
           label: '航測相機',
-          backgroundColor: '#A6C2F5',
-          borderColor: '#1449AC',
+          backgroundColor: bgcolor_60[0],
+          borderColor: bgcolor_100[0],
           borderWidth: 1,
-          borderSkipped: false,
           data: chartData1.value,
           parsing: {
-              yAxisKey: 'data.c1'
-          }
+              yAxisKey: 'data.c1_o'
+          },
+          stacked: true,
+          stack: 'Stack 1',
         },
         {
           label: '空載光達',
-          backgroundColor: '#68DE99',
-          borderColor: '#135830',
+          backgroundColor: bgcolor_60[1],
+          borderColor: bgcolor_100[1],
           borderWidth: 1,
-          borderSkipped: false,
           data: chartData1.value,
           parsing: {
-              yAxisKey: 'data.c2'
-          }
+              yAxisKey: 'data.c2_o'
+          },
+          stacked: true,
+          stack: 'Stack 1',
         },
         {
           label: '小像幅',
-          backgroundColor: '#FFB69C',
-          borderColor: '#C03300',
+          backgroundColor: bgcolor_60[2],
+          borderColor: bgcolor_100[2],
           borderWidth: 1,
-          borderSkipped: false,
           data: chartData1.value,
           parsing: {
-              yAxisKey: 'data.c3'
-          }
+              yAxisKey: 'data.c3_o'
+          },
+          stacked: true,
+          stack: 'Stack 1',
+        },
+        {
+          label: '航測相機(內)',
+          backgroundColor: bgcolor_20[0],
+          borderColor: bgcolor_100[0],
+          borderWidth: 1,
+          data: chartData1.value,
+          parsing: {
+              yAxisKey: 'data.c1_i'
+          },
+          stacked: true,
+          stack: 'Stack 2',
+        },
+        {
+          label: '空載光達(內)',
+          backgroundColor: bgcolor_20[1],
+          borderColor: bgcolor_100[1],
+          borderWidth: 1,
+          data: chartData1.value,
+          parsing: {
+              yAxisKey: 'data.c2_i'
+          },
+          stacked: true,
+          stack: 'Stack 2',
+        },
+        {
+          label: '小像幅(內)',
+          backgroundColor: bgcolor_20[2],
+          borderColor: bgcolor_100[2],
+          borderWidth: 1,
+          data: chartData1.value,
+          parsing: {
+              yAxisKey: 'data.c3_i'
+          },
+          stacked: true,
+          stack: 'Stack 2',
         },
         {
           type: 'line',
-          label: '合計',
-          backgroundColor: bgcolorList[3],
-          borderColor: brcolorList[3],
+          label: '外校合計',
+          backgroundColor: bgcolor_20[3],
+          borderColor: bgcolor_100[3],
+          borderWidth: 1,
+          data: chartData1.value,
+          parsing: {
+              yAxisKey: 'data.total_o'
+          },
+          stacked: false,
+          hidden: true
+        },
+        {
+          type: 'line',
+          label: '內校合計',
+          backgroundColor: bgcolor_20[4],
+          borderColor: bgcolor_100[4],
+          borderWidth: 1,
+          data: chartData1.value,
+          parsing: {
+              yAxisKey: 'data.total_i'
+          },
+          stacked: false,
+          hidden: true
+        },
+        {
+          type: 'line',
+          label: '總計',
+          backgroundColor: bgcolor_20[5],
+          borderColor: bgcolor_100[5],
           borderWidth: 1,
           data: chartData1.value,
           parsing: {
               yAxisKey: 'data.total'
-          }
+          },
+          stacked: false,
         },
       ]
     },
     options: {
       responsive: true,
+      interaction: {
+        intersect: false,
+        mode: 'x',
+      },
       parsing: {
         xAxisKey: 'name',
       },
       scales: {
         x: {
-          stacked: false,
+          stacked: true,
         },
         y: {
           title: {
@@ -165,7 +279,7 @@ getCasebyOprOnDone(result=>{
             stepSize: 1
           },
           beginAtZero: true,
-          stacked: false
+          suggestedMax: 5
         }
       },
       plugins: {
@@ -190,7 +304,6 @@ function changeChart1Year(e){
 
 //#endregion Chart1==========End
 
-
 //#region Chart2==========Start
 const ctx2 = ref();
 const myChart2 = ref();
@@ -199,7 +312,7 @@ const chartData2 = ref([]);
 const { mutate: getCasebyMounth, onDone: getCasebyMounthOnDone } = useMutation(ToolsGQL.STATCASEBYMOUNTH);
 getCasebyMounthOnDone(result=>{
   chartData2.value = result.data.statCaseByMounth;
-  console.log(chartData2.value);
+  // console.log(chartData2.value);
   if(myChart2.value) myChart2.value.destroy();
 
   ctx2.value = document.getElementById('myChart2').getContext('2d');
@@ -209,7 +322,7 @@ getCasebyMounthOnDone(result=>{
       datasets: [
         {
           label: 'F(外校)',
-          backgroundColor: '#A6C2F5',
+          backgroundColor: bgcolor_100[0],
           borderSkipped: false,
           data: chartData2.value,
           parsing: {
@@ -220,7 +333,7 @@ getCasebyMounthOnDone(result=>{
         },
         {
           label: 'F(內校)',
-          backgroundColor: '#6495ED',
+          backgroundColor: bgcolor_60[0],
           borderSkipped: false,
           data: chartData2.value,
           parsing: {
@@ -231,7 +344,7 @@ getCasebyMounthOnDone(result=>{
         },
         {
           label: 'F(未完成)',
-          backgroundColor: '#8B87C6',
+          backgroundColor: bgcolor_20[0],
           borderSkipped: false,
           data: chartData2.value,
           parsing: {
@@ -242,7 +355,7 @@ getCasebyMounthOnDone(result=>{
         },
         {
           label: 'I(外校)',
-          backgroundColor: '#68DE99',
+          backgroundColor: bgcolor_100[1],
           borderSkipped: false,
           data: chartData2.value,
           parsing: {
@@ -253,7 +366,7 @@ getCasebyMounthOnDone(result=>{
         },
         {
           label: 'I(內校)',
-          backgroundColor: '#229954',
+          backgroundColor: bgcolor_60[1],
           borderSkipped: false,
           data: chartData2.value,
           parsing: {
@@ -264,7 +377,7 @@ getCasebyMounthOnDone(result=>{
         },
         {
           label: 'I(未完成)',
-          backgroundColor: '#447746',
+          backgroundColor: bgcolor_20[1],
           borderSkipped: false,
           data: chartData2.value,
           parsing: {
@@ -275,7 +388,7 @@ getCasebyMounthOnDone(result=>{
         },
         {
           label: 'J(外校)',
-          backgroundColor: '#FFB69C',
+          backgroundColor: bgcolor_100[2],
           borderSkipped: false,
           data: chartData2.value,
           parsing: {
@@ -286,7 +399,7 @@ getCasebyMounthOnDone(result=>{
         },
         {
           label: 'J(內校)',
-          backgroundColor: '#FF7F50',
+          backgroundColor: bgcolor_60[2],
           borderSkipped: false,
           data: chartData2.value,
           parsing: {
@@ -297,7 +410,7 @@ getCasebyMounthOnDone(result=>{
         },
         {
           label: 'J(未完成)',
-          backgroundColor: '#CC7182',
+          backgroundColor: bgcolor_20[2],
           borderSkipped: false,
           data: chartData2.value,
           parsing: {
@@ -309,8 +422,8 @@ getCasebyMounthOnDone(result=>{
         {
           type: 'line',
           label: '累計(外校)',
-          backgroundColor: bgcolorList[1],
-          borderColor: brcolorList[1],
+          backgroundColor: bgcolor_20[3],
+          borderColor: bgcolor_100[3],
           borderWidth: 1,
           data: chartData2.value,
           parsing: {
@@ -322,8 +435,8 @@ getCasebyMounthOnDone(result=>{
         {
           type: 'line',
           label: '累計(內校)',
-          backgroundColor: bgcolorList[2],
-          borderColor: brcolorList[2],
+          backgroundColor: bgcolor_20[4],
+          borderColor: bgcolor_100[4],
           borderWidth: 1,
           data: chartData2.value,
           parsing: {
@@ -336,6 +449,10 @@ getCasebyMounthOnDone(result=>{
     },
     options: {
       responsive: true,
+      interaction: {
+        intersect: false,
+        mode: 'x',
+      },
       parsing: {
         xAxisKey: 'id',
       },
@@ -366,6 +483,14 @@ getCasebyMounthOnDone(result=>{
         },
         legend: {
           position: 'right',
+          labels: {
+            usePointStyle: true,
+            pointStyleWidth: 8,
+            font:{
+              size: 10,
+              lineHeight: 1
+            },
+          }
         },
       }
     }
@@ -384,23 +509,316 @@ function changeChart2Year(e){
 
 //#endregion Chart2==========End
 
+//#region Chart3==========Start
+const ctx3 = ref();
+const myChart3 = ref();
+const chartData3 = ref([]);
+// 查詢校正人員案件數 by Year
+const { mutate: getCaseTypebyYear, onDone: getCaseTypebyYearOnDone } = useMutation(ToolsGQL.STATCASETYPEBYYEAR);
+getCaseTypebyYearOnDone(result=>{
+  // console.log('2-getCasebyOprOnDone')
+  chartData3.value = result.data.statCaseTypeByYear;
+  // console.log(chartData3.value);
+  let calName = ['航測像機','空載光達','小像幅']
+  const data = {
+    labels: calName,
+    datasets: [
+      {
+        label: '外校',
+        data: chartData3.value.map(x=>{return x.count_o}),
+        backgroundColor: bgcolor_100.slice(0,3),
+        hoverOffset: 4,
+        tooltip: {
+          callbacks: {
+            label: function(e){
+              return e.label + '(外校): ' + e.formattedValue
+            }
+          }
+        }
+      },
+      {
+        label: '內校',
+        data: chartData3.value.map(x=>{return x.count_i}),
+        backgroundColor: bgcolor_20.slice(0,3),
+        hoverOffset: 4,
+        tooltip: {
+          callbacks: {
+            label: function(e){
+              return e.label + '(內校): ' + e.formattedValue
+            }
+          }
+        }
+      },
+    ]
+  };
+
+  // console.log('3-OnDone res:',chartData1.value);
+  if(myChart3.value) myChart3.value.destroy();
+
+  // console.log('4-new Chart',myChart1.value);
+  ctx3.value = document.getElementById('myChart3').getContext('2d');
+  // console.log('5-ctx1',ctx1.value);
+  myChart3.value = new Chart(ctx3.value, {
+    type: 'doughnut',
+    data: data,
+    options: {
+      responsive: true,
+      interaction: {
+        mode: 'index',
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: '各項目年度案件數',
+        },
+        legend: {
+          position: 'right',
+        },
+      }
+    }
+  });
+});
+
+function changeChart3Year(e){
+  getCaseTypebyYear({
+    year: (parseInt(selYear3.value) && parseInt(selYear3.value)!==-1)?parseInt(selYear3.value)+1911:null,
+    calNum: 3
+  })
+}
+//#endregion Chart3==========End
+
+//#region Chart4==========Start
+const ctx4 = ref();
+const myChart4 = ref();
+const chartData4 = ref([]);
+// 查詢校正人員案件數 by Year
+const { mutate: getCaseStatusbyYear, onDone: getCaseStatusbyYearOnDone } = useMutation(ToolsGQL.STATCASESTATUSBYYEAR);
+getCaseStatusbyYearOnDone(result=>{
+  // console.log('2-getCasebyOprOnDone')
+  chartData4.value = result.data.statCaseStatusByYear;
+  // console.log(chartData3.value);
+  let calName = ['(無)','審核中','待送件','校正中','報告陳核','待繳費(出具報告)','結案','補件','退件']
+  const data = {
+    labels: calName,
+    datasets: [
+      {
+        label: '外校',
+        data: chartData4.value,
+        backgroundColor: [
+          'rgba(128,128,128,1)',
+          'rgba(255, 159, 64, 0.5)',
+          'rgba(255, 159, 64, 1)',
+          'rgba(54, 162, 235, 0.8)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(255, 99, 132, 0.5)',
+          'rgba(255, 99, 132, 1)',
+        ],
+        hoverOffset: 4,
+      },
+    ]
+  };
+
+  // console.log('3-OnDone res:',chartData1.value);
+  if(myChart4.value) myChart4.value.destroy();
+
+  // console.log('4-new Chart',myChart1.value);
+  ctx4.value = document.getElementById('myChart4').getContext('2d');
+  // console.log('5-ctx1',ctx1.value);
+  myChart4.value = new Chart(ctx4.value, {
+    type: 'doughnut',
+    data: data,
+    options: {
+      responsive: true,
+      interaction: {
+        mode: 'index',
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: '年度案件進度統計',
+        },
+        legend: {
+          position: 'right',
+        },
+      }
+    }
+  });
+});
+
+function changeChart4Year(e){
+  getCaseStatusbyYear({
+    year: (parseInt(selYear4.value) && parseInt(selYear4.value)!==-1)?parseInt(selYear4.value)+1911:null,
+  })
+}
+//#endregion Chart4==========End
+
+//#region Chart5==========Start
+const ctx5 = ref();
+const myChart5 = ref();
+const chartData5 = ref([]);
+// 查詢案件數 by Mounth Year
+const { mutate: getMoneybyMounth, onDone: getMoneybyMounthOnDone } = useMutation(ToolsGQL.STATCASEBYMOUNTH);
+getMoneybyMounthOnDone(result=>{
+  // console.log('2-getCasebyOprOnDone')
+  chartData5.value = result.data.statCaseByMounth;
+  // console.log(chartData5.value);
+  const data = {
+    datasets: [
+      {
+        type: 'line',
+        label: '累計收費',
+        backgroundColor: bgcolor_20[4],
+        borderColor: bgcolor_100[4],
+        borderWidth: 2,
+        data: chartData5.value,
+        parsing: {
+            yAxisKey: 'Smoney'
+        },
+        stacked: false,
+        tension: 0.4
+      },
+      {
+        label: '航測相機',
+        backgroundColor: bgcolor_20[0],
+        borderColor: bgcolor_100[0],
+        borderWidth: 1,
+        data: chartData5.value,
+        parsing: {
+            yAxisKey: 'm1'
+        },
+        stacked: true,
+        stack: 'Stack 0',
+      },
+      {
+        label: '空載光達',
+        backgroundColor: bgcolor_20[1],
+        borderColor: bgcolor_100[1],
+        borderWidth: 1,
+        data: chartData5.value,
+        parsing: {
+            yAxisKey: 'm2'
+        },
+        stacked: true,
+        stack: 'Stack 0',
+      },
+      {
+        label: '小像幅',
+        backgroundColor: bgcolor_20[2],
+        borderColor: bgcolor_100[2],
+        borderWidth: 1,
+        data: chartData5.value,
+        parsing: {
+            yAxisKey: 'm3'
+        },
+        stacked: true,
+        stack: 'Stack 0',
+      },
+    ]
+  };
+
+  // console.log('3-OnDone res:',chartData1.value);
+  if(myChart5.value) myChart5.value.destroy();
+
+  // console.log('4-new Chart',myChart1.value);
+  ctx5.value = document.getElementById('myChart5').getContext('2d');
+  // console.log('5-ctx1',ctx1.value);
+  myChart5.value = new Chart(ctx5.value, {
+    type: 'bar',
+    data: data,
+    options: {
+      responsive: true,
+      interaction: {
+        mode: 'index',
+      },
+      parsing: {
+        xAxisKey: 'id',
+      },
+      scales:{
+        x: {
+          title: {
+            display: true,
+            text: '月份'
+          },
+          stacked: true,
+        },
+        y: {
+          title: {
+            display: true,
+            text: '新臺幣'
+          },
+        },
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: '年度每月收費統計',
+        },
+        legend: {
+          position: 'right',
+        },
+      }
+    }
+  });
+});
+
+function changeChart5Year(e){
+  getMoneybyMounth({
+    year:(parseInt(selYear5.value) && parseInt(selYear5.value)!==-1)?parseInt(selYear5.value)+1911:new Date().getFullYear,
+    calNum: 3,
+    method:'pay_date',
+  })
+}
+//#endregion Chart5==========End
+
+//#region Chart6==========Start
+
+
+function changeChart6Year(e){
+  // getMoneybyMounth({
+  //   year:(parseInt(selYear5.value) && parseInt(selYear5.value)!==-1)?parseInt(selYear5.value)+1911:new Date().getFullYear,
+  //   calNum: 3,
+  //   method:'pay_date',
+  // })
+}
+//#endregion Chart6==========End
+
 // 統計資料查詢==========End
 
 //#region 圖表設定==========Start
-const bgcolorList = [
+const bgcolor_20 = [
   'rgba(255, 99, 132, 0.2)',
   'rgba(54, 162, 235, 0.2)',
   'rgba(255, 206, 86, 0.2)',
   'rgba(75, 192, 192, 0.2)',
   'rgba(153, 102, 255, 0.2)',
   'rgba(255, 159, 64, 0.2)'];
-const brcolorList = [
+const bgcolor_60 = [
+  'rgba(255, 99, 132, 0.6)',
+  'rgba(54, 162, 235, 0.6)',
+  'rgba(255, 206, 86, 0.6)',
+  'rgba(75, 192, 192, 0.6)',
+  'rgba(153, 102, 255, 0.6)',
+  'rgba(255, 159, 64, 0.6)'];
+const bgcolor_100 = [
   'rgba(255, 99, 132, 1)',
   'rgba(54, 162, 235, 1)',
   'rgba(255, 206, 86, 1)',
   'rgba(75, 192, 192, 1)',
   'rgba(153, 102, 255, 1)',
   'rgba(255, 159, 64, 1)'];
+const bgcolorList2 = [
+  '#4dc9f6',
+  '#f67019',
+  '#f53794',
+  '#537bc4',
+  '#acc236',
+  '#166a8f',
+  '#00a950',
+  '#58595b',
+  '#8549ba'
+];
 
 onMounted(()=>{ 
   
@@ -414,7 +832,15 @@ onMounted(()=>{
     selDmethod.value = "app_date";
     selYearDOM2.value.setValue(latestYear);
     // selDmethodDOM.value.setValue(selDmethod.value);
-    
+    // 圖表3
+    selYearDOM3.value.setValue(latestYear);
+    // 圖表4
+    selYearDOM4.value.setValue(latestYear);
+    // 圖表5
+    selYearDOM5.value.setValue(latestYear);
+    // 圖表6
+    selYearDOM6.value.setValue(new Date().getFullYear()-1911);
+    selMounthDOM6.value.setValue(new Date().getMonth()+1);
 
   })
   
@@ -429,7 +855,7 @@ function zoomCart(Index){
     // 還原
     // console.log('還原')
     chartShow.value.forEach((x,i,a)=>{a[i]=true});
-    chartShowCol.value.forEach((x,i,a)=>{a[i]="6"});
+    chartShowCol.value.forEach((x,i,a)=>{a[i]="4"});
     chartClass.value.forEach((x,i,a)=>{a[i]="h-50"});
     chartMax.value=false
   }else{
@@ -446,7 +872,7 @@ function zoomCart(Index){
       if(i===Index){
         a[i]="12"
       }else{
-        a[i]="6"
+        a[i]="4"
       }
     });
     chartClass.value.forEach((x,i,a)=>{
@@ -478,48 +904,48 @@ function zoomCart(Index){
       </header>
       <!-- 主體 -->
       <MDBRow style="height: calc(100% - 16rem);margin-left:0;margin-right:0;" class="w-100 overflow-auto">
-        <MDBCol col="12" class="py-2">
+        <MDBCol col="12" class="py-2 h-100">
           <MDBRow class="h-100 border border-5 rounded-8 shadow-4">
             <!-- 左方導航列 -->
-            <MDBCol md="3">
+            <MDBCol md="2" class="border-top border-bottom">
               <MDBRow class="d-flex flex-column">
-                <MDBCol class="px-2 p-3 border w-100">
+                <MDBCol class="px-2 p-3 border-bottom w-100">
                   <RouterLink :to="{ name: 'docs'}">
                     <MDBIcon icon="file-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />文件查詢
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class=" px-2 p-3 border w-100">
+                <MDBCol class=" px-2 p-3 border-bottom w-100">
                   <RouterLink :to="{ name: 'cases'}">
                     <MDBIcon icon="balance-scale" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />校正案件
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class="px-2 p-3 border w-100">
+                <MDBCol class="px-2 p-3 border-bottom w-100">
                   <RouterLink :to="{ name: 'employee'}">
                     <MDBIcon icon="user-edit" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />人員管理
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class="px-2 p-3 border w-100">
+                <MDBCol class="px-2 p-3 border-bottom w-100">
                   <RouterLink :to="{ name: 'gcps'}">
                     <MDBIcon icon="map-marked-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />點位管理
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class="px-2 p-3 border w-100">
+                <MDBCol class="px-2 p-3 border-bottom w-100">
                   <RouterLink :to="{ name: 'prjs'}">
                     <MDBIcon icon="drafting-compass" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />
                     參考值量測作業
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class="px-2 p-3 border w-100">
+                <MDBCol class="px-2 p-3 border-bottom w-100">
                   <RouterLink :to="{ name: 'items'}">
                     <MDBIcon icon="wrench" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />標準件管理
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class="px-2 p-3 border w-100">
+                <MDBCol class="px-2 p-3 border-bottom w-100">
                   <RouterLink :to="{ name: 'cust' }">
                     <MDBIcon far icon="handshake" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />顧客管理
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class="px-2 p-3 border w-100">
+                <MDBCol class="px-2 p-3 border-bottom w-100">
                   <RouterLink :to="{ name: 'ucedit'}">
                     <MDBIcon icon="project-diagram" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />
                     不確定度管理
@@ -528,11 +954,11 @@ function zoomCart(Index){
               </MDBRow>
             </MDBCol>
             <!-- 右方統計圖 -->
-            <MDBCol md="9" class="border h-100">
+            <MDBCol md="10" class="h-100">
               <!-- 加入統計圖 -->
-              <MDBRow class="h-100">
+              <MDBRow class="h-100 overflow-auto">
                 <!-- 圖表1 -->
-                <MDBCol v-show="chartShow[0]" :col="chartShowCol[0]" class="border" :class="chartClass[0]">
+                <MDBCol v-show="chartShow[0]" :lg="chartShowCol[0]" class="border" :class="chartClass[0]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">
                       <MDBSelect size="sm"
@@ -545,14 +971,14 @@ function zoomCart(Index){
                       <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(0)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
                     </MDBCol>
                     <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
-                      <canvas id="myChart1" class="border" style="max-height: 100%; max-width: 100%"></canvas>
+                      <canvas id="myChart1" class="" style="max-height: 100%; max-width: 100%"></canvas>
                     </MDBCol>
                   </MDBRow>
                   
                   
                 </MDBCol>
                 <!-- 圖表2 -->
-                <MDBCol v-show="chartShow[1]" :col="chartShowCol[1]" class="border" :class="chartClass[1]">
+                <MDBCol v-show="chartShow[1]" :lg="chartShowCol[1]" class="border" :class="chartClass[1]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">
                       <MDBSelect size="sm"
@@ -572,30 +998,127 @@ function zoomCart(Index){
                       <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(1)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
                     </MDBCol>
                     <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
-                      <canvas id="myChart2" class="border" style="max-height: 100%; max-width: 100%"></canvas>
+                      <canvas id="myChart2" class="" style="max-height: 100%; max-width: 100%"></canvas>
+                    </MDBCol>
+                  </MDBRow>
+                </MDBCol>
+                <!-- 圖表5 -->
+                <MDBCol v-show="chartShow[4]" :lg="chartShowCol[4]" class="border" :class="chartClass[4]" style="max-height: 30rem;">
+                  <MDBRow class="h-100">
+                    <MDBCol col="12" style="position:relative ;" class="mt-2">
+                      <MDBSelect size="sm"
+                        style="display:inline-block; width:10rem"
+                        label="年度" 
+                        v-model:options="selYearMU5"
+                        v-model:selected="selYear5" 
+                        ref="selYearDOM5" 
+                        @change="changeChart5Year($event)"/>
+                      <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(4)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
+                    </MDBCol>
+                    <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
+                      <canvas id="myChart5" class="" style="max-height: 100%; max-width: 100%"></canvas>
                     </MDBCol>
                   </MDBRow>
                 </MDBCol>
                 <!-- 圖表3 -->
-                <MDBCol v-show="chartShow[2]" :col="chartShowCol[2]" class="border" :class="chartClass[2]">
-                  <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
-                    <canvas id="myChart3" class="border" style="max-height: 100%; max-width: 100%"></canvas>
-                  </MDBCol>
+                <MDBCol v-show="chartShow[2]" :lg="chartShowCol[2]" class="border" :class="chartClass[2]" style="max-height: 30rem;">
+                  <MDBRow class="h-100">
+                    <MDBCol col="12" style="position:relative ;" class="mt-2">
+                      <MDBSelect size="sm"
+                        style="display:inline-block; width:10rem"
+                        label="年度" 
+                        v-model:options="selYearMU3"
+                        v-model:selected="selYear3" 
+                        ref="selYearDOM3" 
+                        @change="changeChart3Year($event)"/>
+                      <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(2)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
+                    </MDBCol>
+                    <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
+                      <canvas id="myChart3" class="" style="max-height: 100%; max-width: 100%"></canvas>
+                    </MDBCol>
+                  </MDBRow>
                 </MDBCol>
                 <!-- 圖表4 -->
-                <MDBCol v-show="chartShow[3]" :col="chartShowCol[3]" class="border" :class="chartClass[3]">
-                  <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
-                    <canvas id="myChart4" class="border" style="max-height: 100%; max-width: 100%"></canvas>
-                  </MDBCol>
+                <MDBCol v-show="chartShow[3]" :lg="chartShowCol[3]" class="border" :class="chartClass[3]" style="max-height: 30rem;">
+                  <MDBRow class="h-100">
+                    <MDBCol col="12" style="position:relative ;" class="mt-2">
+                      <MDBSelect size="sm"
+                        style="display:inline-block; width:10rem"
+                        label="年度" 
+                        v-model:options="selYearMU4"
+                        v-model:selected="selYear4" 
+                        ref="selYearDOM4" 
+                        @change="changeChart4Year($event)"/>
+                      <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(3)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
+                    </MDBCol>
+                    <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
+                      <canvas id="myChart4" class="" style="max-height: 100%; max-width: 100%"></canvas>
+                    </MDBCol>
+                  </MDBRow>
                 </MDBCol>
-                <!-- 圖表5 -->
-                <!-- <MDBCol col="4" class="h-50 border d-flex align-items-center justify-content-center"> -->
-                  <!-- <canvas id="myChart5" class="border"></canvas> -->
-                <!-- </MDBCol> -->
+                
                 <!-- 圖表6 -->
-                <!-- <MDBCol col="4" class="h-50 border d-flex align-items-center justify-content-center"> -->
-                  <!-- <canvas id="myChart6" class="border"></canvas> -->
-                <!-- </MDBCol> -->
+                <MDBCol v-show="chartShow[5]" :lg="chartShowCol[5]" class="border" :class="chartClass[5]" style="max-height: 30rem;">
+                  <MDBRow class="h-100">
+                    <MDBCol col="12" style="position:relative ;" class="mt-2">
+                      <MDBSelect size="sm"
+                        style="display:inline-block; width:8rem"
+                        label="年度" 
+                        v-model:options="selYearMU6"
+                        v-model:selected="selYear6" 
+                        ref="selYearDOM6" 
+                        @change="changeChart6Year($event)"/>
+                      <MDBSelect size="sm"
+                        style="display:inline-block; width:8rem"
+                        label="月份" 
+                        v-model:options="selMounthMU6"
+                        v-model:selected="selMounth6" 
+                        ref="selMounthDOM6" 
+                        @change="changeChart6Year($event)"/>
+                      <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(5)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
+                    </MDBCol>
+                    <MDBCol col="12" style="height: calc(100% - 3em);" class="overflow-auto">
+                      <table width="100%" cellspacing=0 cellpadding=0>
+                        <tr class="f_01">
+                          <td class="ps-2 bl_all">項目</td>
+                          <td class="ps-2 bl_t bl_r bl_b">1-{{selMounth6}}月累計</td>
+                          <td class="ps-2 bl_t bl_r bl_b">1-{{selMounth6-1}}月累計</td>
+                          <td class="ps-2 bl_t bl_r bl_b">{{selMounth6}}月增加</td>
+                        </tr>
+                        <tr class="f_01">
+                          <td class="ps-2 bl_l bl_r bl_b">航空測量攝影機(大)</td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                        </tr>
+                        <tr class="f_01">
+                          <td class="ps-2 bl_l bl_r bl_b">航空測量攝影機(中)</td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                        </tr>
+                        <tr class="f_01">
+                          <td class="ps-2 bl_l bl_r bl_b">空載光達</td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                        </tr>
+                        <tr class="f_01">
+                          <td class="ps-2 bl_l bl_r bl_b">小像幅航拍攝影機</td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                        </tr>
+                        <tr class="f_01">
+                          <td class="ps-2 bl_l bl_r bl_b">營運收入</td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="ps-2 bl_r bl_b"></td>
+                        </tr>
+                      </table>
+                    </MDBCol>
+                  </MDBRow>
+                </MDBCol>
 
               </MDBRow>
               
@@ -617,3 +1140,39 @@ function zoomCart(Index){
     </MDBRow>
   </MDBContainer>
 </template>
+<style>
+/* 框線 */
+.bl_all{
+  border: 1px solid;
+}
+.bl_t{
+  border-top: 1px solid;
+}
+.bl_b{
+  border-bottom: 1px solid;
+}
+.bl_l{
+  border-left: 1px solid;
+}
+.bl_r{
+  border-right: 1px solid;
+}
+
+.bl_t_doble{
+  border-top: 5px double;
+}
+.bl_b_doble{
+  border-bottom: 5px double;
+}
+.bl_l_doble{
+  border-left: 5px double;
+}
+.bl_r_doble{
+  border-right: 5px double;
+}
+.f_01{
+  font-family: "Times New Roman", 標楷體;
+  font-size: 12pt;
+	line-height: 1.5;
+}
+</style>

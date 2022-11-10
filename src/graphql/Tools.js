@@ -31,9 +31,23 @@ mutation StatCaseByMounth($year: Int!, $calNum: Int!, $method: String) {
 }
 `;
 
+const STATCASETYPEBYYEAR = gql`
+  mutation StatCaseTypeByYear($year: Int!, $calNum: Int!) {
+    statCaseTypeByYear(year: $year, calNum: $calNum)
+  }
+`;
+
+const STATCASESTATUSBYYEAR = gql`
+  mutation StatCaseStatusByYear($year: Int!) {
+    statCaseStatusByYear(year: $year)
+  }
+`;
+
 export default {
   UPLOADFILE,
   STATCASEBYOPR,
   STATCASEMINMAXYEAR,
   STATCASEBYMOUNTH,
+  STATCASETYPEBYYEAR,
+  STATCASESTATUSBYYEAR,
 };

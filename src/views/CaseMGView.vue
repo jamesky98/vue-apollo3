@@ -807,7 +807,7 @@ const saveCaseSVar = computed(()=>{
     purpose: nowCasePurpose.value,
     itemId: (nowCaseItemID.value === "") ? null : parseInt(nowCaseItemID.value),
     charge: parseInt(nowCaseCharge.value),
-    payDate: (nowCasePayDate.value.value.trim() === "") ? null : (nowCasePayDate.value.trim() + "T00:00:00.000Z"),
+    payDate: (nowCasePayDate.value.trim() === "") ? null : (nowCasePayDate.value.trim() + "T00:00:00.000Z"),
     agreement: nowCaseAgreement.value,
     leaderId: parseInt(nowCaseLeader.value),
     operatorsId: parseInt(nowCaseOperator.value),

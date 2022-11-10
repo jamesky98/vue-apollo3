@@ -415,12 +415,16 @@ const columns_Item = [
     for(let i=0 ; i < row.case_base.length ; i++){
       if(row.case_base[i].case_record_01){
         // 航測
-        let mydate = Date.parse(row.case_base[i].case_record_01.complete_date);
-        maxCalDate = (mydate > maxCalDate)?mydate:maxCalDate;
+        if(parseInt(row.case_base[i].cus.org_id)!==5){
+          let mydate = Date.parse(row.case_base[i].case_record_01.complete_date);
+          maxCalDate = (mydate > maxCalDate)?mydate:maxCalDate;
+        }
       }else if(row.case_base[i].case_record_02){
         // 光達
-        let mydate = Date.parse(row.case_base[i].case_record_02.complete_date);
-        maxCalDate = (mydate > maxCalDate)?mydate:maxCalDate;
+        if(parseInt(row.case_base[i].cus.org_id)!==5){
+          let mydate = Date.parse(row.case_base[i].case_record_02.complete_date);
+          maxCalDate = (mydate > maxCalDate)?mydate:maxCalDate;
+        }
       }
     }
     if(maxCalDate===0){
@@ -710,7 +714,14 @@ onMounted(function () {
   dt_Item.on('select', function (e, dt, type, indexes) {
     nowItemId.value = dt.rows(indexes).data()[0].id;
     refgetItemById({getItemByIdId: parseInt(nowItemId.value)});
-    refgetItemCase({itemId: parseInt(nowItemId.value)});
+    if(joinItem.value){
+      refgetItemCase({
+        itemId: parseInt(nowItemId.value),
+        orgId: parseInt(nowCustOrgID.value)
+      });
+    }else{ 
+      refgetItemCase({itemId: parseInt(nowItemId.value)});
+    }
   });
 
   
