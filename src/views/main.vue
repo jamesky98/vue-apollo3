@@ -71,6 +71,87 @@ const selMounth6 = ref("");
 const selMounthMU6 = ref([]);
 const selMounthDOM6 = ref();
 
+const fl_total = ref(""); 
+const fl_per = ref("");
+const fl_now = ref("");
+const fl_total_i = ref(""); 
+const fl_per_i = ref("");
+const fl_now_i = ref("");
+const fl_total_str = computed(()=>{
+  let temp = (fl_total_i.value)?'('+fl_total_i.value+')':''
+  return fl_total.value + temp
+});
+const fl_per_str = computed(()=>{
+  let temp = (fl_per_i.value)?'('+fl_per_i.value+')':''
+  return fl_per.value + temp
+});
+const fl_now_str = computed(()=>{
+  let temp = (fl_now_i.value)?'('+fl_now_i.value+')':''
+  return fl_now.value + temp
+});
+
+const fm_total = ref(""); 
+const fm_per = ref("");
+const fm_now = ref("");
+const fm_total_i = ref(""); 
+const fm_per_i = ref("");
+const fm_now_i = ref("");
+const fm_total_str = computed(()=>{
+  let temp = (fm_total_i.value)?'('+fm_total_i.value+')':''
+  return fm_total.value + temp
+});
+const fm_per_str = computed(()=>{
+  let temp = (fm_per_i.value)?'('+fm_per_i.value+')':''
+  return fm_per.value + temp
+});
+const fm_now_str = computed(()=>{
+  let temp = (fm_now_i.value)?'('+fm_now_i.value+')':''
+  return fm_now.value + temp
+});
+
+
+const ic_total = ref(""); 
+const ic_per = ref("");
+const ic_now = ref("");
+const ic_total_i = ref(""); 
+const ic_per_i = ref("");
+const ic_now_i = ref("");
+const ic_total_str = computed(()=>{
+  let temp = (ic_total_i.value)?'('+ic_total_i.value+')':''
+  return ic_total.value + temp
+});
+const ic_per_str = computed(()=>{
+  let temp = (ic_per_i.value)?'('+ic_per_i.value+')':''
+  return ic_per.value + temp
+});
+const ic_now_str = computed(()=>{
+  let temp = (ic_now_i.value)?'('+ic_now_i.value+')':''
+  return ic_now.value + temp
+});
+
+const jc_total = ref(""); 
+const jc_per = ref("");
+const jc_now = ref("");
+const jc_total_i = ref(""); 
+const jc_per_i = ref("");
+const jc_now_i = ref("");
+const jc_total_str = computed(()=>{
+  let temp = (jc_total_i.value)?'('+jc_total_i.value+')':''
+  return jc_total.value + temp
+});
+const jc_per_str = computed(()=>{
+  let temp = (jc_per_i.value)?'('+jc_per_i.value+')':''
+  return jc_per.value + temp
+});
+const jc_now_str = computed(()=>{
+  let temp = (jc_now_i.value)?'('+jc_now_i.value+')':''
+  return jc_now.value + temp
+});
+
+const money_total = ref(""); 
+const money_per = ref("");
+const money_now = ref("");
+
 
 // 日期模式清單
 const selDmethod = ref("");
@@ -118,14 +199,19 @@ getCaseYearsOnDone(result=>{
   // chart6
   let minYear = Math.min(...getData)+1911;
   let nowYear = new Date().getFullYear();
-  for(let y=minYear;y<nowYear+1;y++){
-    selYearMU6.value.push({ text: y-1911, value: y-1911 })  
+  let yearlist =[];
+  for(let i=minYear-1911;i<nowYear-1911+1;i++){
+    yearlist.push({ text: i, value: i });
   }
-  selYearMU6.value.reverse();
-  selYearMU6.value.unshift({ text: "-未選取-", value: -1 });
+  yearlist.reverse();
+  yearlist.unshift({ text: "-未選取-", value: -1 });
+  selYearMU6.value=yearlist;
+  let monlist =[];
   for(let m=1;m<13;m++){
-    selMounthMU6.value.push({ text: m, value: m })  
-  };selMounthMU6.value.unshift({ text: "-未選取-", value: -1 });
+    monlist.push({ text: m, value: m })  
+  }
+  monlist.unshift({ text: "-未選取-", value: -1 });
+  selMounthMU6.value=monlist;
 })
 
 // 查詢校正人員案件數 by Year
@@ -765,7 +851,7 @@ getMoneybyMounthOnDone(result=>{
 
 function changeChart5Year(e){
   getMoneybyMounth({
-    year:(parseInt(selYear5.value) && parseInt(selYear5.value)!==-1)?parseInt(selYear5.value)+1911:new Date().getFullYear,
+    year:(parseInt(selYear5.value) && parseInt(selYear5.value)!==-1)?parseInt(selYear5.value)+1911:new Date().getFullYear(),
     calNum: 3,
     method:'pay_date',
   })
@@ -773,14 +859,51 @@ function changeChart5Year(e){
 //#endregion Chart5==========End
 
 //#region Chart6==========Start
+// 查詢案件數 by Mounth Year
+const { mutate: getTablebyMounth, onDone: getTablebyMounthOnDone } = useMutation(ToolsGQL.STATCASETABLEBYMOUNTH);
+getTablebyMounthOnDone(result=>{
+  let getData = result.data.statCaseTableByMounth;
+  console.log(getData);
+  fl_total.value = getData.Fl[0]; 
+  fl_per.value = getData.Fl[1]; 
+  fl_now.value = getData.Fl[2]; 
+  fl_total_i.value = getData.Fl[3]; 
+  fl_per_i.value = getData.Fl[4]; 
+  fl_now_i.value = getData.Fl[5]; 
 
+  fm_total.value = getData.Fm[0]; 
+  fm_per.value = getData.Fm[1]; 
+  fm_now.value = getData.Fm[2]; 
+  fm_total_i.value = getData.Fm[3]; 
+  fm_per_i.value = getData.Fm[4]; 
+  fm_now_i.value = getData.Fm[5]; 
 
+  ic_total.value = getData.Ic[0]; 
+  ic_per.value = getData.Ic[1]; 
+  ic_now.value = getData.Ic[2]; 
+  ic_total_i.value = getData.Ic[3]; 
+  ic_per_i.value = getData.Ic[4]; 
+  ic_now_i.value = getData.Ic[5]; 
+
+  jc_total.value = getData.Jc[0]; 
+  jc_per.value = getData.Jc[1];
+  jc_now.value = getData.Jc[2];
+  jc_total_i.value = getData.Jc[3];
+  jc_per_i.value = getData.Jc[4];
+  jc_now_i.value = getData.Jc[5];
+
+  money_total.value = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(getData.money[0]);
+  money_per.value = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(getData.money[1]);
+  money_now.value = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(getData.money[2]);
+
+});
 function changeChart6Year(e){
-  // getMoneybyMounth({
-  //   year:(parseInt(selYear5.value) && parseInt(selYear5.value)!==-1)?parseInt(selYear5.value)+1911:new Date().getFullYear,
-  //   calNum: 3,
-  //   method:'pay_date',
-  // })
+  if(parseInt(selYear6.value) && parseInt(selYear6.value)!==-1 && parseInt(selMounth6.value) && parseInt(selMounth6.value)!==-1){
+    getTablebyMounth({
+      year:(parseInt(selYear6.value) && parseInt(selYear6.value)!==-1)?parseInt(selYear5.value)+1911:new Date().getFullYear(),
+      mounth:(parseInt(selMounth6.value) && parseInt(selMounth6.value)!==-1)?parseInt(selMounth6.value):new Date().getMonth()+1,
+    })
+  }
 }
 //#endregion Chart6==========End
 
@@ -1075,10 +1198,11 @@ function zoomCart(Index){
                         v-model:selected="selMounth6" 
                         ref="selMounthDOM6" 
                         @change="changeChart6Year($event)"/>
+                        <!-- @change="changeChart6Year($event)" -->
                       <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(5)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
                     </MDBCol>
                     <MDBCol col="12" style="height: calc(100% - 3em);" class="overflow-auto">
-                      <table width="100%" cellspacing=0 cellpadding=0>
+                      <table cellspacing=0 cellpadding=0 style="width: 100%;max-width:30rem">
                         <tr class="f_01">
                           <td class="ps-2 bl_all">項目</td>
                           <td class="ps-2 bl_t bl_r bl_b">1-{{selMounth6}}月累計</td>
@@ -1087,33 +1211,33 @@ function zoomCart(Index){
                         </tr>
                         <tr class="f_01">
                           <td class="ps-2 bl_l bl_r bl_b">航空測量攝影機(大)</td>
-                          <td class="ps-2 bl_r bl_b"></td>
-                          <td class="ps-2 bl_r bl_b"></td>
-                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="px-2 bl_r bl_b f_right">{{fl_total_str}}</td>
+                          <td class="px-2 bl_r bl_b f_right">{{fl_per_str}}</td>
+                          <td class="px-2 bl_r bl_b f_right">{{fl_now_str}}</td>
                         </tr>
                         <tr class="f_01">
                           <td class="ps-2 bl_l bl_r bl_b">航空測量攝影機(中)</td>
-                          <td class="ps-2 bl_r bl_b"></td>
-                          <td class="ps-2 bl_r bl_b"></td>
-                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="px-2 bl_r bl_b f_right">{{fm_total_str}}</td>
+                          <td class="px-2 bl_r bl_b f_right">{{fm_per_str}}</td>
+                          <td class="px-2 bl_r bl_b f_right">{{fm_now_str}}</td>
                         </tr>
                         <tr class="f_01">
                           <td class="ps-2 bl_l bl_r bl_b">空載光達</td>
-                          <td class="ps-2 bl_r bl_b"></td>
-                          <td class="ps-2 bl_r bl_b"></td>
-                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="px-2 bl_r bl_b f_right">{{ic_total_str}}</td>
+                          <td class="px-2 bl_r bl_b f_right">{{ic_per_str}}</td>
+                          <td class="px-2 bl_r bl_b f_right">{{ic_now_str}}</td>
                         </tr>
                         <tr class="f_01">
                           <td class="ps-2 bl_l bl_r bl_b">小像幅航拍攝影機</td>
-                          <td class="ps-2 bl_r bl_b"></td>
-                          <td class="ps-2 bl_r bl_b"></td>
-                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="px-2 bl_r bl_b f_right">{{jc_total_str}}</td>
+                          <td class="px-2 bl_r bl_b f_right">{{jc_per_str}}</td>
+                          <td class="px-2 bl_r bl_b f_right">{{jc_now_str}}</td>
                         </tr>
                         <tr class="f_01">
                           <td class="ps-2 bl_l bl_r bl_b">營運收入</td>
-                          <td class="ps-2 bl_r bl_b"></td>
-                          <td class="ps-2 bl_r bl_b"></td>
-                          <td class="ps-2 bl_r bl_b"></td>
+                          <td class="px-2 bl_r bl_b f_right">{{money_total}}</td>
+                          <td class="px-2 bl_r bl_b f_right">{{money_per}}</td>
+                          <td class="px-2 bl_r bl_b f_right">{{money_now}}</td>
                         </tr>
                       </table>
                     </MDBCol>
@@ -1174,5 +1298,9 @@ function zoomCart(Index){
   font-family: "Times New Roman", 標楷體;
   font-size: 12pt;
 	line-height: 1.5;
+}
+/* 靠右 */
+.f_right{
+	text-align: right;
 }
 </style>

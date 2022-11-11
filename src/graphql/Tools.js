@@ -43,6 +43,12 @@ const STATCASESTATUSBYYEAR = gql`
   }
 `;
 
+const STATCASETABLEBYMOUNTH = gql`
+  mutation StatCaseTableByMounth($year: Int!, $mounth: Int!) {
+    statCaseTableByMounth(year: $year, mounth: $mounth)
+  }
+`;
+
 export default {
   UPLOADFILE,
   STATCASEBYOPR,
@@ -50,4 +56,5 @@ export default {
   STATCASEBYMOUNTH,
   STATCASETYPEBYYEAR,
   STATCASESTATUSBYYEAR,
+  STATCASETABLEBYMOUNTH,
 };
