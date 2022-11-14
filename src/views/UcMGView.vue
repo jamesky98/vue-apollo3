@@ -290,15 +290,18 @@ const {
 } = useMutation(CaseGQL.GETUCLIST);
 getUcListOnDone((result) => {
   // 填入uclist選單
+  let myArray=[];
   if (!result.loading && result.data.getUclist) {
-    let myArray = result.data.getUclist.map((x) => {
+    myArray = result.data.getUclist.map((x) => {
       return { text: x, value: x };
     });
     myArray.sort((a,b)=>{
       return (a.text > b.text)?1:-1
-    }).reverse().unshift({ text: "", value: "" });
-    nowUcModuleNameMU.value = myArray;
+    }).reverse();
   }
+  myArray.unshift({ text: "-未選取-", value: -1 });
+  nowUcModuleNameMU.value = myArray;
+  nowUcModuleNameDOM.value.setValue(-1);
 });
 
 // 加載表格選取事件
@@ -341,7 +344,9 @@ onMounted(function () {
 });
 
 function readUcModule(){
-  selectUcModuleName.value = nowUcModuleNameDOM.value.inputValue;
+  console.log('readUcModule')
+  // selectUcModuleName.value = nowUcModuleNameDOM.value.inputValue;
+  console.log(selectUcModuleName.value)
   if(selectUcModuleName.value){
     getUcModule();
   }else{
@@ -609,7 +614,7 @@ testUcOnDone(result=>{
             <MDBRow style="margin-left:0;margin-right:0;height: calc(100% - 1em);" class="px-2 my-2 align-content-start overflow-auto border border-5 rounded-8 shadow-4">
               <!-- Base內容 -->
               <MDBSelect size="sm" class="my-3 col-12" label="選擇不確定度模組" v-model:options="nowUcModuleNameMU"
-                v-model:selected="selectUcModuleName" ref="nowUcModuleNameDOM" @close="readUcModule"/>
+                v-model:selected="selectUcModuleName" ref="nowUcModuleNameDOM" @change="readUcModule"/>
               <MDBCol col="12" class="mb-3">
                 <MDBBtn :disabled="!rGroup[1]" v-if="nowUcModuleName===selectUcModuleName" size="sm" color="primary" @click="saveUcModule">儲存</MDBBtn>
                 <MDBBtn :disabled="!rGroup[1]" v-else size="sm" color="primary" @click="saveUcModule">另存新檔</MDBBtn>
