@@ -1,5 +1,6 @@
 <script setup>
 import Chart from 'chart.js/auto';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { getRelativePosition } from 'chart.js/helpers';
 import Navbar1 from "../components/Navbar.vue";
 import { ref, reactive, onMounted, provide, inject } from "vue";
@@ -233,8 +234,8 @@ getCasebyOprOnDone(result=>{
         {
           label: '航測相機',
           backgroundColor: bgcolor_60[0],
-          borderColor: bgcolor_100[0],
-          borderWidth: 1,
+          // borderColor: bgcolor_100[0],
+          // borderWidth: 1,
           data: chartData1.value,
           parsing: {
               yAxisKey: 'data.c1_o'
@@ -245,8 +246,8 @@ getCasebyOprOnDone(result=>{
         {
           label: '空載光達',
           backgroundColor: bgcolor_60[1],
-          borderColor: bgcolor_100[1],
-          borderWidth: 1,
+          // borderColor: bgcolor_100[1],
+          // borderWidth: 1,
           data: chartData1.value,
           parsing: {
               yAxisKey: 'data.c2_o'
@@ -257,8 +258,8 @@ getCasebyOprOnDone(result=>{
         {
           label: '小像幅',
           backgroundColor: bgcolor_60[2],
-          borderColor: bgcolor_100[2],
-          borderWidth: 1,
+          // borderColor: bgcolor_100[2],
+          // borderWidth: 1,
           data: chartData1.value,
           parsing: {
               yAxisKey: 'data.c3_o'
@@ -269,8 +270,8 @@ getCasebyOprOnDone(result=>{
         {
           label: '航測相機(內)',
           backgroundColor: bgcolor_20[0],
-          borderColor: bgcolor_100[0],
-          borderWidth: 1,
+          // borderColor: bgcolor_100[0],
+          // borderWidth: 1,
           data: chartData1.value,
           parsing: {
               yAxisKey: 'data.c1_i'
@@ -281,8 +282,8 @@ getCasebyOprOnDone(result=>{
         {
           label: '空載光達(內)',
           backgroundColor: bgcolor_20[1],
-          borderColor: bgcolor_100[1],
-          borderWidth: 1,
+          // borderColor: bgcolor_100[1],
+          // borderWidth: 1,
           data: chartData1.value,
           parsing: {
               yAxisKey: 'data.c2_i'
@@ -293,8 +294,8 @@ getCasebyOprOnDone(result=>{
         {
           label: '小像幅(內)',
           backgroundColor: bgcolor_20[2],
-          borderColor: bgcolor_100[2],
-          borderWidth: 1,
+          // borderColor: bgcolor_100[2],
+          // borderWidth: 1,
           data: chartData1.value,
           parsing: {
               yAxisKey: 'data.c3_i'
@@ -305,40 +306,49 @@ getCasebyOprOnDone(result=>{
         {
           type: 'line',
           label: '外校合計',
-          backgroundColor: bgcolor_20[3],
+          // backgroundColor: bgcolor_20[3],
           borderColor: bgcolor_100[3],
-          borderWidth: 1,
+          borderDash: [2, 2],
+          borderWidth: 3,
           data: chartData1.value,
           parsing: {
               yAxisKey: 'data.total_o'
           },
           stacked: false,
-          hidden: true
+          hidden: true,
+          stepped: 'middle',
+          radius: 0,
         },
         {
           type: 'line',
           label: '內校合計',
-          backgroundColor: bgcolor_20[4],
+          // backgroundColor: bgcolor_20[4],
           borderColor: bgcolor_100[4],
-          borderWidth: 1,
+          borderDash: [2, 2],
+          borderWidth: 3,
           data: chartData1.value,
           parsing: {
               yAxisKey: 'data.total_i'
           },
           stacked: false,
-          hidden: true
+          hidden: true,
+          stepped: 'middle',
+          radius: 0,
         },
         {
           type: 'line',
           label: '總計',
-          backgroundColor: bgcolor_20[5],
-          borderColor: bgcolor_100[5],
-          borderWidth: 1,
+          // backgroundColor: bgcolor_20[5],
+          borderColor: '#ff6090',
+          borderDash: [10, 6],
+          borderWidth: 5,
           data: chartData1.value,
           parsing: {
               yAxisKey: 'data.total'
           },
           stacked: false,
+          stepped: 'middle',
+          radius: 0,
         },
       ]
     },
@@ -620,6 +630,21 @@ getCaseTypebyYearOnDone(result=>{
               return e.label + '(外校): ' + e.formattedValue
             }
           }
+        },
+        datalabels: {
+          color: 'rgb(50,50,50)',
+          backgroundColor: 'rgba(255,255,255,0.8)',
+          display: function(context) {
+            let dataset = context.dataset;
+            let value = dataset.data[context.dataIndex];
+            return value > 0;
+          },
+          font: {
+            size: 12
+          },
+          formatter: function(value, context) {
+            return (value>0)?context.chart.data.labels[context.dataIndex]+': '+value:'';
+          }
         }
       },
       {
@@ -632,6 +657,15 @@ getCaseTypebyYearOnDone(result=>{
             label: function(e){
               return e.label + '(內校): ' + e.formattedValue
             }
+          }
+        },
+        datalabels: {
+          color: 'rgb(125,125,125)',
+          font: {
+            size: 12
+          },
+          formatter: function(value, context) {
+            return '';
           }
         }
       },
@@ -647,6 +681,7 @@ getCaseTypebyYearOnDone(result=>{
   myChart3.value = new Chart(ctx3.value, {
     type: 'doughnut',
     data: data,
+    plugins: [ChartDataLabels],
     options: {
       responsive: true,
       interaction: {
@@ -660,6 +695,7 @@ getCaseTypebyYearOnDone(result=>{
         legend: {
           position: 'right',
         },
+        
       }
     }
   });
@@ -715,6 +751,7 @@ getCaseStatusbyYearOnDone(result=>{
   myChart4.value = new Chart(ctx4.value, {
     type: 'doughnut',
     data: data,
+    plugins: [ChartDataLabels],
     options: {
       responsive: true,
       interaction: {
@@ -728,6 +765,21 @@ getCaseStatusbyYearOnDone(result=>{
         legend: {
           position: 'right',
         },
+        datalabels: {
+          color: 'white',
+          font: {
+            size: 12
+          },
+          backgroundColor: 'rgba(0,0,0,0.2)',
+          display: function(context) {
+            let dataset = context.dataset;
+            let value = dataset.data[context.dataIndex];
+            return value > 0;
+          },
+          formatter: function(value, context) {
+            return (value>0)?context.chart.data.labels[context.dataIndex]+': '+value:'';
+          }
+        }
       }
     }
   });
@@ -863,7 +915,7 @@ function changeChart5Year(e){
 const { mutate: getTablebyMounth, onDone: getTablebyMounthOnDone } = useMutation(ToolsGQL.STATCASETABLEBYMOUNTH);
 getTablebyMounthOnDone(result=>{
   let getData = result.data.statCaseTableByMounth;
-  console.log(getData);
+  // console.log(getData);
   fl_total.value = getData.Fl[0]; 
   fl_per.value = getData.Fl[1]; 
   fl_now.value = getData.Fl[2]; 
