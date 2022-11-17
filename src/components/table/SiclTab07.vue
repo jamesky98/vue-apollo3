@@ -1,6 +1,6 @@
 <script setup>
 	// 作業紀錄表(適用航空測量攝影機)
-import {ref} from 'vue';
+import {ref, inject} from 'vue';
 import { computed } from "@vue/reactivity";
 import { useQuery } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
@@ -9,6 +9,8 @@ import CaseGQL from "../../graphql/Cases";
 const props = defineProps({
   caseID: String
 });
+const publicPath = inject('publicPath');
+
 const nowCaseCalTypeCode = ref(""); //校正項目代碼
 const tableID = computed(()=>{return props.caseID.slice(0,-2)}); //申請單編號
 const itemID = computed(()=>{return props.caseID.slice(-2)}); //校正件編號
@@ -64,20 +66,22 @@ const nowCaseCrtNo = ref(""); // 控制點數(自動計算)
 const nowCaseChkNo = ref(""); // 檢核點數(自動計算)
 
 const nowCaseNetGraph = ref(""); //網形圖(上傳)
-const nowCaseNetGraphDL = computed(()=>{
-	if(nowCaseNetGraph.value && nowCaseNetGraph.value !== ""){
-		return "06_Case/"+ props.caseID + "/" + nowCaseNetGraph.value
-	}else{
-		return undefined
-	}});
+const nowCaseNetGraphDL = computed(() => {
+  if (nowCaseNetGraph.value && nowCaseNetGraph.value !== "") {
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseNetGraph.value;
+  } else {
+    return undefined;
+  }
+});
 
 const nowCaseGCPGraph = ref(""); //點位分布圖(上傳)
-const nowCaseGCPGraphDL = computed(()=>{
-	if(nowCaseGCPGraph.value && nowCaseGCPGraph.value !== ""){
-		return "06_Case/"+ props.caseID + "/" + nowCaseGCPGraph.value
-	}else{
-		return ""
-	}});
+const nowCaseGCPGraphDL = computed(() => {
+  if (nowCaseGCPGraph.value && nowCaseGCPGraph.value !== "") {
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseGCPGraph.value;
+  } else {
+    return undefined;
+  }
+});
 
 // 查詢Case_Record資料
 const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
