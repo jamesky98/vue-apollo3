@@ -331,7 +331,7 @@ function newEmpBtn(){
   nowEmpModifyDate.value = "";
   nowEmpName.value = "";
   nowEmpIDNumber.value = "";
-  nowEmpBirthday.value = "";
+  nowEmpBirthday.value = " ";
   nowEmpBirthdayDOM.value.inputValue = "";
   nowEmpJobTitle.value = "";
   nowEmpAppDate.value = " ";
