@@ -1489,7 +1489,7 @@ onMounted(function () {
 </script>
 <template>
   <MDBAlert dismiss v-model="alert1" id="alert-primary" :color="alertColor" position="top-right" stacking width="535px"
-    appendToBody autohide :delay="2000">
+    autohide :delay="2000.0">
     {{ infomsg }}
   </MDBAlert>
   <!-- 選擇顧客 -->

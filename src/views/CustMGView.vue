@@ -10,6 +10,7 @@ import {
   MDBBtn,
   MDBSelect,
   MDBPopconfirm,
+  MDBAlert,
 } from 'mdb-vue-ui-kit';
 import CaseGQL from "../graphql/Cases";
 import CustGQL from "../graphql/Cust";
@@ -732,6 +733,10 @@ onMounted(function () {
 
 </script>
 <template>
+  <MDBAlert v-model="alert1" id="alert-primary" :color="alertColor" position="top-right" stacking width="535px"
+    autohide :delay="2000.0">
+    {{ infomsg }}
+  </MDBAlert>
   <MDBContainer fluid class="h-100">
     <MDBRow class="h-100 flex-column flex-nowrap">
       <!-- 導覽列 -->

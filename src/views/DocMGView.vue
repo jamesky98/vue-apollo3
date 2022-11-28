@@ -698,6 +698,10 @@ function zoompdfView(){
 </script>
 
 <template>
+  <MDBAlert dismiss v-model="alert1" id="alert-primary" color="primary" position="top-right" stacking width="535px"
+    autohide :delay="2000.0">
+    {{ infomsg }}
+  </MDBAlert>
   <MDBContainer fluid class="h-100">
     <MDBRow class="h-100 flex-column flex-nowrap">
       <!-- 導覽列 -->
@@ -866,7 +870,7 @@ function zoompdfView(){
         <!-- 右方PDF顯示 -->
         <MDBCol id="right-pdf" :md="rightPDFmd" class="h-100 ps-4" style="position: relative;" >
           <button 
-            style="position:absolute; 
+            style="position:absolute;
             top:0;
             left:0.7rem;
             height: calc(100% - 1rem);
@@ -889,10 +893,6 @@ function zoompdfView(){
       <Footer1 :msg="infomsg" />
     </MDBRow>
   </MDBContainer>
-  <MDBAlert dismiss v-model="alert1" id="alert-primary" color="primary" position="top-right" stacking width="535px"
-    appendToBody autohide :delay="2000">
-    {{ infomsg }}
-  </MDBAlert>
 </template>
 <style>
 .datatable tbody tr:last-child {

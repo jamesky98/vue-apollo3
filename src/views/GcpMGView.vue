@@ -17,12 +17,12 @@ import {
   MDBTabPane,
   MDBDatepicker,
   MDBTextarea,
-  MDBBtnClose,
   MDBPopconfirm,
   MDBSwitch,
   MDBLightbox,
   MDBLightboxItem,
   MDBSpinner,
+  MDBAlert,
 } from 'mdb-vue-ui-kit';
 import ToolsGQL from "../graphql/Tools";
 import GcpGQL from "../graphql/Gcp";
@@ -1051,6 +1051,10 @@ function testfun(){
 </script>
 <template>
   <input type="file" id="AllUpload" @change="uploadChenge($event)" style="display: none" />
+  <MDBAlert v-model="alert1" id="alert-primary" :color="alertColor" position="top-right" stacking width="535px"
+    autohide :delay="2000.0">
+    {{ infomsg }}
+  </MDBAlert>
   <MDBContainer fluid class="h-100">
     <MDBRow class="h-100 flex-column flex-nowrap">
       <!-- 導覽列 -->

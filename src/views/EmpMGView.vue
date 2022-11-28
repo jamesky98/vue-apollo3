@@ -19,6 +19,7 @@ import {
   MDBBtnClose,
   MDBPopconfirm,
   MDBSelect,
+  MDBAlert
 } from 'mdb-vue-ui-kit';
 import ToolsGQL from "../graphql/Tools";
 import CaseGQL from "../graphql/Cases";
@@ -374,6 +375,7 @@ const {
 }));
 saveEmpOnDone(result=>{
   infomsg.value = result.data.updateEmp.person_id + " 儲存完畢";
+  alert1.value = true;
   refgetAllEmp();
 });
 // 刪除
@@ -387,10 +389,17 @@ const {
   },
 }));
 delEmpOnDone(result=>{
-  infomsg.value = result.data.delEmp.person_id + "刪除完畢";
-  newEmpBtn();
-  refgetAllEmp();
+  console.log(result);
+  // infomsg.value = result.data.delEmp.person_id + "刪除完畢";
+  // newEmpBtn();
+  // refgetAllEmp();
 });
+delEmpError(e=>{
+  if(e.message.indexOf('Foreign key constraint failed')!==-1){
+    infomsg.value = '本資料不可變更，因含有其他連結資料，請刪除連結資料後再試';
+    alert1.value = true;
+  }
+})
 // Table 人員列表==========End
 
 // Table 訓練列表==========Start
@@ -1257,6 +1266,10 @@ refgetSupList();
 
 </script>
 <template>
+  <MDBAlert v-model="alert1" id="alert-primary" :color="alertColor" position="top-right" stacking width="535px"
+    autohide :delay="2000.0">
+    {{ infomsg }}
+  </MDBAlert>
   <MDBContainer fluid class="h-100">
     <input type="file" id="AllUpload" @change="uploadChenge($event)" style="display: none" />
     <MDBRow class="d-flex flex-md-column h-100">

@@ -71,7 +71,7 @@ loginError(error => {
 
 <template>
   <MDBAlert v-model="alert1" id="alert-primary" :color="alertColor" position="top-right" stacking width="535px"
-    appendToBody autohide :delay="2000">
+    autohide :delay="2000.0">
     {{ infomsg }}
   </MDBAlert>
   <section class="h-100 gradient-form" style="background-color: #eee;">
