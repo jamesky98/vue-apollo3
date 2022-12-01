@@ -6,8 +6,6 @@ import { ref } from 'vue';
 import router from '../router'
 import { MDBCard, 
   MDBCardBody, 
-  MDBCardTitle, 
-  MDBCardText,
   MDBInput, 
   MDBCol, 
   MDBRow, 
@@ -15,7 +13,7 @@ import { MDBCard,
   MDBBtn,
   MDBAlert
 } from 'mdb-vue-ui-kit';
-import { logIn } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
 // 傳遞參數
 const user_name = ref('');
@@ -44,21 +42,22 @@ loginOnDone(result => {
   }
 });
 
-loginError(error => {
-  switch (error.message) {
-    case "No such user found":
-      infomsg.value = "查無此帳號";
-      alert1.value = true;
-      break;
-    case "Invalid password":
-      infomsg.value = "密碼錯誤";
-      alert1.value = true;
-      break;
-    case "Not active":
-      infomsg.value = "帳號尚未啟用";
-      alert1.value = true;
-      break;
-  }
+loginError(e => {
+  // switch (e.message) {
+  //   case "No such user found":
+  //     infomsg.value = "查無此帳號";
+  //     alert1.value = true;
+  //     break;
+  //   case "Invalid password":
+  //     infomsg.value = "密碼錯誤";
+  //     alert1.value = true;
+  //     break;
+  //   case "Not active":
+  //     infomsg.value = "帳號尚未啟用";
+  //     alert1.value = true;
+  //     break;
+  // }
+  errorHandle(e,infomsg,alert1);
   localStorage.removeItem("AUTH_TOKEN");
   localStorage.removeItem("USER_ID");
   localStorage.removeItem("USER_NAME");

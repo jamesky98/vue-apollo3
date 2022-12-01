@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 const GETALLDOCLATEST = gql`
-  query GetAllDocLatest(
+  mutation GetAllDocLatest(
     $docId: String
     $docLevel: Int
     $docType: Int
@@ -34,7 +34,7 @@ const GETALLDOCLATEST = gql`
 `;
 
 const GETALLDOCTYPE = gql`
-  query GetAllDocType {
+  mutation GetAllDocType {
     getAllDocType {
       doc_type_id
       doc_type
@@ -42,7 +42,7 @@ const GETALLDOCTYPE = gql`
   }
 `;
 const GETDOCHISTORY = gql`
-  query GetDocHistory($docId: String!) {
+  mutation GetDocHistory($docId: String!) {
     getDocHistory(doc_id: $docId) {
       id
       doc_id
@@ -185,7 +185,7 @@ const SAVEUPLOAD = gql`
 `;
 
 const GETDOCCHILD = gql`
-  query GetDocChild($docId: String!) {
+  mutation GetDocChild($docId: String!) {
     getDocChild(doc_id: $docId) {
       id
       doc_id

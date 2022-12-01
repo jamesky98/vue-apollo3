@@ -1,5 +1,36 @@
 import router from "../router";
 
+function errorHandle(e,infomsg,alert1){
+  console.log('errorHandle',e.message);
+  switch (e.message) {
+    case "No such user found":
+      infomsg.value = "查無此帳號";
+      alert1.value = true;
+      break;
+    case "Invalid password":
+      infomsg.value = "密碼錯誤";
+      alert1.value = true;
+      break;
+    case "Not active":
+      infomsg.value = "帳號尚未啟用";
+      alert1.value = true;
+      break;
+    case "No token found":
+        infomsg.value = "未登入";
+        alert1.value = true;
+        logOut();
+        break;
+    case "Foreign key constraint failed":
+      infomsg.value = "本資料不可變更，因含有其他連結資料，請刪除連結資料後再試";
+      alert1.value = true;
+      break;
+    case "Token expired":
+      infomsg.value = "授權過期";
+      logOut();
+      break;
+  }
+}
+
 function logOut() {
   console.log("logOut")
   localStorage.removeItem("AUTH_TOKEN");
@@ -49,4 +80,4 @@ function rolePass(level){
   
 }
 
-export { logIn, logOut, toTWDate };
+export { errorHandle, logIn, logOut, toTWDate };

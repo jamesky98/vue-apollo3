@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 const GETALLCUST = gql`
-  query GetAllCust($name: String,$orgId:Int ,$orgName: String, $orgTaxid: String) {
+  mutation GetAllCust($name: String,$orgId:Int ,$orgName: String, $orgTaxid: String) {
     getAllCust(name: $name,org_id: $orgId ,org_name: $orgName, org_taxid: $orgTaxid) {
       id
       name
@@ -17,7 +17,7 @@ const GETALLCUST = gql`
   }
 `;
 const GETCUSTBYID = gql`
-  query GetCustById($getCustByIdId: Int) {
+  mutation GetCustById($getCustByIdId: Int) {
     getCustById(id: $getCustByIdId) {
       id
       name
@@ -63,7 +63,7 @@ mutation GetCustByName($name: String) {
 `;
 
 const GETALLORG = gql`
-  query GetAllOrg {
+  mutation GetAllOrg {
     getAllOrg {
       id
       name

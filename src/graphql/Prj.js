@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 const GETALLPRJ = gql`
-  query GetAllPrj(
+  mutation GetAllPrj(
     $projectCode: String
     $pubdateStart: String
     $pubdateEnd: String
@@ -34,7 +34,7 @@ const GETALLPRJ = gql`
 `;
 
 const GETPRJBYID = gql`
-  query GetPrjByID($getPrjByIdId: Int) {
+  mutation GetPrjByID($getPrjByIdId: Int) {
     getPrjById(id: $getPrjByIdId) {
       id
       project_code
@@ -176,7 +176,7 @@ const DELPRJEQPTUSE = gql`
 `;
 
 const GETCASECALTYPE = gql`
-  query GetCaseCalType {
+  mutation GetCaseCalType {
     getCaseCalType {
       id
       name
@@ -218,7 +218,7 @@ const GETEQPTBYRRJID = gql`
 `;
 
 const GETALLEQPT = gql`
-  query GetAllEqpt($type: Int) {
+  mutation GetAllEqpt($type: Int) {
     getAllEqpt(type: $type) {
       ref_equpt_id
       serial_number
@@ -261,7 +261,7 @@ const GETEQPTBYID = gql`
 `;
 
 const GETEQPTTYPE = gql`
-  query GetEqptType {
+  mutation GetEqptType {
     getEqptType {
       eqpt_type_id
       type

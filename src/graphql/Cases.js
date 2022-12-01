@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 const GETALLCASE = gql`
-  query GetAllCase(
+  mutation GetAllCase(
     $getAllCaseId: String
     $statusCode: Int
     $calType: Int
@@ -93,7 +93,7 @@ const GETALLCASE = gql`
 `;
 
 const GETCASESTATUS = gql`
-  query GetCaseStatus {
+  mutation GetCaseStatus {
     getCaseStatus {
       code
       status
@@ -102,7 +102,7 @@ const GETCASESTATUS = gql`
 `;
 
 const GETCASECALTYPE = gql`
-  query GetCaseCalType {
+  mutation GetCaseCalType {
     getCaseCalType {
       id
       name
@@ -112,7 +112,7 @@ const GETCASECALTYPE = gql`
 `;
 
 const GETOPERATOR = gql`
-  query GetEmpByRole($roleType: String, $calType: Int) {
+  mutation GetEmpByRole($roleType: String, $calType: Int) {
     getEmpByRole(role_type: $roleType, cal_type: $calType) {
       person_id
       name
@@ -121,7 +121,7 @@ const GETOPERATOR = gql`
 `;
 
 const GETALLORG = gql`
-  query GetAllOrg {
+  mutation GetAllOrg {
     getAllOrg {
       id
       name
@@ -131,7 +131,7 @@ const GETALLORG = gql`
 `;
 
 const GETALLITEM = gql`
-  query GetAllItem {
+  mutation GetAllItem {
     getAllItem {
       id
       chop
@@ -142,7 +142,7 @@ const GETALLITEM = gql`
 `;
 
 const GETFULLCASEBYID = gql`
-  query GetCasebyID($getCasebyIdId: String!) {
+  mutation GetCasebyID($getCasebyIdId: String!) {
     getCasebyID(id: $getCasebyIdId) {
       id
       case_record_01 {
@@ -450,7 +450,7 @@ const GETFULLCASEBYID = gql`
 `;
 
 const GETSIMPLECASEBYID = gql`
-  query GetCasebyID($getCasebyIdId: String!) {
+  mutation GetCasebyID($getCasebyIdId: String!) {
     getCasebyID(id: $getCasebyIdId) {
       id
       status_code

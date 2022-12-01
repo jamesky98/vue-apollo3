@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 const GETALLEMP = gql`
-  query GetAllEmp {
+  mutation GetAllEmp {
     getAllEmp {
       person_id
       lab_ee_id
@@ -25,7 +25,7 @@ const GETALLEMP = gql`
 `;
 
 const GETEMPBYID = gql`
-  query GetEmpById($personId: Int) {
+  mutation GetEmpById($personId: Int) {
     getEmpById(person_id: $personId) {
       person_id
       lab_ee_id
@@ -66,7 +66,7 @@ const UPDATEEMP = gql`
 `;
 
 const GETTRAIN = gql`
-  query GetTrainByPerson($personId: Int) {
+  mutation GetTrainByPerson($personId: Int) {
     getTrainByPerson(person_id: $personId) {
       train_id
       train_name
@@ -95,7 +95,7 @@ const GETTRAINBYID = gql`
 `;
 
 const GETEMPOWER = gql`
-query GetEmpowerByPerson($personId: Int) {
+mutation GetEmpowerByPerson($personId: Int) {
   getEmpowerByPerson(person_id: $personId) {
     empower_id
     cal_type
@@ -205,7 +205,7 @@ mutation DelEmpower($empowerId: Int!) {
 `;
 
 const GETEMPROLE = gql`
-query GetEmpRoleList {
+mutation GetEmpRoleList {
   getEmpRoleList {
     role_type
   }
@@ -213,7 +213,7 @@ query GetEmpRoleList {
 `;
 
 const GETEMPOWERBYROLE = gql`
-  query GetEmpowerbyRole($roleType: String, $calType: Int) {
+  mutation GetEmpowerbyRole($roleType: String, $calType: Int) {
     getEmpowerbyRole(role_type: $roleType, cal_type: $calType) {
       empower_id
       person_id
@@ -246,7 +246,7 @@ const GETEMPOWERBYROLE = gql`
 `;
 
 const GETALLTRAIN = gql`
-query GetAllTrain {
+mutation GetAllTrain {
   getAllTrain {
     train_id
     person_id

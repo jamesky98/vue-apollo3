@@ -26,17 +26,13 @@ import ToolsGQL from "../graphql/Tools";
 // 判斷token狀況
 import { useQuery, useMutation} from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
-const { mutate: getchecktoken, onDone: getchecktokenOnDone } = useMutation(UsersGQL.CHECKTOKEN);
-getchecktokenOnDone(result => {
-  if (!result.data.checktoken) {
-    logOut();
-  }
-});
-getchecktoken();
+const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
 //#region 參數==========Start
+const infomsg = ref("");
+const alert1 = ref(false);
 const NavItem = ref("main");
 provide("NavItem", NavItem);
 
@@ -216,7 +212,7 @@ getCaseYearsOnDone(result=>{
 })
 
 // 查詢校正人員案件數 by Year
-const { mutate: getCasebyOpr, onDone: getCasebyOprOnDone } = useMutation(ToolsGQL.STATCASEBYOPR);
+const { mutate: getCasebyOpr, onDone: getCasebyOprOnDone, onError: getCasebyOpronError } = useMutation(ToolsGQL.STATCASEBYOPR);
 getCasebyOprOnDone(result=>{
   // console.log('2-getCasebyOprOnDone')
   chartData1.value = result.data.statCaseByOpr;
@@ -390,6 +386,7 @@ getCasebyOprOnDone(result=>{
     }
   });
 });
+getCasebyOpronError(e=>{errorHandle(e,infomsg,alert1)});
 
 function changeChart1Year(e){
   getCasebyOpr({
@@ -405,7 +402,7 @@ const ctx2 = ref();
 const myChart2 = ref();
 const chartData2 = ref([]);
 // 查詢案件數 by Mounth Year
-const { mutate: getCasebyMounth, onDone: getCasebyMounthOnDone } = useMutation(ToolsGQL.STATCASEBYMOUNTH);
+const { mutate: getCasebyMounth, onDone: getCasebyMounthOnDone, onError: getCasebyMounthonError } = useMutation(ToolsGQL.STATCASEBYMOUNTH);
 getCasebyMounthOnDone(result=>{
   chartData2.value = result.data.statCaseByMounth;
   // console.log(chartData2.value);
@@ -593,7 +590,7 @@ getCasebyMounthOnDone(result=>{
   })
   
 })
-
+getCasebyMounthonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function changeChart2Year(e){
   getCasebyMounth({
@@ -610,7 +607,7 @@ const ctx3 = ref();
 const myChart3 = ref();
 const chartData3 = ref([]);
 // 查詢校正人員案件數 by Year
-const { mutate: getCaseTypebyYear, onDone: getCaseTypebyYearOnDone } = useMutation(ToolsGQL.STATCASETYPEBYYEAR);
+const { mutate: getCaseTypebyYear, onDone: getCaseTypebyYearOnDone, onError: getCaseTypebyYearonError } = useMutation(ToolsGQL.STATCASETYPEBYYEAR);
 getCaseTypebyYearOnDone(result=>{
   // console.log('2-getCasebyOprOnDone')
   chartData3.value = result.data.statCaseTypeByYear;
@@ -700,6 +697,7 @@ getCaseTypebyYearOnDone(result=>{
     }
   });
 });
+getCaseTypebyYearonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function changeChart3Year(e){
   getCaseTypebyYear({
@@ -714,7 +712,7 @@ const ctx4 = ref();
 const myChart4 = ref();
 const chartData4 = ref([]);
 // 查詢校正人員案件數 by Year
-const { mutate: getCaseStatusbyYear, onDone: getCaseStatusbyYearOnDone } = useMutation(ToolsGQL.STATCASESTATUSBYYEAR);
+const { mutate: getCaseStatusbyYear, onDone: getCaseStatusbyYearOnDone, onError: getCaseStatusbyYearonError } = useMutation(ToolsGQL.STATCASESTATUSBYYEAR);
 getCaseStatusbyYearOnDone(result=>{
   // console.log('2-getCasebyOprOnDone')
   chartData4.value = result.data.statCaseStatusByYear;
@@ -784,6 +782,7 @@ getCaseStatusbyYearOnDone(result=>{
     }
   });
 });
+getCaseStatusbyYearonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function changeChart4Year(e){
   getCaseStatusbyYear({
@@ -797,7 +796,7 @@ const ctx5 = ref();
 const myChart5 = ref();
 const chartData5 = ref([]);
 // 查詢案件數 by Mounth Year
-const { mutate: getMoneybyMounth, onDone: getMoneybyMounthOnDone } = useMutation(ToolsGQL.STATCASEBYMOUNTH);
+const { mutate: getMoneybyMounth, onDone: getMoneybyMounthOnDone, onError: getMoneybyMounthonError } = useMutation(ToolsGQL.STATCASEBYMOUNTH);
 getMoneybyMounthOnDone(result=>{
   // console.log('2-getCasebyOprOnDone')
   chartData5.value = result.data.statCaseByMounth;
@@ -900,6 +899,7 @@ getMoneybyMounthOnDone(result=>{
     }
   });
 });
+getMoneybyMounthonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function changeChart5Year(e){
   getMoneybyMounth({
@@ -912,7 +912,7 @@ function changeChart5Year(e){
 
 //#region Chart6==========Start
 // 查詢案件數 by Mounth Year
-const { mutate: getTablebyMounth, onDone: getTablebyMounthOnDone } = useMutation(ToolsGQL.STATCASETABLEBYMOUNTH);
+const { mutate: getTablebyMounth, onDone: getTablebyMounthOnDone, onError: getTablebyMounthonError } = useMutation(ToolsGQL.STATCASETABLEBYMOUNTH);
 getTablebyMounthOnDone(result=>{
   let getData = result.data.statCaseTableByMounth;
   // console.log(getData);
@@ -949,6 +949,8 @@ getTablebyMounthOnDone(result=>{
   money_now.value = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(getData.money[2]);
 
 });
+getTablebyMounthonError(e=>{errorHandle(e,infomsg,alert1)});
+
 function changeChart6Year(e){
   if(parseInt(selYear6.value) && parseInt(selYear6.value)!==-1 && parseInt(selMounth6.value) && parseInt(selMounth6.value)!==-1){
     getTablebyMounth({
@@ -998,27 +1000,30 @@ const bgcolorList2 = [
 onMounted(()=>{ 
   
   // console.log('0-onMounted');
-  getCaseYears().then(res=>{
-    // console.log('1-getCaseYears');
-    let latestYear = res.data.statCaseMinMaxYear[0];
-    // 圖表1
-    selYearDOM.value.setValue(latestYear);
-    // 圖表2
-    selDmethod.value = "app_date";
-    selYearDOM2.value.setValue(latestYear);
-    // selDmethodDOM.value.setValue(selDmethod.value);
-    // 圖表3
-    selYearDOM3.value.setValue(latestYear);
-    // 圖表4
-    selYearDOM4.value.setValue(latestYear);
-    // 圖表5
-    selYearDOM5.value.setValue(latestYear);
-    // 圖表6
-    selYearDOM6.value.setValue(new Date().getFullYear()-1911);
-    selMounthDOM6.value.setValue(new Date().getMonth()+1);
-
-  })
-  
+  // 確認登入狀況
+  getchecktoken().then(res=>{
+    return getCaseYears().then(res=>{
+      // console.log('1-getCaseYears');
+      let latestYear = res.data.statCaseMinMaxYear[0];
+      // 圖表1
+      selYearDOM.value.setValue(latestYear);
+      // 圖表2
+      selDmethod.value = "app_date";
+      selYearDOM2.value.setValue(latestYear);
+      // selDmethodDOM.value.setValue(selDmethod.value);
+      // 圖表3
+      selYearDOM3.value.setValue(latestYear);
+      // 圖表4
+      selYearDOM4.value.setValue(latestYear);
+      // 圖表5
+      selYearDOM5.value.setValue(latestYear);
+      // 圖表6
+      selYearDOM6.value.setValue(new Date().getFullYear()-1911);
+      selMounthDOM6.value.setValue(new Date().getMonth()+1);
+    })
+  }).catch(e=>{
+    errorHandle(e,infomsg,alert1);
+  });
 });
 
 //#endregion 圖表設定==========End
@@ -1060,7 +1065,6 @@ function zoomCart(Index){
     chartMax.value=true
   }
 }
-
 </script>
 
 <template>

@@ -1,7 +1,7 @@
 <script setup>
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
-import { ref, reactive, onMounted, provide, inject } from "vue";
+import { ref, reactive, onMounted, onBeforeMount, provide, inject } from "vue";
 import path, { join } from "path-browserify";
 import {
   MDBInput,
@@ -33,20 +33,14 @@ import { computed } from "@vue/reactivity";
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
-const { mutate: getchecktoken, onDone: getchecktokenOnDone } = useMutation(UsersGQL.CHECKTOKEN);
-getchecktokenOnDone(result => {
-  if (!result.data.checktoken) {
-    logOut();
-  }
-});
-getchecktoken();
+const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
 
-// 取得權限==========Start
+//#region 取得權限==========Start
 // const myUserId = ref("");
 const myUserName = ref("");
 // const myUserName2 = ref("");
@@ -66,7 +60,7 @@ getNowUser(result => {
     myUserRole.value = getData.role;
   }
 });
-refgetNowUser();
+
 const rGroup = computed(() => {
   let result = [];
   // rGroup[0]最高權限
@@ -98,8 +92,9 @@ const rGroup = computed(() => {
   }
   return result;
 });
-// 取得權限==========End
+//#endregion 取得權限==========End
 
+//#region 參數==========Start
 // Information
 const publicPath = inject('publicPath');
 const infomsg = ref("");
@@ -215,25 +210,27 @@ const nowEmpowerAprvUploadDL = computed(() => {
   }
 });
 const nowEmpowerComment = ref("");
-
 // 授權詳細編輯資料==========End
+//#endregion 參數==========End
 
-// Table 人員列表==========Start
-const { onResult: getAllEmp, refetch: refgetAllEmp } = useQuery(EmpGQL.GETALLEMP);
-getAllEmp(result => {
+//#region Table 人員列表==========Start
+const { mutate: getAllEmp, onDone: getAllEmponDone, onError: getAllEmponError } = useMutation(EmpGQL.GETALLEMP);
+getAllEmponDone(result => {
   if (!result.loading && result.data.getAllEmp) {
     let getData = result.data.getAllEmp;
     data1.value = getData;
   }
 });
-refgetAllEmp();
+getAllEmponError(e=>{errorHandle(e,infomsg,alert1)});
 
-const { onResult: getEmpbyID, refetch: refgetEmpbyID } = useQuery(
+const { mutate: getEmpbyID, onDone: getEmpbyIDonDone, onError: getEmpbyIDonError } = useMutation(
   EmpGQL.GETEMPBYID,
   () => ({
-    personId: parseInt(nowEmpID.value),
+    variables:{
+      personId: parseInt(nowEmpID.value),
+    }
   }));
-getEmpbyID(result => {
+getEmpbyIDonDone(result => {
   if (!result.loading && result.data.getEmpById) {
     let getData = result.data.getEmpById;
     // console.log(getData);
@@ -265,6 +262,7 @@ getEmpbyID(result => {
     nowEmpComment.value = getData.comment;
   }
 });
+getEmpbyIDonError(e=>{errorHandle(e,infomsg,alert1);});
 
 let dt1;
 const table1 = ref();
@@ -297,33 +295,6 @@ const tboption1 = {
     info: '共 _TOTAL_ 筆資料',
   }
 };
-
-// 加載表格選取事件
-onMounted(function () {
-  dt1 = table1.value.dt();
-  dt1.on('select', function (e, dt, type, indexes) {
-    nowEmpID.value = dt.rows(indexes).data()[0].person_id;
-    refgetEmpbyID();
-    refgetTrain();
-    refgetEmpower();
-    refgetOptCase({ operatorsId: parseInt(nowEmpID.value) });
-    refgetSignCase({ signPersonId: parseInt(nowEmpID.value) });
-    newTrainBtn();
-    newEmpowerBtn();
-  });
-
-  dt_train = table_train.value.dt();
-  dt_train.on('select', function (e, dt, type, indexes) {
-    nowTrainID.value = dt.rows(indexes).data()[0].train_id;
-    getTrainById();
-  });
-
-  dt_empower = table_empower.value.dt();
-  dt_empower.on('select', function (e, dt, type, indexes) {
-    nowEmpowerID.value = dt.rows(indexes).data()[0].empower_id;
-    getEmpowerById();
-  });
-});
 
 // 新增
 function newEmpBtn(){
@@ -376,7 +347,7 @@ const {
 saveEmpOnDone(result=>{
   infomsg.value = result.data.updateEmp.person_id + " 儲存完畢";
   alert1.value = true;
-  refgetAllEmp();
+  getAllEmp();
 });
 // 刪除
 const {
@@ -389,30 +360,30 @@ const {
   },
 }));
 delEmpOnDone(result=>{
-  console.log(result);
-  // infomsg.value = result.data.delEmp.person_id + "刪除完畢";
-  // newEmpBtn();
-  // refgetAllEmp();
+  // console.log(result);
+  infomsg.value = result.data.delEmp.person_id + "刪除完畢";
+  newEmpBtn();
+  getAllEmp();
 });
 delEmpError(e=>{
-  if(e.message.indexOf('Foreign key constraint failed')!==-1){
-    infomsg.value = '本資料不可變更，因含有其他連結資料，請刪除連結資料後再試';
-    alert1.value = true;
-  }
+  errorHandle(e,infomsg,alert1);
 })
-// Table 人員列表==========End
+//#endregion 人員列表==========End
 
-// Table 訓練列表==========Start
-const { onResult: getTrain, refetch: refgetTrain } = useQuery(
+//#region Table 訓練列表==========Start
+const { mutate: getTrain, onDone: getTrainonDone, onError: getTrainonError } = useMutation(
   EmpGQL.GETTRAIN,
   () => ({
-    personId: parseInt(nowEmpID.value),
+    variables:{
+      personId: parseInt(nowEmpID.value),
+    }
   }));
-getTrain(result=>{
+getTrainonDone(result=>{
   if(!result.loading && result.data.getTrainByPerson){
     data_train.value = result.data.getTrainByPerson;
   }
 });
+getTrainonError(e=>{errorHandle(e,infomsg,alert1)});
 
 const {
   mutate: getTrainById,
@@ -443,6 +414,7 @@ getTrainByIdOnDone(result=>{
   nowTrainUpload.value = getData.upload
   nowTrainComment.value = getData.comment
 });
+getTrainByIdError(e=>{errorHandle(e,infomsg,alert1)});
 
 let dt_train;
 const table_train = ref();
@@ -509,8 +481,9 @@ const {
 newTrainOnDone(result=>{
   nowTrainID.value = result.data.createTrain.train_id;
   infomsg.value = "序號：" + nowTrainID.value + " 儲存完成"
-  refgetTrain();
+  getTrain();
 });
+newTrainError(e=>{errorHandle(e,infomsg,alert1);});
 
 const {
   mutate: saveTrain,
@@ -530,8 +503,9 @@ const {
 }));
 saveTrainOnDone(result=>{
   infomsg.value = "序號：" + result.data.updateTrain.train_id + " 儲存完成";
-  refgetTrain();
+  getTrain();
 });
+saveTrainError(e=>{errorHandle(e,infomsg,alert1);});
 
 function saveTrainBtn(){
   if(!nowTrainID.value || nowTrainID.value===''){
@@ -555,12 +529,12 @@ const {
 }));
 delTrainOnDone(result=>{
   infomsg.value = "序號：" + result.data.delTrain.train_id + " 已刪除";
-  refgetTrain();
+  getTrain();
 });
 
 // 查詢訓練課程及開課單位清單
-const { onResult: getAllTrain, refetch: refgetAllTrain } = useQuery(EmpGQL.GETALLTRAIN);
-getAllTrain(result=>{
+const { mutate: getAllTrain, onDone: getAllTrainonDone, onError: getAllTrainonError } = useMutation(EmpGQL.GETALLTRAIN);
+getAllTrainonDone(result=>{
   if(!result.loading && result.data.getAllTrain){
     let trainList = [];
     let trainInstList = [];
@@ -579,6 +553,7 @@ getAllTrain(result=>{
 
   }
 });
+getAllTrainonError(e=>{errorHandle(e,infomsg,alert1);});
 
 function updateTrainName(){
   let newoption = nowTrainName.value;
@@ -598,19 +573,22 @@ function updateTrainInstitution(){
   }
 }
 
-// Table 訓練列表==========End
+//#endregion Table 訓練列表==========End
 
-// Table 授權列表==========Start
-const { onResult: getEmpower, refetch: refgetEmpower } = useQuery(
+//#region Table 授權列表==========Start
+const { mutate: getEmpower, onDone: getEmpoweronDone, onError: getEmpoweronError } = useMutation(
   EmpGQL.GETEMPOWER,
   () => ({
-    personId: parseInt(nowEmpID.value),
+    variables: {
+      personId: parseInt(nowEmpID.value),
+    }
   }));
-getEmpower(result=>{
+getEmpoweronDone(result=>{
   if(!result.loading && result.data.getEmpowerByPerson){
     data_empower.value = result.data.getEmpowerByPerson;
   }
 });
+getEmpoweronError(e=>{errorHandle(e,infomsg,alert1);});
 
 const {
   mutate: getEmpowerById,
@@ -659,6 +637,7 @@ getEmpowerByIdOnDone(result=>{
   nowEmpowerAprvUpload.value = getData.approval_doc;
   nowEmpowerComment.value = getData.comment;
 });
+getEmpowerByIdError(e=>{errorHandle(e,infomsg,alert1);});
 
 let dt_empower;
 const table_empower = ref();
@@ -739,8 +718,9 @@ const {
 newEmpowerOnDone(result=>{
   nowEmpowerID.value = result.data.createEmpower.empower_id;
   infomsg.value = "序號：" + nowEmpowerID.value + " 儲存完成"
-  refgetEmpower();
+  getEmpower();
 });
+newEmpowerError(e=>{errorHandle(e,infomsg,alert1);});
 
 const {
   mutate: saveEmpower,
@@ -766,8 +746,10 @@ const {
 saveEmpowerOnDone(result=>{
   nowEmpowerID.value = result.data.updateEmpower.empower_id;
   infomsg.value = "序號：" + nowEmpowerID.value + " 儲存完成"
-  refgetEmpower();
+  getEmpower();
 });
+saveEmpowerError(e=>{errorHandle(e,infomsg,alert1);});
+
 function saveEmpowerBtn(){
   if(!nowEmpowerID.value || nowEmpowerID.value===''){
     // 無序號為新增
@@ -790,23 +772,27 @@ const {
 }));
 delEmpowerOnDone(result=>{
   infomsg.value = "序號：" + result.data.delEmpower.empower_id + " 已刪除";
-  refgetEmpower();
+  getEmpower();
 });
-// Table 授權列表==========End
+delEmpowerError(e=>{errorHandle(e,infomsg,alert1);});
 
+//#endregion Table 授權列表==========End
 
-// Table 校正案件==========Start
-const { onResult: getOptCase, refetch: refgetOptCase } = useQuery(
+//#region Table 校正案件==========Start
+const { mutate: getOptCase, onDone: getOptCaseonDone, onError: getOptCaseonError } = useMutation(
   CaseGQL.GETALLCASE,()=>({
-    operatorsId: -1,
+    variables: {
+      operatorsId: -1,
+    }
   })
 );
-getOptCase(result => {
+getOptCaseonDone(result => {
   // 加入table1資料
   if (!result.loading) {
     data_optcase.value = result.data.getAllCase;
   }
 });
+getOptCaseonError(e=>{errorHandle(e,infomsg,alert1)});
 
 let dt_optcase;
 const table_optcase = ref();
@@ -930,21 +916,24 @@ const tboption_optcase = {
   },
 };
 
-// Table 校正案件==========End
+//#endregion Table 校正案件==========End
 
-
-// Table 簽署案件==========Start
-const { onResult: getSignCase, refetch: refgetSignCase } = useQuery(
+//#region Table 簽署案件==========Start
+const { mutate: getSignCase, onDone: getSignCaseonDone, onError: getSignCaseonError } = useMutation(
   CaseGQL.GETALLCASE,()=>({
-    signPersonId: -1,
+    variables:{
+      signPersonId: -1,
+    }
   })
 );
-getSignCase(result => {
+getSignCaseonDone(result => {
   // 加入table1資料
   if (!result.loading) {
     data_signcase.value = result.data.getAllCase;
   }
 });
+getSignCaseonError(e=>{errorHandle(e,infomsg,alert1)});
+
 let dt_signcase;
 const table_signcase = ref();
 const data_signcase = ref([]);
@@ -1078,9 +1067,9 @@ const tboption_signcase = {
   }
 };
 
-// Table 簽署案件==========End
+//#endregion Table 簽署案件==========End
 
-// 檔案上傳==========Start
+//#region 檔案上傳==========Start
 const uploadType = ref("");
 function uploadBtn(inputId) {
   // 由按鈕啟動檔案選擇器
@@ -1137,7 +1126,7 @@ async function uploadChenge(e) {
   });
 }
 // 上傳檔案
-const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
+const { mutate: uploadFile, onDone: uploadFileOnDone, onError: uploadFileonError } = useMutation(
   ToolsGQL.UPLOADFILE
 );
 uploadFileOnDone((result) => {
@@ -1166,12 +1155,14 @@ uploadFileOnDone((result) => {
   inputDOM = document.getElementById("AllUpload");
   inputDOM.value = "";
 });
+uploadFileonError(e=>{errorHandle(e,infomsg,alert1);});
+//#endregion 檔案上傳==========End
 
-// 檔案上傳==========End
 
+//#region 選單查詢==========Start
 // 查詢校正項目列表
-const { onResult: getCaseCalType, refetch: refgetCaseCalType } = useQuery(CaseGQL.GETCASECALTYPE);
-getCaseCalType(result => {
+const { mutate: getCaseCalType, onDone: getCaseCalTypeonDone, onError: getCaseCalTypeonError } = useMutation(CaseGQL.GETCASECALTYPE);
+getCaseCalTypeonDone(result => {
   // 加入校正項目選單資料
   if (!result.loading && result.data.getCaseCalType) {
     nowEmpowerCalTypeIdMU.value = result.data.getCaseCalType.map(x => {
@@ -1179,11 +1170,11 @@ getCaseCalType(result => {
     }); nowEmpowerCalTypeIdMU.value.unshift({ text: "", value: "" });
   }
 });
-refgetCaseCalType();
+getCaseCalTypeonError(e=>{errorHandle(e,infomsg,alert1);});
 
 // 查詢職務列表
-const { onResult: getEmpRole, refetch: refgetEmpRole } = useQuery(EmpGQL.GETEMPROLE);
-getEmpRole(result => {
+const { mutate: getEmpRole, onDone: getEmpRoleonDone, onError: getEmpRoleonError } = useMutation(EmpGQL.GETEMPROLE);
+getEmpRoleonDone(result => {
   // 加入校正項目選單資料
   if (!result.loading && result.data.getEmpRoleList) {
     nowEmpowerRoleMU.value = result.data.getEmpRoleList.map(x => {
@@ -1191,7 +1182,49 @@ getEmpRole(result => {
     }); nowEmpowerRoleMU.value.unshift({ text: "", value: "" });
   }
 });
-refgetEmpRole();
+getEmpRoleonError(e=>{errorHandle(e,infomsg,alert1)});
+
+// 查詢評估人員列表
+const { mutate: getAssList, onDone: getAssListonDone, onError: getAssListonError } = useMutation(
+  EmpGQL.GETEMPOWERBYROLE,
+  ()=>({
+    variables:{
+      roleType: '主管'
+    }
+  })
+);
+getAssListonDone(result => {
+  // 加入評估人員選單資料
+  if (!result.loading && result.data.getEmpowerbyRole) {
+    let mylist = [];
+    mylist = result.data.getEmpowerbyRole.map(x => { return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
+    mylist = filterArrayforObj(mylist,"person_id");// 去除重複
+    nowEmpowerAssMU.value = mylist.map(x => {
+      return { text: x.name, value: x.person_id }
+    }); nowEmpowerAssMU.value.unshift({ text: "", value: "" });
+  }
+});
+getAssListonError(e=>{errorHandle(e,infomsg,alert1)});
+
+// 查詢授權人員列表
+const { mutate: getSupList, onDone: getSupListonDone, onError: getSupListonError } = useMutation(
+  EmpGQL.GETEMPOWERBYROLE,
+  ()=>({roleType:'實驗室主管'})
+);
+getSupListonDone(result => {
+  // 加入評估人員選單資料
+  if (!result.loading && result.data.getEmpowerbyRole) {
+    let mylist = [];
+    mylist = result.data.getEmpowerbyRole.map(x => { return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
+    mylist = filterArrayforObj(mylist,"person_id");// 去除重複
+    nowEmpowerSupMU.value = mylist.map(x => {
+      return { text: x.name, value: x.person_id }
+    }); nowEmpowerSupMU.value.unshift({ text: "", value: "" });
+  }
+});
+getSupListonError(e=>{errorHandle(e,infomsg,alert1)});
+
+//#endregion 選單查詢==========End
 
 // 頁籤切換更新表格標題寬度
 function tabShown(e){
@@ -1215,7 +1248,6 @@ function tabShown(e){
       break;
   }
 }
-
 function filterArrayforObj(arr,key){
   let tempArray = [];
   for(let i=0;i<arr.length;i++){
@@ -1229,40 +1261,52 @@ function filterArrayforObj(arr,key){
   return tempArray;
 }
 
-// 查詢評估人員列表
-const { onResult: getAssList, refetch: refgetAssList } = useQuery(
-  EmpGQL.GETEMPOWERBYROLE,
-  ()=>({roleType: '主管'})
-);
-getAssList(result => {
-  // 加入評估人員選單資料
-  if (!result.loading && result.data.getEmpowerbyRole) {
-    let mylist = [];
-    mylist = result.data.getEmpowerbyRole.map(x => { return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
-    mylist = filterArrayforObj(mylist,"person_id");// 去除重複
-    nowEmpowerAssMU.value = mylist.map(x => {
-      return { text: x.name, value: x.person_id }
-    }); nowEmpowerAssMU.value.unshift({ text: "", value: "" });
-  }
+// 確認登入狀況
+getchecktoken().then(res=>{
+  return getSupList(); // 查詢授權人員列表
+}).then(res=>{
+  return getAllEmp(); // 查詢人員列表
+}).then(res=>{
+  return getCaseCalType(); // 查詢校正項目列表
+}).then(res=>{
+  return getEmpRole(); // 查詢職務列表
+}).then(res=>{
+  return getAssList(); // 查詢評估人員列表
+}).then(res=>{
+  return refgetNowUser(); // 查詢目前使用者
+}).then(res=>{
+  return getAllTrain(); // 查詢訓練課程及開課單位清單
+}).catch(e=>{
+  errorHandle(e,infomsg,alert1);
 });
-refgetAssList();
-// 查詢授權人員列表
-const { onResult: getSupList, refetch: refgetSupList } = useQuery(
-  EmpGQL.GETEMPOWERBYROLE,
-  ()=>({roleType:'實驗室主管'})
-);
-getSupList(result => {
-  // 加入評估人員選單資料
-  if (!result.loading && result.data.getEmpowerbyRole) {
-    let mylist = [];
-    mylist = result.data.getEmpowerbyRole.map(x => { return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
-    mylist = filterArrayforObj(mylist,"person_id");// 去除重複
-    nowEmpowerSupMU.value = mylist.map(x => {
-      return { text: x.name, value: x.person_id }
-    }); nowEmpowerSupMU.value.unshift({ text: "", value: "" });
-  }
+
+// 加載表格選取事件
+onMounted(function () {
+  dt1 = table1.value.dt();
+  dt1.on('select', function (e, dt, type, indexes) {
+    nowEmpID.value = dt.rows(indexes).data()[0].person_id;
+    getEmpbyID();
+    getTrain();
+    getEmpower();
+    getOptCase({ operatorsId: parseInt(nowEmpID.value) });
+    getSignCase({ signPersonId: parseInt(nowEmpID.value) });
+    newTrainBtn();
+    newEmpowerBtn();
+  });
+
+  dt_train = table_train.value.dt();
+  dt_train.on('select', function (e, dt, type, indexes) {
+    nowTrainID.value = dt.rows(indexes).data()[0].train_id;
+    getTrainById();
+  });
+
+  dt_empower = table_empower.value.dt();
+  dt_empower.on('select', function (e, dt, type, indexes) {
+    nowEmpowerID.value = dt.rows(indexes).data()[0].empower_id;
+    getEmpowerById();
+  });
 });
-refgetSupList();
+
 
 </script>
 <template>

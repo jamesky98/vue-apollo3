@@ -22,7 +22,7 @@ const LOGINMU = gql`
 `;
 
 const GETALLUSERs = gql`
-  query Allusers {
+  mutation Allusers {
     allusers {
       user_id
       user_name
@@ -37,7 +37,7 @@ const GETALLUSERs = gql`
 `;
 
 const GETUSER = gql`
-  query getUserById($userId: Int!) {
+  mutation getUserById($userId: Int!) {
     getUserById(user_id: $userId) {
       user_id
       user_name
@@ -51,7 +51,7 @@ const GETUSER = gql`
 `;
 
 const GETUSERBYNAME = gql`
-  query GetUserByName($userName: String) {
+  mutation GetUserByName($userName: String) {
     getUserByName(user_name: $userName) {
       user_id
       user_name

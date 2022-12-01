@@ -127,7 +127,7 @@ const GETALLGCP = gql`
 `;
 
 const GETALLCONTACT = gql`
-  query GetAllContact {
+  mutation GetAllContact {
     getAllContact {
       id
       name
@@ -178,7 +178,7 @@ const GETGCPBYID = gql`
 `;
 
 const GETGCPTYPE = gql`
-  query GetGcpType {
+  mutation GetGcpType {
     getGcpType {
       code
       type_name

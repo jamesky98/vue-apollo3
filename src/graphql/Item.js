@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 const GETALLITEM = gql`
-  query GetAllItem($chop: String, $model: String, $serialNumber: String, $type: Int, $orgId: Int) {
+  mutation GetAllItem($chop: String, $model: String, $serialNumber: String, $type: Int, $orgId: Int) {
     getAllItem(chop: $chop, model: $model, serial_number: $serialNumber, type: $type, org_id: $orgId) {
       id
       chop
@@ -40,7 +40,7 @@ const GETALLITEM = gql`
   }
 `;
 const GETITEMBYID = gql`
-  query GetItemByID($getItemByIdId: Int) {
+  mutation GetItemByID($getItemByIdId: Int) {
     getItemByID(id: $getItemByIdId) {
       id
       chop
@@ -55,7 +55,7 @@ const GETITEMBYID = gql`
 `;
 
 const GETALLITEMTYPE = gql`
-  query GetAllItemType {
+  mutation GetAllItemType {
     getAllItemType {
       id
       type
