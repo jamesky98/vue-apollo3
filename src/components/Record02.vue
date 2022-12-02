@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUpdated, provide, inject } from "vue";
+import { ref, provide, inject } from "vue";
 import path from "path-browserify";
 import {
   MDBInput,
@@ -11,7 +11,6 @@ import {
   MDBSelect,
   MDBDatepicker,
   MDBBtn,
-  MDBIcon,
   MDBBtnClose,
   MDBStepper,
   MDBStepperStep,
@@ -30,6 +29,7 @@ import {
   MDBTabPane,
 } from 'mdb-vue-ui-kit';
 import { useQuery, useMutation } from '@vue/apollo-composable';
+import UsersGQL from "../graphql/Users";
 import ToolsGQL from "../graphql/Tools";
 import CaseGQL from "../graphql/Cases";
 import EmpGQL from "../graphql/Employee";
@@ -44,20 +44,23 @@ import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
 import router from '../router'
-import { logIn, logOut, toTWDate } from "../methods/User";
+import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 import { floatify } from "../methods/mathpor";
+
+const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
-
+//#region 參數==========start
 // 取得權限
 const rGroup = inject("rGroup");
 // 引入案件編號
 const props = defineProps({
   caseID: String
 });
-
-// 案件詳細編輯資料==========start
+// Information
+const infomsg = ref('');
+const alert1 =ref(false);
 const publicPath = inject('publicPath');
 // 案件之詳細資料
 const selectUcObj = ref();
@@ -278,17 +281,66 @@ const nowCasePDFPath = computed(() => {
       props.caseID + "/" + nowCaseReportScan.value;
   }
 });
-
 // 案件之詳細資料^^^
+// 校正件列表
+const iType = ref("");  // 選擇儀器類型2:光達 3:GNSS 4:IMU
+const showItemFrom = ref(false);
+const itemTabId = ref("itemEditor");
 
+const seletItemId = ref("");
+
+const selItemTypeID = ref("");
+const selItemTypeMU = ref([]);
+const selItemTypeDOM = ref();
+
+const selItemChop = ref("");
+const selItemModel = ref("");
+const selItemSN = ref("");
+
+const filterItemTypeID = ref("");
+const filterItemTypeMU = ref([]);
+const filterItemTypeDOM = ref();
+
+const filterItemChop = ref("");
+const filterItemChopMU = ref([]);
+const filterItemChopDOM = ref();
+
+const filterItemModel = ref("");
+const filterItemModelMU = ref([]);
+const filterItemModelDOM = ref();
+
+const filterItemSN = ref("");
+
+// 參考值列表
+const showPrjFrom = ref(false);
+const prjTabId = ref("prjFilter");
+
+const seletPrjID = ref("");
+const seletPrjCode = ref("");
+const seletPrjPublishDate = ref("");
+
+const filterPrjCode = ref("");
+
+const filterPrjPubDateStart = ref("");
+const filterPrjPubDateStartDOM = ref();
+
+const filterPrjPubDateEnd = ref("");
+const filterPrjPubDateEndDOM = ref();
+
+//#endregion 參數==========End
+
+//#region 案件詳細編輯資料==========start
 // 查詢Record02資料
-const { onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
-  CaseGQL.GETFULLCASEBYID,
-  () => ({
-    getCasebyIdId: props.caseID
-  })
-);
-getNowCaseF(result => {
+const {
+  mutate: refgetNowCaseF,
+  onDone: getNowCaseFonDone,
+  onError: getNowCaseFonError,
+} = useMutation(CaseGQL.GETFULLCASEBYID, () => ({
+  variables: {
+    getCasebyIdId: props.caseID,
+  }
+}));
+getNowCaseFonDone(result => {
   if (!result.loading && result && result.data.getCasebyID.case_record_02) {
     // console.log(result.data.getCasebyID);
     // 填入資料
@@ -416,7 +468,7 @@ getNowCaseF(result => {
     }); // 取得報告範本清單，並填入下拉選單
   }
 });
-refgetNowCaseF();
+getNowCaseFonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function filterArrayforObj(arr,key){
   let tempArray = [];
@@ -432,14 +484,16 @@ function filterArrayforObj(arr,key){
 }
 
 // 查詢報告簽署人列表
-const { onResult: getAllSignPson, refetch: refgetAllSignPson } = useQuery(
+const { mutate: refgetAllSignPson, onDone: getAllSignPsononDone, onError: getAllSignPsononError } = useMutation(
   EmpGQL.GETEMPOWERBYROLE,
   ()=>({
-    roleType:'報告簽署人',
-    calType: parseInt(nowCaseCalType.value),
+    variables: {
+      roleType:'報告簽署人',
+      calType: parseInt(nowCaseCalType.value),
+    }
   })
 );
-getAllSignPson(result => {
+getAllSignPsononDone(result => {
   // 加入評估人員選單資料
   if (!result.loading && result.data.getEmpowerbyRole) {
     let mylist = [];
@@ -450,17 +504,19 @@ getAllSignPson(result => {
     }); nowCaseSignPersonMU.value.unshift({ text: "", value: "" });
   }
 });
-refgetAllSignPson();
+getAllSignPsononError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢數據檢核人列表
-const { onResult: getAllChkPson, refetch: refgetAllChkPson } = useQuery(
+const { mutate: refgetAllChkPson, onDone: getAllChkPsononDone, onError: getAllChkPsononError } = useMutation(
   EmpGQL.GETEMPOWERBYROLE,
   ()=>({
-    roleType:'校正人員',
-    calType: parseInt(nowCaseCalType.value),
+    variables: {
+      roleType:'校正人員',
+      calType: parseInt(nowCaseCalType.value),
+    }
   })
 );
-getAllChkPson(result => {
+getAllChkPsononDone(result => {
   // 加入評估人員選單資料
   if (!result.loading && result.data.getEmpowerbyRole) {
     let mylist = [];
@@ -471,44 +527,14 @@ getAllChkPson(result => {
     }); nowCaseChkPersonMU.value.unshift({ text: "", value: "" });
   }
 });
-refgetAllChkPson();
+getAllChkPsononError(e=>{errorHandle(e,infomsg,alert1)});
 
+//#endregion 案件詳細編輯資料==========end
 
-// 案件詳細編輯資料==========end
-
-// 校正件列表=========start
+//#region 校正件列表=========start
 let dtItem;
-const iType = ref("");  // 選擇儀器類型2:光達 3:GNSS 4:IMU
-
 const tableItem = ref();
 const dataItem = ref([]);
-const showItemFrom = ref(false);
-const itemTabId = ref("itemEditor");
-
-const seletItemId = ref("");
-
-const selItemTypeID = ref("");
-const selItemTypeMU = ref([]);
-const selItemTypeDOM = ref();
-
-const selItemChop = ref("");
-const selItemModel = ref("");
-const selItemSN = ref("");
-
-const filterItemTypeID = ref("");
-const filterItemTypeMU = ref([]);
-const filterItemTypeDOM = ref();
-
-const filterItemChop = ref("");
-const filterItemChopMU = ref([]);
-const filterItemChopDOM = ref();
-
-const filterItemModel = ref("");
-const filterItemModelMU = ref([]);
-const filterItemModelDOM = ref();
-
-const filterItemSN = ref("");
-
 // 設定表格tableItem
 const columnsItem = [
   { data: "id", title: "編號", defaultContent: "-" },
@@ -518,7 +544,7 @@ const columnsItem = [
   { data: "item_type.type", title: "儀器類型", defaultContent: "-" },
 ];
 const tboptionItem = {
-  dom: 'ti',
+  dom: 'fti',
   select: {
     style: 'single',
     info: false
@@ -527,7 +553,7 @@ const tboptionItem = {
   scrollY: '22vh',
   scrollX: true,
   lengthChange: false,
-  searching: false,
+  searching: true,
   paging: false,
   responsive: true,
   language: {
@@ -536,10 +562,12 @@ const tboptionItem = {
 };
 
 // 查詢校正件資料
-const { result: allItem, loading: lodingAllItem, variables: varAllItem, onResult: getAllItem, refetch: refgetAllItem } = useQuery(
-  ItemGQL.GETALLITEM,
-);
-getAllItem(result => {
+const {
+  mutate: refgetAllItem,
+  onDone: getAllItemonDone,
+  onError: getAllItemonError
+} = useMutation(ItemGQL.GETALLITEM);
+getAllItemonDone(result => {
   // 加入校正件資料
   if (!result.loading && result.data.getAllItem) {
     dataItem.value = result.data.getAllItem;
@@ -561,12 +589,15 @@ getAllItem(result => {
     }); filterItemModelMU.value.unshift({ text: "", value: "" });
   }
 });
+getAllItemonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢儀器類型
-const { result: allItemType, loading: lodingAllItemType, onResult: getAllItemType, refetch: refgetAllItemType } = useQuery(
-  ItemGQL.GETALLITEMTYPE,
-);
-getAllItemType(result => {
+const {
+  mutate: refgetAllItemType,
+  onDone: getAllItemTypeonDone,
+  onError: getAllItemTypeonError
+} = useMutation(ItemGQL.GETALLITEMTYPE);
+getAllItemTypeonDone(result => {
   // 加入儀器類型選單資料
   if (!result.loading && result.data.getAllItemType) {
     // 資料區
@@ -579,15 +610,16 @@ getAllItemType(result => {
     }); filterItemTypeMU.value.unshift({ text: "", value: "" });
   }
 });
+getAllItemTypeonError(e=>{errorHandle(e,infomsg,alert1)});
+
 
 // 查詢選取校正件資料
-const { result: selItemData, loading: loadselItem, onResult: getselItem, refetch: refgetselItem } = useQuery(
-  ItemGQL.GETITEMBYID,
-  () => ({
-    getItemByIdId: parseInt(seletItemId.value)
-  })
-);
-getselItem(result => {
+const {
+  mutate: refgetselItem,
+  onDone: getselItemonDone,
+  onError: getselItemonError,
+} = useMutation(ItemGQL.GETITEMBYID);
+getselItemonDone(result => {
   if (!result.loading && result && result.data.getItemByID) {
     let getData = result.data.getItemByID
     selItemChop.value = getData.chop;
@@ -604,33 +636,57 @@ getselItem(result => {
     }
   }
 });
+getselItemonError(e=>{errorHandle(e,infomsg,alert1)});
 
+// 開啟選擇校正件選單
 function shownItemModal() {
   dtItem = tableItem.value.dt();
   dtItem.on('select', function (e, dt, type, indexes) {
     let getData = dt.rows(indexes).data()[0];
     seletItemId.value = getData.id;
+    refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
   });
-  refgetAllItem();
+  refgetAllItem().then(result=>{
+    // 建立廠牌型號下拉式選單
+    let choplist = [];
+    let modellist = [];
+    choplist = result.data.getAllItem.map((x) => {
+      return x.chop;
+    }); //從物件陣列中取出成陣列
+    choplist = [...new Set(choplist)]; //ES6排除重複值語法
+    filterItemChopMU.value = choplist.sort().map((x) => {
+      return { text: x, value: x };
+    });
+    filterItemChopMU.value.unshift({ text: "", value: "" });
+
+    modellist = result.data.getAllItem.map((x) => {
+      return x.model;
+    }); //從物件陣列中取出成陣列
+    modellist = [...new Set(modellist)]; //ES6排除重複值語法
+    filterItemModelMU.value = modellist.sort().map((x) => {
+      return { text: x, value: x };
+    });
+    filterItemModelMU.value.unshift({ text: "", value: "" });
+  });
   refgetAllItemType();
 
   switch (iType.value) {
     case 2:
       if (nowCaseItemID.value) {
         seletItemId.value = nowCaseItemID.value;
-        refgetselItem();
+        refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
       }
       break;
     case 3:
       if (nowCaseGnssID.value) {
         seletItemId.value = nowCaseGnssID.value;
-        refgetselItem();
+        refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
       }
       break;
     case 4:
       if (nowCaseImuID.value) {
         seletItemId.value = nowCaseImuID.value;
-        refgetselItem();
+        refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
       }
       break;
   }
@@ -649,15 +705,15 @@ const { mutate: saveItem, onDone: saveItemOnDone, onError: saveItemError } = use
     }
   })
 );
-saveItemError((error) => {
-  console.log(error);
-});
+
 saveItemOnDone(() => {
   refgetAllItem();
-  refgetselItem();
+  refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
   // infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
   // alert1.value = true;
 });
+saveItemError(e=>{errorHandle(e,infomsg,alert1)});
+
 // 更多編輯=>引導至校正件管理
 function gotoItemMG() {
   router.push('/cust');
@@ -685,7 +741,8 @@ function doItemFilter() {
   if (filterItemModel.value !== "") where.model = filterItemModel.value;
   if (filterItemSN.value !== "") where.serialNumber = filterItemSN.value;
 
-  varAllItem.value = where;
+  // varAllItem.value = where;
+  refgetAllItem(where);
 }
 
 // 案加入後回填校正件id
@@ -714,7 +771,6 @@ function setItemBtn() {
   showItemFrom.value = false;
 }
 
-
 function showItemFromBtn(x) {
   let where = {};
   iType.value = x;
@@ -723,27 +779,12 @@ function showItemFromBtn(x) {
   showItemFrom.value = true;
 }
 
-// 校正件列表=========end
+//#endregion 校正件列表=========end
 
-// 參考值列表=========start
+//#region 參考值列表=========start
 let dtPrj;
 const tablePrj = ref();
 const dataPrj = ref([]);
-const showPrjFrom = ref(false);
-const prjTabId = ref("prjFilter");
-
-const seletPrjID = ref("");
-const seletPrjCode = ref("");
-const seletPrjPublishDate = ref("");
-
-const filterPrjCode = ref("");
-
-const filterPrjPubDateStart = ref("");
-const filterPrjPubDateStartDOM = ref();
-
-const filterPrjPubDateEnd = ref("");
-const filterPrjPubDateEndDOM = ref();
-
 // 設定表格tablePrj
 const columnsPrj = [
   { data: "id", title: "編號", defaultContent: "-" },
@@ -758,7 +799,7 @@ const columnsPrj = [
   { data: "end_date", title: "結束日", defaultContent: "-", render: (data) => { return toTWDate(data); } },
 ];
 const tboptionPrj = {
-  dom: 'ti',
+  dom: 'fti',
   select: {
     style: 'single',
     info: false
@@ -767,7 +808,7 @@ const tboptionPrj = {
   scrollY: '22vh',
   scrollX: true,
   lengthChange: false,
-  searching: false,
+  searching: true,
   paging: false,
   responsive: true,
   language: {
@@ -785,26 +826,32 @@ const getPrjCalTypeId = computed(() => {
   }
 })
 // 查詢量測作業資料
-const { result: allPrj, loading: lodingAllPrj, variables: varAllPrj, onResult: getAllPrj, refetch: refgetAllPrj } = useQuery(
-  PrjGQL.GETALLPRJ, () => ({
+const {
+  mutate: refgetAllPrj,
+  onDone: getAllPrjonDone,
+  onError: getAllPrjonError
+} = useMutation(PrjGQL.GETALLPRJ, () => ({
+  variables: {
     calTypeId: getPrjCalTypeId.value,
     method: "量測",
-  })
-);
-getAllPrj(result => {
+  }
+}));
+getAllPrjonDone(result => {
   // 加入量測作業資料
   if (!result.loading && result.data.getAllPrj) {
     dataPrj.value = result.data.getAllPrj;
   }
 });
+getAllPrjonError(e=>{errorHandle(e,infomsg,alert1)});
 
+// 開啟參考值選單
 function shownPrjModal() {
   dtPrj = tablePrj.value.dt();
   dtPrj.on('select', function (e, dt, type, indexes) {
     let getData = dt.rows(indexes).data()[0];
     seletPrjID.value = getData.id;
     seletPrjCode.value = getData.project_code;
-    seletPrjPublishDate.value = getData.publish_date.split("T")[0];
+    seletPrjPublishDate.value = (getData.publish_date)?getData.publish_date.split("T")[0]:" ";
   });
   refgetAllPrj();
 }
@@ -828,7 +875,8 @@ function doPrjFilter() {
   if (filterPrjPubDateStart.value.trim() !== "") where.pubdateStart = filterPrjPubDateStart.value.trim();
   if (filterPrjPubDateEnd.value.trim() !== "") where.pubdateEnd = filterPrjPubDateEnd.value.trim();
 
-  varAllPrj.value = where;
+  // varAllPrj.value = where;
+  refgetAllPrj(where);
 }
 
 // 案加入後回填量測作業id
@@ -838,13 +886,13 @@ function setPrjBtn() {
   nowCaseRefPrjPublishDate.value = seletPrjPublishDate.value;
   calRefGcp().then(res=>{
     // console.log("calRefGcp");
-    saveRecord02();  
+    return saveRecord02();  
   }).then(res=>{
     // console.log("saveRecord02");
-    refgetNowCaseF();
+    return refgetNowCaseF();
   }).then(res=>{
     // console.log("refgetNowCaseF");
-    getUcList();
+    return getUcList();
   }).then(res=>{
     // console.log("getUcList");
     showPrjFrom.value = false;
@@ -852,7 +900,7 @@ function setPrjBtn() {
 }
 
 // 查詢參考值並填入data1
-const { mutate: calRefGcp, onDone: calRefGcpOnDone } = useMutation(
+const { mutate: calRefGcp, onDone: calRefGcpOnDone, onError: calRefGcponError } = useMutation(
   PrjGQL.CALREFGCP,
   () => ({
     variables: {
@@ -889,9 +937,9 @@ calRefGcpOnDone(result=>{
   data1.value = myArray;
   data1ToCalResult();
 });
+calRefGcponError(e=>{errorHandle(e,infomsg,alert1)});
 
-
-// 參考值列表=========end
+//#endregion 參考值列表=========end
 
 // 儲存Record02
 const {
@@ -977,9 +1025,6 @@ const {
     ucModel: selectUcModel.value,
   },
 }));
-saveRecord02Error((error) => {
-  console.log(error);
-});
 saveRecord02OnDone(() => {
   refgetNowCaseF();
   // console.log(nowCaseCalResult.value)
@@ -988,8 +1033,9 @@ saveRecord02OnDone(() => {
   // infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
   // alert1.value = true;
 });
+saveRecord02Error(e=>{errorHandle(e,infomsg,alert1)});
 
-// 檔案上傳==========Start
+//#region 檔案上傳==========Start
 const uploadType = ref("");
 function uploadBtn(inputId) {
   // 由按鈕啟動檔案選擇器
@@ -1079,7 +1125,7 @@ async function uploadChenge(e) {
 }
 
 // 上傳檔案
-const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
+const { mutate: uploadFile, onDone: uploadFileOnDone, onError: uploadFileonError } = useMutation(
   ToolsGQL.UPLOADFILE
 );
 uploadFileOnDone((result) => {
@@ -1129,11 +1175,10 @@ uploadFileOnDone((result) => {
   inputDOM = document.getElementById("AllUpload");
   inputDOM.value = "";
 });
+uploadFileonError(e=>{errorHandle(e,infomsg,alert1)});
+//#endregion 檔案上傳==========End
 
-
-// 檔案上傳==========End
-
-// 呼叫計算不確定度=======Start
+//#region 呼叫計算不確定度=======Start
 // 取得不確定度列表
 const {
   mutate: getUcList,
@@ -1160,6 +1205,7 @@ getUcListOnDone((result) => {
     nowCaseUcModelMU.value = myArray;
   }
 });
+getUcListError(e=>{errorHandle(e,infomsg,alert1)});
 
 function reloadUcMU(){
   let oldselect = selectUcModel.value;
@@ -1167,7 +1213,6 @@ function reloadUcMU(){
     selectUcModel.value = oldselect;
   });
 }
-
 
 // 計算不確定度(return 不確定度H V、有效位置及計算表)
 const pramJsonStr = ref("");
@@ -1215,7 +1260,9 @@ computeUcOnDone((result) => {
     saveRecord02();
   }
 });
-// 呼叫計算不確定度=======End
+computeUcError(e=>{errorHandle(e,infomsg,alert1)});
+
+//#endregion 呼叫計算不確定度=======End
 
 //#region 量測作業表格==========Start
 let dt1;
@@ -1632,6 +1679,7 @@ buildRptOnDone(result => {
     btnDOM.click();
   });
 });
+buildRptError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 取得報告範本列表
 const {
@@ -1651,8 +1699,18 @@ getRptListOnDone((result) => {
     });nowCaseReportTempMU.value.unshift({text: "-未選取-", value: '-1'})
   }
 });
+getRptListError(e=>{errorHandle(e,infomsg,alert1)});
 
-// 產生報告==========End
+//#endregion 產生報告==========End
+
+getchecktoken().then(res=>{
+  refgetNowCaseF();
+  refgetAllSignPson();
+  refgetAllChkPson();
+
+}).catch(e=>{
+  errorHandle(e,infomsg,alert1);
+});
 
 defineExpose({
   saveRecord02,

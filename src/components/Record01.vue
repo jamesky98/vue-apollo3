@@ -34,6 +34,7 @@ import {
   MDBLightboxItem,
 } from "mdb-vue-ui-kit";
 import { useQuery, useMutation } from "@vue/apollo-composable";
+import UsersGQL from "../graphql/Users";
 import ToolsGQL from "../graphql/Tools";
 import CaseGQL from "../graphql/Cases";
 import EmpGQL from "../graphql/Employee";
@@ -48,20 +49,23 @@ import DataTableBs5 from "datatables.net-bs5";
 import Select from "datatables.net-select";
 import { computed } from "@vue/reactivity";
 import router from "../router";
-import { logIn, logOut, toTWDate } from "../methods/User";
+import { errorHandle, logIn, logOut, toTWDate } from "../methods/User";
 import { floatify } from "../methods/mathpor";
+
+const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
-
+//#region 參數==========start
 // 取得權限
 const rGroup = inject("rGroup");
 // 引入案件編號
 const props = defineProps({
   caseID: String,
 });
-
-// 案件詳細編輯資料==========start
+// Information
+const infomsg = ref('');
+const alert1 =ref(false);
 const publicPath = inject('publicPath');
 
 // 案件之詳細資料
@@ -291,8 +295,6 @@ provide("selectReportTemp", selectReportTemp);
 const nowCaseReportTempMU = ref([]);
 provide("nowCaseReportTempMU", nowCaseReportTempMU);
 
-
-
 const nowCaseReportEdit = ref(""); //校正報告編輯檔
 const nowCaseReportEditDL = computed(() => {
   if (nowCaseReportEdit.value && nowCaseReportEdit.value !== "") {
@@ -334,17 +336,67 @@ const nowCaseReportScanDL = computed(() => {
     return undefined;
   }
 });
-
 const nowCasePDFPath = ref("pdfjs-dist/web/viewer.html"); //校正報告掃描檔路徑
 
+// 校正件列表
+const varAllItem = ref();
+const showItemFrom = ref(false);
+const itemTabId = ref("itemEditor");
+
+const seletItemId = ref("");
+
+const selItemTypeID = ref("");
+const selItemTypeMU = ref([]);
+const selItemTypeDOM = ref();
+
+const selItemChop = ref("");
+const selItemModel = ref("");
+const selItemSN = ref("");
+
+const filterItemTypeID = ref("");
+const filterItemTypeMU = ref([]);
+const filterItemTypeDOM = ref();
+
+const filterItemChop = ref("");
+const filterItemChopMU = ref([]);
+const filterItemChopDOM = ref();
+
+const filterItemModel = ref("");
+const filterItemModelMU = ref([]);
+const filterItemModelDOM = ref();
+
+const filterItemSN = ref("");
+
+// 參考值列表
+const showPrjFrom = ref(false);
+const prjTabId = ref("prjFilter");
+
+const seletPrjID = ref("");
+const seletPrjCode = ref("");
+const seletPrjPublishDate = ref("");
+
+const filterPrjCode = ref("");
+
+const filterPrjPubDateStart = ref("");
+const filterPrjPubDateStartDOM = ref();
+
+const filterPrjPubDateEnd = ref("");
+const filterPrjPubDateEndDOM = ref();
+const varAllPrj = ref();
+//#endregion 參數==========End
+
+//#region 案件詳細編輯資料==========start
 // 查詢Record01資料
 const {
-  onResult: getNowCaseF,
-  refetch: refgetNowCaseF,
-} = useQuery(CaseGQL.GETFULLCASEBYID, () => ({
-  getCasebyIdId: props.caseID,
+  mutate: refgetNowCaseF,
+  onDone: getNowCaseFonDone,
+  onError: getNowCaseFonError,
+} = useMutation(CaseGQL.GETFULLCASEBYID, () => ({
+  variables: {
+    getCasebyIdId: props.caseID,
+  }
 }));
-getNowCaseF((result) => {
+getNowCaseFonDone((result) => {
   // console.log(result.data.getCasebyID.case_record_01);
   if (!result.loading) {
     // 填入資料
@@ -497,7 +549,7 @@ getNowCaseF((result) => {
     }); // 取得報告範本清單，並填入下拉選單
   }
 });
-refgetNowCaseF();
+getNowCaseFonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function comSensorSize() {
   nowCaseSizeX.value = (
@@ -528,14 +580,16 @@ function filterArrayforObj(arr,key){
 }
 
 // 查詢報告簽署人列表
-const { onResult: getAllSignPson, refetch: refgetAllSignPson } = useQuery(
+const { mutate: refgetAllSignPson, onDone: getAllSignPsononDone, onError: getAllSignPsononError } = useMutation(
   EmpGQL.GETEMPOWERBYROLE,
   ()=>({
-    roleType:'報告簽署人',
-    calType: parseInt(nowCaseCalType.value),
+    variables: {
+      roleType:'報告簽署人',
+      calType: parseInt(nowCaseCalType.value),
+    }
   })
 );
-getAllSignPson(result => {
+getAllSignPsononDone(result => {
   // 加入評估人員選單資料
   if (!result.loading && result.data.getEmpowerbyRole) {
     let mylist = [];
@@ -546,17 +600,20 @@ getAllSignPson(result => {
     }); nowCaseSignPersonMU.value.unshift({ text: "", value: "" });
   }
 });
-refgetAllSignPson();
+getAllSignPsononError(e=>{errorHandle(e,infomsg,alert1)});
+
 
 // 查詢數據檢核人列表
-const { onResult: getAllChkPson, refetch: refgetAllChkPson } = useQuery(
+const { mutate: refgetAllChkPson, onDone: getAllChkPsononDone, onError: getAllChkPsononError } = useMutation(
   EmpGQL.GETEMPOWERBYROLE,
   ()=>({
-    roleType:'校正人員',
-    calType: parseInt(nowCaseCalType.value),
+    variables: {
+      roleType:'校正人員',
+      calType: parseInt(nowCaseCalType.value),
+    }
   })
 );
-getAllChkPson(result => {
+getAllChkPsononDone(result => {
   // 加入評估人員選單資料
   if (!result.loading && result.data.getEmpowerbyRole) {
     let mylist = [];
@@ -567,41 +624,15 @@ getAllChkPson(result => {
     }); nowCaseChkPersonMU.value.unshift({ text: "", value: "" });
   }
 });
-refgetAllChkPson();
+getAllChkPsononError(e=>{errorHandle(e,infomsg,alert1)});
 
-// 案件詳細編輯資料==========end
 
-// 校正件列表=========start
+//#endregion 案件詳細編輯資料==========end
+
+//#region 校正件列表=========start
 let dtItem;
 const tableItem = ref();
 const dataItem = ref([]);
-const showItemFrom = ref(false);
-const itemTabId = ref("itemFilter");
-
-const seletItemId = ref("");
-
-const selItemTypeID = ref("");
-const selItemTypeMU = ref([]);
-const selItemTypeDOM = ref();
-
-const selItemChop = ref("");
-const selItemModel = ref("");
-const selItemSN = ref("");
-
-const filterItemTypeID = ref("");
-const filterItemTypeMU = ref([]);
-const filterItemTypeDOM = ref();
-
-const filterItemChop = ref("");
-const filterItemChopMU = ref([]);
-const filterItemChopDOM = ref();
-
-const filterItemModel = ref("");
-const filterItemModelMU = ref([]);
-const filterItemModelDOM = ref();
-
-const filterItemSN = ref("");
-
 // 設定表格tableItem
 const columnsItem = [
   { data: "id", title: "編號", defaultContent: "-" },
@@ -630,21 +661,100 @@ const tboptionItem = {
 
 // 查詢校正件資料
 const {
-  result: allItem,
-  loading: lodingAllItem,
-  variables: varAllItem,
-  onResult: getAllItem,
-  refetch: refgetAllItem,
-} = useQuery(ItemGQL.GETALLITEM);
-getAllItem((result) => {
+  mutate: refgetAllItem,
+  onDone: getAllItemonDone,
+  onError: getAllItemonError
+} = useMutation(ItemGQL.GETALLITEM);
+getAllItemonDone((result) => {
   // 加入校正件資料
   if (!result.loading && result.data.getAllItem) {
     dataItem.value = result.data.getAllItem;
 
     // 加入下拉式選單
+    // let choplist = [];
+    // let modellist = [];
+
+    // choplist = result.data.getAllItem.map((x) => {
+    //   return x.chop;
+    // }); //從物件陣列中取出成陣列
+    // choplist = [...new Set(choplist)]; //ES6排除重複值語法
+    // filterItemChopMU.value = choplist.sort().map((x) => {
+    //   return { text: x, value: x };
+    // });
+    // filterItemChopMU.value.unshift({ text: "", value: "" });
+
+    // modellist = result.data.getAllItem.map((x) => {
+    //   return x.model;
+    // }); //從物件陣列中取出成陣列
+    // modellist = [...new Set(modellist)]; //ES6排除重複值語法
+    // filterItemModelMU.value = modellist.sort().map((x) => {
+    //   return { text: x, value: x };
+    // });
+    // filterItemModelMU.value.unshift({ text: "", value: "" });
+  }
+});
+getAllItemonError(e=>{errorHandle(e,infomsg,alert1)});
+
+// 查詢儀器類型
+const {
+  mutate: refgetAllItemType,
+  onDone: getAllItemTypeonDone,
+  onError: getAllItemTypeonError
+} = useMutation(ItemGQL.GETALLITEMTYPE);
+getAllItemTypeonDone((result) => {
+  // 加入儀器類型選單資料
+  if (!result.loading && result.data.getAllItemType) {
+    // 資料區
+    selItemTypeMU.value = result.data.getAllItemType.map((x) => {
+      return { text: x.type, value: parseInt(x.id) };
+    });
+    selItemTypeMU.value.unshift({ text: "", value: "" });
+    // 篩選區
+    filterItemTypeMU.value = result.data.getAllItemType.map((x) => {
+      return { text: x.type, value: parseInt(x.id) };
+    });
+    filterItemTypeMU.value.unshift({ text: "", value: "" });
+  }
+});
+getAllItemTypeonError(e=>{errorHandle(e,infomsg,alert1)});
+
+// 查詢選取校正件資料
+const {
+  mutate: refgetselItem,
+  onDone: getselItemonDone,
+  onError: getselItemonError,
+} = useMutation(ItemGQL.GETITEMBYID);
+getselItemonDone((result) => {
+  if (!result.loading && result && result.data.getItemByID) {
+    let getData = result.data.getItemByID;
+    selItemChop.value = getData.chop;
+    selItemTypeID.value = getData.type;
+    selItemTypeDOM.value.setValue(parseInt(getData.type));
+    selItemModel.value = getData.model;
+    selItemSN.value = getData.serial_number;
+  } else {
+    selItemChop.value = "";
+    selItemModel.value = "";
+    selItemSN.value = "";
+    if (selItemTypeDOM.value) {
+      selItemTypeDOM.value.setValue("");
+    }
+  }
+});
+getselItemonError(e=>{errorHandle(e,infomsg,alert1)});
+
+// 開啟選擇校正件選單
+function shownItemModal() {
+  dtItem = tableItem.value.dt();
+  dtItem.on("select", function (e, dt, type, indexes) {
+    let getData = dt.rows(indexes).data()[0];
+    seletItemId.value = getData.id;
+    refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
+  });
+  refgetAllItem().then(result=>{
+    // 建立廠牌型號下拉式選單
     let choplist = [];
     let modellist = [];
-
     choplist = result.data.getAllItem.map((x) => {
       return x.chop;
     }); //從物件陣列中取出成陣列
@@ -662,70 +772,11 @@ getAllItem((result) => {
       return { text: x, value: x };
     });
     filterItemModelMU.value.unshift({ text: "", value: "" });
-  }
-});
-
-// 查詢儀器類型
-const {
-  result: allItemType,
-  loading: lodingAllItemType,
-  onResult: getAllItemType,
-  refetch: refgetAllItemType,
-} = useQuery(ItemGQL.GETALLITEMTYPE);
-getAllItemType((result) => {
-  // 加入儀器類型選單資料
-  if (!result.loading && result.data.getAllItemType) {
-    // 資料區
-    selItemTypeMU.value = result.data.getAllItemType.map((x) => {
-      return { text: x.type, value: parseInt(x.id) };
-    });
-    selItemTypeMU.value.unshift({ text: "", value: "" });
-    // 篩選區
-    filterItemTypeMU.value = result.data.getAllItemType.map((x) => {
-      return { text: x.type, value: parseInt(x.id) };
-    });
-    filterItemTypeMU.value.unshift({ text: "", value: "" });
-  }
-});
-
-// 查詢選取校正件資料
-const {
-  result: selItemData,
-  loading: loadselItem,
-  onResult: getselItem,
-  refetch: refgetselItem,
-} = useQuery(ItemGQL.GETITEMBYID, () => ({
-  getItemByIdId: parseInt(seletItemId.value),
-}));
-getselItem((result) => {
-  if (!result.loading && result && result.data.getItemByID) {
-    let getData = result.data.getItemByID;
-    selItemChop.value = getData.chop;
-    selItemTypeID.value = getData.type;
-    selItemTypeDOM.value.setValue(parseInt(getData.type));
-    selItemModel.value = getData.model;
-    selItemSN.value = getData.serial_number;
-  } else {
-    selItemChop.value = "";
-    selItemModel.value = "";
-    selItemSN.value = "";
-    if (selItemTypeDOM.value) {
-      selItemTypeDOM.value.setValue("");
-    }
-  }
-});
-
-function shownItemModal() {
-  dtItem = tableItem.value.dt();
-  dtItem.on("select", function (e, dt, type, indexes) {
-    let getData = dt.rows(indexes).data()[0];
-    seletItemId.value = getData.id;
   });
-  refgetAllItem();
   refgetAllItemType();
   if (nowCaseItemID.value) {
     seletItemId.value = nowCaseItemID.value;
-    refgetselItem();
+    refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
   }
 }
 
@@ -743,15 +794,14 @@ const {
     type: parseInt(selItemTypeID.value),
   },
 }));
-saveItemError((error) => {
-  console.log(error);
-});
 saveItemOnDone(() => {
   refgetAllItem();
-  refgetselItem();
+  refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
   // infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
   // alert1.value = true;
 });
+saveItemError(e=>{errorHandle(e,infomsg,alert1)});
+
 // 更多編輯=>引導至校正件管理
 function gotoItemMG() {
   router.push("/cust");
@@ -779,7 +829,8 @@ function doItemFilter() {
   if (filterItemModel.value !== "") where.model = filterItemModel.value;
   if (filterItemSN.value !== "") where.serialNumber = filterItemSN.value;
 
-  varAllItem.value = where;
+  // varAllItem.value = where;
+  refgetAllItem(where);
 }
 
 // 案加入後回填校正件id
@@ -791,27 +842,12 @@ function setItemBtn() {
 
   showItemFrom.value = false;
 }
-// 校正件列表=========end
+//#endregion 校正件列表=========end
 
-// 參考值列表=========start
+//#region 參考值列表=========start
 let dtPrj;
 const tablePrj = ref();
 const dataPrj = ref([]);
-const showPrjFrom = ref(false);
-const prjTabId = ref("prjFilter");
-
-const seletPrjID = ref("");
-const seletPrjCode = ref("");
-const seletPrjPublishDate = ref("");
-
-const filterPrjCode = ref("");
-
-const filterPrjPubDateStart = ref("");
-const filterPrjPubDateStartDOM = ref();
-
-const filterPrjPubDateEnd = ref("");
-const filterPrjPubDateEndDOM = ref();
-
 // 設定表格tablePrj
 const columnsPrj = [
   { data: "id", title: "編號", defaultContent: "-" },
@@ -848,7 +884,7 @@ const columnsPrj = [
   },
 ];
 const tboptionPrj = {
-  dom: "ti",
+  dom: "fti",
   select: {
     style: "single",
     info: false,
@@ -857,7 +893,7 @@ const tboptionPrj = {
   scrollY: "22vh",
   scrollX: true,
   lengthChange: false,
-  searching: false,
+  searching: true,
   paging: false,
   responsive: true,
   language: {
@@ -876,22 +912,24 @@ const getPrjCalTypeId = computed(() => {
 })
 // 查詢量測作業資料
 const {
-  result: allPrj,
-  loading: lodingAllPrj,
-  variables: varAllPrj,
-  onResult: getAllPrj,
-  refetch: refgetAllPrj,
-} = useQuery(PrjGQL.GETALLPRJ, () => ({
-  calTypeId: getPrjCalTypeId.value,
-  method: "量測",
+  mutate: refgetAllPrj,
+  onDone: getAllPrjonDone,
+  onError: getAllPrjonError
+} = useMutation(PrjGQL.GETALLPRJ, () => ({
+  variables: {
+    calTypeId: getPrjCalTypeId.value,
+    method: "量測",
+  }
 }));
-getAllPrj((result) => {
+getAllPrjonDone((result) => {
   // 加入量測作業資料
   if (!result.loading && result.data.getAllPrj) {
     dataPrj.value = result.data.getAllPrj;
   }
 });
+getAllPrjonError(e=>{errorHandle(e,infomsg,alert1)});
 
+// 開啟參考值選單
 function shownPrjModal() {
   dtPrj = tablePrj.value.dt();
   dtPrj.on("select", function (e, dt, type, indexes) {
@@ -924,7 +962,8 @@ function doPrjFilter() {
   if (filterPrjPubDateEnd.value.trim() !== "")
     where.pubdateEnd = filterPrjPubDateEnd.value;
 
-  varAllPrj.value = where;
+  // varAllPrj.value = where;
+  refgetAllPrj(where);
 }
 
 // 按加入後回填量測作業id
@@ -933,15 +972,15 @@ function setPrjBtn() {
   nowCaseRefPrjCode.value = seletPrjCode.value;
   nowCaseRefPrjPublishDate.value = seletPrjPublishDate.value;
   saveRecord01().then(res=>{
-    refgetNowCaseF();
+    return refgetNowCaseF();
   }).then(res=>{
-    getUcList();
+    return getUcList();
   }).then(res => {
     showPrjFrom.value = false;
   });
 }
 
-// 參考值列表=========end
+//#endregion 參考值列表=========end
 
 // 儲存Record01
 const {
@@ -1058,20 +1097,12 @@ const {
     ucModel: selectUcModel.value + "",
   },
 }));
-saveRecord01Error((error) => {
-  console.log(error);
-});
 saveRecord01OnDone(() => {
   refgetNowCaseF();
-  // updateKey.value += 1;
-  // console.log(nowCaseCalResult.value)
-  // console.log('nowCaseChkPersonID: ',nowCaseChkPersonID.value);
-  // console.log('selectChkPersonID: ',selectChkPersonID.value);
-  // infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
-  // alert1.value = true;
 });
+saveRecord01Error(e=>{errorHandle(e,infomsg,alert1)});
 
-// 檔案上傳==========Start
+//#region 檔案上傳==========Start
 const uploadType = ref("");
 function uploadBtn(inputId) {
   // 由按鈕啟動檔案選擇器
@@ -1185,7 +1216,7 @@ async function uploadChenge(e) {
   });
 }
 // 上傳檔案
-const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
+const { mutate: uploadFile, onDone: uploadFileOnDone, onError: uploadFileonError } = useMutation(
   ToolsGQL.UPLOADFILE
 );
 uploadFileOnDone((result) => {
@@ -1256,12 +1287,13 @@ uploadFileOnDone((result) => {
   inputDOM = document.getElementById("AllUpload");
   inputDOM.value = "";
 });
+uploadFileonError(e=>{errorHandle(e,infomsg,alert1)});
 
-// 檔案上傳==========End
+//#endregion 檔案上傳==========End
 
-// 讀取PrintOut.0 並填入資料====Start
+//#region 讀取PrintOut.0 並填入資料====Start
 // 查詢參考值並計算器差
-const { mutate: calRefGcp, onDone: calRefGcpOnDone } = useMutation(
+const { mutate: calRefGcp, onDone: calRefGcpOnDone, onError: calRefGcponError } = useMutation(
   PrjGQL.CALREFGCP,
   () => ({
     variables: {
@@ -1325,6 +1357,7 @@ calRefGcpOnDone((result) => {
     computeUc();
   }
 });
+calRefGcponError(e=>{errorHandle(e,infomsg,alert1)});
 
 const pramJsonStr = ref("");
 async function readPrintOut(POfile) {
@@ -1534,9 +1567,9 @@ async function readPrintOut(POfile) {
     // console.log("readAsText");
   }
 }
-// 讀取PrintOut.0 並填入資料====End
+//#endregion 讀取PrintOut.0 並填入資料====End
 
-// 呼叫計算不確定度=======Start
+//#region 呼叫計算不確定度=======Start
 
 // 取得不確定度列表
 const {
@@ -1557,6 +1590,7 @@ getUcListOnDone((result) => {
     });nowCaseUcModelMU.value.unshift({text: "-未選取-", value: '-1'})
   }
 });
+getUcListError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 計算不確定度(return 不確定度H V、有效位置及計算表)
 const {
@@ -1583,11 +1617,12 @@ computeUcOnDone((result) => {
     saveRecord01();
   }
 });
-// 呼叫計算不確定度=======End
+computeUcError(e=>{errorHandle(e,infomsg,alert1)});
+//#endregion 呼叫計算不確定度=======End
 
-// 下載參考值==========Start
+//#region 下載參考值==========Start
 // 查詢參考值產生GCP.dat
-const { mutate: getRefGcp, onDone: getRefGcpOnDone } = useMutation(
+const { mutate: getRefGcp, onDone: getRefGcpOnDone, onError: getRefGcponError } = useMutation(
   PrjGQL.CALREFGCP,
   () => ({
     variables: {
@@ -1633,9 +1668,10 @@ getRefGcpOnDone((result) => {
     document.body.removeChild(link);
   }
 });
-// 下載參考值==========End
+getRefGcponError(e=>{errorHandle(e,infomsg,alert1)});
+//#endregion 下載參考值==========End
 
-// 產生報告==========Start
+//#region 產生報告==========Start
 const pramRptStr = ref("");
 // 按鈕觸發動作
 function buildReportBtn() {
@@ -1799,6 +1835,7 @@ buildRptOnDone(result => {
     btnDOM.click();
   });
 });
+buildRptError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 取得報告範本列表
 const {
@@ -1818,8 +1855,19 @@ getRptListOnDone((result) => {
     });nowCaseReportTempMU.value.unshift({text: "-未選取-", value: '-1'})
   }
 });
+getRptListError(e=>{errorHandle(e,infomsg,alert1)});
 
-// 產生報告==========End
+//#endregion 產生報告==========End
+
+
+getchecktoken().then(res=>{
+  refgetNowCaseF();
+  refgetAllSignPson();
+  refgetAllChkPson();
+
+}).catch(e=>{
+  errorHandle(e,infomsg,alert1);
+});
 
 defineExpose({
   saveRecord01,
@@ -1845,8 +1893,8 @@ defineExpose({
             <MDBCol col="12" class="border">
               <MDBTabs v-model="itemTabId">
                 <MDBTabNav tabsClasses="">
-                  <MDBTabItem tabId="itemFilter" href="itemFilter">條件篩選</MDBTabItem>
                   <MDBTabItem tabId="itemEditor" href="itemEditor">資料編輯</MDBTabItem>
+                  <MDBTabItem tabId="itemFilter" href="itemFilter">條件篩選</MDBTabItem>
                 </MDBTabNav>
                 <MDBTabContent>
                   <!-- 編輯表單 -->

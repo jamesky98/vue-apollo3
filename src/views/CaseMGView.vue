@@ -43,15 +43,11 @@ import { computed } from "@vue/reactivity";
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
-const { mutate: getchecktoken, onDone: getchecktokenOnDone } = useMutation(UsersGQL.CHECKTOKEN);
-getchecktokenOnDone(result => {
-  if (!result.data.checktoken) {
-    logOut();
-  }
-});
-getchecktoken();
+const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
+
+
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
@@ -145,6 +141,7 @@ const selCustAddress = ref("");
 const filterCustName = ref("");
 const filterCustOrgName = ref("");
 const filterCustTaxId = ref("");
+const caseCalType = ref();
 
 // 新增案件指標
 const showCaseNew = ref(false);
@@ -370,15 +367,15 @@ const tboption1 = {
   }
 };
 // 查詢案件資料
-const { onResult: getAllCase, refetch: refgetAllCase } = useQuery(CaseGQL.GETALLCASE);
-getAllCase(result => {
+const { mutate: refgetAllCase, onDone: getAllCaseonDone, onError: getAllCaseonError } = useMutation(CaseGQL.GETALLCASE);
+getAllCaseonDone(result => {
   // 加入table1資料
   if (!result.loading) {
     data1.value = result.data.getAllCase;
     notProssing2.value = true;
   }
 });
-refgetAllCase();
+getAllCaseonError(e=>{errorHandle(e,infomsg,alert1)});
 
 //#endregion 案件列表=========End
 
@@ -397,7 +394,7 @@ const columnsCust = [
   { data: "address", title: "地址", defaultContent: "-" },
 ];
 const tboptionCust = {
-  dom: 'ti',
+  dom: 'fti',
   select: {
     style: 'single',
     info: false
@@ -406,7 +403,7 @@ const tboptionCust = {
   scrollY: '22vh',
   scrollX: true,
   lengthChange: false,
-  searching: false,
+  searching: true,
   paging: false,
   responsive: true,
   language: {
@@ -415,24 +412,28 @@ const tboptionCust = {
 };
 
 // 查詢顧客資料
-const { result: allCust, loading: lodingAllCust, variables: varAllCust, onResult: getAllCust, refetch: refgetAllCust } = useQuery(
+const { mutate: refgetAllCust , variables: varAllCust, onDone: getAllCustonDone, onError: getAllCustonError } = useMutation(
   CustGQL.GETALLCUST,
+  ()=>({
+    variables: varAllCust.value
+  })
 );
-getAllCust(result => {
+getAllCustonDone(result => {
   // 加入顧客資料
   if (!result.loading && result.data) {
     dataCust.value = result.data.getAllCust;
   }
 });
+getAllCustonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢選取顧客資料
-const { result: selCustData, loading: loadselCust, onResult: getselCust, refetch: refgetselCust } = useQuery(
+const {  mutate: refgetselCust, onDone: getselCustonDone, onError: getselCustonError } = useMutation(
   CustGQL.GETCUSTBYID,
   () => ({
     getCustByIdId: (parseInt(seletCustId.value))?parseInt(seletCustId.value):-1
   })
 );
-getselCust(result => {
+getselCustonDone(result => {
   if (!result.loading && result && result.data.getCustById) {
     let getData = result.data.getCustById
     selCustName.value = getData.name;
@@ -443,6 +444,7 @@ getselCust(result => {
     selCustAddress.value = getData.address;
   }
 });
+getselCustonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function shownCustModal() {
   dtCust = tableCust.value.dt();
@@ -470,10 +472,6 @@ const { mutate: saveCust, onDone: saveCustOnDone, onError: saveCustError } = use
     }
   })
 );
-
-saveCustError((error) => {
-  console.log(error);
-});
 saveCustOnDone(() => {
   refgetAllCust();
   refgetselCust();
@@ -481,6 +479,8 @@ saveCustOnDone(() => {
   infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
   alert1.value = true;
 });
+saveCustError(e=>{errorHandle(e,infomsg,alert1)});
+
 // 更多編輯=>引導至顧客管理
 function gotoCustMG() {
   router.push('/cust');
@@ -566,8 +566,8 @@ function caseClearFilter() {
 
 //#region 填入下拉式選單==========Start
 // 查詢案件狀態列表
-const { result: caseStatus, onResult: getCaseStatus, refetch: refgetCaseStatus } = useQuery(CaseGQL.GETCASESTATUS);
-getCaseStatus(result => {
+const { mutate: refgetCaseStatus, onDone: getCaseStatusonDone, onError: getCaseStatusonError } = useMutation(CaseGQL.GETCASESTATUS);
+getCaseStatusonDone(result => {
   // 加入案件狀態選單資料
   if (!result.loading) {
     // 篩選區
@@ -583,13 +583,14 @@ getCaseStatus(result => {
     // }); nowDocTypemu.value.unshift({ text: "", value: "" });
   }
 });
-refgetCaseStatus();
+getCaseStatusonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢校正項目列表
-const { result: caseCalType, onResult: getCaseCalType, refetch: refgetCaseCalType } = useQuery(CaseGQL.GETCASECALTYPE);
-getCaseCalType(result => {
+const { mutate: refgetCaseCalType, onDone: getCaseCalTypeonDone, onError: getCaseCalTypeonError } = useMutation(CaseGQL.GETCASECALTYPE);
+getCaseCalTypeonDone(result => {
   // 加入校正項目選單資料
   if (!result.loading) {
+    caseCalType.value = result.data;
     // 篩選區
     caseTypeMU.value = result.data.getCaseCalType.map(x => {
       return { text: x.name, value: parseInt(x.id) }
@@ -604,7 +605,7 @@ getCaseCalType(result => {
     }); apiCalTypeIDMU.value.unshift({ text: "", value: "" });
   }
 });
-refgetCaseCalType();
+getCaseCalTypeonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function filterArrayforObj(arr,key){
   let tempArray = [];
@@ -620,8 +621,8 @@ function filterArrayforObj(arr,key){
 }
 
 // 查詢顧客列表
-const { result: caseAllOrg, onResult: getCaseAllOrg, refetch: refgetCaseAllOrg } = useQuery(CaseGQL.GETALLORG);
-getCaseAllOrg(result => {
+const { mutate: refgetCaseAllOrg, onDone: getCaseAllOrgonDone, onError: getCaseAllOrgonError } = useMutation(CaseGQL.GETALLORG);
+getCaseAllOrgonDone(result => {
   // 加入顧客選單資料
   if (!result.loading) {
     caseCustMU.value = result.data.getAllOrg.map(x => {
@@ -635,11 +636,12 @@ getCaseAllOrg(result => {
     selCustOrgList.value = result.data.getAllOrg;
   }
 });
-refgetCaseAllOrg();
+getCaseAllOrgonError(e=>{errorHandle(e,infomsg,alert1)});
+
 
 // 查詢待校件列表
-const { result: caseAllItem, onResult: getCaseAllItem, refetch: refgetCaseAllItem } = useQuery(CaseGQL.GETALLITEM);
-getCaseAllItem(result => {
+const {  mutate: refgetCaseAllItem, onDone: getCaseAllItemonDone, onError: getCaseAllItemonError } = useMutation(CaseGQL.GETALLITEM);
+getCaseAllItemonDone(result => {
   // 加入待校件選單資料
   if (!result.loading) {
     let choplist = [];
@@ -658,20 +660,22 @@ getCaseAllItem(result => {
     }); caseModelMU.value.unshift({ text: "", value: "" });
   }
 });
-refgetCaseAllItem();
+getCaseAllItemonError(e=>{errorHandle(e,infomsg,alert1)});
 
 //#endregion 填入下拉式選單==========end
 
 //#region 案件基本資料==========start
 // 查詢校正人員列表
-const { onResult: getCaseOperator, refetch: refgetCaseOperator } = useQuery(
+const { mutate: refgetCaseOperator, onDone: getCaseOperatoronDone, onError: getCaseOperatoronError } = useMutation(
   EmpGQL.GETEMPOWERBYROLE,
   ()=>({
-    roleType:'校正人員',
-    calType: parseInt(nowCaseTypeId.value),
+    variables: {
+      roleType:'校正人員',
+      calType: parseInt(nowCaseTypeId.value),
+    }
   })
 );
-getCaseOperator(result => {
+getCaseOperatoronDone(result => {
   // 加入評估人員選單資料
   if (!result.loading && result.data.getEmpowerbyRole) {
     let mylist = [];
@@ -687,17 +691,19 @@ getCaseOperator(result => {
     }); nowCaseOperatorMU.value.unshift({ text: "", value: "" });
   }
 });
-refgetCaseOperator();
+getCaseOperatoronError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢技術主管列表
-const { onResult: getCaseLeader, refetch: refgetCaseLeader } = useQuery(
+const { mutate: refgetCaseLeader, onDone: getCaseLeaderonDone, onError: getCaseLeaderonError } = useMutation(
   EmpGQL.GETEMPOWERBYROLE,
   ()=>({
-    roleType:'技術主管',
-    calType: parseInt(nowCaseTypeId.value),
+    variables: {
+      roleType:'技術主管',
+      calType: parseInt(nowCaseTypeId.value),
+    }
   })
 );
-getCaseLeader(result => {
+getCaseLeaderonDone(result => {
   // 加入技術主管選單資料
   if (!result.loading && result.data.getEmpowerbyRole) {
     let mylist = [];
@@ -708,14 +714,12 @@ getCaseLeader(result => {
     }); nowCaseLeaderMU.value.unshift({ text: "", value: "" });
   }
 });
-refgetCaseLeader();
+getCaseLeaderonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢顯示選擇案件之簡單資料
-const { onResult: getNowCaseS, refetch: refgetNowCaseS } = useQuery(
-  CaseGQL.GETSIMPLECASEBYID,()=>({
-    getCasebyIdId: nowCaseID.value
-  }));
-getNowCaseS(result => {
+const { mutate: refgetNowCaseS, onDone: getNowCaseSonDone, onError: getNowCaseSonError } = useMutation(
+  CaseGQL.GETSIMPLECASEBYID);
+getNowCaseSonDone(result => {
   if (!result.loading && result && result.data.getCasebyID) {
     // 填入簡單資料
     let getData = result.data.getCasebyID;
@@ -759,6 +763,7 @@ getNowCaseS(result => {
     
   }
 });
+getNowCaseSonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 報告抬頭地址同上
 function copyTileAdd() {
@@ -780,6 +785,7 @@ delCaseOnDone(() => {
   // 更新列表==重新查詢案件
   refgetAllCase();
 });
+delCaseError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 新增案件==開啟表單
 function openAddCaseForm() {
@@ -828,6 +834,7 @@ saveCaseSOnDone(result => {
     // alert1.value = true;
   }
 });
+saveCaseSError(e=>{errorHandle(e,infomsg,alert1)});
 
 // mutation record01
 const subFormRecord01 = ref();
@@ -869,7 +876,7 @@ function isAinmaDispaly(){
     // console.log('5-關閉播放');
     showCaseEditAnima.value=false;
     // console.log('6-變更動畫名稱');
-    console.log('7-隱藏進階表單');
+    // console.log('7-隱藏進階表單');
     showCaseEditR01Flag.value = false;
     showCaseEditR02Flag.value = false;
   }else{    
@@ -882,7 +889,7 @@ function isAinmaDispaly(){
   }
 }
 function showCaseEdit() {
-  console.log('0-show按鈕事件');
+  // console.log('0-show按鈕事件');
   if (!isAniLeft.value) {
     // console.log('1-向右移==隱藏進階');
     // 向右移==隱藏進階編輯
@@ -962,7 +969,8 @@ addCaseOnDone((result) => {
   let getResultData = result.data.creatCase;
   // 填入基本資料
   nowCaseID.value = getResultData.id;
-})
+});
+addCaseError(e=>{errorHandle(e,infomsg,alert1)});
 
 function AddCaseOK() {
   // 檢查必填資料
@@ -1071,16 +1079,17 @@ function shownAPIModal() {
 }
 
 // 查詢全部案件資料
-const { onResult: getAPIAllCase, refetch: refgetAPIAllCase } = useQuery(
+const { mutate: refgetAPIAllCase, onDone: getAPIAllCaseonDone, onError: getAPIAllCaseonError} = useMutation(
   gql`query GetAllCase {
     getAllCase {
       id
     }
   }`,
 );
-getAPIAllCase(result => {
+getAPIAllCaseonDone(result => {
   hasNowAllCase.value = result.data.getAllCase;
 });
+getAPIAllCaseonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function getCaseByAPI() {
   const url = import.meta.env.VITE_SICLAPI_URL;
@@ -1232,6 +1241,10 @@ function inputAPICase() {
 const { mutate: dlFromAPI, onDone: dlFromAPIOnDone, onError: dlFromAPIError } = useMutation(CaseGQL.DOWNLOADFROMAPI);
 const { mutate: getCustByName, onDone: getCustByNameOnDone, onError: getCustByNameError } = useMutation(CustGQL.GETCUSTBYNAME);
 const { mutate: getItemBySN, onDone: getItemBySNOnDone, onError: getItemBySNError } = useMutation(ItemGQL.GETITEMBYSN);
+
+dlFromAPIError(e=>{errorHandle(e,infomsg,alert1)});
+getCustByNameError(e=>{errorHandle(e,infomsg,alert1)});
+getItemBySNError(e=>{errorHandle(e,infomsg,alert1)});
 
 function saveAPIRecord(nowData) {
   // 查詢顧客
@@ -1468,21 +1481,36 @@ const {
   onDone: saveRecord01APIOnDone,
   onError: saveRecord01APIError,
 } = useMutation(CaseGQL.SAVECASERECORD01);
+saveRecord01APIError(e=>{errorHandle(e,infomsg,alert1)});
+
 // 儲存Record02API
 const {
   mutate: saveRecord02API,
   onDone: saveRecord02APIOnDone,
   onError: saveRecord02APIError,
 } = useMutation(CaseGQL.SAVECASERECORD02);
-
+saveRecord02APIError(e=>{errorHandle(e,infomsg,alert1)});
 //#endregion 連線取得案件==========End
+
+getchecktoken().then(res=>{
+    refgetAllCase();
+    refgetCaseStatus();
+    refgetCaseCalType();
+    refgetCaseAllOrg();
+    refgetCaseAllItem();
+    refgetCaseOperator();
+    refgetCaseLeader();
+  }).catch(e=>{
+    errorHandle(e,infomsg,alert1);
+  });
+
 
 // 加載表格選取事件
 onMounted(function () {
   dt1 = table1.value.dt();
   dt1.on('select', function (e, dt, type, indexes) {
     nowCaseID.value = dt.rows(indexes).data()[0].id
-    // refgetNowCaseS({getCasebyIdId: nowCaseID.value});
+    refgetNowCaseS({getCasebyIdId: nowCaseID.value});
   });
 });
 

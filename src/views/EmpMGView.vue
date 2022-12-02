@@ -1,7 +1,7 @@
 <script setup>
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
-import { ref, reactive, onMounted, onBeforeMount, provide, inject } from "vue";
+import { ref, onMounted, provide, inject } from "vue";
 import path, { join } from "path-browserify";
 import {
   MDBInput,
