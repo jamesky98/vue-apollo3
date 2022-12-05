@@ -24,19 +24,13 @@ import { computed } from "@vue/reactivity";
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
-const { mutate: getchecktoken, onDone: getchecktokenOnDone } = useMutation(UsersGQL.CHECKTOKEN);
-getchecktokenOnDone(result => {
-  if (!result.data.checktoken) {
-    logOut();
-  }
-});
-getchecktoken();
+const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
-// 取得權限==========Start
+//#region 取得權限==========Start
 // const myUserId = ref("");
 const myUserName = ref("");
 // const myUserName2 = ref("");
@@ -81,9 +75,9 @@ const rGroup =computed(()=>{
   }
   return result;
 });
-// 取得權限==========End
+//#endregion 取得權限==========End
 
-// 參數==========Start
+//#region 參數==========Start
 // infomation
 const NavItem = ref("cust");
 provide("NavItem",NavItem);
@@ -131,7 +125,7 @@ const selItemType = ref("");
 const selItemTypeMU = ref([]);
 const selItemTypeDOM = ref();
 
-// 參數==========End
+//#endregion 參數==========End
 
 function setJoinCust(){
   if(joinCust.value){
@@ -166,9 +160,9 @@ function setJoinItem(){
     refgetAllItem({orgId: parseInt(nowCustOrgID.value)});
   }
 }
-// 公司表格==========Start
-const { onResult: getAllOrg, refetch: refgetAllOrg } = useQuery(CustGQL.GETALLORG);
-getAllOrg(result=>{
+//#region 公司表格==========Start
+const { onDone: getAllOrgonDone, mutate: refgetAllOrg, onError: getAllOrgonError } = useMutation(CustGQL.GETALLORG);
+getAllOrgonDone(result=>{
   if (!result.loading && result.data.getAllOrg) {
     data_org.value = result.data.getAllOrg;
     // 填入機關下拉式清單
@@ -177,7 +171,7 @@ getAllOrg(result=>{
     }); nowCustSelOrgIdMU.value.unshift({ text: "", value: "" });
   }
 });
-refgetAllOrg();
+getAllOrgonError(e=>{errorHandle(e,infomsg,alert1)});
 
 let dt_org;
 const table_org = ref(); 
@@ -224,7 +218,7 @@ saveOrgOnDone(result=>{
   infomsg.value = "機關 " + result.data.updateOrg.id + " 儲存完畢";
   refgetAllOrg();
 });
-
+saveOrgError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 刪除機關資料
 const { mutate: delOrg, onDone: delOrgOnDone, onError: delOrgError } = useMutation(
@@ -239,24 +233,25 @@ delOrgOnDone(result=>{
   infomsg.value = "機關 " + result.data.delOrg.id + " 刪除完成";
   refgetAllOrg();
 });
+delOrgError(e=>{errorHandle(e,infomsg,alert1)});
 
+//#endregion 公司表格==========End
 
-// 公司表格==========End
-
-// 聯絡人表格==========Start
-const { onResult: getAllCust, refetch: refgetAllCust } = useQuery(CustGQL.GETALLCUST);
-getAllCust(result=>{
+//#region 聯絡人表格==========Start
+const { onDone: getAllCustonDone, mutate: refgetAllCust, onError: getAllCustonError } = useMutation(CustGQL.GETALLCUST);
+getAllCustonDone(result=>{
   if (!result.loading && result.data.getAllCust) {
     data_cust.value = result.data.getAllCust;
   }
 });
-refgetAllCust();
+getAllCustonError(e=>{errorHandle(e,infomsg,alert1)});
 
-const { onResult: getselCust, refetch: refgetselCust } = useQuery(
+const { onDone: getselCustonDone, mutate: refgetselCust, onError: getselCustonError } = useMutation(
   CustGQL.GETCUSTBYID,()=>({
     getCustByIdId: -1
-  }));
-getselCust(result=>{
+  })
+);
+getselCustonDone(result=>{
   if(!result.loading && result.data.getCustById){
     let getData = result.data.getCustById;
     nowCustName.value = getData.name;
@@ -266,6 +261,7 @@ getselCust(result=>{
     nowCustSelOrgId.value = getData.org_id;
   }
 });
+getselCustonError(e=>{errorHandle(e,infomsg,alert1)});
 
 let dt_cust;
 const table_cust = ref(); 
@@ -332,6 +328,7 @@ saveCustOnDone(result=>{
     refgetAllCust({orgId: null});
   }
 });
+saveCustError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 刪除顧客資料
 const { mutate: delCust, onDone: delCustOnDone, onError: delCustError } = useMutation(
@@ -355,20 +352,21 @@ delCustOnDone(result=>{
     refgetAllCust({orgId: null});
   }
 });
+delCustError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 聯絡人表格==========End
 
 // 校正件表格==========Start
-const { onResult: getAllItem, refetch: refgetAllItem } = useQuery(ItemGQL.GETALLITEM);
-getAllItem(result=>{
+const { onDone: getAllItemonDone, mutate: refgetAllItem, onError: getAllItemonError } = useMutation(ItemGQL.GETALLITEM);
+getAllItemonDone(result=>{
   if(!result.loading && result.data.getAllItem){
     data_Item.value = result.data.getAllItem;
   }
 });
-refgetAllItem();
+getAllItemonError(e=>{errorHandle(e,infomsg,alert1)});
 
-const { onResult: getItemList, refetch: refgetItemList } = useQuery(ItemGQL.GETALLITEM);
-getItemList(result=>{
+const { onDone: getItemListonDone, mutate: refgetItemList, onError: getItemListonError } = useMutation(ItemGQL.GETALLITEM);
+getItemListonDone(result=>{
   if(!result.loading && result.data.getAllItem){
     // 校正件清單
     let choplist = [];
@@ -387,11 +385,10 @@ getItemList(result=>{
 
   }
 });
-refgetItemList();
+getItemListonError(e=>{errorHandle(e,infomsg,alert1)});
 
-
-const { onResult: getItemById, refetch: refgetItemById } = useQuery(ItemGQL.GETITEMBYID);
-getItemById(result=>{
+const { onDone: getItemByIdonDone, mutate: refgetItemById, onError: getItemByIdonError } = useMutation(ItemGQL.GETITEMBYID);
+getItemByIdonDone(result=>{
   if(!result.loading && result.data.getItemByID){
     let getData = result.data.getItemByID;
     nowItemId.value = getData.id;
@@ -404,6 +401,7 @@ getItemById(result=>{
     nowItemSN.value = getData.serial_number;
   }
 });
+getItemByIdonError(e=>{errorHandle(e,infomsg,alert1)});
 
 let dt_Item;
 const table_Item = ref(); 
@@ -463,8 +461,8 @@ const tboption_Item = {
 };
 
 // 查詢儀器類型
-const { onResult: getAllItemType, refetch: refgetAllItemType} = useQuery(ItemGQL.GETALLITEMTYPE);
-getAllItemType((result) => {
+const { onDone: getAllItemTypeonDone, mutate: refgetAllItemType, onError: getAllItemTypeonError } = useMutation(ItemGQL.GETALLITEMTYPE);
+getAllItemTypeonDone((result) => {
   // 加入儀器類型選單資料
   if (!result.loading && result.data.getAllItemType) {
     // 資料區
@@ -479,7 +477,7 @@ getAllItemType((result) => {
     // selItemTypeDOM.value.toggle();
   }
 });
-refgetAllItemType();
+getAllItemTypeonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function selItemTypeChange(e){
   if(joinItem.value){
@@ -540,6 +538,7 @@ saveItemOnDone(result=>{
     })
   }
 });
+saveItemError(e=>{errorHandle(e,infomsg,alert1)});
 
 const { mutate: delItem, onDone: delItemOnDone, onError: delItemError } = useMutation(
   ItemGQL.DELITEM, () => ({
@@ -569,20 +568,26 @@ delItemOnDone(result=>{
     })
   }
 });
+delItemError(e=>{errorHandle(e,infomsg,alert1)});
 
-// 校正件表格==========End
+//#endregion 校正件表格==========End
 
-// 案件連結表格==========Start
+//#region 案件連結表格==========Start
 // 查詢案件資料
-const { onResult: getItemCase, refetch: refgetItemCase } = useQuery(
+const { onDone: getItemCaseonDone, mutate: refgetItemCase, onError: getItemCaseonError } = useMutation(
   CaseGQL.GETALLCASE,
-  ()=>({itemId: -1})
+  ()=>({
+    variables: {
+      itemId: -1
+    }
+  })
 );
-getItemCase(result=>{
+getItemCaseonDone(result=>{
   if(!result.loading){
     data_Case.value = result.data.getAllCase;
   }
 });
+getItemCaseonError(e=>{errorHandle(e,infomsg,alert1)});
 
 let dt_Case;
 const table_Case = ref(); 
@@ -669,6 +674,20 @@ const tboption_Case = {
   }
 };
 // 案件連結表格==========End
+
+// 確認登入狀況
+getchecktoken().then(res=>{
+  refgetAllOrg();
+  refgetAllCust();
+  refgetAllItem();
+  refgetItemList();
+  refgetAllItemType();
+
+  return
+}).catch(e=>{
+  errorHandle(e,infomsg,alert1);
+});
+
 
 // 加載表格選取事件
 onMounted(function () {

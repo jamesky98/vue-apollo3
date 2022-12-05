@@ -31,19 +31,13 @@ import Select from 'datatables.net-select';
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
-const { mutate: getchecktoken, onDone: getchecktokenOnDone } = useMutation(UsersGQL.CHECKTOKEN);
-getchecktokenOnDone(result => {
-  if (!result.data.checktoken) {
-    logOut();
-  }
-});
-getchecktoken();
+const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
-// 取得權限==========Start
+//#region 取得權限==========Start
 // const myUserId = ref("");
 const myUserName = ref("");
 // const myUserName2 = ref("");
@@ -87,9 +81,9 @@ const rGroup =computed(()=>{
   }
   return result;
 });
-// 取得權限==========End
+//#endregion 取得權限==========End
 
-// Information
+//#region Information
 const NavItem = ref("docs");
 provide("NavItem",NavItem);
 const infomsg = ref("");
@@ -141,62 +135,6 @@ const nowEdDownLoad = computed(() => {
 const nowExpDate = ref("");
 const itemExpDate = ref();
 const nowComment = ref("");
-
-onMounted(function () {
-  dt1 = table1.value.dt();
-  dt2 = table2.value.dt();
-  dt3 = table3.value.dt();
-
-  dt1.on('select', function (e, dt, type, indexes) {
-    nowDocIDParent.value = dt.rows(indexes).data()[0].doc_id    
-    updateDocContext(e, dt, type, indexes);
-  });
-  dt2.on('select', function (e, dt, type, indexes) {
-    updateDocContext(e, dt, type, indexes);
-  });
-  dt3.on('select', function (e, dt, type, indexes) {
-    updateDocContext(e, dt, type, indexes);
-  });
-
-});
-
-function updateDocContext(e, dt, type, indexes){
-  if (type === 'row') {
-    let getDocData = dt.rows(indexes).data()[0];
-    nowID.value = getDocData.id;
-    nowIDed.value = getDocData.id;
-    docLevelSelect.value.setValue(parseInt(getDocData.doc_level));
-    nowDocID.value = getDocData.doc_id;
-    nowDocIDed.value = getDocData.doc_id;
-    docTypeSelect.value.setValue(parseInt(getDocData.doc_type));
-    nowDocName.value = getDocData.name;
-    nowVer.value = getDocData.ver;
-    if (!getDocData.release_date){
-      nowReleaseDate.value=" ";
-      // itemRelDate.value.inputValue = "";
-    }else{
-      nowReleaseDate.value = getDocData.release_date.split("T")[0];
-    }
-    nowParents.value = getDocData.parent_id;
-    nowUpload.value = getDocData.upload;
-    if (!getDocData.upload){
-      pdfPath.value = "pdfjs-dist/web/viewer.html";  
-    }else{
-      pdfPath.value = "pdfjs-dist/web/viewer.html?file=" + publicPath.value + "02_DOC/" + getDocData.doc_level + "/" + getDocData.upload;
-      // console.log(pdfPath.value)
-    }
-    nowEdUpload.value = getDocData.editable_upload;
-    if (!getDocData.expiration_date) {
-      nowExpDate.value = " ";
-      // itemExpDate.value.inputValue = "";
-    } else {
-      nowExpDate.value = getDocData.expiration_date.split("T")[0];
-    }
-    nowExpDate.value = (getDocData.expiration_date) ? getDocData.expiration_date.split("T")[0] : " ";
-    nowComment.value = getDocData.comment;
-  }
-}
-
 // 設定文件階層選單
 const doclevelmu = ref([
   { text: "", value: "" },
@@ -234,24 +172,34 @@ const parentsmu = ref([]);
 const parentsel = ref("");
 // 設定文件階層選單^^^^^
 
-// 查詢全文件(最新)
-const { result: allDocLatest, loading: lodingAllDoc, variables: varAllDocLatest , onResult: getAllDocLatest, refetch: refgetAllDocLatest } = useQuery(
-  DocsGQL.GETALLDOCLATEST,
-);
+//#endregion 參數==========End
 
-const { result: allDocLatest2, loading: lodingAllDoc2, variables: varAllDocLatest2, onResult: getAllDocLatest2, refetch: refgetAllDocLatest2 } = useQuery(
+//#region 文件清單==========start
+// 查詢全文件(最新)
+const { 
+  mutate: refgetAllDocLatest,
+  onDone: getAllDocLatestonDone,
+  onError: getAllDocLatestonError
+} = useMutation(
   DocsGQL.GETALLDOCLATEST,
 );
-getAllDocLatest(result => {
+getAllDocLatestonDone(result => {
   // 加入table1資料
   if (!result.loading) {
     data1.value = result.data.getAllDocLatest;
   }
 });
-refgetAllDocLatest();
+getAllDocLatestonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 為上階文件選單另外建立一個
-getAllDocLatest2(result => {
+const { 
+  onDone: getAllDocLatest2onDone, 
+  mutate: refgetAllDocLatest2,
+  onError: getAllDocLatest2onError,
+} = useMutation(
+  DocsGQL.GETALLDOCLATEST,
+);
+getAllDocLatest2onDone(result => {
   // 加入table1資料
   if (!result.loading) {
     // 加入上階文件選單
@@ -260,11 +208,15 @@ getAllDocLatest2(result => {
     }); parentsmu.value.unshift({ text: "", value: "" });
   }
 });
-refgetAllDocLatest2();
+getAllDocLatest2onError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢文件類型
-const { result: allDocType, onResult: getAllDocType, refetch: refgetAllDocType } = useQuery(DocsGQL.GETALLDOCTYPE);
-getAllDocType(result => {
+const { 
+  onDone: getAllDocTypeonDone, 
+  mutate: refgetAllDocType,
+  onError: getAllDocTypeonError,
+} = useMutation(DocsGQL.GETALLDOCTYPE);
+getAllDocTypeonDone(result => {
   // 加入文件類型選單資料
   if (!result.loading) {
     doctypemu.value = result.data.getAllDocType.map(x => {
@@ -275,37 +227,85 @@ getAllDocType(result => {
     }); nowDocTypemu.value.unshift({ text: "", value: "" });
   }
 });
-refgetAllDocType();
+getAllDocTypeonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢歷史文件
-const { result: histDoc, loading: lodingHistDoc, onResult: getHistDoc, refetch: refgetHistDoc } = useQuery(
+const { 
+  onDone: getHistDoconDone, 
+  mutate: refgetHistDoc,
+  onError: getHistDoconError
+} = useMutation(
   DocsGQL.GETDOCHISTORY,
   ()=>({
+    variables: {
       docId: nowDocID.value
+    }
   })
 );
-getHistDoc(result => {
+getHistDoconDone(result => {
   if (!result.loading){
     data2.value = result.data.getDocHistory;
   }
 });
-refgetHistDoc();
+getHistDoconError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢下階文件
-const { result: childDoc, loading: lodingChildDoc, onResult: getChildDoc, refetch: refgetChildDoc } = useQuery(
+const { 
+  onDone: getChildDoconDone, 
+  mutate: refgetChildDoc,
+  onError: getChildDoconError
+} = useMutation(
   DocsGQL.GETDOCCHILD,
   () => ({
-    docId: nowDocIDParent.value
+    variables: {
+      docId: nowDocIDParent.value
+    }
   })
 );
-getChildDoc(result => {
+getChildDoconDone(result => {
   if (!result.loading) {
     data3.value = result.data.getDocChild;
   }
 });
-refgetChildDoc();
+getChildDoconError(e=>{errorHandle(e,infomsg,alert1)});
 
-
+// 選取項目時填入該資料
+function updateDocContext(e, dt, type, indexes){
+  if (type === 'row') {
+    let getDocData = dt.rows(indexes).data()[0];
+    nowID.value = getDocData.id;
+    nowIDed.value = getDocData.id;
+    docLevelSelect.value.setValue(parseInt(getDocData.doc_level));
+    nowDocID.value = getDocData.doc_id;
+    nowDocIDed.value = getDocData.doc_id;
+    docTypeSelect.value.setValue(parseInt(getDocData.doc_type));
+    nowDocName.value = getDocData.name;
+    nowVer.value = getDocData.ver;
+    if (!getDocData.release_date){
+      nowReleaseDate.value=" ";
+      // itemRelDate.value.inputValue = "";
+    }else{
+      nowReleaseDate.value = getDocData.release_date.split("T")[0];
+    }
+    nowParents.value = getDocData.parent_id;
+    nowUpload.value = getDocData.upload;
+    if (!getDocData.upload){
+      pdfPath.value = "pdfjs-dist/web/viewer.html";  
+    }else{
+      pdfPath.value = "pdfjs-dist/web/viewer.html?file=" + publicPath.value + "02_DOC/" + getDocData.doc_level + "/" + getDocData.upload;
+      // console.log(pdfPath.value)
+    }
+    nowEdUpload.value = getDocData.editable_upload;
+    if (!getDocData.expiration_date) {
+      nowExpDate.value = " ";
+      // itemExpDate.value.inputValue = "";
+    } else {
+      nowExpDate.value = getDocData.expiration_date.split("T")[0];
+    }
+    nowExpDate.value = (getDocData.expiration_date) ? getDocData.expiration_date.split("T")[0] : " ";
+    nowComment.value = getDocData.comment;
+  }
+}
 
 // 設定表格table1
 const columns1 = [
@@ -453,7 +453,8 @@ function filterAllDocLatest() {
   if (docversel.value !== "") where.ver = docversel.value;
   if (docStautsel.value !== "") where.stauts = docStautsel.value;
 
-  varAllDocLatest.value = where;
+  // varAllDocLatest.value = where;
+  refgetAllDocLatest(where)
   // console.log("filte data!!")
 }
 // 清空篩選條件
@@ -506,6 +507,7 @@ addDocOnDone(()=>{
   infomsg.value = "ID:" + nowIDed.value+ " " + nowDocIDed.value + "完成新增";
   alert1.value = true;
 });
+addDocError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 編輯表單-新增
 function addDocBtn(){
@@ -548,6 +550,7 @@ delDocOnDone(()=>{
   infomsg.value = "ID:" + nowIDed.value+ " " + nowDocIDed.value + "完成刪除";
   alert1.value = true;
 });
+delDocError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 編輯表單-修改
 const { mutate: saveDoc, onDone: saveDocOnDone, onError: saveDocError } = useMutation(
@@ -569,10 +572,6 @@ const { mutate: saveDoc, onDone: saveDocOnDone, onError: saveDocError } = useMut
     }
   })
 );
-
-saveDocError((error)=>{
-  console.log(error);
-});
 saveDocOnDone(()=>{
   refgetAllDocLatest();
   refgetAllDocLatest2();
@@ -580,6 +579,7 @@ saveDocOnDone(()=>{
   infomsg.value = "ID:"+nowIDed.value+ " " + nowDocIDed.value + "完成修改";
   alert1.value = true;
 });
+saveDocError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 編輯表單-儲存
 function saveDocBtn() {
@@ -592,7 +592,7 @@ function saveDocBtn() {
   }
 }
 
-// 檔案上傳==========start
+//#region 檔案上傳==========start
   const isUploadBtn = ref(true);
   function uploadBtn(){
     // console.log(nowDocLevel.value);
@@ -616,14 +616,15 @@ function saveDocBtn() {
 
   
   // 上傳檔案
-  const { mutate: uploadDoc, onDone: uploadDocOnDone } = useMutation(DocsGQL.UPLOADDOC);
+  const { mutate: uploadDoc, onDone: uploadDocOnDone, onError: uploadDoconError } = useMutation(DocsGQL.UPLOADDOC);
+  uploadDoconError(e=>{errorHandle(e,infomsg,alert1)});
   // 儲存(更新)上傳路徑檔名
   const { mutate: saveUpload, onDone: saveUploadOnDone, onError: saveUploadError } = useMutation(DocsGQL.SAVEUPLOAD);
-
   saveUploadOnDone(() => {
     refgetAllDocLatest();
     refgetHistDoc();
   });
+  saveUploadError(e=>{errorHandle(e,infomsg,alert1)});
 
   uploadDocOnDone((result)=>{
     // console.log(result.data.uploadDoc);
@@ -658,8 +659,6 @@ function saveDocBtn() {
       newfilename: nowDocIDed.value + "_" + nowReleaseDate.value.replaceAll("-", "").trim() + path.extname(e.target.value),
     });
   }
-
-
   function expUploadBtn() {
     isUploadBtn.value = false;
     if (nowDocIDed.value === "") {
@@ -677,7 +676,8 @@ function saveDocBtn() {
 
     document.getElementById("itemExpUpload").click();
   }
-// 檔案上傳==========end
+//#endregion 檔案上傳==========end
+
 const showLeftData = ref(true);
 const rightPDFmd = ref("4");
 const showPDFIcon = ref('<i class="fas fa-angle-double-left"></i>')
@@ -694,6 +694,42 @@ function zoompdfView(){
     showPDFIcon.value = '<i class="fas fa-angle-double-left"></i>';
   }
 }
+
+// 確認登入狀況
+getchecktoken().then(res=>{
+  refgetAllDocLatest();
+  refgetAllDocLatest2();
+  refgetAllDocType();
+  refgetHistDoc();
+  refgetChildDoc();
+  return 
+}).catch(e=>{
+  errorHandle(e,infomsg,alert1);
+});
+
+
+// 加載表格選取事件
+onMounted(function () {
+  dt1 = table1.value.dt();
+  dt2 = table2.value.dt();
+  dt3 = table3.value.dt();
+
+  dt1.on('select', function (e, dt, type, indexes) {
+    nowDocID.value = dt.rows(indexes).data()[0].doc_id;
+    refgetHistDoc();
+    nowDocIDParent.value = dt.rows(indexes).data()[0].doc_id;
+    refgetChildDoc();
+    updateDocContext(e, dt, type, indexes);
+
+  });
+  dt2.on('select', function (e, dt, type, indexes) {
+    updateDocContext(e, dt, type, indexes);
+  });
+  dt3.on('select', function (e, dt, type, indexes) {
+    updateDocContext(e, dt, type, indexes);
+  });
+
+});
 
 </script>
 

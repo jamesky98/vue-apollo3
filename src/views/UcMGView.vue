@@ -24,20 +24,13 @@ import { computed } from "@vue/reactivity";
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
-const { mutate: getchecktoken, onDone: getchecktokenOnDone } = useMutation(UsersGQL.CHECKTOKEN);
-getchecktokenOnDone(result => {
-  // console.log(result.data)
-  if (!result.data.checktoken) {
-    logOut();
-  }
-});
-getchecktoken();
+const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
-// 取得權限==========Start
+//#region 取得權限==========Start
 // const myUserId = ref("");
 const myUserName = ref("");
 // const myUserName2 = ref("");
@@ -81,8 +74,9 @@ const rGroup =computed(()=>{
   }
   return result;
 });
-// 取得權限==========End
+//#endregion 取得權限==========End
 
+//#region 參數==========start
 // Information
 const NavItem = ref("ucedit");
 provide("NavItem",NavItem);
@@ -268,10 +262,14 @@ const tboption5 = {
   paging: false,
   responsive: true,
 };
+//#endregion 參數==========End
 
 // 查詢校正項目列表
-const { result: caseCalType, onResult: getCaseCalType, refetch: refgetCaseCalType } = useQuery(CaseGQL.GETCASECALTYPE);
-getCaseCalType(result => {
+const { 
+  onDone: getCaseCalTypeonDone, 
+  mutate: refgetCaseCalType, 
+  onError: getCaseCalTypeonError } = useMutation(CaseGQL.GETCASECALTYPE);
+getCaseCalTypeonDone(result => {
   // 加入校正項目選單資料
   if (!result.loading) {
     // 篩選區
@@ -280,7 +278,7 @@ getCaseCalType(result => {
     }); nowUcCalTypeMU.value.unshift({ text: "", value: "" });
   }
 });
-refgetCaseCalType();
+getCaseCalTypeonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 取得不確定度列表
 const {
@@ -303,45 +301,7 @@ getUcListOnDone((result) => {
   nowUcModuleNameMU.value = myArray;
   nowUcModuleNameDOM.value.setValue(-1);
 });
-
-// 加載表格選取事件
-onMounted(function () {
-  dt1 = table1.value.dt();
-  dt1.on('select', function (e, dt, type, indexes) {
-    nowUcSection.value = dt.rows(indexes)[0][0];
-    data2.value=nowUcModule.uc.data[nowUcSection.value].data;
-    nowUcItem.value = 0;
-    nowUcItemX.value = 0;
-    nowUcItemFr.value = 0;
-    nowUcItemFa.value = 0;
-    getItemData();
-  });
-
-  dt2 = table2.value.dt();
-  dt2.on('select', function (e, dt, type, indexes) {
-    nowUcItem.value = dt.rows(indexes)[0][0];
-    getItemData();
-  });
-
-  dt3 = table3.value.dt();
-  dt3.on('select', function (e, dt, type, indexes) {
-    nowUcItemX.value = dt.rows(indexes)[0][0];
-  });
-
-  dt4 = table4.value.dt();
-  dt4.on('select', function (e, dt, type, indexes) {
-    nowUcItemFr.value = dt.rows(indexes)[0][0];
-  });
-
-  dt5 = table5.value.dt();
-  dt5.on('select', function (e, dt, type, indexes) {
-    nowUcItemFa.value = dt.rows(indexes)[0][0];
-  });
-
-  // 將選單設定為初始
-  getUcList();
-  createNewUc();
-});
+getUcListError(e=>{errorHandle(e,infomsg,alert1)});
 
 function readUcModule(){
   console.log('readUcModule')
@@ -355,7 +315,11 @@ function readUcModule(){
 }
 
 // 執行取得不確定度模組getUcModule
-const { mutate: getUcModule, onDone: getUcModuleOnDone, onError: getUcModuleError } = useMutation(
+const { 
+  mutate: getUcModule, 
+  onDone: getUcModuleOnDone, 
+  onError: getUcModuleonError
+} = useMutation(
   CaseGQL.GETUCMODULE,
   () => ({
     variables: {
@@ -379,6 +343,7 @@ getUcModuleOnDone(result=>{
   // console.log(nowUcCalTypeDOM.value);
 
 });
+getUcModuleonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function getItemData(){
   let x_Array=nowUcModule.uc.data[nowUcSection.value].data[nowUcItem.value].x;
@@ -441,6 +406,7 @@ saveUcModuleOnDone(result=>{
     nowUcModuleNameDOM.value.setValue(result.data.saveUcModule);
   });
 });
+saveUcModuleError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 增加Section
 function addSection(){
@@ -595,7 +561,55 @@ testUcOnDone(result=>{
   // alertColor.value = "primary";
   // alert1.value = true;
 });
+testUcError(e=>{errorHandle(e,infomsg,alert1)});
 
+// 確認登入狀況
+getchecktoken().then(res=>{
+  refgetCaseCalType();
+
+  return 
+}).catch(e=>{
+  errorHandle(e,infomsg,alert1);
+});
+
+// 加載表格選取事件
+onMounted(function () {
+  dt1 = table1.value.dt();
+  dt1.on('select', function (e, dt, type, indexes) {
+    nowUcSection.value = dt.rows(indexes)[0][0];
+    data2.value=nowUcModule.uc.data[nowUcSection.value].data;
+    nowUcItem.value = 0;
+    nowUcItemX.value = 0;
+    nowUcItemFr.value = 0;
+    nowUcItemFa.value = 0;
+    getItemData();
+  });
+
+  dt2 = table2.value.dt();
+  dt2.on('select', function (e, dt, type, indexes) {
+    nowUcItem.value = dt.rows(indexes)[0][0];
+    getItemData();
+  });
+
+  dt3 = table3.value.dt();
+  dt3.on('select', function (e, dt, type, indexes) {
+    nowUcItemX.value = dt.rows(indexes)[0][0];
+  });
+
+  dt4 = table4.value.dt();
+  dt4.on('select', function (e, dt, type, indexes) {
+    nowUcItemFr.value = dt.rows(indexes)[0][0];
+  });
+
+  dt5 = table5.value.dt();
+  dt5.on('select', function (e, dt, type, indexes) {
+    nowUcItemFa.value = dt.rows(indexes)[0][0];
+  });
+
+  // 將選單設定為初始
+  getUcList();
+  createNewUc();
+});
 
 </script>
 <template>

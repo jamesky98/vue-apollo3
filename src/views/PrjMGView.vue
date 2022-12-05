@@ -37,15 +37,9 @@ import { computed } from "@vue/reactivity";
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
-const { mutate: getchecktoken, onDone: getchecktokenOnDone } = useMutation(UsersGQL.CHECKTOKEN);
-getchecktokenOnDone(result => {
-  if (!result.data.checktoken) {
-    logOut();
-  }
-});
-getchecktoken();
+const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
@@ -376,8 +370,8 @@ const tboption_prj = {
 };
 
 // 查詢AllPrj
-const { onResult: getAllPrj, refetch: refgetAllPrj} = useQuery(PrjGQL.GETALLPRJ);
-getAllPrj(result=>{
+const { onDone: getAllPrjonDone, mutate: refgetAllPrj, onError: getAllPrjonError } = useMutation(PrjGQL.GETALLPRJ);
+getAllPrjonDone(result=>{
   if(!result.loading && result.data.getAllPrj){
     notProssing.value = true;
     data_prj.value = result.data.getAllPrj;
@@ -390,14 +384,14 @@ getAllPrj(result=>{
     }); nowPrjOrganizerMU.value.unshift({text: "-未選取-", value: "-1"});
   }
 });
-refgetAllPrj();
+getAllPrjonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢PrjByID
-const { onResult: getPrjById, refetch: refgetPrjById } = useQuery(
+const { onDone: getPrjByIdonDone, mutate: refgetPrjById, onError: getPrjByIdonError } = useMutation(
   PrjGQL.GETPRJBYID, () => ({
     getPrjByIdId: -1,
 }));
-getPrjById(result=>{
+getPrjByIdonDone(result=>{
   if(!result.loading && result.data.getPrjById){
     let getData = result.data.getPrjById;
     // console.log(getData);
@@ -423,18 +417,18 @@ getPrjById(result=>{
     }
   }
 });
-refgetPrjById();
+getPrjByIdonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢校正項目列表
-const { onResult: getCaseCalType, refetch: refgetCaseCalType } = useQuery(PrjGQL.GETCASECALTYPE);
-getCaseCalType(result=>{
+const { onDone: getCaseCalTypeonDone, mutate: refgetCaseCalType, onError: getCaseCalTypeonError } = useMutation(PrjGQL.GETCASECALTYPE);
+getCaseCalTypeonDone(result=>{
   if(!result.loading && result.data.getCaseCalType){
     nowPrjCalTypeMU.value = result.data.getCaseCalType.map(x => {
       return { text: x.name, value: parseInt(x.id) }
     }); nowPrjCalTypeMU.value.unshift({ text:"-未選取-", value: -1 });
   }
 });
-refgetCaseCalType();
+getCaseCalTypeonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 執行單位列表
 function updatePrjOrganizer(){
@@ -468,6 +462,7 @@ const { mutate: savePrj, onDone: savePrjOnDone, onError: savePrjError } = useMut
 savePrjOnDone(result=>{
   infomsg.value = "編號 " + result.data.updateRefPrj.project_code + "儲存完畢";
 });
+savePrjError(e=>{errorHandle(e,infomsg,alert1)});
 function savePrjBtn(){
   savePrj({
     updateRefPrjId: (parseInt(nowPrjId.value))?parseInt(nowPrjId.value):-1,
@@ -496,12 +491,14 @@ const { mutate: delPrj, onDone: delPrjOnDone, onError: delPrjError } = useMutati
 delPrjOnDone(result=>{
   infomsg.value = "編號 " + result.data.delRefPrj.project_code + "儲存完畢";
 });
+delPrjError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 匯入紀錄
 const { mutate: inputGcpRd, onDone: inputGcpRdOnDone, onError: inputGcpRdError } = useMutation(PrjGQL.INPUTGCPRECORDS);
 inputGcpRdOnDone(result=>{
   // console.log(result.data.inputGCPRecords);
 });
+inputGcpRdError(e=>{errorHandle(e,infomsg,alert1)});
 function inputRecord(POfile){
   if (POfile) {
     let inputArray = [];
@@ -597,11 +594,11 @@ getRcordByPrjOnDone(result=>{
   data_gcp.value = result.data.calRefGcp;
   notProssing2.value = true;
 });
-
+getRcordByPrjError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 作業編號清單
-const { onResult: getAllPrjlist, refetch: refgetAllPrjlist } = useQuery(PrjGQL.GETALLPRJ);
-getAllPrjlist(result=>{
+const { onDone: getAllPrjlistonDone, mutate: refgetAllPrjlist, onError: getAllPrjlistonError } = useMutation(PrjGQL.GETALLPRJ);
+getAllPrjlistonDone(result=>{
   if(!result.loading && result.data.getAllPrj){
     let recordPrjList=[];
     result.data.getAllPrj.map(x => {
@@ -614,7 +611,8 @@ getAllPrjlist(result=>{
     nowPRecordPrjIdMU.value = recordPrjList;
   }
 });
-refgetAllPrjlist();
+getAllPrjlistonError(e=>{errorHandle(e,infomsg,alert1)});
+
 function nowPrjClose(e){
   if(nowPRecordPrjId.value===-1){
     nowPRecordPrjCode.value = ""  
@@ -686,6 +684,7 @@ getRecordByIdOnDone(result=>{
     updateKey2.value=updateKey2.value+1;
   }
 });
+getRecordByIdError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 新增
 function newPRecordBtn(){
@@ -741,6 +740,10 @@ function newPRecordBtn(){
 const { mutate: saveGcp, onDone: saveGcpOnDone, onError: saveGcpError } = useMutation(GcpGQL.UPDATEGCP);
 const { mutate: saveGcpContact, onDone: saveGcpContactOnDone, onError: saveGcpContactError } = useMutation(GcpGQL.UPDATEGCPCONTACT);
 const { mutate: saveGcpRecord, onDone: saveGcpRecordOnDone, onError: saveGcpRecordError } = useMutation(GcpGQL.UPDATEGCPRECORD);
+
+saveGcpError(e=>{errorHandle(e,infomsg,alert1)});
+saveGcpContactError(e=>{errorHandle(e,infomsg,alert1)});
+saveGcpRecordError(e=>{errorHandle(e,infomsg,alert1)});
 
 function saveGcpRecordBtn(){
   // 點號 作業編號 為必要
@@ -804,6 +807,8 @@ const { mutate: delGcpRecord, onDone: delGcpRecordOnDone, onError: delGcpRecordE
 delGcpRecordOnDone(result=>{
   infomsg.value = "點位 " + result.data.delGcpRecord.gcp_id + "紀錄刪除完畢"
 });
+delGcpRecordError(e=>{errorHandle(e,infomsg,alert1)});
+
 function delGcpRecordBtn(){
   delGcpRecord({
     delGcpRecordId: parseInt(nowPRecordId.value)
@@ -813,15 +818,15 @@ function delGcpRecordBtn(){
 }
 
 // 類別清單
-const { onResult: getGcpType, refetch: refgetGcpType } = useQuery(GcpGQL.GETGCPTYPE);
-getGcpType(result=>{
+const { onDone: getGcpTypeonDone, mutate: refgetGcpType, onError: getGcpTypeonError } = useMutation(GcpGQL.GETGCPTYPE);
+getGcpTypeonDone(result=>{
   if(!result.loading && result.data.getGcpType){
     nowGcpTypeCodeMU.value = result.data.getGcpType.map(x => {
       return { text: x.type_name, value: parseInt(x.code) }
     });nowGcpTypeCodeMU.value.unshift({ text: "-未選取-", value: -1 });
   }
 });
-refgetGcpType();
+getGcpTypeonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 清查人員清單
 const { mutate: getRecPerson, onDone: getRecPersonOnDone, onError: getRecPersonError } = useMutation(GcpGQL.GETRECPERSON);
@@ -831,7 +836,8 @@ getRecPersonOnDone(result=>{
       return { text: x, value: x }
     });nowPRecordPersonMU.value.unshift({ text: "-未選取-", value: -1 });
 });
-getRecPerson();
+getRecPersonError(e=>{errorHandle(e,infomsg,alert1)});
+
 function updateRecPerson(){
   let newoption = nowPRecordPerson.value;
   let findid = nowPRecordPersonMU.value.findIndex(x => x.value===newoption);
@@ -842,8 +848,8 @@ function updateRecPerson(){
 }
 
 // 聯絡機關清單
-const { onResult: getAllContact, refetch: refgetAllContact } = useQuery(GcpGQL.GETALLCONTACT);
-getAllContact(result=>{
+const { onDone: getAllContactonDone, mutate: refgetAllContact, onError: getAllContactonError } = useMutation(GcpGQL.GETALLCONTACT);
+getAllContactonDone(result=>{
   if(!result.loading && result.data.getAllContact){
     // 資料區
     nowGcpContactMU.value = result.data.getAllContact.map(x => {
@@ -851,7 +857,8 @@ getAllContact(result=>{
     });nowGcpContactMU.value.unshift({ text: "-未選取-", value: -1 });
   }
 });
-refgetAllContact();
+getAllContactonError(e=>{errorHandle(e,infomsg,alert1)});
+
 function updateContact(){
   // let newoption = nowGcpContactId.value;
   // let findid = nowGcpContactMU.value.findIndex(x => x.value===newoption);
@@ -943,7 +950,7 @@ getEqptByPrjOnDone(result=>{
   data_eqpt.value = getData;
   notProssing3.value = true;
 });
-
+getEqptByPrjError(e=>{errorHandle(e,infomsg,alert1)});
 
 const dt_eqpt2 = ref();
 const table_eqpt2 = ref(); 
@@ -982,29 +989,29 @@ const tboption_eqpt2 = {
   },
 };
 // 查詢全標準件
-const { onResult: getAllEqpt, refetch: refgetAllEqpt } = useQuery(PrjGQL.GETALLEQPT);
-getAllEqpt(result=>{
+const { onDone: getAllEqptonDone, mutate: refgetAllEqpt, onError: getAllEqptonError } = useMutation(PrjGQL.GETALLEQPT);
+getAllEqptonDone(result=>{
   if(!result.loading){
     data_eqpt2.value = result.data.getAllEqpt;
   }
 });
-refgetAllEqpt({type: (nowEqptType.value && nowEqptType.value!==-1)?nowEqptType.value:null});
+getAllEqptonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢標準件類型下拉式清單
-const { onResult: getEqptType, refetch: refgetEqptType } = useQuery(PrjGQL.GETEQPTTYPE);
-getEqptType(result=>{
+const { onDone: getEqptTypeonDone, mutate: refgetEqptType, onError: getEqptTypeonError } = useMutation(PrjGQL.GETEQPTTYPE);
+getEqptTypeonDone(result=>{
   if(!result.loading){
     nowEqptTypeMU.value = result.data.getEqptType.map(x => {
       return { text: x.type, value: parseInt(x.eqpt_type_id) }
     }); nowEqptTypeMU.value.unshift({ text: "-未選取-", value: -1 });
   }
 });
-refgetEqptType();
+getEqptTypeonError(e=>{errorHandle(e,infomsg,alert1)});
+
 // 切換標準件類型
 function changeEqptType(){
   refgetAllEqpt({type: (nowEqptType.value && nowEqptType.value!==-1)?nowEqptType.value:null});
 }
-
 
 const dt_chk = ref();
 const table_chk = ref(); 
@@ -1053,6 +1060,8 @@ const { mutate: getChkByEqpt, onDone: getChkByEqptOnDone, onError: getChkByEqptE
 getChkByEqptOnDone(result=>{
   data_chk.value = result.data.getChkByEqptId;
 });
+getChkByEqptError(e=>{errorHandle(e,infomsg,alert1)});
+
 // 查詢查核紀錄By Id
 const { mutate: getChkById, onDone: getChkByIdOnDone, onError: getChkByIdError } = useMutation(PrjGQL.GETCHKBYID);
 getChkByIdOnDone(result=>{
@@ -1068,16 +1077,13 @@ getChkByIdOnDone(result=>{
   nowChkCalResult.value = getData.result;
   nowChkCalComment.value = getData.comment;
 });
+getChkByIdError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 更新表格顯示(欄寬)
 function updatTable(){
   if(dt_eqpt.value) dt_eqpt.value.draw();
   if(dt_eqpt2.value) dt_eqpt2.value.draw();
   if(dt_chk.value) dt_chk.value.draw();
-}
-
-function  showLOG(context) {
-  console.log(context,nowEqptType.value)
 }
 
 // 加入查核紀錄
@@ -1143,10 +1149,13 @@ function saveChk(){
     return getChkByEqpt({refEqptId: parseInt(nowEqptId.value)});
   })
 }
+saveRefEqptChkError(e=>{errorHandle(e,infomsg,alert1)});
 
 
 // 刪除Chk
 const { mutate: delRefEqptChk, onDone: delRefEqptChkOnDone, onError: delRefEqptChkError } = useMutation(PrjGQL.DELREFEQPTCHK);
+delRefEqptChkError(e=>{errorHandle(e,infomsg,alert1)});
+
 function delChk(){
   delRefEqptChk({eqCkId: parseInt(nowChkId.value)})
 }
@@ -1159,7 +1168,8 @@ getChkOrgListOnDone(result=>{
       return { text: x, value: x }
     });nowChkCalOrgMU.value.unshift({ text: "-未選取-", value: -1 });
 });
-getChkOrgList();
+getChkOrgListError(e=>{errorHandle(e,infomsg,alert1)});
+
 function updateChkOrg(){
   let newoption = nowChkCalOrg.value;
   let findid = nowChkCalOrgMU.value.findIndex(x => x.value===newoption);
@@ -1169,12 +1179,13 @@ function updateChkOrg(){
   }
 }
 
-
-
 // 儲存Link
 const tempLink = ref([]);
 const { mutate: savePrjEqpts, onDone: savePrjEqptsOnDone, onError: savePrjEqptsError } = useMutation(PrjGQL.SAVEPRJEQPTUSE);
 const { mutate: delPrjEqpts, onDone: delPrjEqptsOnDone, onError: delPrjEqptsError } = useMutation(PrjGQL.DELPRJEQPTUSE);
+
+savePrjEqptsError(e=>{errorHandle(e,infomsg,alert1)});
+delPrjEqptsError(e=>{errorHandle(e,infomsg,alert1)});
 
 function saveLink(){
   // 先刪除nowLinkDel中的紀錄，再新增無所引的紀錄
@@ -1357,7 +1368,7 @@ async function uploadChenge(e) {
   }
 }
 // 上傳檔案
-const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
+const { mutate: uploadFile, onDone: uploadFileOnDone, onError: uploadFileonError } = useMutation(
   ToolsGQL.UPLOADFILE
 );
 uploadFileOnDone((result) => {
@@ -1412,6 +1423,7 @@ uploadFileOnDone((result) => {
   inputDOM = document.getElementById("AllUpload");
   inputDOM.value = "";
 });
+uploadFileonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // drop
 function cancelDefault(e) {
@@ -1424,6 +1436,24 @@ function dropFile(e){
   uploadChenge(e);
 }
 //#endregion 檔案上傳==========End
+
+// 確認登入狀況
+getchecktoken().then(res=>{
+  refgetAllPrj();
+  refgetPrjById();
+  refgetCaseCalType();
+  refgetAllPrjlist();
+  refgetGcpType();
+  getRecPerson();
+  refgetAllContact();
+  refgetAllEqpt({type: (nowEqptType.value && nowEqptType.value!==-1)?nowEqptType.value:null});
+  refgetEqptType();
+  getChkOrgList();
+
+  return
+}).catch(e=>{
+  errorHandle(e,infomsg,alert1);
+});
 
 //#region 加載表格選取事件==========Start
 onMounted(function () {

@@ -1,0 +1,44 @@
+
+latest:
+
+vue8.tar
+apollotest6.tar
+
+================
+vue-apollo3:
+================
+1>>
+npm run build
+
+2>>
+docker compose up
+
+3>>
+docker save -o vue8.tar vue-apollo3-vue3
+
+4>>
+copu vue8.tar to P:\
+
+5>>
+create new contant
+
+network: bridge mode
+volumes: none
+
+================
+apollotest:
+================
+1>>
+docker compose up
+
+2>>
+docker save -o apollotest6.tar apollotest-apollo
+
+3>>
+copu apollotest6.tar to P:\
+
+4>>
+create new contant
+
+network: host mode
+volumes: /SICL : /apollotest/public

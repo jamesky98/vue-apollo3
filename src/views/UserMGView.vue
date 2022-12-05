@@ -5,17 +5,14 @@ import { ref, reactive, onMounted, provide } from "vue";
 import path, { join } from "path-browserify";
 import {
   MDBInput,
-  MDBTextarea,
   MDBCol,
   MDBRow,
   MDBContainer,
   MDBSelect,
-  MDBDatepicker,
   MDBBtn,
   MDBAlert,
   MDBSwitch,
 } from 'mdb-vue-ui-kit';
-
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
@@ -24,20 +21,13 @@ import { computed } from "@vue/reactivity";
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
-const { mutate: getchecktoken, onDone: getchecktokenOnDone } = useMutation(UsersGQL.CHECKTOKEN);
-getchecktokenOnDone(result => {
-  // console.log(result.data)
-  if (!result.data.checktoken) {
-    logOut();
-  }
-});
-getchecktoken();
+const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
-// 取得權限==========Start
+//#region 取得權限==========Start
 // const myUserId = ref("");
 const myUserName = ref("");
 // const myUserName2 = ref("");
@@ -90,8 +80,9 @@ const rGroup =computed(()=>{
   return result;
 });
 
-// 取得權限==========End
+//#endregion 取得權限==========End
 
+//#region 參數==========Start
 // 引入案件編號
 const props = defineProps({
   userName: String,
@@ -165,37 +156,27 @@ const tboption1 = {
   paging: false,
   responsive: true,
 };
-
-// 加載表格選取事件
-onMounted(function () {
-  dt1 = table1.value.dt();
-  dt1.on('select', function (e, dt, type, indexes) {
-    nowUserId.value = dt.rows(indexes).data()[0].user_id;
-    nowUserName.value = dt.rows(indexes).data()[0].user_name;
-    nowUserName2.value = dt.rows(indexes).data()[0].user_name2;
-    nowUserEmail.value = dt.rows(indexes).data()[0].user_mail;
-    nowUserActive.value = (dt.rows(indexes).data()[0].active===1)?true:false;
-    selectUserRole.value = dt.rows(indexes).data()[0].role;
-    nowUserRoleDOM.value.setValue(dt.rows(indexes).data()[0].role);
-  });
-});
+//#endregion 參數==========End
 
 // 查詢AllUser
-const { onResult: getAllUser, refetch: refgetAllUser} = useQuery(UsersGQL.GETALLUSERs);
-getAllUser(result=>{
+const { onDone: getAllUseronDone, mutate: refgetAllUser, onError: getAllUseronError } = useMutation(UsersGQL.GETALLUSERs);
+getAllUseronDone(result=>{
   if (!result.loading && result && result.data.allusers) {
     data1.value = result.data.allusers;
     dt1.columns.adjust();
   }
 });
-refgetAllUser();
+getAllUseronError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢User
-const { onResult: getUserbyName, refetch: refgetUserbyName} = useQuery(
-  UsersGQL.GETUSERBYNAME, () => ({
-  userName: props.userName,
+const { onDone: getUserbyNameonDone, mutate: refgetUserbyName, onError: getUserbyNameonError } = useMutation(
+  UsersGQL.GETUSERBYNAME, 
+  () => ({
+    variables: {
+      userName: props.userName,
+    }
 }));
-getUserbyName(result=>{
+getUserbyNameonDone(result=>{
   if (!result.loading && result && result.data.getUserByName) {
     let getData = result.data.getUserByName;
     nowUserId.value = getData.user_id;
@@ -207,7 +188,7 @@ getUserbyName(result=>{
     nowUserRoleDOM.value.setValue(getData.role);
   }
 });
-refgetUserbyName();
+getUserbyNameonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 儲存使用者
 const { mutate: saveUser, onDone: saveUserOnDone, onError: saveUserError } = useMutation(
@@ -225,6 +206,7 @@ const { mutate: saveUser, onDone: saveUserOnDone, onError: saveUserError } = use
 saveUserOnDone(result=>{
   refgetAllUser();
 });
+saveUserError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 變更密碼
 function changePassWord(enforce){
@@ -252,6 +234,7 @@ changePassOnDone(result=>{
   chkPassWord.value = "";
   infomsg.value = result.data.changePASSWord;
 });
+changePassError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 刪除使用者
 const { mutate: delUser, onDone: delUserOnDone, onError: delUserError } = useMutation(
@@ -266,7 +249,31 @@ delUserOnDone(result=>{
   infomsg.value = "刪除使用者 " + nowUserId.value;
   refgetAllUser();
 });
+delUserError(e=>{errorHandle(e,infomsg,alert1)});
 
+// 確認登入狀況
+getchecktoken().then(res=>{
+  refgetAllUser();
+  refgetUserbyName();
+
+  return 
+}).catch(e=>{
+  errorHandle(e,infomsg,alert1);
+});
+
+// 加載表格選取事件
+onMounted(function () {
+  dt1 = table1.value.dt();
+  dt1.on('select', function (e, dt, type, indexes) {
+    nowUserId.value = dt.rows(indexes).data()[0].user_id;
+    nowUserName.value = dt.rows(indexes).data()[0].user_name;
+    nowUserName2.value = dt.rows(indexes).data()[0].user_name2;
+    nowUserEmail.value = dt.rows(indexes).data()[0].user_mail;
+    nowUserActive.value = (dt.rows(indexes).data()[0].active===1)?true:false;
+    selectUserRole.value = dt.rows(indexes).data()[0].role;
+    nowUserRoleDOM.value.setValue(dt.rows(indexes).data()[0].role);
+  });
+});
 </script>
 <template>
   <MDBAlert dismiss v-model="alert1" id="alert-primary" :color="alertColor" position="top-right" stacking width="535px"

@@ -28,16 +28,9 @@ import { computed } from "@vue/reactivity";
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
-const { mutate: getchecktoken, onDone: getchecktokenOnDone } = useMutation(UsersGQL.CHECKTOKEN);
-getchecktokenOnDone(result => {
-  // console.log(result.data)
-  if (!result.data.checktoken) {
-    logOut();
-  }
-});
-getchecktoken();
+const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
@@ -150,7 +143,6 @@ const pdfPath = ref("pdfjs-dist/web/viewer.html");
 
 //#endregion 參數==========End
 
-
 //#region 標準件管理==========Start
 const dt_eqpt2 = ref();
 const table_eqpt2 = ref(); 
@@ -190,13 +182,13 @@ const tboption_eqpt2 = {
   },
 };
 // 查詢全標準件
-const { onResult: getAllEqpt, refetch: refgetAllEqpt } = useQuery(PrjGQL.GETALLEQPT);
-getAllEqpt(result=>{
+const { onDone: getAllEqptonDone, mutate: refgetAllEqpt, onError: getAllEqptonError } = useMutation(PrjGQL.GETALLEQPT);
+getAllEqptonDone(result=>{
   if(!result.loading){
     data_eqpt2.value = result.data.getAllEqpt;
   }
 });
-// refgetAllEqpt({type: (selEqptType.value && selEqptType.value!==-1)?selEqptType.value:null});
+getAllEqptonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢全標準件 By ID
 const { mutate: getEqptById, onDone: getEqptByIdOnDone, onError: getEqptByIdError } = useMutation(PrjGQL.GETEQPTBYID);
@@ -215,10 +207,11 @@ getEqptByIdOnDone(result=>{
   nowEqptCycle.value = getData.cal_cycle;
   nowEqptComment.value = getData.comment;
 });
+getEqptByIdError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢標準件類型下拉式清單
-const { onResult: getEqptType, refetch: refgetEqptType } = useQuery(PrjGQL.GETEQPTTYPE);
-getEqptType(result=>{
+const { onDone: getEqptTypeonDone, mutate: refgetEqptType, onError: getEqptTypeonError } = useMutation(PrjGQL.GETEQPTTYPE);
+getEqptTypeonDone(result=>{
   if(!result.loading){
     // 篩選區
     selEqptTypeMU.value = result.data.getEqptType.map(x => {
@@ -230,7 +223,8 @@ getEqptType(result=>{
     }); nowEqptTypeMU.value.unshift({ text: "-未選取-", value: -1 });
   }
 });
-refgetEqptType();
+getEqptTypeonError(e=>{errorHandle(e,infomsg,alert1)});
+
 // 切換標準件類型
 function changeEqptType(){
   refgetAllEqpt({type: (selEqptType.value && selEqptType.value!==-1)?selEqptType.value:null});
@@ -244,7 +238,8 @@ getChopListOnDone(result=>{
       return { text: x, value: x }
     });nowEqptChopMU.value.unshift({ text: "-未選取-", value: -1 });
 });
-getChopList();
+getChopListError(e=>{errorHandle(e,infomsg,alert1)});
+
 function updateChop(){
   let newoption = nowEqptChop.value;
   let findid = nowEqptChopMU.value.findIndex(x => x.value===newoption);
@@ -262,7 +257,8 @@ getEqptModelListOnDone(result=>{
       return { text: x, value: x }
     });nowEqptModelMU.value.unshift({ text: "-未選取-", value: -1 });
 });
-getEqptModelList();
+getEqptModelListError(e=>{errorHandle(e,infomsg,alert1)});
+
 function updateModeel(){
   let newoption = nowEqptModel.value;
   let findid = nowEqptModelMU.value.findIndex(x => x.value===newoption);
@@ -288,6 +284,8 @@ function newEqpt(){
 
 // 儲存
 const { mutate: saveRefEqpt, onDone: saveRefEqptOnDone, onError: saveRefEqptError } = useMutation(PrjGQL.SAVEREFEQPT);
+saveRefEqptError(e=>{errorHandle(e,infomsg,alert1)});
+
 function saveEqpt(){
   saveRefEqpt({
     refEquptId: (parseInt(nowEqptId.value))?parseInt(nowEqptId.value):-1,
@@ -303,8 +301,11 @@ function saveEqpt(){
   });
 }
 
+
 // 刪除
 const { mutate: delRefEqpt, onDone: delRefEqptOnDone, onError: delRefEqptError } = useMutation(PrjGQL.DELREFEQPT);
+delRefEqptError(e=>{errorHandle(e,infomsg,alert1)});
+
 function delEqpt(){
   delRefEqpt({
     refEquptId: parseInt(nowEqptId.value)
@@ -365,6 +366,8 @@ const { mutate: getChkByEqpt, onDone: getChkByEqptOnDone, onError: getChkByEqptE
 getChkByEqptOnDone(result=>{
   data_chk.value = result.data.getChkByEqptId;
 });
+getChkByEqptError(e=>{errorHandle(e,infomsg,alert1)});
+
 // 查詢查核紀錄By Id
 const { mutate: getChkById, onDone: getChkByIdOnDone, onError: getChkByIdError } = useMutation(PrjGQL.GETCHKBYID);
 getChkByIdOnDone(result=>{
@@ -386,6 +389,7 @@ getChkByIdOnDone(result=>{
   }
   nowChkCalComment.value = getData.comment;
 });
+getChkByIdError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 新增Chk
 function newChk(){
@@ -404,6 +408,8 @@ function newChk(){
 }
 // 儲存Chk
 const { mutate: saveRefEqptChk, onDone: saveRefEqptChkOnDone, onError: saveRefEqptChkError } = useMutation(PrjGQL.SAVEREFEQPTCHK);
+saveRefEqptChkError(e=>{errorHandle(e,infomsg,alert1)});
+
 function saveChk(){
   saveRefEqptChk({
     eqCkId: (parseInt(nowChkId.value))?parseInt(nowChkId.value):-1,
@@ -425,6 +431,8 @@ function saveChk(){
 
 // 刪除Chk
 const { mutate: delRefEqptChk, onDone: delRefEqptChkOnDone, onError: delRefEqptChkError } = useMutation(PrjGQL.DELREFEQPTCHK);
+delRefEqptChkError(e=>{errorHandle(e,infomsg,alert1)});
+
 function delChk(){
   delRefEqptChk({
     eqCkId: parseInt(nowChkId.value)
@@ -443,7 +451,8 @@ getChkOrgListOnDone(result=>{
       return { text: x, value: x }
     });nowChkCalOrgMU.value.unshift({ text: "-未選取-", value: -1 });
 });
-getChkOrgList();
+getChkOrgListError(e=>{errorHandle(e,infomsg,alert1)});
+
 function updateChkOrg(){
   let newoption = nowChkCalOrg.value;
   let findid = nowChkCalOrgMU.value.findIndex(x => x.value===newoption);
@@ -452,7 +461,6 @@ function updateChkOrg(){
     nowChkCalOrgDOM.value.setValue(newoption);
   }
 }
-
 //#endregion 查核紀錄==========End
 
 //#region 檔案上傳==========Start
@@ -505,7 +513,7 @@ async function uploadChenge(e) {
   }
 }
 // 上傳檔案
-const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
+const { mutate: uploadFile, onDone: uploadFileOnDone, onError: uploadFileonError } = useMutation(
   ToolsGQL.UPLOADFILE
 );
 uploadFileOnDone((result) => {
@@ -525,6 +533,7 @@ uploadFileOnDone((result) => {
   inputDOM = document.getElementById("AllUpload");
   inputDOM.value = "";
 });
+uploadFileonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // drop
 function cancelDefault(e) {
@@ -537,6 +546,19 @@ function dropFile(e){
   uploadChenge(e);
 }
 //#endregion 檔案上傳==========End
+
+// 確認登入狀況
+getchecktoken().then(res=>{
+  refgetAllEqpt();
+  refgetEqptType();
+  getChopList();
+  getEqptModelList();
+  getChkOrgList();
+  
+  return
+}).catch(e=>{
+  errorHandle(e,infomsg,alert1);
+});
 
 //#region 加載表格選取事件==========Start
 onMounted(function () {
@@ -587,8 +609,6 @@ function selectNowId(nowId, col, dt){
 }
 
 //#endregion 加載表格選取事件==========End
-
-
 
 </script>
 <template>

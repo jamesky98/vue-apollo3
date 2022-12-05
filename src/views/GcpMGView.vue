@@ -38,16 +38,9 @@ import OpenMap from "../components/Map.vue";
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
-const { mutate: getchecktoken, onDone: getchecktokenOnDone } = useMutation(UsersGQL.CHECKTOKEN);
-getchecktokenOnDone(result => {
-  if (!result.data.checktoken) {
-    logOut();
-  }
-});
-getchecktoken();
-
+const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
@@ -302,8 +295,8 @@ const nowPRecordObsDL = computed(()=>{
 
 //#region 下拉式篩選清單填入==========Start
 // 作業編號清單
-const { onResult: getAllPrj, refetch: refgetAllPrj } = useQuery(PrjGQL.GETALLPRJ);
-getAllPrj(result=>{
+const { onDone: getAllPrjonDone, mutate: refgetAllPrj, onError: getAllPrjonError } = useMutation(PrjGQL.GETALLPRJ);
+getAllPrjonDone(result=>{
   if(!result.loading && result.data.getAllPrj){
     let mulist=[];
     let recordPrjList=[];
@@ -322,11 +315,7 @@ getAllPrj(result=>{
     nowPRecordPrjIdMU.value = recordPrjList;
   }
 });
-refgetAllPrj().then(res=>{
-  selPrjCode.value = selPrjCodeMU.value[1].value;
-  selPrjCodeDOM.value.setValue(selPrjCode.value);
-  getAllGcp();
-});
+getAllPrjonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 啟用狀態清單
 selGcpEnableMU.value = [
@@ -335,8 +324,8 @@ selGcpEnableMU.value = [
   {text: "未啟用", value: 0},
 ];
 // 聯絡機關清單
-const { onResult: getAllContact, refetch: refgetAllContact } = useQuery(GcpGQL.GETALLCONTACT);
-getAllContact(result=>{
+const { onDone: getAllContactonDone, mutate: refgetAllContact, onError: getAllContactonError } = useMutation(GcpGQL.GETALLCONTACT);
+getAllContactonDone(result=>{
   if(!result.loading && result.data.getAllContact){
     // 篩選區
     selGcpContactMU.value = result.data.getAllContact.map(x => {
@@ -348,7 +337,8 @@ getAllContact(result=>{
     });nowGcpContactMU.value.unshift({ text: "-未選取-", value: -1 });
   }
 });
-refgetAllContact();
+getAllContactonError(e=>{errorHandle(e,infomsg,alert1)});
+
 function updateContact(){
   // let newoption = nowGcpContactId.value;
   // let findid = nowGcpContactMU.value.findIndex(x => x.value===newoption);
@@ -382,15 +372,15 @@ function dofilter(){
 }
 
 // nowGcpTypeCodeMU
-const { onResult: getGcpType, refetch: refgetGcpType } = useQuery(GcpGQL.GETGCPTYPE);
-getGcpType(result=>{
+const { onDone: getGcpTypeonDone, mutate: refgetGcpType, onError: getGcpTypeonError } = useMutation(GcpGQL.GETGCPTYPE);
+getGcpTypeonDone(result=>{
   if(!result.loading && result.data.getGcpType){
     nowGcpTypeCodeMU.value = result.data.getGcpType.map(x => {
       return { text: x.type_name, value: parseInt(x.code) }
     });nowGcpTypeCodeMU.value.unshift({ text: "-未選取-", value: -1 });
   }
 });
-refgetGcpType();
+getGcpTypeonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 清查人員清單
 const { mutate: getRecPerson, onDone: getRecPersonOnDone, onError: getRecPersonError } = useMutation(GcpGQL.GETRECPERSON);
@@ -400,7 +390,8 @@ getRecPersonOnDone(result=>{
       return { text: x, value: x }
     });nowPRecordPersonMU.value.unshift({ text: "-未選取-", value: -1 });
 });
-getRecPerson();
+getRecPersonError(e=>{errorHandle(e,infomsg,alert1)});
+
 function updateRecPerson(){
   let newoption = nowPRecordPerson.value;
   let findid = nowPRecordPersonMU.value.findIndex(x => x.value===newoption);
@@ -510,6 +501,7 @@ getAllGcpOnDone(result=>{
     updateKey.value = updateKey.value + 1;
   }
 });
+getAllGcpError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢GCPbyID
 const { mutate: getGcpById, onDone: getGcpByIdOnDone, onError: getGcpByIdError } = useMutation(GcpGQL.GETGCPBYID);
@@ -553,13 +545,17 @@ getGcpByIdOnDone(result=>{
   }
   updateKey.value = updateKey.value + 1;
 });
+getGcpByIdError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 儲存
 const { mutate: saveGcp, onDone: saveGcpOnDone, onError: saveGcpError } = useMutation(GcpGQL.UPDATEGCP);
 saveGcpOnDone(result=>{
   infomsg.value = "點位 " + result.data.updateGCP.id + "儲存完畢";
 });
+saveGcpError(e=>{errorHandle(e,infomsg,alert1)});
+
 const { mutate: saveGcpContact, onDone: saveGcpContactOnDone, onError: saveGcpContactError } = useMutation(GcpGQL.UPDATEGCPCONTACT);
+saveGcpContactError(e=>{errorHandle(e,infomsg,alert1)});
 
 function saveGcpBtn(){
   saveGcpContact({
@@ -631,6 +627,7 @@ const { mutate: delGcp, onDone: delGcpOnDone, onError: delGcpError } = useMutati
 delGcpOnDone(result=>{
   infomsg.value = "點位 " + result.data.delGCP.id + "刪除完畢"
 });
+delGcpError(e=>{errorHandle(e,infomsg,alert1)});
 //#endregion 點位基本列表==========End
 
 //#region 歷年量測列表==========Start
@@ -665,13 +662,14 @@ const tboption_hist = {
   },
 };
 // 查詢Record歷年紀錄
-const { onDone: getRcordByPIdonDone, mutate: getRcordByPId } = useMutation(GcpGQL.GETRECORDBYPID);
+const { onDone: getRcordByPIdonDone, mutate: getRcordByPId, onError: getRcordByPIdonError } = useMutation(GcpGQL.GETRECORDBYPID);
 getRcordByPIdonDone(result=>{
   if(!result.loading){
     // console.log("getRcordByPId onResult")
     data_hist.value = result.data.getGcpRecordsByGCPId;
   }
 });
+getRcordByPIdonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢Record單筆紀錄
 const { mutate: getRecordById, onDone: getRecordByIdOnDone, onError: getRecordByIdError } = useMutation(GcpGQL.GETRECORDBYID);
@@ -704,6 +702,7 @@ getRecordByIdOnDone(result=>{
     updateKey2.value=updateKey2.value+1;
   }
 });
+getRecordByIdError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 儲存
 const { mutate: saveGcpRecord, onDone: saveGcpRecordOnDone, onError: saveGcpRecordError } = useMutation(GcpGQL.UPDATEGCPRECORD);
@@ -712,6 +711,8 @@ saveGcpRecordOnDone(result=>{
   nowGcpId.value = result.data.updateGcpRecord.gcp_id;
   infomsg.value = "點位 " + result.data.updateGcpRecord.gcp_id + "紀錄儲存完畢"
 });
+saveGcpRecordError(e=>{errorHandle(e,infomsg,alert1)});
+
 function saveGcpRecordBtn(){
   saveGcpRecord({
     updateGcpRecordId: (parseInt(nowPRecordId.value))?parseInt(nowPRecordId.value):-1,
@@ -764,6 +765,8 @@ const { mutate: delGcpRecord, onDone: delGcpRecordOnDone, onError: delGcpRecordE
 delGcpRecordOnDone(result=>{
   infomsg.value = "點位 " + result.data.delGcpRecord.gcp_id + "紀錄刪除完畢"
 });
+delGcpRecordError(e=>{errorHandle(e,infomsg,alert1)});
+
 function delGcpRecordBtn(){
   delGcpRecord({
     delGcpRecordId: parseInt(nowPRecordId.value)
@@ -872,7 +875,7 @@ async function uploadChenge(e) {
   });
 }
 // 上傳檔案
-const { mutate: uploadFile, onDone: uploadFileOnDone } = useMutation(
+const { mutate: uploadFile, onDone: uploadFileOnDone, onError: uploadFileonError } = useMutation(
   ToolsGQL.UPLOADFILE
 );
 uploadFileOnDone((result) => {
@@ -922,6 +925,7 @@ uploadFileOnDone((result) => {
   inputDOM = document.getElementById("AllUpload");
   inputDOM.value = "";
 });
+uploadFileonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // drop
 function cancelDefault(e) {
@@ -964,6 +968,22 @@ function zoomMapView(){
   }
 }
 //#endregion 收合地圖==========End
+
+// 確認登入狀況
+getchecktoken().then(res=>{
+  refgetAllPrj().then(res=>{
+    selPrjCode.value = selPrjCodeMU.value[1].value;
+    selPrjCodeDOM.value.setValue(selPrjCode.value);
+    getAllGcp();
+  });
+  refgetAllContact();
+  refgetGcpType();
+  getRecPerson();
+
+  return 
+}).catch(e=>{
+  errorHandle(e,infomsg,alert1);
+});
 
 //#region 加載表格選取事件
 let nowRcdIdFromDT1 = null;

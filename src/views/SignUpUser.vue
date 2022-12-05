@@ -49,7 +49,7 @@ chkUserOnDone(result=>{
 });
 
 // 執行查詢
-const { mutate: usersignup, onDone: signupOnDone } = useMutation(
+const { mutate: usersignup, onDone: signupOnDone, onError: usersignuponError } = useMutation(
   UsersGQL.SIGNUPMU,
   () => (
     {
@@ -61,10 +61,10 @@ const { mutate: usersignup, onDone: signupOnDone } = useMutation(
       }
     }),
 );
-
 signupOnDone(result => {
   router.push("/");
 })
+
 </script>
 
 <template>

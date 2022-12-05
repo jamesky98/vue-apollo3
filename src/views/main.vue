@@ -915,7 +915,7 @@ function changeChart5Year(e){
 const { mutate: getTablebyMounth, onDone: getTablebyMounthOnDone, onError: getTablebyMounthonError } = useMutation(ToolsGQL.STATCASETABLEBYMOUNTH);
 getTablebyMounthOnDone(result=>{
   let getData = result.data.statCaseTableByMounth;
-  // console.log(getData);
+  console.log(getData);
   fl_total.value = getData.Fl[0]; 
   fl_per.value = getData.Fl[1]; 
   fl_now.value = getData.Fl[2]; 
@@ -1296,6 +1296,10 @@ function zoomCart(Index){
                           <td class="px-2 bl_r bl_b f_right">{{money_now}}</td>
                         </tr>
                       </table>
+                      <ol class="f_01">
+                        <li>以上括弧內為內校數量</li>
+                        <li>若有退件情形,數量會有調整(但應為少數)</li>
+                      </ol>
                     </MDBCol>
                   </MDBRow>
                 </MDBCol>
