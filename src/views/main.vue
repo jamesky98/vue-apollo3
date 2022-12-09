@@ -15,13 +15,6 @@ import {
 } from 'mdb-vue-ui-kit';
 import { RouterLink } from 'vue-router';
 import ToolsGQL from "../graphql/Tools";
-// import CaseGQL from "../graphql/Cases";
-// import CustGQL from "../graphql/Cust";
-// import GcpGQL from "../graphql/Gcp";
-// import PrjGQL from "../graphql/Prj";
-// import EmpGQL from "../graphql/Employee";
-// import ItemGQL from "../graphql/Item";
-
 
 // 判斷token狀況
 import { useQuery, useMutation} from '@vue/apollo-composable';
@@ -1299,6 +1292,7 @@ function zoomCart(Index){
                       <ol class="f_01">
                         <li>以上括弧內為內校數量</li>
                         <li>若有退件情形,數量會有調整(但應為少數)</li>
+                        <li>以實際完成收件為計算基準(只有申請掛號者不算)</li>
                       </ol>
                     </MDBCol>
                   </MDBRow>

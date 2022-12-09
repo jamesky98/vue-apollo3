@@ -413,6 +413,34 @@ const SAVEREFEQPT = gql`
   }
 `;
 
+const GETALLCTLCHART = gql`
+  mutation GetAllCtlChart($calCode: String!) {
+    getAllCtlChart(cal_code: $calCode)
+  }
+`;
+
+const GECTLCHARTDATA = gql`
+  mutation GetCtlChartData($prjId: String, $calCode: String) {
+    getCtlChartData(prj_id: $prjId, cal_code: $calCode) {
+      id
+      prj_id_base
+      prj_id
+      cal_code
+      label
+      ave
+      std
+      min
+      max
+    }
+  }
+`;
+
+const COMPUTECTLCHART = gql`
+  mutation ComputeCtlChart($prjId: String!, $calCode: String!, $label: String, $prjIdBase: String) {
+    computeCtlChart(prj_id: $prjId, cal_code: $calCode, label: $label, prj_id_base: $prjIdBase)
+  }
+`;
+
 export default {
   GETALLPRJ,
   GETPRJBYID,
@@ -436,4 +464,7 @@ export default {
   GETMODELLIST,
   DELREFEQPT,
   SAVEREFEQPT,
+  GETALLCTLCHART,
+  GECTLCHARTDATA,
+  COMPUTECTLCHART,
 };

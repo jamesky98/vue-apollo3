@@ -1,4 +1,6 @@
 <script setup>
+import Chart from 'chart.js/auto';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import path from "path-browserify";
@@ -318,6 +320,33 @@ const nowChkCalComment = ref("");
 const nowLinkId = ref("");
 const nowLinkChkId = ref("");
 const nowLinkDel = ref([]);
+
+// 管制圖
+const refPrjCodeF = ref("");
+const ccLabel_F = ref("");
+const ccAvg_F = ref("");
+const ccStd_F = ref("");
+const ccMax_F = ref("");
+const ccMin_F = ref("");
+const refPrjCodeI = ref("");
+const ccLabel_I = ref("");
+const ccAvg_I = ref("");
+const ccStd_I = ref("");
+const ccMax_I = ref("");
+const ccMin_I = ref("");
+const refPrjCodeJ = ref("");
+const ccLabel_J = ref("");
+const ccAvg_J = ref("");
+const ccStd_J = ref("");
+const ccMax_J = ref("");
+const ccMin_J = ref("");
+
+const ctxF = ref();
+const ctlChartF = ref();
+const ctxJ = ref();
+const ctlChartJ = ref();
+const ctxI = ref();
+const ctlChartI = ref();
 
 //#endregion 參數==========End
 
@@ -903,7 +932,7 @@ function statusRender(data,type,row){
 }
 //#endregion 點位狀態顯示樣式
 
-//#region 標準件管理==========End
+//#region 標準件管理==========Start
 const dt_eqpt = ref();
 const table_eqpt = ref(); 
 const data_eqpt = ref([]);
@@ -1239,6 +1268,284 @@ function pasteLink(){
 
 //#endregion 標準件管理==========End
 
+//#region 管制圖==========Start
+// 查詢管制圖資料
+const { 
+  mutate: getAllCtlChart, 
+  onDone: getAllCtlChartOnDone, 
+  onError: getAllCtlChartonError 
+} = useMutation(PrjGQL.GETALLCTLCHART);
+getAllCtlChartonError(e=>{errorHandle(e,infomsg,alert1)});
+
+// 查詢目前管制資料
+const { 
+  mutate: getNowCtlChart, 
+  onDone: getNowCtlChartOnDone, 
+  onError: getNowCtlChartonError 
+} = useMutation(PrjGQL.GECTLCHARTDATA);
+getNowCtlChartonError(e=>{errorHandle(e,infomsg,alert1)});
+
+// 計算管制圖資料
+const { 
+  mutate: computeCtlChart, 
+  onDone: computeCtlChartonDone, 
+  onError: computeCtlChartonError 
+} = useMutation(PrjGQL.COMPUTECTLCHART);
+computeCtlChartonError(e=>{errorHandle(e,infomsg,alert1)});
+
+function computeCChart(calCode,label,prjIdBase){
+  console.log('calCode',calCode);
+  console.log('label',label);
+  console.log('prjIdBase',prjIdBase);
+
+  if(label!=="目前作業非量測作業"){
+    computeCtlChart({
+      prjId: nowPrjCode.value,
+      calCode: calCode,
+      label: label,
+      prjIdBase: prjIdBase,
+    })
+  }
+};
+
+function limitTickColor(context){
+  if (Math.abs(context.tick.value) === 0.03) {
+    return 'rgb(255,0,0)';
+  }
+  return 'rgb(0,0,0)';
+}
+function limitTickLineWidth(context){
+  if (Math.abs(context.tick.value) === 0.03) {
+    return 1.5;
+  }
+  return 0.2;
+}
+
+function updateCtlCahart(){
+  if(nowPrjCalTypeId.value===1){
+    // 更新F圖及J圖
+
+    // 取得F圖目前作業之管制資料
+    getNowCtlChart({
+      prjId: nowPrjCode.value,
+      calCode: 'F'
+    }).then(res=>{
+      // 填入F圖目前資料
+      let getData = res.data.getCtlChartData[0];
+      if(!getData){
+        refPrjCodeJ.value = "";
+        ccLabel_F.value = "目前作業非量測作業";
+        ccAvg_F.value = "";
+        ccStd_F.value = "";
+        ccMax_F.value = "";
+        ccMin_F.value = "";
+      }else{
+        refPrjCodeF.value = getData.prj_id_base;
+        ccLabel_F.value = getData.label;
+        ccAvg_F.value = getData.ave;
+        ccStd_F.value = getData.std;
+        ccMax_F.value = getData.max;
+        ccMin_F.value = getData.min;
+      }
+      return
+    }).then(res=>{
+      // 查詢F管制圖
+      return getAllCtlChart({calCode: 'F'});
+    }).then(res=>{
+      // 展繪F圖
+      let getData = res.data.getAllCtlChart;
+      // console.log(getData)
+      if(ctlChartF.value) ctlChartF.value.destroy();
+      ctxF.value = document.getElementById('ctlChartF').getContext('2d');
+      ctlChartF.value = new Chart(ctxF.value,{
+        type: 'line',
+        data: {
+          datasets: [
+            { label: '最大值', data: getData, parsing: { yAxisKey: 'max' }, 
+              backgroundColor: 'rgb(0,0,128)', pointStyle: 'rect', radius:6, rotation: 45,},
+            { label: '平均值', data: getData, parsing: { yAxisKey: 'avg' }, 
+              backgroundColor: 'rgb(255,255,0)', pointStyle: 'triangle', radius:6,borderColor: 'rgb(255,153,0)',},
+            { label: '最小值', data: getData, parsing: { yAxisKey: 'min' }, 
+              backgroundColor: 'rgb(255,0,255)', pointStyle: 'rect', radius:6,},
+          ]
+        },
+        options: {
+          layout: { padding: 5 },
+          elements: { line:{borderWidth:0} },
+          responsive: true,
+          parsing: { xAxisKey: 'label' },
+          scales: {
+            x: {
+              title:{ display: true, text: '年度' },
+              grid: {lineWidth: 0},
+            },
+            y: {
+              title:{ display: true, text: '基線較差(m)' },
+              suggestedMin: -0.05,
+              suggestedMax: 0.05,
+              ticks: { stepSize: 0.01 },
+              grid: {
+                color: limitTickColor,
+                lineWidth: limitTickLineWidth,
+              },
+            }
+          },
+          plugins: {
+            legend: { position: 'right' },
+          }
+        }
+      })
+      // console.log(res.data);
+      return
+    }).then(res=>{
+      // 取得J圖目前作業之管制資料
+      return getNowCtlChart({
+        prjId: nowPrjCode.value,
+        calCode: 'J'
+      });
+    }).then(res=>{
+      // 填入J圖目前資料
+      let getData = res.data.getCtlChartData[0];
+      if(!getData){
+        refPrjCodeJ.value = "";
+        ccLabel_J.value = "目前作業非量測作業";
+        ccAvg_J.value = "";
+        ccStd_J.value = "";
+        ccMax_J.value = "";
+        ccMin_J.value = "";
+      }else{
+        refPrjCodeJ.value = getData.prj_id_base;
+        ccLabel_J.value = getData.label;
+        ccAvg_J.value = getData.ave;
+        ccStd_J.value = getData.std;
+        ccMax_J.value = getData.max;
+        ccMin_J.value = getData.min;
+      }
+      return
+    }).then(res=>{
+      // 查詢J管制圖
+      return getAllCtlChart({calCode: 'J'});
+    }).then(res=>{
+      // 展繪J圖
+      let getData = res.data.getAllCtlChart;
+      if(ctlChartJ.value) ctlChartJ.value.destroy();
+      ctxJ.value = document.getElementById('ctlChartJ').getContext('2d');
+      ctlChartJ.value = new Chart(ctxJ.value,{
+        type: 'line',
+        data: {
+          datasets: [
+            { label: '最大值', data: getData, parsing: { yAxisKey: 'max' }, 
+              backgroundColor: 'rgb(0,0,128)', pointStyle: 'rect', radius:6, rotation: 45,},
+            { label: '平均值', data: getData, parsing: { yAxisKey: 'avg' }, 
+              backgroundColor: 'rgb(255,255,0)', pointStyle: 'triangle', radius:6,borderColor: 'rgb(255,153,0)',},
+            { label: '最小值', data: getData, parsing: { yAxisKey: 'min' }, 
+              backgroundColor: 'rgb(255,0,255)', pointStyle: 'rect', radius:6,},
+          ]
+        },
+        options: {
+          layout: { padding: 5 },
+          elements: { line:{borderWidth:0} },
+          responsive: true,
+          parsing: { xAxisKey: 'label' },
+          scales: {
+            x: {
+              title:{ display: true, text: '年度' },
+              grid: {lineWidth: 0},
+            },
+            y: {
+              title:{ display: true, text: '基線較差(m)' },
+              suggestedMin: -0.05,
+              suggestedMax: 0.05,
+              ticks: { stepSize: 0.01 },
+              grid: {
+                color: limitTickColor,
+                lineWidth: limitTickLineWidth,
+              },
+            }
+          },
+          plugins: {
+            legend: { position: 'right' },
+          }
+        }
+      })
+      // console.log(res.data);
+    });
+  }else if(nowPrjCalTypeId.value===2){
+    // 更新I圖
+
+    // 取得I圖目前作業之管制資料
+    getNowCtlChart({
+      prjId: nowPrjCode.value,
+      calCode: 'I'
+    }).then(res=>{
+      // 填入I圖目前資料
+      let getData = res.data.getCtlChartData[0];
+      if(!getData){
+        refPrjCodeI.value = "";
+        ccLabel_I.value = "目前作業非量測作業";
+        ccAvg_I.value = "";
+        ccStd_I.value = "";
+        ccMax_I.value = "";
+        ccMin_I.value = "";
+      }else{
+        refPrjCodeI.value = getData.prj_id_base;
+        ccLabel_I.value = getData.label;
+        ccAvg_I.value = getData.ave;
+        ccStd_I.value = getData.std;
+        ccMax_I.value = getData.max;
+        ccMin_I.value = getData.min;
+      }
+      return
+    }).then(res=>{
+      return getAllCtlChart({calCode: 'I'})
+    }).then(res=>{
+      // 展繪I圖
+      let getData = res.data.getAllCtlChart;
+      if(ctlChartI.value) ctlChartI.value.destroy();
+      ctxI.value = document.getElementById('ctlChartI').getContext('2d');
+      ctlChartI.value = new Chart(ctxI.value,{
+        type: 'line',
+        data: {
+          datasets: [
+            { label: '最大值', data: getData, parsing: { yAxisKey: 'max' }, 
+              backgroundColor: 'rgb(0,0,128)', pointStyle: 'rect', radius:6, rotation: 45,},
+            { label: '平均值', data: getData, parsing: { yAxisKey: 'avg' }, 
+              backgroundColor: 'rgb(255,255,0)', pointStyle: 'triangle', radius:6,borderColor: 'rgb(255,153,0)',},
+            { label: '最小值', data: getData, parsing: { yAxisKey: 'min' }, 
+              backgroundColor: 'rgb(255,0,255)', pointStyle: 'rect', radius:6,},
+          ]
+        },
+        options: {
+          layout: { padding: 5 },
+          elements: { line:{borderWidth:0} },
+          responsive: true,
+          parsing: { xAxisKey: 'label' },
+          scales: {
+            x: {
+              title:{ display: true, text: '年度' },
+              grid: {lineWidth: 0},
+            },
+            y: {
+              title:{ display: true, text: '基線較差(m)' },
+              suggestedMin: -0.05,
+              suggestedMax: 0.05,
+              ticks: { stepSize: 0.01 },
+              grid: {
+                color: limitTickColor,
+                lineWidth: limitTickLineWidth,
+              },
+            }
+          },
+          plugins: {
+            legend: { position: 'right' },
+          }
+        }
+      })
+      // console.log(res.data);
+    })
+  }
+}
+//#endregion 管制圖==========Edn
 
 //#region 收合資料
 const baseShow = ref(false);
@@ -1461,13 +1768,17 @@ onMounted(function () {
   dt_prj.value.on('select', function (e, dt, type, indexes) {
     nowLinkDel.value = [];
     nowPrjId.value = dt.rows(indexes).data()[0].id;
-    refgetPrjById({ getPrjByIdId: parseInt(nowPrjId.value) });
+    refgetPrjById({ getPrjByIdId: parseInt(nowPrjId.value) }).then(res=>{
+      // 更新管制圖
+      updateCtlCahart();
+    });
     notProssing2.value = false;
     getRcordByPrj({projectId: parseInt(nowPrjId.value)});
     notProssing3.value = false;
     getEqptByPrj({getEqptByPrjId: parseInt(nowPrjId.value)});
-
-    updatTable()
+    // 更新表格欄位寬度
+    updatTable();
+    
   });
 
   dt_gcp.value = table_gcp.value.dt();
@@ -2067,7 +2378,44 @@ function selectNowChk(nowId, col, dt){
                     </MDBTabPane>
                     <!-- 管制圖 -->
                     <MDBTabPane tabId="ctrl_chart" class="h-100">
-                      管制圖
+                      <MDBRow class="h-100 overflow-auto">
+                        <MDBCol v-if="(nowPrjCalTypeId===1)" col="12" class="border h-50 overflow-auto" >
+                          <!-- F -->
+                          目前作業:{{nowPrjCode}} 參考作業：{{refPrjCodeF}}<br>
+                          標籤:{{ccLabel_F}} 平均值：{{ccAvg_F}} 標準差：{{ccStd_F}} 最大值：{{ccMax_F}} 最小值：{{ccMin_F}}<br>
+                          <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click.prevent="computeCChart('F',ccLabel_F,refPrjCodeF)">計算</MDBBtn>
+                          <MDBCol col="12" class="d-flex align-items-center justify-content-center">
+                            <!-- <MDBCol col="12" class="d-flex align-items-center justify-content-center"> -->
+                            <div style="height: 200px; width:600px">
+                              <canvas id="ctlChartF" class="border"></canvas>
+                            </div>
+                          </MDBCol>
+                        </MDBCol>
+                        <MDBCol v-if="(nowPrjCalTypeId===1)" col="12" class="border h-50 overflow-auto">
+                          <!-- J -->
+                          目前作業:{{nowPrjCode}} 參考作業：{{refPrjCodeJ}}<br>
+                          標籤:{{ccLabel_J}} 平均值：{{ccAvg_J}} 標準差：{{ccStd_J}} 最大值：{{ccMax_J}} 最小值：{{ccMin_J}}<br>
+                          <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click.prevent="computeCChart('J',ccLabel_J,refPrjCodeJ)">計算</MDBBtn>
+                          <MDBCol col="12" class="d-flex align-items-center justify-content-center">
+                            <!-- <MDBCol col="12" class="d-flex align-items-center justify-content-center"> -->
+                            <div style="height: 200px; width:600px">
+                              <canvas id="ctlChartJ" class="border"></canvas>
+                            </div>
+                          </MDBCol>
+                        </MDBCol>
+                        <MDBCol v-if="(nowPrjCalTypeId===2)" col="12" class="border h-50 overflow-auto">
+                          <!-- I -->
+                          目前作業:{{nowPrjCode}} 參考作業：{{refPrjCodeI}}<br>
+                          標籤:{{ccLabel_I}} 平均值：{{ccAvg_I}} 標準差：{{ccStd_I}} 最大值：{{ccMax_I}} 最小值：{{ccMin_I}}<br>
+                          <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click.prevent="computeCChart('I',ccLabel_I,refPrjCodeI)">計算</MDBBtn>
+                          <MDBCol col="12" class="d-flex align-items-center justify-content-center">
+                            <!-- <MDBCol col="12" class="d-flex align-items-center justify-content-center"> -->
+                            <div style="height: 200px; width:600px">
+                              <canvas id="ctlChartI" class="border"></canvas>
+                            </div>
+                          </MDBCol>
+                        </MDBCol>
+                      </MDBRow>
                     </MDBTabPane>
                   </MDBTabContent>
                 </MDBTabs>
