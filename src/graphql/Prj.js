@@ -414,12 +414,12 @@ const SAVEREFEQPT = gql`
 `;
 
 const GETALLCTLCHART = gql`
-  mutation GetAllCtlChart($calCode: String!) {
-    getAllCtlChart(cal_code: $calCode)
+  mutation GetAllCtlChart($calCode: String!, $stopPrj: String) {
+    getAllCtlChart(cal_code: $calCode, stop_prj: $stopPrj)
   }
 `;
 
-const GECTLCHARTDATA = gql`
+const GETCTLCHARTDATA = gql`
   mutation GetCtlChartData($prjId: String, $calCode: String) {
     getCtlChartData(prj_id: $prjId, cal_code: $calCode) {
       id
@@ -431,6 +431,18 @@ const GECTLCHARTDATA = gql`
       std
       min
       max
+      hasdata
+    }
+  }
+`;
+
+const GETCCDATA = gql`
+  mutation GetCtlChartData($prjId: String, $calCode: String) {
+    getCtlChartData(prj_id: $prjId, cal_code: $calCode) {
+      id
+      prj_id
+      cal_code
+      data
     }
   }
 `;
@@ -438,6 +450,12 @@ const GECTLCHARTDATA = gql`
 const COMPUTECTLCHART = gql`
   mutation ComputeCtlChart($prjId: String!, $calCode: String!, $label: String, $prjIdBase: String) {
     computeCtlChart(prj_id: $prjId, cal_code: $calCode, label: $label, prj_id_base: $prjIdBase)
+  }
+`;
+
+const GETALLCCHARTLIST = gql`
+  mutation GetAllCChartList($calCode: String!) {
+    getAllCChartList(cal_code: $calCode)
   }
 `;
 
@@ -465,6 +483,8 @@ export default {
   DELREFEQPT,
   SAVEREFEQPT,
   GETALLCTLCHART,
-  GECTLCHARTDATA,
+  GETCTLCHARTDATA,
+  GETCCDATA,
   COMPUTECTLCHART,
+  GETALLCCHARTLIST,
 };

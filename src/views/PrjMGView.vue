@@ -1,6 +1,5 @@
 <script setup>
 import Chart from 'chart.js/auto';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import path from "path-browserify";
@@ -323,30 +322,41 @@ const nowLinkDel = ref([]);
 
 // 管制圖
 const refPrjCodeF = ref("");
+const refPrjCodeFMU = ref([]);
+const refPrjCodeFDOM = ref();
+
 const ccLabel_F = ref("");
 const ccAvg_F = ref("");
 const ccStd_F = ref("");
 const ccMax_F = ref("");
 const ccMin_F = ref("");
+const cchasData_F = ref(false);
+
 const refPrjCodeI = ref("");
+const refPrjCodeIMU = ref([]);
+const refPrjCodeIDOM = ref();
+
 const ccLabel_I = ref("");
 const ccAvg_I = ref("");
 const ccStd_I = ref("");
 const ccMax_I = ref("");
 const ccMin_I = ref("");
+const cchasData_I = ref(false);
+
 const refPrjCodeJ = ref("");
+const refPrjCodeJMU = ref([]);
+const refPrjCodeJDOM = ref();
+
 const ccLabel_J = ref("");
 const ccAvg_J = ref("");
 const ccStd_J = ref("");
 const ccMax_J = ref("");
 const ccMin_J = ref("");
+const cchasData_J = ref(false);
 
-const ctxF = ref();
-const ctlChartF = ref();
-const ctxJ = ref();
-const ctlChartJ = ref();
-const ctxI = ref();
-const ctlChartI = ref();
+let ctlChartF;
+let ctlChartJ;
+let ctlChartI;
 
 //#endregion 參數==========End
 
@@ -1269,6 +1279,14 @@ function pasteLink(){
 //#endregion 標準件管理==========End
 
 //#region 管制圖==========Start
+// 查詢參考作業清單
+const { 
+  mutate: getAllCChartList, 
+  onDone: getAllCChartListonDone, 
+  onError: getAllCChartListonError
+} = useMutation(PrjGQL.GETALLCCHARTLIST);
+getAllCChartListonError(e=>{errorHandle(e,infomsg,alert1)});
+
 // 查詢管制圖資料
 const { 
   mutate: getAllCtlChart, 
@@ -1282,7 +1300,7 @@ const {
   mutate: getNowCtlChart, 
   onDone: getNowCtlChartOnDone, 
   onError: getNowCtlChartonError 
-} = useMutation(PrjGQL.GECTLCHARTDATA);
+} = useMutation(PrjGQL.GETCTLCHARTDATA);
 getNowCtlChartonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 計算管制圖資料
@@ -1291,111 +1309,213 @@ const {
   onDone: computeCtlChartonDone, 
   onError: computeCtlChartonError 
 } = useMutation(PrjGQL.COMPUTECTLCHART);
+computeCtlChartonDone(result=>{
+  // console.log(result.data)
+})
 computeCtlChartonError(e=>{errorHandle(e,infomsg,alert1)});
-
 function computeCChart(calCode,label,prjIdBase){
   console.log('calCode',calCode);
   console.log('label',label);
   console.log('prjIdBase',prjIdBase);
 
-  if(label!=="目前作業非量測作業"){
+  // if(label!=="目前作業非量測作業"){
     computeCtlChart({
       prjId: nowPrjCode.value,
       calCode: calCode,
       label: label,
       prjIdBase: prjIdBase,
+    }).then(res=>{
+      // 更新管制圖
+      return updateCtlCahart();
     })
-  }
+  // }
 };
 
-function limitTickColor(context){
-  if (Math.abs(context.tick.value) === 0.03) {
-    return 'rgb(255,0,0)';
-  }
-  return 'rgb(0,0,0)';
-}
-function limitTickLineWidth(context){
-  if (Math.abs(context.tick.value) === 0.03) {
-    return 1.5;
-  }
-  return 0.2;
+// 查詢管制資料計算成果
+const { 
+  mutate: getCCData, 
+  onDone: getCCDataOnDone, 
+  onError: getCCDataonError 
+} = useMutation(PrjGQL.GETCCDATA);
+getCCDataonError(e=>{errorHandle(e,infomsg,alert1)});
+// 匯出管制資料計算成果
+function saveCCData(calCode,prjId){
+  getCCData({
+    prjId: prjId,
+    calCode: calCode,
+  }).then(res=>{
+    if(res && res.data){
+      let getData = res.data.getCtlChartData[0].data;
+      let dataStr = "p1,p2,s,ds";
+      // console.log(getData)
+      for (let i = 0; i < getData.length; i++) {
+        dataStr =
+          dataStr +
+          getData[i].p1 + "," +
+          getData[i].p2 + "," +
+          getData[i].s + "," +
+          getData[i].ds + "," +
+          "\n";
+      }
+
+      //藉型別陣列建構的 blob 來建立 URL
+      let fileName = "data.csv";
+      let blob = new Blob([dataStr], {
+        type: "application/octet-stream",
+      });
+      let href = URL.createObjectURL(blob);
+      // 從 Blob 取出資料
+      let link = document.createElement("a");
+      document.body.appendChild(link);
+      link.href = href;
+      link.download = fileName;
+      link.click();
+      document.body.removeChild(link);
+    }
+  });
 }
 
+// 門檻刻度上色
+function limitTickColor(v_limit){
+  return (context)=>{
+    if (Math.abs(context.tick.value) === v_limit) {
+      return 'rgb(255,0,0)';
+    }
+    return 'rgb(0,0,0)';
+  }
+}
+// 門檻刻度加寬
+function limitTickLineWidth(v_limit){
+  return (context)=>{
+    if (Math.abs(context.tick.value) === v_limit) {
+      return 1.5;
+    }
+    return 0.2;
+  }
+}
+// 圖表統計值數列
+function dataSetArray(getData){
+  return [
+    { label: '最大值', data: getData, parsing: { yAxisKey: 'max' }, 
+      backgroundColor: 'rgb(0,114,255)', pointStyle: 'rect', radius:6, rotation: 45,},
+    { label: '平均值', data: getData, parsing: { yAxisKey: 'avg' }, 
+      backgroundColor: 'rgb(255,255,0)', pointStyle: 'triangle', radius:6,borderColor: 'rgb(255,153,0)',},
+    { label: '最小值', data: getData, parsing: { yAxisKey: 'min' }, 
+      backgroundColor: 'rgb(255,0,255)', pointStyle: 'rect', radius:6,},
+  ];
+}
+// 圖表設定
+function chartOptions(chart_title,x_title,y_title,v_limit){
+  return {
+    layout: { padding: 10 },
+    elements: { line:{borderWidth:0} },
+    responsive: true,
+    interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+    parsing: { xAxisKey: 'label' },
+    scales: {
+      x: {
+        title:{ display: true, text: x_title },
+        grid: {lineWidth: 0},
+      },
+      y: {
+        title:{ display: true, text: y_title },
+        suggestedMin: -0.05,
+        suggestedMax: 0.05,
+        ticks: { stepSize: 0.01 },
+        grid: {
+          color: limitTickColor(v_limit),
+          lineWidth: limitTickLineWidth(v_limit),
+        },
+      }
+    },
+    plugins: {
+      legend: { 
+        position: 'right', 
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+        },
+      },
+      title: {
+        display: true,
+        text: chart_title,
+        font: {
+          weight: 'bold',
+          size: 16,
+        }
+      },
+    }
+  }
+}
+// 更新圖表
 function updateCtlCahart(){
   if(nowPrjCalTypeId.value===1){
     // 更新F圖及J圖
-
-    // 取得F圖目前作業之管制資料
-    getNowCtlChart({
-      prjId: nowPrjCode.value,
-      calCode: 'F'
+    getAllCChartList({calCode: 'F'}).then(res=>{
+      // 填入參考作業清單
+      let getData=res.data.getAllCChartList;
+      let list_F=[];
+      let list_J=[];
+      getData.reverse();
+      for(let i=0;i<getData.length;i++){
+        list_F.push({ text: getData[i], value: getData[i] });
+        list_J.push({ text: getData[i], value: getData[i] });
+      }
+      list_F.unshift({ text:"-未選取-", value: '-1' });
+      list_J.unshift({ text:"-未選取-", value: '-1' });
+      refPrjCodeFMU.value = list_F;
+      refPrjCodeJMU.value = list_J;
+    }).then(res=>{
+      // 取得F圖目前作業之管制資料
+      return getNowCtlChart({
+        prjId: nowPrjCode.value,
+        calCode: 'F'
+      })
     }).then(res=>{
       // 填入F圖目前資料
       let getData = res.data.getCtlChartData[0];
       if(!getData){
-        refPrjCodeJ.value = "";
-        ccLabel_F.value = "目前作業非量測作業";
-        ccAvg_F.value = "";
-        ccStd_F.value = "";
-        ccMax_F.value = "";
-        ccMin_F.value = "";
+        refPrjCodeF.value = "-1";
+        refPrjCodeFDOM.value.setValue('-1');
+        ccLabel_F.value = (nowPrjMethod.value==='量測' || nowPrjMethod.value==='中間巡查')?"":"目前作業非量測作業";
+        ccAvg_F.value = "-";
+        ccStd_F.value = "-";
+        ccMax_F.value = "-";
+        ccMin_F.value = "-";
+        cchasData_F.value = false;
       }else{
         refPrjCodeF.value = getData.prj_id_base;
+        refPrjCodeFDOM.value.setValue(refPrjCodeF.value);
         ccLabel_F.value = getData.label;
-        ccAvg_F.value = getData.ave;
-        ccStd_F.value = getData.std;
-        ccMax_F.value = getData.max;
-        ccMin_F.value = getData.min;
+        ccAvg_F.value = (getData.ave)?getData.ave.toFixed(3):"-";
+        ccStd_F.value = (getData.std)?getData.std.toFixed(3):"-";
+        ccMax_F.value = (getData.max)?getData.max.toFixed(3):"-";
+        ccMin_F.value = (getData.min)?getData.min.toFixed(3):"-";
+        cchasData_F.value = getData.hasdata;
       }
       return
     }).then(res=>{
       // 查詢F管制圖
-      return getAllCtlChart({calCode: 'F'});
+      return getAllCtlChart({calCode: 'F', stopPrj: nowPrjCode.value});
     }).then(res=>{
+      let canvas = document.getElementById("ctlChartF");
+      let ctxF = canvas.getContext('2d');
       // 展繪F圖
       let getData = res.data.getAllCtlChart;
-      // console.log(getData)
-      if(ctlChartF.value) ctlChartF.value.destroy();
-      ctxF.value = document.getElementById('ctlChartF').getContext('2d');
-      ctlChartF.value = new Chart(ctxF.value,{
-        type: 'line',
-        data: {
-          datasets: [
-            { label: '最大值', data: getData, parsing: { yAxisKey: 'max' }, 
-              backgroundColor: 'rgb(0,0,128)', pointStyle: 'rect', radius:6, rotation: 45,},
-            { label: '平均值', data: getData, parsing: { yAxisKey: 'avg' }, 
-              backgroundColor: 'rgb(255,255,0)', pointStyle: 'triangle', radius:6,borderColor: 'rgb(255,153,0)',},
-            { label: '最小值', data: getData, parsing: { yAxisKey: 'min' }, 
-              backgroundColor: 'rgb(255,0,255)', pointStyle: 'rect', radius:6,},
-          ]
-        },
-        options: {
-          layout: { padding: 5 },
-          elements: { line:{borderWidth:0} },
-          responsive: true,
-          parsing: { xAxisKey: 'label' },
-          scales: {
-            x: {
-              title:{ display: true, text: '年度' },
-              grid: {lineWidth: 0},
-            },
-            y: {
-              title:{ display: true, text: '基線較差(m)' },
-              suggestedMin: -0.05,
-              suggestedMax: 0.05,
-              ticks: { stepSize: 0.01 },
-              grid: {
-                color: limitTickColor,
-                lineWidth: limitTickLineWidth,
-              },
-            }
-          },
-          plugins: {
-            legend: { position: 'right' },
-          }
-        }
-      })
-      // console.log(res.data);
+      if(ctlChartF){
+        // ctlChartF.value.destroy();
+        ctlChartF.data.datasets = dataSetArray(getData);
+        ctlChartF.update();
+      }else{
+        ctlChartF = new Chart(ctxF,{
+          type: 'line',
+          data: { datasets: dataSetArray(getData) },
+          options: chartOptions('航空測量攝影機管制圖','年度','基線較差(m)',0.03),
+        });
+      }
       return
     }).then(res=>{
       // 取得J圖目前作業之管制資料
@@ -1407,141 +1527,104 @@ function updateCtlCahart(){
       // 填入J圖目前資料
       let getData = res.data.getCtlChartData[0];
       if(!getData){
-        refPrjCodeJ.value = "";
-        ccLabel_J.value = "目前作業非量測作業";
-        ccAvg_J.value = "";
-        ccStd_J.value = "";
-        ccMax_J.value = "";
-        ccMin_J.value = "";
+        refPrjCodeJ.value = "-1";
+        refPrjCodeJDOM.value.setValue('-1');
+        ccLabel_J.value = (nowPrjMethod.value==='量測' || nowPrjMethod.value==='中間巡查')?"":"目前作業非量測作業";
+        ccAvg_J.value = "-";
+        ccStd_J.value = "-";
+        ccMax_J.value = "-";
+        ccMin_J.value = "-";
+        cchasData_J.value = false;
       }else{
         refPrjCodeJ.value = getData.prj_id_base;
+        refPrjCodeJDOM.value.setValue(refPrjCodeJ.value);
         ccLabel_J.value = getData.label;
-        ccAvg_J.value = getData.ave;
-        ccStd_J.value = getData.std;
-        ccMax_J.value = getData.max;
-        ccMin_J.value = getData.min;
+        ccAvg_J.value = (getData.ave)?getData.ave.toFixed(3):"-";
+        ccStd_J.value = (getData.std)?getData.std.toFixed(3):"-";
+        ccMax_J.value = (getData.max)?getData.max.toFixed(3):"-";
+        ccMin_J.value = (getData.min)?getData.min.toFixed(3):"-";
+        cchasData_J.value = getData.hasdata;
       }
       return
     }).then(res=>{
       // 查詢J管制圖
-      return getAllCtlChart({calCode: 'J'});
+      return getAllCtlChart({calCode: 'J', stopPrj: nowPrjCode.value});
     }).then(res=>{
+      let canvas = document.getElementById("ctlChartJ");
+      let ctxJ = canvas.getContext('2d');
       // 展繪J圖
       let getData = res.data.getAllCtlChart;
-      if(ctlChartJ.value) ctlChartJ.value.destroy();
-      ctxJ.value = document.getElementById('ctlChartJ').getContext('2d');
-      ctlChartJ.value = new Chart(ctxJ.value,{
-        type: 'line',
-        data: {
-          datasets: [
-            { label: '最大值', data: getData, parsing: { yAxisKey: 'max' }, 
-              backgroundColor: 'rgb(0,0,128)', pointStyle: 'rect', radius:6, rotation: 45,},
-            { label: '平均值', data: getData, parsing: { yAxisKey: 'avg' }, 
-              backgroundColor: 'rgb(255,255,0)', pointStyle: 'triangle', radius:6,borderColor: 'rgb(255,153,0)',},
-            { label: '最小值', data: getData, parsing: { yAxisKey: 'min' }, 
-              backgroundColor: 'rgb(255,0,255)', pointStyle: 'rect', radius:6,},
-          ]
-        },
-        options: {
-          layout: { padding: 5 },
-          elements: { line:{borderWidth:0} },
-          responsive: true,
-          parsing: { xAxisKey: 'label' },
-          scales: {
-            x: {
-              title:{ display: true, text: '年度' },
-              grid: {lineWidth: 0},
-            },
-            y: {
-              title:{ display: true, text: '基線較差(m)' },
-              suggestedMin: -0.05,
-              suggestedMax: 0.05,
-              ticks: { stepSize: 0.01 },
-              grid: {
-                color: limitTickColor,
-                lineWidth: limitTickLineWidth,
-              },
-            }
-          },
-          plugins: {
-            legend: { position: 'right' },
-          }
-        }
-      })
-      // console.log(res.data);
+      if(ctlChartJ){
+        // ctlChartJ.value.destroy();
+        ctlChartJ.data.datasets = dataSetArray(getData);
+        ctlChartJ.update();
+      }else{
+        ctlChartJ = new Chart(ctxJ,{
+          type: 'line',
+          data: { datasets: dataSetArray(getData) },
+          options: chartOptions('小像幅航拍攝影機管制圖','年度','基線較差(m)',0.03),
+        })
+      }
     });
   }else if(nowPrjCalTypeId.value===2){
     // 更新I圖
-
-    // 取得I圖目前作業之管制資料
-    getNowCtlChart({
-      prjId: nowPrjCode.value,
-      calCode: 'I'
+    getAllCChartList({calCode: 'I'}).then(res=>{
+      // 填入參考作業清單
+      let getData=res.data.getAllCChartList;
+      let list_I=[];
+      getData.reverse();
+      for(let i=0;i<getData.length;i++){
+        list_I.push({ text: getData[i], value: getData[i] });
+      }
+      list_I.unshift({ text:"-未選取-", value: '-1' });
+      refPrjCodeIMU.value = list_I;
+    }).then(res=>{
+      // 取得I圖目前作業之管制資料
+      return getNowCtlChart({
+        prjId: nowPrjCode.value,
+        calCode: 'I'
+      })
     }).then(res=>{
       // 填入I圖目前資料
       let getData = res.data.getCtlChartData[0];
       if(!getData){
-        refPrjCodeI.value = "";
-        ccLabel_I.value = "目前作業非量測作業";
-        ccAvg_I.value = "";
-        ccStd_I.value = "";
-        ccMax_I.value = "";
-        ccMin_I.value = "";
+        refPrjCodeI.value = "-1";
+        refPrjCodeIDOM.value.setValue('-1');
+        ccLabel_I.value = (nowPrjMethod.value==='量測' || nowPrjMethod.value==='中間巡查')?"":"目前作業非量測作業";
+        ccAvg_I.value = "-";
+        ccStd_I.value = "-";
+        ccMax_I.value = "-";
+        ccMin_I.value = "-";
+        cchasData_I.value = false;
       }else{
         refPrjCodeI.value = getData.prj_id_base;
+        refPrjCodeIDOM.value.setValue(refPrjCodeI.value);
         ccLabel_I.value = getData.label;
-        ccAvg_I.value = getData.ave;
-        ccStd_I.value = getData.std;
-        ccMax_I.value = getData.max;
-        ccMin_I.value = getData.min;
+        ccAvg_I.value = (getData.ave)?getData.ave.toFixed(3):"-";
+        ccStd_I.value = (getData.std)?getData.std.toFixed(3):"-";
+        ccMax_I.value = (getData.max)?getData.max.toFixed(3):"-";
+        ccMin_I.value = (getData.min)?getData.min.toFixed(3):"-";
+        cchasData_I.value = getData.hasdata;
       }
       return
     }).then(res=>{
-      return getAllCtlChart({calCode: 'I'})
+      return getAllCtlChart({calCode: 'I', stopPrj: nowPrjCode.value})
     }).then(res=>{
+      let canvas = document.getElementById("ctlChartI");
+      let ctxI = canvas.getContext('2d');
       // 展繪I圖
       let getData = res.data.getAllCtlChart;
-      if(ctlChartI.value) ctlChartI.value.destroy();
-      ctxI.value = document.getElementById('ctlChartI').getContext('2d');
-      ctlChartI.value = new Chart(ctxI.value,{
-        type: 'line',
-        data: {
-          datasets: [
-            { label: '最大值', data: getData, parsing: { yAxisKey: 'max' }, 
-              backgroundColor: 'rgb(0,0,128)', pointStyle: 'rect', radius:6, rotation: 45,},
-            { label: '平均值', data: getData, parsing: { yAxisKey: 'avg' }, 
-              backgroundColor: 'rgb(255,255,0)', pointStyle: 'triangle', radius:6,borderColor: 'rgb(255,153,0)',},
-            { label: '最小值', data: getData, parsing: { yAxisKey: 'min' }, 
-              backgroundColor: 'rgb(255,0,255)', pointStyle: 'rect', radius:6,},
-          ]
-        },
-        options: {
-          layout: { padding: 5 },
-          elements: { line:{borderWidth:0} },
-          responsive: true,
-          parsing: { xAxisKey: 'label' },
-          scales: {
-            x: {
-              title:{ display: true, text: '年度' },
-              grid: {lineWidth: 0},
-            },
-            y: {
-              title:{ display: true, text: '基線較差(m)' },
-              suggestedMin: -0.05,
-              suggestedMax: 0.05,
-              ticks: { stepSize: 0.01 },
-              grid: {
-                color: limitTickColor,
-                lineWidth: limitTickLineWidth,
-              },
-            }
-          },
-          plugins: {
-            legend: { position: 'right' },
-          }
-        }
-      })
-      // console.log(res.data);
+      if(ctlChartI){
+        // ctlChartI.value.destroy();
+        ctlChartI.data.datasets = dataSetArray(getData);
+        ctlChartI.update();
+      }else{
+        ctlChartI = new Chart(ctxI,{
+          type: 'line',
+          data: { datasets: dataSetArray(getData) },
+          options: chartOptions('空載光達管制圖','時間(年月)','基線較差(m)',0.04),
+        })
+      }
     })
   }
 }
@@ -1821,6 +1904,7 @@ onMounted(function () {
     // console.log("dt_gcp draw")
     selectNowChk(nowChkId.value, 'eq_ck_id', dt_chk.value);
   });
+
 });
 
 // 一定要由onMounted裡面的draw觸發，否則dt還未渲染，會找不到物件
@@ -2252,14 +2336,11 @@ function selectNowChk(nowId, col, dt){
                                           </MDBCol>
                                         </MDBRow>
                                       </MDBCol>
-
                                   </MDBRow>
                                 </MDBLightbox>
                               </MDBRow>
                             </MDBCol>
-
                           </MDBRow>
-
                         </MDBCol>
                       </MDBRow>                    
                     </MDBTabPane>
@@ -2379,41 +2460,125 @@ function selectNowChk(nowId, col, dt){
                     <!-- 管制圖 -->
                     <MDBTabPane tabId="ctrl_chart" class="h-100">
                       <MDBRow class="h-100 overflow-auto">
-                        <MDBCol v-if="(nowPrjCalTypeId===1)" col="12" class="border h-50 overflow-auto" >
+                        <MDBCol v-show="(nowPrjCalTypeId===1)" col="12" class="border-top" >
                           <!-- F -->
-                          目前作業:{{nowPrjCode}} 參考作業：{{refPrjCodeF}}<br>
-                          標籤:{{ccLabel_F}} 平均值：{{ccAvg_F}} 標準差：{{ccStd_F}} 最大值：{{ccMax_F}} 最小值：{{ccMin_F}}<br>
-                          <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click.prevent="computeCChart('F',ccLabel_F,refPrjCodeF)">計算</MDBBtn>
-                          <MDBCol col="12" class="d-flex align-items-center justify-content-center">
-                            <!-- <MDBCol col="12" class="d-flex align-items-center justify-content-center"> -->
-                            <div style="height: 200px; width:600px">
-                              <canvas id="ctlChartF" class="border"></canvas>
+                          <div class="hstack gap-3 mt-2">
+                            <span class="typeF"><i class="fas fa-plane-departure"></i>航測像機</span>
+                            <div>目前作業：<span class="text-info">{{nowPrjCode}}</span></div>
+                            <MDBInput size="sm" type="text" label="簡稱標籤" v-model="ccLabel_F"/>
+                            <MDBSelect size="sm" label="參考作業" 
+                              v-model:options="refPrjCodeFMU"
+                              v-model:selected="refPrjCodeF" 
+                              ref="refPrjCodeFDOM" />
+                            <MDBBtn 
+                              :disabled="!rGroup[1] || !refPrjCodeF || !(nowPrjMethod==='量測' || nowPrjMethod==='中間查核')" 
+                              size="sm" 
+                              color="primary" 
+                              @click.prevent="computeCChart('F',ccLabel_F,refPrjCodeF)"
+                            >計算</MDBBtn>
+                            <MDBBtn 
+                              :disabled="!(nowPrjMethod==='量測' || nowPrjMethod==='中間查核') || !cchasData_F" 
+                              size="sm" 
+                              color="primary" 
+                              @click.prevent="saveCCData('F',nowPrjCode)"
+                            >匯出計算</MDBBtn>
+                          </div>
+                          <div class="hstack gap-3 mt-2">
+                            <div>計算資料：
+                              <span v-if="cchasData_F" class="status71"><i class="fas fa-check-circle"></i></span>
+                              <span v-else="cchasData_F" class="status1"><i class="fas fa-check-circle"></i></span>
                             </div>
-                          </MDBCol>
+                            <div>平均值：<span style="color: rgb(255,153,0);">{{ccAvg_F}}</span></div>
+                            <div>最小值：<span style="color: rgb(255,0,255);">{{ccMin_F}}</span></div>
+                            <div>最大值：<span style="color: rgb(0,114,255);">{{ccMax_F}}</span></div>
+                          </div>
+                          <MDBRow class="justify-content-center">
+                            <MDBCol xl="8" class="my-2">
+                              <!-- <div class="w-100"> -->
+                                <canvas id="ctlChartF" class="border"></canvas>
+                              <!-- </div> -->
+                            </MDBCol>
+                          </MDBRow>
                         </MDBCol>
-                        <MDBCol v-if="(nowPrjCalTypeId===1)" col="12" class="border h-50 overflow-auto">
+                        <MDBCol v-show="(nowPrjCalTypeId===1)" col="12" class="border-top" >
                           <!-- J -->
-                          目前作業:{{nowPrjCode}} 參考作業：{{refPrjCodeJ}}<br>
-                          標籤:{{ccLabel_J}} 平均值：{{ccAvg_J}} 標準差：{{ccStd_J}} 最大值：{{ccMax_J}} 最小值：{{ccMin_J}}<br>
-                          <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click.prevent="computeCChart('J',ccLabel_J,refPrjCodeJ)">計算</MDBBtn>
-                          <MDBCol col="12" class="d-flex align-items-center justify-content-center">
-                            <!-- <MDBCol col="12" class="d-flex align-items-center justify-content-center"> -->
-                            <div style="height: 200px; width:600px">
-                              <canvas id="ctlChartJ" class="border"></canvas>
+                          <div class="hstack gap-3 mt-2">
+                            <span class="typeJ"><i class="fas fa-camera"></i>小像幅航拍攝影機</span>
+                            <div>目前作業：<span class="text-info">{{nowPrjCode}}</span></div>
+                            <MDBInput size="sm" type="text" label="簡稱標籤" v-model="ccLabel_J"/>
+                            <MDBSelect size="sm" label="參考作業" 
+                              v-model:options="refPrjCodeJMU"
+                              v-model:selected="refPrjCodeJ" 
+                              ref="refPrjCodeJDOM" />
+                            <MDBBtn 
+                              :disabled="!rGroup[1] || !refPrjCodeJ || !(nowPrjMethod==='量測' || nowPrjMethod==='中間查核')" 
+                              size="sm" 
+                              color="primary" 
+                              @click.prevent="computeCChart('J',ccLabel_J,refPrjCodeJ)"
+                            >計算</MDBBtn>
+                            <MDBBtn 
+                              :disabled="!(nowPrjMethod==='量測' || nowPrjMethod==='中間查核') || !cchasData_J" 
+                              size="sm" 
+                              color="primary" 
+                              @click.prevent="saveCCData('J',nowPrjCode)"
+                            >匯出計算</MDBBtn>
+                          </div>
+                          <div class="hstack gap-3 mt-2">
+                            <div>計算資料：
+                              <span v-if="cchasData_J" class="status71"><i class="fas fa-check-circle"></i></span>
+                              <span v-else="cchasData_J" class="status1"><i class="fas fa-check-circle"></i></span>
                             </div>
-                          </MDBCol>
+                            <div>平均值：<span style="color: rgb(255,153,0);">{{ccAvg_J}}</span></div>
+                            <div>最小值：<span style="color: rgb(255,0,255);">{{ccMin_J}}</span></div>
+                            <div>最大值：<span style="color: rgb(0,114,255);">{{ccMax_J}}</span></div>
+                          </div>
+                          <MDBRow class="justify-content-center">
+                            <MDBCol xl="8" class="my-2">
+                              <!-- <div class="w-100"> -->
+                                <canvas id="ctlChartJ" class="border"></canvas>
+                              <!-- </div> -->
+                            </MDBCol>
+                          </MDBRow>
                         </MDBCol>
-                        <MDBCol v-if="(nowPrjCalTypeId===2)" col="12" class="border h-50 overflow-auto">
+                        <MDBCol v-show="(nowPrjCalTypeId===2)" col="12" class="border-top" >
                           <!-- I -->
-                          目前作業:{{nowPrjCode}} 參考作業：{{refPrjCodeI}}<br>
-                          標籤:{{ccLabel_I}} 平均值：{{ccAvg_I}} 標準差：{{ccStd_I}} 最大值：{{ccMax_I}} 最小值：{{ccMin_I}}<br>
-                          <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click.prevent="computeCChart('I',ccLabel_I,refPrjCodeI)">計算</MDBBtn>
-                          <MDBCol col="12" class="d-flex align-items-center justify-content-center">
-                            <!-- <MDBCol col="12" class="d-flex align-items-center justify-content-center"> -->
-                            <div style="height: 200px; width:600px">
-                              <canvas id="ctlChartI" class="border"></canvas>
+                          <div class="hstack gap-3 mt-2">
+                            <span class="typeI"><i class="fas fa-wifi"></i>空載光達</span>
+                            <div>目前作業：<span class="text-info">{{nowPrjCode}}</span></div>
+                            <MDBInput size="sm" type="text" label="簡稱標籤" v-model="ccLabel_I"/>
+                            <MDBSelect size="sm" label="參考作業" 
+                              v-model:options="refPrjCodeIMU"
+                              v-model:selected="refPrjCodeI" 
+                              ref="refPrjCodeIDOM" />
+                            <MDBBtn 
+                              :disabled="!rGroup[1] || !(nowPrjMethod==='量測' || nowPrjMethod==='中間查核')" 
+                              size="sm" 
+                              color="primary" 
+                              @click.prevent="computeCChart('I',ccLabel_I,refPrjCodeI)"
+                            >計算</MDBBtn>
+                            <MDBBtn 
+                              :disabled="!(nowPrjMethod==='量測' || nowPrjMethod==='中間查核') || !cchasData_I" 
+                              size="sm" 
+                              color="primary" 
+                              @click.prevent="saveCCData('I',nowPrjCode)"
+                            >匯出計算</MDBBtn>
+                          </div>
+                          <div class="hstack gap-3 mt-2">
+                            <div>計算資料：
+                              <span v-if="cchasData_I" class="status71"><i class="fas fa-check-circle"></i></span>
+                              <span v-else="cchasData_I" class="status1"><i class="fas fa-check-circle"></i></span>
                             </div>
-                          </MDBCol>
+                            <div>平均值：<span style="color: rgb(255,153,0);">{{ccAvg_I}}</span></div>
+                            <div>最小值：<span style="color: rgb(255,0,255);">{{ccMin_I}}</span></div>
+                            <div>最大值：<span style="color: rgb(0,114,255);">{{ccMax_I}}</span></div>
+                          </div>
+                          <MDBRow class="justify-content-center">
+                            <MDBCol xl="8" class="my-2">
+                              <!-- <div class="w-100"> -->
+                                <canvas id="ctlChartI" class="border"></canvas>
+                              <!-- </div> -->
+                            </MDBCol>
+                          </MDBRow>
                         </MDBCol>
                       </MDBRow>
                     </MDBTabPane>

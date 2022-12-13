@@ -59,14 +59,17 @@ html, body, #app{
   border-bottom: rgba(0, 0, 0, 0);
   height: auto;
 }
-tr > td > span.status89{
+.status89{
   color: #DE3163;
 }
 tr.selected > td >span.status89 {
   color: white;
 }
 
-tr>td>span.status7 {
+.status71{
+  color: rgb(3, 211, 3);
+}
+.status7 {
   color: green;
 }
 tr.selected>td>span.status7 {
@@ -94,7 +97,7 @@ tr.selected>td>span.status23 {
   color: white;
 }
 
-tr>td>span.status1 {
+.status1 {
   color: Gray;
 }
 tr.selected>td>span.status1 {
@@ -104,7 +107,10 @@ tr.selected>td>span.status1 {
 .nav-tabs .nav-link{
   padding: 0.75rem 1rem;
 }
-tr>td>span.typeF {
+/* tr>td>span.typeF {
+  color: #6495ED;
+} */
+.typeF {
   color: #6495ED;
 }
 
@@ -112,7 +118,10 @@ tr.selected>td>span.typeF {
   color: white;
 }
 
-tr>td>span.typeI {
+/* tr>td>span.typeI {
+  color: #229954;
+} */
+.typeI {
   color: #229954;
 }
 
@@ -120,7 +129,10 @@ tr.selected>td>span.typeI {
   color: white;
 }
 
-tr>td>span.typeJ {
+/* tr>td>span.typeJ {
+  color: #FF7F50;
+} */
+.typeJ {
   color: #FF7F50;
 }
 

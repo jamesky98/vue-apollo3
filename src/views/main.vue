@@ -908,7 +908,7 @@ function changeChart5Year(e){
 const { mutate: getTablebyMounth, onDone: getTablebyMounthOnDone, onError: getTablebyMounthonError } = useMutation(ToolsGQL.STATCASETABLEBYMOUNTH);
 getTablebyMounthOnDone(result=>{
   let getData = result.data.statCaseTableByMounth;
-  console.log(getData);
+  // console.log(getData);
   fl_total.value = getData.Fl[0]; 
   fl_per.value = getData.Fl[1]; 
   fl_now.value = getData.Fl[2]; 
