@@ -172,11 +172,7 @@ const nowGcpPavementMU = ref([
 const nowGcpPavementDOM = ref();
 
 const nowGcpStyle = ref("");
-const nowGcpStyleMU = ref([
-  {text: "-未選取-", value: "-1"},
-  {text: "鋼釘", value: "鋼釘"},
-  {text: "鋼片", value: "鋼片"},
-]);
+const nowGcpStyleMU = ref([]);
 const nowGcpStyleDOM = ref();
 
 const nowGcpSimage = ref("");
@@ -381,6 +377,11 @@ const columns_prj = [
           markicon = '<i class="fas fa-wifi"></i>';
           classn = "typeI"
           calName = "空載光達";
+          break;
+        case 9: //車載光達
+          markicon = '<i class="fas fa-taxi"></i>';
+          classn = "typeM"
+          calName = "車載光達";
           break;
       }
       // return "<span class='" + classn + "'>" + markicon + row.cal_type.name + "</span>"
@@ -786,7 +787,25 @@ saveGcpRecordError(e=>{errorHandle(e,infomsg,alert1)});
 
 function saveGcpRecordBtn(){
   // 點號 作業編號 為必要
-  if(nowPRecordPtId.value && nowPRecordPrjId.value && parseInt(nowPRecordPrjId).value!==-1){
+  if(!nowPRecordPtId.value){
+    infomsg.value = "缺少點號"
+    alert1.value = true;
+    return
+  }
+  if(!nowPRecordPrjId.value || parseInt(nowPRecordPrjId.value)===-1){
+    infomsg.value = "缺少作業編號"
+    alert1.value = true;
+    return
+  }
+  if(!nowGcpTypeCode.value || parseInt(nowGcpTypeCode.value)===-1){
+    infomsg.value = "缺少點號類別"
+    alert1.value = true;
+    return
+  }
+
+  alert1.value = false;
+  
+    // 1-儲存聯繫資料
     let result = saveGcpContact({
       updateGcpContactId: nowGcpContactId.value,
       name: document.querySelector('#contactSelectDOM div input').value,
@@ -795,6 +814,7 @@ function saveGcpRecordBtn(){
       tel: nowGcpContactTel.value,
       comment: nowGcpContactCom.value,
     }).then(res=>{
+      // 2-儲存點位基本資料
       return saveGcp({
         updateGcpId: (nowPRecordPtId.value)?nowPRecordPtId.value:'-1',
         enable: (nowGcpEnable.value)?1:0,
@@ -812,6 +832,7 @@ function saveGcpRecordBtn(){
         comment: nowGcpComment.value,
       })
     }).then(res=>{
+      // 3-儲存點位維護資料
       return saveGcpRecord({
         updateGcpRecordId: (parseInt(nowPRecordId.value))?parseInt(nowPRecordId.value):-1,
         gcpId: (nowPRecordPtId.value)?nowPRecordPtId.value:null,
@@ -835,9 +856,6 @@ function saveGcpRecordBtn(){
       notProssing2.value = false;
       return getRcordByPrj({projectId: parseInt(nowPrjId.value)});
     });
-
-    // infomsg.value = "點位 " + result.data.updateGcpRecord.gcp_id + "紀錄儲存完畢"
-  }
 }
 
 // 刪除
@@ -866,6 +884,26 @@ getGcpTypeonDone(result=>{
   }
 });
 getGcpTypeonError(e=>{errorHandle(e,infomsg,alert1)});
+
+// 標心樣式清單
+const { mutate: getGcpStyle, onDone: getGcpStyleOnDone, onError: getGcpStyleError } = useMutation(GcpGQL.GETALLGCPSTYLELIST);
+getGcpStyleOnDone(result=>{
+  let getData = result.data.getAllGcpStyleList;
+  // console.log(getData);
+  nowGcpStyleMU.value = getData.map(x => {
+      return { text: x, value: x }
+    });nowGcpStyleMU.value.unshift({ text: "-未選取-", value: -1 });
+});
+getGcpStyleError(e=>{errorHandle(e,infomsg,alert1)});
+
+function updateGcpStyle(){
+  let newoption = (nowGcpStyle.value)?nowGcpStyle.value:'';
+  let findid = nowGcpStyleMU.value.findIndex(x => x.value===newoption);
+  if(findid===-1){
+    nowGcpStyleMU.value.push({text: newoption, value: newoption})
+    nowGcpStyleDOM.value.setValue(newoption);
+  }
+}
 
 // 清查人員清單
 const { mutate: getRecPerson, onDone: getRecPersonOnDone, onError: getRecPersonError } = useMutation(GcpGQL.GETRECPERSON);
@@ -1375,6 +1413,27 @@ function saveCCData(calCode,prjId){
   });
 }
 
+Chart.register({
+  id: 'custom_canvas_background_color',
+  beforeDraw: (chart, args, options) => {
+    const {ctx, chartArea: {left, top, right, bottom}} = chart;
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-over';
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, chart.height);
+    gradient.addColorStop(0, 'rgb(246,251,252)');
+    gradient.addColorStop(0.5, options.color);
+    gradient.addColorStop(1, 'rgb(246,251,252)');
+    // ctx.fillStyle = options.color;
+    ctx.fillStyle = gradient;
+    ctx.fillRect(left, top, right - left, bottom - top);
+    ctx.restore();
+  },
+  defaults: {
+      color: 'white'
+  }
+});
+
 // 門檻刻度上色
 function limitTickColor(v_limit){
   return (context)=>{
@@ -1395,6 +1454,9 @@ function limitTickLineWidth(v_limit){
 }
 // 圖表統計值數列
 function dataSetArray(getData){
+  getData.unshift({ label:'', avg: null, max: null, min: null,});
+  getData.push({ label:' ', avg: null, max: null, min: null,});
+  // console.log('getData',getData);
   return [
     { label: '最大值', data: getData, parsing: { yAxisKey: 'max' }, 
       backgroundColor: 'rgb(0,114,255)', pointStyle: 'rect', radius:6, rotation: 45,},
@@ -1446,6 +1508,9 @@ function chartOptions(chart_title,x_title,y_title,v_limit){
           weight: 'bold',
           size: 16,
         }
+      },
+      custom_canvas_background_color: {
+        color: 'rgb(201, 230, 238)'
       },
     }
   }
@@ -1771,12 +1836,12 @@ uploadFileOnDone((result) => {
     case "GcpSimage":
       nowGcpSimage.value = "";
       nowGcpSimage.value = result.data.uploadFile.filename;
-      saveGcpBtn();
+      saveGcpRecordBtn();
       break;
     case "GcpDespImg":
       nowGcpDespImg.value = "";
       nowGcpDespImg.value = result.data.uploadFile.filename;
-      saveGcpBtn();
+      saveGcpRecordBtn();
       break;
     case "PRecordImg0":
       nowPRecordImg0.value = ""
@@ -1834,6 +1899,7 @@ getchecktoken().then(res=>{
   refgetCaseCalType();
   refgetAllPrjlist();
   refgetGcpType();
+  getGcpStyle();
   getRecPerson();
   refgetAllContact();
   refgetAllEqpt({type: (nowEqptType.value && nowEqptType.value!==-1)?nowEqptType.value:null});
@@ -2043,7 +2109,6 @@ function selectNowChk(nowId, col, dt){
                                 @confirm="delGcpRecordBtn">
                                 刪除
                               </MDBPopconfirm>
-                              
                             </MDBCol>
                           </MDBRow>
                           <!-- 參考值表單 -->
@@ -2069,8 +2134,15 @@ function selectNowChk(nowId, col, dt){
                                   v-model:selected="nowGcpPavement" ref="nowGcpPavementDOM" />
                                 <MDBSelect size="sm" class="mt-2 col-md-6 col-xl-4" label="土地產權" v-model:options="nowGcpOwnerShipMU"
                                   v-model:selected="nowGcpOwnerShip" ref="nowGcpOwnerShipDOM" />
-                                <MDBSelect size="sm" class="mt-2 col-md-6 col-xl-4" label="標心樣式" v-model:options="nowGcpStyleMU"
-                                  v-model:selected="nowGcpStyle" ref="nowGcpStyleDOM" />
+                                <MDBSelect size="sm" class="mt-2 col-md-6 col-xl-4" 
+                                  label="標心樣式" 
+                                  v-model:options="nowGcpStyleMU"
+                                  v-model:selected="nowGcpStyle" 
+                                  ref="nowGcpStyleDOM"
+                                  @close="updateGcpStyle()">
+                                  <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowGcpStyle" />
+                                </MDBSelect>
+
                                 <MDBCol md="12" xl="8" class="mt-2">
                                   <MDBInput size="sm" type="text" label="測設機關" v-model="nowGcpEstablishment" />
                                 </MDBCol>

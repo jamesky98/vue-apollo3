@@ -3,6 +3,7 @@ import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import Record01 from "../components/Record01.vue";
 import Record02 from "../components/Record02.vue";
+import Record03 from "../components/Record03.vue";
 import { ref, reactive, onMounted, provide, inject } from "vue";
 import path from "path-browserify";
 import {
@@ -309,6 +310,10 @@ const columns1 = [
         case "J": //小像幅
           markicon = '<i class="fas fa-camera"></i>';
           classn = "typeJ"
+          break;
+        case "M": //車載光達
+          markicon = '<i class="fas fa-taxi"></i>';
+          classn = "typeM"
           break;
       }
       // return "<span style='color: " + color + "; background-color:" + bcolor + "' >" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
@@ -799,6 +804,7 @@ const animationType = ref("slide-left-ja");
 const showCaseEditAnima = ref(false);
 const showCaseEditR01Flag = ref(false);
 const showCaseEditR02Flag = ref(false);
+const showCaseEditR03Flag = ref(false);
 const addBtnDisabled = ref(false); //是否為完整編輯畫面
 
 // 儲存案件
@@ -840,6 +846,8 @@ saveCaseSError(e=>{errorHandle(e,infomsg,alert1)});
 const subFormRecord01 = ref();
 // mutation record02
 const subFormRecord02 = ref();
+// mutation record03
+const subFormRecord03 = ref();
 
 function saveNowCaseData() {
   if (addBtnDisabled.value) {
@@ -858,6 +866,11 @@ function saveNowCaseData() {
         // mutation case_base+record02
         saveCaseS(saveCaseSVar.value);
         subFormRecord02.value.saveRecord02();
+        break;
+      case 9:
+        // 車載光達
+        saveCaseS(saveCaseSVar.value);
+        subFormRecord03.value.saveRecord03();
         break;
     }
   } else {
@@ -879,6 +892,7 @@ function isAinmaDispaly(){
     // console.log('7-隱藏進階表單');
     showCaseEditR01Flag.value = false;
     showCaseEditR02Flag.value = false;
+    showCaseEditR03Flag.value = false;
   }else{    
     isAniLeft.value =false;
     // console.log('5-關閉播放');
@@ -911,7 +925,7 @@ function showCaseEdit() {
       // console.log('2-航測像機表單');
       showCaseEditR01Flag.value = true;
       showCaseEditR02Flag.value = false;
-
+      showCaseEditR03Flag.value = false;
       caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
       addBtnDisabled.value = true;
       //播放
@@ -923,6 +937,19 @@ function showCaseEdit() {
       // console.log('2-空載光達表單');
       showCaseEditR01Flag.value = false;
       showCaseEditR02Flag.value = true;
+      showCaseEditR03Flag.value = false;
+      // updateKey.value=updateKey.value+1;
+      caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
+      addBtnDisabled.value = true;
+      //播放
+      // console.log('3-變更標籤，播放動畫');
+      showCaseEditAnima.value=true;
+    }else if (nowCaseTypeId.value === 9) {
+      // 車載光達
+      // console.log('2-車載光達表單');
+      showCaseEditR01Flag.value = false;
+      showCaseEditR02Flag.value = false;
+      showCaseEditR03Flag.value = true;
       // updateKey.value=updateKey.value+1;
       caseBtnText.value = "結束編輯<i class='fas fa-angle-double-left'/>";
       addBtnDisabled.value = true;
@@ -1080,7 +1107,7 @@ function shownAPIModal() {
 
 // 查詢全部案件資料
 const { mutate: refgetAPIAllCase, onDone: getAPIAllCaseonDone, onError: getAPIAllCaseonError} = useMutation(
-  gql`query GetAllCase {
+  gql`mutation GetAllCase {
     getAllCase {
       id
     }
@@ -1215,7 +1242,7 @@ function inputAPICase() {
       if (!nowData.hasMatchCase) {
         // 未匯入者新建
         // 判斷校正項目是否為系統內項目
-        if (nowData.Code === 'F' || nowData.Code === 'I' || nowData.Code === 'J') {
+        if (nowData.Code === 'F' || nowData.Code === 'I' || nowData.Code === 'J' || nowData.Code === 'M') {
           // 新增案件
           let calTypeID = (caseCalType.value.getCaseCalType.find(x => x.code === nowData.Code)).id;
           addCase({
@@ -1255,7 +1282,7 @@ function saveAPIRecord(nowData) {
     if(res.data.getCustByName.length === 1) {
       result.cust_id = res.data.getCustByName[0].id;
     }
-    console.log("cust-result",result);
+    // console.log("cust-result",result);
     return result;
   }).then(res1 => {
     let result;
@@ -1277,8 +1304,8 @@ function saveAPIRecord(nowData) {
         result = getItemBySN({
           sn: nowData.COL04,
         }).then(res =>{
-          console.log("res1",res1);
-          console.log("item_id",res);
+          // console.log("res1",res1);
+          // console.log("item_id",res);
           let preresult = res1;
           if(res.data.getItemBySN.length === 1){
             preresult.item_id = res.data.getItemBySN[0].id;
@@ -1289,17 +1316,17 @@ function saveAPIRecord(nowData) {
           result = getItemBySN({
             sn: nowData.COL11,
           }).then(res=>{
-            console.log("res2",res2);
+            // console.log("res2",res2);
             let preresult = res2;
             if(res.data.getItemBySN.length === 1){
               preresult.gnss_id = res.data.getItemBySN[0].id;
             }
-            console.log("gnss_id",preresult);
+            // console.log("gnss_id",preresult);
             return preresult;
           })
           return result;
         }).then(res3 => {
-          console.log("res3",res3);
+          // console.log("res3",res3);
           result = getItemBySN({
             sn: nowData.COL16,
           }).then(res=>{
@@ -1334,6 +1361,7 @@ function saveAPIRecord(nowData) {
   }).then(res => {
     // console.log("saveCaseS_result",res);
     let result;
+    let preresult;
       // 下載附件
       switch (nowData.Code) {
         case "F":
@@ -1356,7 +1384,37 @@ function saveAPIRecord(nowData) {
           break;
         case "I":
           // 下載camReport
-          let preresult = res;
+          preresult = res;
+          result = dlFromAPI({
+            fromUrl: nowData.COL28,
+            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+            toFileName: "01_LrReport" + path.extname(nowData.COL28),
+          }).then(res=>{  
+            // 下載planMap
+            dlFromAPI({
+            fromUrl: nowData.COL29,
+            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+            toFileName: "02_POSReport" + path.extname(nowData.COL29),
+            })
+          }).then(res=>{  
+            // 下載planMap
+            dlFromAPI({
+            fromUrl: nowData.COL30,
+            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+            toFileName: "03_LrPlan" + path.extname(nowData.COL30),
+            })
+          }).then(res=>{
+            return [
+              "01_LrReport" + path.extname(nowData.COL28) , 
+              "02_POSReport" + path.extname(nowData.COL29), 
+              "03_LrPlan" + path.extname(nowData.COL30),
+              (preresult.gnss_id)?preresult.gnss_id:null,
+              (preresult.imu_id)?preresult.imu_id:null];
+          })
+          break;
+        case "M":
+          // 下載camReport
+          preresult = res;
           result = dlFromAPI({
             fromUrl: nowData.COL28,
             toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
@@ -1471,6 +1529,33 @@ function saveAPIRecord(nowData) {
             planMap: res[2],
           });
           break;
+        case "M":
+          saveRecord03API({
+            updateRecord02Id: nowData.caseid,
+            type: parseInt(nowData.COL05),
+            gnssId: (res[3])?parseInt(res[3]):null,
+            imuId: (res[4])?parseInt(res[4]):null,
+            disPresision: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL06):null,
+            angResolution: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL07):null,
+            beam: parseFloat(nowData.COL08),
+            precH: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL12):parseFloat(nowData.COL06),
+            precV: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL13):parseFloat(nowData.COL07),
+            omega: parseFloat(nowData.COL17),
+            phi: parseFloat(nowData.COL18),
+            kappa: parseFloat(nowData.COL19),
+            precOri: parseFloat(nowData.COL20),
+            planYear: parseInt(nowData.COL21),
+            planMonth: parseInt(nowData.COL22),
+            stripsNo: parseInt(nowData.COL23),
+            ellHeight: parseFloat(nowData.COL24),
+            agl: parseFloat(nowData.COL25),
+            cloudDensity: parseFloat(nowData.COL26),
+            fov: parseFloat(nowData.COL27),
+            lidarReport: res[0],
+            posReport: res[1],
+            planMap: res[2],
+          });
+          break;
       }
     }); 
 }
@@ -1490,6 +1575,14 @@ const {
   onError: saveRecord02APIError,
 } = useMutation(CaseGQL.SAVECASERECORD02);
 saveRecord02APIError(e=>{errorHandle(e,infomsg,alert1)});
+
+// 儲存Record03API
+const {
+  mutate: saveRecord03API,
+  onDone: saveRecord03APIOnDone,
+  onError: saveRecord03APIError,
+} = useMutation(CaseGQL.SAVECASERECORD03);
+saveRecord03APIError(e=>{errorHandle(e,infomsg,alert1)});
 //#endregion 連線取得案件==========End
 
 getchecktoken().then(res=>{
@@ -1884,6 +1977,12 @@ onMounted(function () {
                 <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
                   <!-- record02表單 -->
                   <Record02 :caseID="nowCaseID" :key="updateKey" ref="subFormRecord02" />
+                </MDBRow>
+              </MDBCol>
+              <MDBCol md="8" v-else-if="showCaseEditR03Flag" class="h-100 py-2">
+                <MDBRow style="margin-left:0;margin-right:0;" class="h-100 bg-light border border-5 rounded-8 shadow-4">
+                  <!-- record03表單 -->
+                  <Record03 :caseID="nowCaseID" :key="updateKey" ref="subFormRecord03" />
                 </MDBRow>
               </MDBCol>
             </MDBRow>

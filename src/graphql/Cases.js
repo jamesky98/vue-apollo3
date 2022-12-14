@@ -808,6 +808,74 @@ const SAVECASERECORD02 = gql`
 }
 `;
 
+const SAVECASERECORD03 = gql`
+  mutation UpdateRecord03(
+    $updateRecord03Id: String!, 
+    $type: Int, 
+    $gnssId: Int, 
+    $imuId: Int, 
+    $disPresision: Float, 
+    $angResolution: Float, 
+    $beam: Float, 
+    $precH: Float, 
+    $precV: Float, 
+    $omega: Float, 
+    $phi: Float, 
+    $kappa: Float, 
+    $precOri: Float, 
+    $planYear: Int, 
+    $planMonth: Int, 
+    $stripsNo: Int, 
+    $ellHeight: Float, 
+    $agl: Float, 
+    $cloudDensity: Float, 
+    $fov: Float, 
+    $lidarReport: String, 
+    $posReport: String, 
+    $planMap: String, 
+    $receiveDate: Date, 
+    $flyDate: Date, 
+    $stripsNoAc: Int, 
+    $ellHeightAc: Float, 
+    $aglAc: Float, 
+    $cloudDensityAc: Float, 
+    $fovAc: Float, 
+    $flyMap: String, 
+    $recTable: String, 
+    $filesNo: Int, 
+    $others: String, 
+    $errData: String, 
+    $errCloud: String, 
+    $startDate: Date, 
+    $refId: Int, 
+    $totalPt: Int, 
+    $gcpFile: String, 
+    $measFile: String, 
+    $resultFile: String, 
+    $stdH: Float, 
+    $stdV: Float, 
+    $kH: Float, 
+    $kV: Float, 
+    $stdFile: String, 
+    $reportEdit: String, 
+    $chkDate: Date, 
+    $chkPersonId: Int, 
+    $completeDate: Date, 
+    $signDate: Date, 
+    $signPersonId: Int, 
+    $reportScan: String, 
+    $hasLogo: Boolean, 
+    $reportTemplate: String, 
+    $recordTamplate: String, 
+    $recalTable: String, 
+    $uccalTable: String, 
+    $ucModel: String) {
+  updateRecord03(id: $updateRecord03Id, type: $type, gnss_id: $gnssId, imu_id: $imuId, dis_presision: $disPresision, ang_resolution: $angResolution, beam: $beam, prec_h: $precH, prec_v: $precV, omega: $omega, phi: $phi, kappa: $kappa, prec_ori: $precOri, plan_year: $planYear, plan_month: $planMonth, strips_no: $stripsNo, ell_height: $ellHeight, agl: $agl, cloud_density: $cloudDensity, fov: $fov, lidar_report: $lidarReport, pos_report: $posReport, plan_map: $planMap, receive_date: $receiveDate, fly_date: $flyDate, strips_no_ac: $stripsNoAc, ell_height_ac: $ellHeightAc, agl_ac: $aglAc, cloud_density_ac: $cloudDensityAc, fov_ac: $fovAc, fly_map: $flyMap, rec_table: $recTable, files_no: $filesNo, others: $others, err_data: $errData, err_cloud: $errCloud, start_Date: $startDate, ref_id: $refId, total_pt: $totalPt, gcp_file: $gcpFile, meas_file: $measFile, result_file: $resultFile, std_h: $stdH, std_v: $stdV, k_h: $kH, k_v: $kV, std_file: $stdFile, report_edit: $reportEdit, chk_date: $chkDate, chk_person_id: $chkPersonId, complete_date: $completeDate, sign_date: $signDate, sign_person_id: $signPersonId, report_scan: $reportScan, has_logo: $hasLogo, report_template: $reportTemplate, record_tamplate: $recordTamplate, recal_table: $recalTable, uccal_table: $uccalTable, uc_model: $ucModel) {
+    id
+  }
+}
+`;
+
 const COMPUTEUC = gql`
   mutation ComputeUc($parm: String, $ucModel: String) {
     computeUc(parm: $parm, uc_model: $ucModel) {
@@ -952,11 +1020,12 @@ export default {
   DELCASE,
   SAVECASESIMPLE,
   SAVECASERECORD01,
+  SAVECASERECORD02,
+  SAVECASERECORD03,
   COMPUTEUC,
   GETUCLIST,
   BUILDREPORT01,
   GETRPTLIST,
-  SAVECASERECORD02,
   GETUCMODULE,
   SAVEUCMODULE,
   GETUCRESULTFORMJSON,

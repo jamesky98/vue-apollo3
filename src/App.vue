@@ -135,10 +135,17 @@ tr.selected>td>span.typeI {
 .typeJ {
   color: #FF7F50;
 }
+.typeM{
+  color: #9966ff;
+}
 
 tr.selected>td>span.typeJ {
   color: white;
 }
+tr.selected>td>span.typeM {
+  color: white;
+}
+
 div.dataTables_filter {
   padding-top: 0.85em;
 }

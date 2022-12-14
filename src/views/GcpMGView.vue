@@ -1141,7 +1141,7 @@ function testfun(){
                               <MDBCol col="12" class="py-2 border-bottom">
                                 <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="clearfilter">清除</MDBBtn>
                                 <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="dofilter">篩選</MDBBtn>
-                                <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="testfun">test</MDBBtn>
+                                <!-- <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="testfun">test</MDBBtn> -->
                               </MDBCol>
                             </MDBRow>
                             <MDBRow class="overflow-auto align-content-start" style="height: calc(100% - 3rem);">
