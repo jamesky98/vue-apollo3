@@ -2,13 +2,16 @@
 // 人員評估表
 import { ref } from 'vue';
 import { computed } from "@vue/reactivity";
-import { useQuery,useMutation } from '@vue/apollo-composable';
+import { useMutation } from '@vue/apollo-composable';
 import EmpGQL from "../../graphql/Employee";
+import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
 
 // 引入案件編號
 const props = defineProps({
   empowerID: String
 });
+const infomsg = ref('');
+const alert1 =ref(false);
 
 const nowEmpName = ref(""); // 姓名
 const nowEmpowerPersonID = ref(""); // 員工編號
@@ -89,6 +92,7 @@ const {
     empowerId: parseInt(props.empowerID),
   },
 }));
+getEmpowerByIdError(e=>{errorHandle(e,infomsg,alert1)});
 getEmpowerByIdOnDone(result=>{
   let getData = result.data.getEmpowerByID;
   let getCalType = result.data.getEmpowerByID.cal_type_cal_typeToemployee_empower;

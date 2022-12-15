@@ -2,13 +2,16 @@
 // 人員基本資料表
 import { ref } from 'vue';
 import { computed } from "@vue/reactivity";
-import { useQuery } from '@vue/apollo-composable';
+import { useMutation } from '@vue/apollo-composable';
 import EmpGQL from "../../graphql/Employee";
+import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
 
 // 引入案件編號
 const props = defineProps({
   empID: String
 });
+const infomsg = ref('');
+const alert1 =ref(false);
 
 const nowEmpLabID = ref(""); // 實驗室編號
 const nowEmpModifyDate = ref(""); // 更新日期
@@ -39,12 +42,19 @@ const nowEmpExperience = ref(""); // 經歷
 const nowTrainStr = ref(""); // 訓練紀錄
 
 // 查詢Emp資料
-const { onResult: getEmp, refetch: refgetEmp } = useQuery(
+const { 
+  onDone: getEmp, 
+  mutate: refgetEmp,
+  onError: getEmponError
+} = useMutation(
   EmpGQL.GETEMPBYID,
   () => ({
-    personId: parseInt(props.empID)
+    variables: {
+      personId: parseInt(props.empID)
+    }
   })
 );
+getEmponError(e=>{errorHandle(e,infomsg,alert1)});
 getEmp(result => {
   if (!result.loading && result && result.data.getEmpById) {
     // 填入資料
@@ -68,12 +78,19 @@ getEmp(result => {
 refgetEmp();
 
 // 查詢Train資料
-const { onResult: getTrain, refetch: refgetTrain } = useQuery(
+const { 
+  onDone: getTrain, 
+  mutate: refgetTrain,
+  onError: getTrainonError
+} = useMutation(
   EmpGQL.GETTRAIN,
   () => ({
-    personId: parseInt(props.empID)
+    variables: {
+      personId: parseInt(props.empID)
+    }
   })
 );
+getTrainonError(e=>{errorHandle(e,infomsg,alert1)});
 getTrain(result=>{
   if (!result.loading && result && result.data.getTrainByPerson) {
     let getData = result.data.getTrainByPerson;

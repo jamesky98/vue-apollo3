@@ -202,10 +202,10 @@ const nowCaseSTDv = ref(""); //高程不確定度(自動計算)
 const nowCaseKh = ref(""); //水平涵蓋因子(自動計算)
 const nowCaseKv = ref(""); //高程涵蓋因子(自動計算)
 
-const nowCaseCalResult = ref(""); //計算成果表
+const nowCaseCalResult = ref(); //計算成果表
 const isCalResult = computed(()=>{ //計算表是否有成果
-  if(nowCaseCalResult.value===''){return false}
-  let calTable = JSON.parse(nowCaseCalResult.value);
+  if(!nowCaseCalResult.value){return false}
+  let calTable = nowCaseCalResult.value;
   if (calTable.rmseH && calTable.rmseV){
     return true;
   }else{
@@ -213,7 +213,7 @@ const isCalResult = computed(()=>{ //計算表是否有成果
   }
 });
 
-const nowCaseUcResult = ref(""); //不確定度計算表
+const nowCaseUcResult = ref(); //不確定度計算表
 const nowCaseUcModel = ref(""); //不確定度選用模組
 provide("nowCaseUcModel", nowCaseUcModel);
 const selectUcModel = ref("");
@@ -427,9 +427,9 @@ getNowCaseFonDone(result => {
     nowCaseSTDv.value = getData.std_v;
     nowCaseKh.value = getData.k_h;
     nowCaseKv.value = getData.k_v;
-    nowCaseCalResult.value = getData.recal_table ? getData.recal_table : "";
+    nowCaseCalResult.value = getData.recal_table ? getData.recal_table :null;
     data1.value = calResultToData1();
-    nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table : "";
+    nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table :null;
 
     // 出具報告
     nowCaseHasLOGO.value = getData.has_logo;
@@ -1020,8 +1020,8 @@ const {
     hasLogo: nowCaseHasLOGO.value,
     reportTemplate: selectReportTemp.value,
     recordTamplate: "",
-    recalTable: nowCaseCalResult.value,
-    uccalTable: nowCaseUcResult.value,
+    recalTable: (nowCaseCalResult.value)?nowCaseCalResult.value:undefined,
+    uccalTable: (nowCaseUcResult.value)?nowCaseUcResult.value:undefined,
     ucModel: selectUcModel.value,
   },
 }));
@@ -1218,7 +1218,7 @@ function reloadUcMU(){
 const pramJsonStr = ref("");
 
 function computeUcBtn(){
-  let calResult = JSON.parse(nowCaseCalResult.value);
+  let calResult = nowCaseCalResult.value;
   let pramJson = {
     lrdis: nowCaseLrDisPrs.value, // LiDAR規格測距精度(mm)
     lrbeam: nowCaseLrBeam.value, // LiDAR規格雷射擴散角(秒)
@@ -1251,7 +1251,7 @@ const {
 computeUcOnDone((result) => {
   // console.log(result.data.computeUc);
   if (!result.loading && result.data.computeUc) {
-    nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
+    nowCaseUcResult.value = result.data.computeUc;
     nowCaseSTDh.value = result.data.computeUc.fixUcH;
     nowCaseSTDv.value = result.data.computeUc.fixUcV;
     nowCaseKh.value = result.data.computeUc.tinvH.toFixed(2);
@@ -1350,7 +1350,7 @@ function loadtable(index){
       nowCaseSTDv.value="";
       nowCaseKh.value="";
       nowCaseKv.value="";
-      nowCaseUcResult.value="";
+      nowCaseUcResult.value=null;
 
       e.stopPropagation()
     });
@@ -1365,12 +1365,12 @@ function loadtable(index){
 
 // 計算成果匯入表格
 function calResultToData1(){
-  if(!nowCaseCalResult.value || nowCaseCalResult.value===''){
+  if(!nowCaseCalResult.value){
     // console.log("[]");
     return []
   }
   // console.log("calResultToData1");
-  let calTable = JSON.parse(nowCaseCalResult.value);
+  let calTable = nowCaseCalResult.value;
   let myArray = [];
   for(let key in calTable.data){
     // if(calTable.data[key].type==='T'){
@@ -1454,7 +1454,7 @@ function data1ToCalResult(){
   myCalResult.data = pt_Data;
   // console.log(myCalResult);
   // console.log(selectUcModel.value);
-  nowCaseCalResult.value = JSON.stringify(myCalResult)
+  nowCaseCalResult.value = myCalResult;
 }
 
 async function ptCloudAvg(POfile, ptIndex) {
@@ -1507,7 +1507,7 @@ async function ptCloudAvg(POfile, ptIndex) {
           nowCaseSTDv.value="";
           nowCaseKh.value="";
           nowCaseKv.value="";
-          nowCaseUcResult.value="";
+          nowCaseUcResult.value=null;
 
         }
       }
@@ -1555,9 +1555,9 @@ function buildReportBtn() {
   parms.nowCaseRefPrjPublishDateM = prjPubDateAy[1];
   parms.nowCaseRefPrjPublishDateD = prjPubDateAy[2];
 
-  let calTable = JSON.parse(nowCaseCalResult.value);
+  let calTable = nowCaseCalResult.value;
   // console.log("calTable",calTable);
-  let ucTable = JSON.parse(nowCaseUcResult.value);
+  let ucTable = nowCaseUcResult.value;
   // console.log("ucTable",ucTable);
 
   let defVerH = [];
@@ -2261,7 +2261,7 @@ defineExpose({
                         <span class="btn-primary">列印計算成果</span>
                       </RouterLink>
                     </MDBBtn>
-                    <MDBBtn :disabled="!rGroup[2] || nowCaseUcResult===''" size="sm" color="primary">
+                    <MDBBtn :disabled="!rGroup[2] || !nowCaseUcResult" size="sm" color="primary">
                       <RouterLink target="_blank" :to="{
                         path: '/sicltab06',
                         query: { caseID: props.caseID },

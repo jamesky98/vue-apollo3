@@ -2,13 +2,16 @@
 // 空三報表摘要資訊
 import {ref} from 'vue';
 import { computed } from "@vue/reactivity";
-import { useQuery } from '@vue/apollo-composable';
+import { useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
+import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
 
 // 引入案件編號
 const props = defineProps({
   caseID: String
 });
+const infomsg = ref('');
+const alert1 =ref(false);
 
 const nowCaseImgNo = ref("");
 const nowCaseConnectNo = ref("");
@@ -51,12 +54,19 @@ const nowCaseCalArray = computed(()=>{
 })
 
 // 查詢Case_Record資料
-const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
+const { 
+	onDone: getNowCaseF, 
+	mutate: refgetNowCaseF,
+	onError: getNowCaseFonError
+} = useMutation(
   CaseGQL.GETFULLCASEBYID,
   () => ({
-    getCasebyIdId: props.caseID
+		variables: {
+			getCasebyIdId: props.caseID
+		}
   })
 );
+getNowCaseFonError(e=>{errorHandle(e,infomsg,alert1)});
 getNowCaseF(result => {
   if (!result.loading && result && result.data.getCasebyID) {
     // 填入資料
@@ -76,7 +86,7 @@ getNowCaseF(result => {
 		nowCaseRMSx.value = getRecord01.RMS_x;
     nowCaseRMSy.value = getRecord01.RMS_y;
     nowCaseRMSz.value = getRecord01.RMS_z;
-		let calTable = JSON.parse(getRecord01.recal_table);
+		let calTable = getRecord01.recal_table;
 		nowCaseSTDh.value = calTable.rmseH.toFixed(3);
     nowCaseSTDv.value = calTable.rmseV.toFixed(3);
 		nowCaseCalResult.value = calTable.data;

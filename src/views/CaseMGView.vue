@@ -48,8 +48,6 @@ import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
-
-
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
 
@@ -943,6 +941,7 @@ function showCaseEdit() {
       addBtnDisabled.value = true;
       //播放
       // console.log('3-變更標籤，播放動畫');
+      animationType.value = "slide-left-ja"
       showCaseEditAnima.value=true;
     }else if (nowCaseTypeId.value === 9) {
       // 車載光達
@@ -955,6 +954,7 @@ function showCaseEdit() {
       addBtnDisabled.value = true;
       //播放
       // console.log('3-變更標籤，播放動畫');
+      animationType.value = "slide-left-ja"
       showCaseEditAnima.value=true;
     }else{
       // 未選案件不動作
@@ -1301,6 +1301,7 @@ function saveAPIRecord(nowData) {
         })
         return result;
       case "I":
+      case "M":
         result = getItemBySN({
           sn: nowData.COL04,
         }).then(res =>{
@@ -1426,18 +1427,10 @@ function saveAPIRecord(nowData) {
             toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
             toFileName: "02_POSReport" + path.extname(nowData.COL29),
             })
-          }).then(res=>{  
-            // 下載planMap
-            dlFromAPI({
-            fromUrl: nowData.COL30,
-            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
-            toFileName: "03_LrPlan" + path.extname(nowData.COL30),
-            })
           }).then(res=>{
             return [
               "01_LrReport" + path.extname(nowData.COL28) , 
               "02_POSReport" + path.extname(nowData.COL29), 
-              "03_LrPlan" + path.extname(nowData.COL30),
               (preresult.gnss_id)?preresult.gnss_id:null,
               (preresult.imu_id)?preresult.imu_id:null];
           })
@@ -1533,8 +1526,8 @@ function saveAPIRecord(nowData) {
           saveRecord03API({
             updateRecord02Id: nowData.caseid,
             type: parseInt(nowData.COL05),
-            gnssId: (res[3])?parseInt(res[3]):null,
-            imuId: (res[4])?parseInt(res[4]):null,
+            gnssId: (res[3])?parseInt(res[2]):null,
+            imuId: (res[4])?parseInt(res[3]):null,
             disPresision: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL06):null,
             angResolution: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL07):null,
             beam: parseFloat(nowData.COL08),
@@ -1544,16 +1537,12 @@ function saveAPIRecord(nowData) {
             phi: parseFloat(nowData.COL18),
             kappa: parseFloat(nowData.COL19),
             precOri: parseFloat(nowData.COL20),
-            planYear: parseInt(nowData.COL21),
-            planMonth: parseInt(nowData.COL22),
+            // planYear: parseInt(nowData.COL21),
+            // planMonth: parseInt(nowData.COL22),
             stripsNo: parseInt(nowData.COL23),
-            ellHeight: parseFloat(nowData.COL24),
-            agl: parseFloat(nowData.COL25),
             cloudDensity: parseFloat(nowData.COL26),
-            fov: parseFloat(nowData.COL27),
             lidarReport: res[0],
             posReport: res[1],
-            planMap: res[2],
           });
           break;
       }

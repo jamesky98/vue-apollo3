@@ -2,13 +2,16 @@
 	// 作業紀錄表(適用航空測量攝影機)
 import {ref, inject} from 'vue';
 import { computed } from "@vue/reactivity";
-import { useQuery } from '@vue/apollo-composable';
+import { useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
+import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
 
 // 引入案件編號
 const props = defineProps({
   caseID: String
 });
+const infomsg = ref('');
+const alert1 =ref(false);
 const publicPath = inject('publicPath');
 
 const nowCaseCalTypeCode = ref(""); //校正項目代碼
@@ -84,12 +87,19 @@ const nowCaseGCPGraphDL = computed(() => {
 });
 
 // 查詢Case_Record資料
-const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
+const { 
+	onDone: getNowCaseF, 
+	mutate: refgetNowCaseF,
+	onError: getNowCaseFonError
+} = useMutation(
   CaseGQL.GETFULLCASEBYID,
   () => ({
-    getCasebyIdId: props.caseID
+		variables: {
+			getCasebyIdId: props.caseID
+		}
   })
 );
+getNowCaseFonError(e=>{errorHandle(e,infomsg,alert1)});
 getNowCaseF(result => {
   if (!result.loading && result && result.data.getCasebyID) {
     // 填入資料

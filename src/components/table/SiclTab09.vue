@@ -2,13 +2,16 @@
 // 空載光達計算成果表
 import {ref} from 'vue';
 import { computed } from "@vue/reactivity";
-import { useQuery } from '@vue/apollo-composable';
+import { useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
+import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
 
 // 引入案件編號
 const props = defineProps({
   caseID: String
 });
+const infomsg = ref('');
+const alert1 =ref(false);
 
 const nowCaseTotPt = ref("");
 const nowCaseMeaPt = ref("");
@@ -41,18 +44,25 @@ const nowCaseCalArray = computed(()=>{
 })
 
 // 查詢Case_Record資料
-const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
+const { 
+	onDone: getNowCaseF, 
+	mutate: refgetNowCaseF,
+	onError: getNowCaseFonError
+} = useMutation(
   CaseGQL.GETFULLCASEBYID,
   () => ({
-    getCasebyIdId: props.caseID
+		variables: {
+			getCasebyIdId: props.caseID
+		}
   })
 );
+getNowCaseFonError(e=>{errorHandle(e,infomsg,alert1)});
 getNowCaseF(result => {
   if (!result.loading && result && result.data.getCasebyID) {
     // 填入資料
 		let getRecord = result.data.getCasebyID.case_record_02;
-		let calTable = JSON.parse(getRecord.recal_table);
-    console.log(calTable);
+		let calTable = getRecord.recal_table;
+    // console.log(calTable);
     nowCaseTotPt.value = calTable.ptTotal;
 		nowCaseMeaPt.value = calTable.ptUsed;
 		nowCaseDelPt.value = calTable.ptDel;

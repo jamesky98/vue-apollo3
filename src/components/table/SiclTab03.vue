@@ -2,13 +2,16 @@
 	// 校正申請表(適用小像幅航拍攝影機)
 import {ref} from 'vue';
 import { computed } from "@vue/reactivity";
-import { useQuery } from '@vue/apollo-composable';
+import { useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
+import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
 
 // 引入案件編號
 const props = defineProps({
   caseID: String
 });
+const infomsg = ref('');
+const alert1 =ref(false);
 
 const tableID = computed(()=>{return props.caseID.slice(0,-2)}); //申請單編號
 const itemID = computed(()=>{return props.caseID.slice(-2)}); //校正件編號
@@ -65,12 +68,19 @@ const nowCaseChargeF = computed(()=>{
 })
 
 // 查詢Case_Record資料
-const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
+const { 
+	onDone: getNowCaseF, 
+	mutate: refgetNowCaseF,
+	onError: getNowCaseFonError
+} = useMutation(
   CaseGQL.GETFULLCASEBYID,
   () => ({
-    getCasebyIdId: props.caseID
+		variables: {
+			getCasebyIdId: props.caseID
+		}
   })
 );
+getNowCaseFonError(e=>{errorHandle(e,infomsg,alert1)});
 getNowCaseF(result => {
   if (!result.loading && result && result.data.getCasebyID) {
     // 填入資料
@@ -379,7 +389,7 @@ refgetNowCaseF();
 					<div>校正人員</div>
 					<div>Calibration Person</div>
 				</td>
-				<td class="fstyle02mid">{{nowCaseOperatorName}}
+				<td class="fstyle02mid">
 				</td>
 			</tr>
 		</table>

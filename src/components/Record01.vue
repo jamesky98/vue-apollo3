@@ -277,8 +277,8 @@ const nowCaseSTDExlDL = computed(() => {
 const nowCaseKh = ref(""); //水平涵蓋因子(自動計算)
 const nowCaseKv = ref(""); //高程涵蓋因子(自動計算)
 const nowCaseRecTemp = ref(""); //作業紀錄表範本
-const nowCaseCalResult = ref(""); //計算成果表
-const nowCaseUcResult = ref(""); //不確定度計算表
+const nowCaseCalResult = ref(); //計算成果表
+const nowCaseUcResult = ref(); //不確定度計算表
 const nowCaseUcModel = ref(""); //不確定度選用模組
 provide("nowCaseUcModel", nowCaseUcModel);
 const selectUcModel = ref("");
@@ -497,8 +497,8 @@ getNowCaseFonDone((result) => {
     nowCaseSTDv.value = getData.std_v;
     nowCaseKh.value = getData.k_h;
     nowCaseKv.value = getData.k_v;
-    nowCaseCalResult.value = getData.recal_table ? getData.recal_table : "";
-    nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table : "";
+    nowCaseCalResult.value = getData.recal_table ? getData.recal_table : null;
+    nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table : null;
     
 
     // 出具報告
@@ -1092,8 +1092,8 @@ const {
     distrotion: nowCaseDist.value,
     recordTamplate: nowCaseRecTemp.value,
     eoFile: nowCaseEO.value,
-    recalTable: nowCaseCalResult.value,
-    uccalTable: nowCaseUcResult.value,
+    recalTable: (nowCaseCalResult.value)?nowCaseCalResult.value:undefined,
+    uccalTable: (nowCaseUcResult.value)?nowCaseUcResult.value:undefined,
     ucModel: selectUcModel.value + "",
   },
 }));
@@ -1314,7 +1314,7 @@ calRefGcpOnDone((result) => {
     let dx = 0.0;
     let dy = 0.0;
     let dz = 0.0;
-    let pt_Data_Connect = JSON.parse(nowCaseCalResult.value).dataConnect;
+    let pt_Data_Connect = nowCaseCalResult.value.dataConnect;
     let pt_Data={};
 
     refData.forEach((x, i) => {
@@ -1352,7 +1352,7 @@ calRefGcpOnDone((result) => {
     nowCaseDelPt.value = pt_Ref - (pt_F + pt_C);
     nowCaseCrtNo.value = pt_F;
     nowCaseChkNo.value = pt_C;
-    nowCaseCalResult.value = JSON.stringify(calTable);
+    nowCaseCalResult.value = calTable;
     console.log(calTable);
     computeUc();
   }
@@ -1546,7 +1546,7 @@ async function readPrintOut(POfile) {
         nowCaseConnectNo.value = pt_T;
         let calTable = {};
         calTable.dataConnect = pt_Data;
-        nowCaseCalResult.value = JSON.stringify(calTable);
+        nowCaseCalResult.value = calTable;
 
         pramJson = {
           sx: nowCaseRMSx.value,
@@ -1607,7 +1607,7 @@ computeUcOnDone((result) => {
   // console.log(result.data.computeUc);
   // console.log(nowCaseCalResult.value);
   if (!result.loading && result.data.computeUc) {
-    nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
+    nowCaseUcResult.value = result.data.computeUc;
     nowCaseSTDh.value = result.data.computeUc.fixUcH;
     nowCaseSTDv.value = result.data.computeUc.fixUcV;
     nowCaseKh.value = result.data.computeUc.tinvH.toFixed(2);
@@ -1710,9 +1710,9 @@ function buildReportBtn() {
   parms.nowCaseSizeX = nowCaseSizeX.value;
   parms.nowCaseSizeY = nowCaseSizeY.value;
 
-  let calTable = JSON.parse(nowCaseCalResult.value);
+  let calTable = nowCaseCalResult.value;
   // console.log("calTable",calTable);
-  let ucTable = JSON.parse(nowCaseUcResult.value);
+  let ucTable =nowCaseUcResult.value;
   // console.log("ucTable",ucTable);
 
   let defVerH = [];
@@ -2405,7 +2405,7 @@ defineExpose({
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
-                    <MDBBtn :disabled="nowCaseCalResult === ''" size="sm" color="primary">
+                    <MDBBtn :disabled="!nowCaseCalResult" size="sm" color="primary">
                       <RouterLink target="_blank" :to="{
                         path: '/sicltab05',
                         query: { caseID: props.caseID },
@@ -2413,7 +2413,7 @@ defineExpose({
                         <span class="btn-primary">列印計算成果</span>
                       </RouterLink>
                     </MDBBtn>
-                    <MDBBtn :disabled="nowCaseUcResult === ''" size="sm" color="primary">
+                    <MDBBtn :disabled="!nowCaseUcResult" size="sm" color="primary">
                       <RouterLink target="_blank" :to="{
                         path: '/sicltab06',
                         query: { caseID: props.caseID },

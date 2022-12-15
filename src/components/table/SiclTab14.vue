@@ -4,11 +4,14 @@ import {ref, onMounted} from 'vue';
 import { computed } from "@vue/reactivity";
 import { useMutation } from '@vue/apollo-composable';
 import GcpGQL from "../../graphql/Gcp";
+import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
 
 // 引入點號
 const props = defineProps({
 	recordID: String
 });
+const infomsg = ref('');
+const alert1 =ref(false);
 
 const nowPRecordPtId = ref("");
 const nowPRecordPrjId = ref("");
@@ -81,12 +84,17 @@ const nowPRecordImg3DL = computed(()=>{
 });
 
 // 查詢gcp_Record資料
-const { mutate: getRecordById, onDone: getRecordByIdOnDone, onError: getRecordByIdError } = useMutation(GcpGQL.GETRECORDBYID);
+const { 
+  mutate: getRecordById, 
+  onDone: getRecordByIdOnDone, 
+  onError: getRecordByIdError 
+} = useMutation(GcpGQL.GETRECORDBYID);
+getRecordByIdError(e=>{errorHandle(e,infomsg,alert1)});
 getRecordByIdOnDone(result => {
   if (!result.loading && result.data.getGcpRecordById) {
     // 填入資料
 		let getData = result.data.getGcpRecordById;
-    console.log(getData);
+    // console.log(getData);
 		nowPRecordPtId.value = getData.gcp_id;
     nowPRecordPrjId.value = getData.project_id;
     nowPRecordPrjCode.value = getData.ref_project.project_code;

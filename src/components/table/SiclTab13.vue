@@ -1,15 +1,18 @@
 <script setup>
 	// 作業紀錄表(適用航空測量攝影機)
-import {ref, onMounted} from 'vue';
+import {ref} from 'vue';
 import { computed } from "@vue/reactivity";
 import { useMutation } from '@vue/apollo-composable';
 import GcpGQL from "../../graphql/Gcp";
+import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
 
 // 引入點號
 const props = defineProps({
 	recordID: String,
   selParams: String
 });
+const infomsg = ref('');
+const alert1 =ref(false);
 
 // console.log(props.recordID);
 // console.log(props.selParams);
@@ -17,7 +20,12 @@ const props = defineProps({
 // 查詢gcp_Record資料
 const tabData = ref([]);
 // 單筆
-const { mutate: getRecordById, onDone: getRecordByIdOnDone, onError: getRecordByIdError } = useMutation(GcpGQL.GETRECORDBYID);
+const { 
+  mutate: getRecordById, 
+  onDone: getRecordByIdOnDone, 
+  onError: getRecordByIdError 
+} = useMutation(GcpGQL.GETRECORDBYID);
+getRecordByIdError(e=>{errorHandle(e,infomsg,alert1)});
 getRecordByIdOnDone(result => {
   if (!result.loading && result.data.getGcpRecordById) {
     // 填入資料
@@ -28,7 +36,12 @@ getRecordByIdOnDone(result => {
 });
 // 多筆
 // 查詢AllGCP
-const { mutate: getAllGcp, onDone: getAllGcpOnDone, onError: getAllGcpError } = useMutation(GcpGQL.GETALLGCP);
+const { 
+  mutate: getAllGcp, 
+  onDone: getAllGcpOnDone, 
+  onError: getAllGcpError 
+} = useMutation(GcpGQL.GETALLGCP);
+getAllGcpError(e=>{errorHandle(e,infomsg,alert1)});
 getAllGcpOnDone(result=>{
   if (!result.loading && result.data.getAllGcp) {
     let getData = result.data.getAllGcp;

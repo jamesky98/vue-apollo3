@@ -103,13 +103,10 @@ const nowCaseImuPhi = ref("");  // IMU設備Phi精度
 const nowCaseImuKap = ref("");  // IMU設備Kappa精度
 const nowCaseImuPrcO = ref("");  // IMU設備姿態角解析度
 
-const nowCasePlanY = ref(""); // 預定拍攝年
-const nowCasePlanM = ref(""); // 預定拍攝月
-const nowCaseStrips = ref(""); // 航帶總數
-const nowCaseEllH = ref(""); // 飛航橢球高
-const nowCaseAGL = ref(""); // 飛航離地高
+const nowCasePlanDate = ref(""); // 預定拍攝日期
+const nowCasePlanDateDOM= ref("");
+
 const nowCasePtDensity = ref(""); // 單航帶點雲密度
-const nowCaseFOV = ref(""); // 最大掃描角FOV
 
 const nowCaseLrReport = ref(""); // LiDAR規格
 const nowCaseLrReportDL = computed(() => {
@@ -129,43 +126,20 @@ const nowCasePosReportDL = computed(() => {
   }
 });
 
-const nowCasePlanMap = ref(""); // 航線規劃圖
-const nowCasePlanMapDL = computed(() => {
-  if (nowCasePlanMap.value && nowCasePlanMap.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePlanMap.value;
-  } else {
-    return undefined;
-  }
-});
-
-
 // 送校
 const nowCaseRecDate = ref(""); // 送校日期
 const nowCaseRecDateDOM = ref();
 
-const nowCaseFlyDate = ref(""); // 掃描日期
-const nowCaseFlyDateDOM = ref();
+const nowCaseScanDate = ref(""); // 掃描日期
+const nowCaseScanDateDOM = ref();
 
 const nowCaseStripsAc = ref(""); // 實際航帶總數
-const nowCaseEllHac = ref(""); // 實際橢球高
-const nowCaseAGLac = ref(""); // 實際離地高AGL
-
 const nowCasePtDensityac = ref(""); // 單航帶點雲密度
-const nowCaseFOVac = ref(""); // 最大掃描角FOV
 
-const nowCaseFlyMapAc = ref(""); // 實際航線圖
-const nowCaseFlyMapAcDL = computed(() => {
-  if (nowCaseFlyMapAc.value && nowCaseFlyMapAc.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseFlyMapAc.value;
-  } else {
-    return undefined;
-  }
-});
-
-const nowCaseRecTable = ref(""); // 掃描紀錄表
-const nowCaseRecTableDL = computed(() => {
-  if (nowCaseRecTable.value && nowCaseRecTable.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseRecTable.value;
+const nowCaseScanMapAc = ref(""); // 實際航線圖
+const nowCaseScanMapAcDL = computed(() => {
+  if (nowCaseScanMapAc.value && nowCaseScanMapAc.value !== "") {
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseScanMapAc.value;
   } else {
     return undefined;
   }
@@ -188,12 +162,13 @@ const nowCaseErrLAS = ref(""); // 點雲異常註記
 // 校正
 const nowCaseStartDate = ref(""); //開始校正日
 const nowCaseStartDateDOM = ref();
+const nowCaseCompleteDate = ref(""); //報告(列印)日期
+const nowCaseCompleteDateDOM = ref();
 
 const nowCaseRefPrjID = ref(""); // 量測作業索引
 const nowCaseRefPrjCode = ref(""); // 量測作業編號編號
 const nowCaseRefPrjPublishDate = ref(""); // 參考值發布日期
 const nowCaseRefEqpt = ref(); // 使用標準件
-
 
 // 作業紀錄
 const nowCaseSTDh = ref(""); //水平不確定度(自動計算)
@@ -202,10 +177,10 @@ const nowCaseSTDv = ref(""); //高程不確定度(自動計算)
 const nowCaseKh = ref(""); //水平涵蓋因子(自動計算)
 const nowCaseKv = ref(""); //高程涵蓋因子(自動計算)
 
-const nowCaseCalResult = ref(""); //計算成果表
+const nowCaseCalResult = ref(); //計算成果表
 const isCalResult = computed(()=>{ //計算表是否有成果
-  if(nowCaseCalResult.value===''){return false}
-  let calTable = JSON.parse(nowCaseCalResult.value);
+  if(!nowCaseCalResult.value){return false}
+  let calTable = nowCaseCalResult.value;
   if (calTable.rmseH && calTable.rmseV){
     return true;
   }else{
@@ -213,7 +188,7 @@ const isCalResult = computed(()=>{ //計算表是否有成果
   }
 });
 
-const nowCaseUcResult = ref(""); //不確定度計算表
+const nowCaseUcResult = ref(); //不確定度計算表
 const nowCaseUcModel = ref(""); //不確定度選用模組
 provide("nowCaseUcModel", nowCaseUcModel);
 const selectUcModel = ref("");
@@ -239,9 +214,6 @@ const nowCaseReportEditDL = computed(() => {
     return undefined;
   }
 });
-
-const nowCaseCompleteDate = ref(""); //報告(列印)日期
-const nowCaseCompleteDateDOM = ref();
 
 const nowCaseChkDate = ref(""); // 數據檢核日
 provide("nowCaseChkDate", nowCaseChkDate);
@@ -381,31 +353,20 @@ getNowCaseFonDone(result => {
     nowCaseImuPhi.value = getData.phi;
     nowCaseImuKap.value = getData.kappa;
     nowCaseImuPrcO.value = getData.prec_ori;
-    // 飛航規劃
-    nowCasePlanY.value = getData.plan_year;
-    nowCasePlanM.value = getData.plan_month;
-    nowCaseStrips.value = getData.strips_no
-    nowCaseEllH.value = getData.ell_height;
-    nowCaseAGL.value = getData.agl;
+    // 掃描規劃
+    nowCasePlanDate.value = (getData.plan_date)?getData.plan_date.split("T")[0]:" ";
     nowCasePtDensity.value = getData.cloud_density;
-    nowCaseFOV.value = getData.fov;
     // 檢附資料
     nowCaseLrReport.value = getData.lidar_report;
     nowCasePosReport.value = getData.pos_report;
-    nowCasePlanMap.value = getData.plan_map;
     // 送件
-    
     nowCaseRecDate.value = (getData.receive_date)?getData.receive_date.split("T")[0]:" ";
-    nowCaseFlyDate.value = (getData.fly_date)?getData.fly_date.split("T")[0]:" ";
+    nowCaseScanDate.value = (getData.scan_date)?getData.scan_date.split("T")[0]:" ";
     
     nowCaseStripsAc.value = getData.strips_no_ac;
-    nowCaseEllHac.value = getData.ell_height_ac;
-    nowCaseAGLac.value = getData.agl_ac;
     nowCasePtDensityac.value = getData.cloud_density_ac;
-    nowCaseFOVac.value = getData.fov_ac;
 
-    nowCaseFlyMapAc.value = getData.fly_map;
-    nowCaseRecTable.value = getData.rec_table;
+    nowCaseScanMapAc.value = getData.scan_map;
     nowCaseLASNo.value = getData.files_no;
     nowCaseOther.value = getData.others;
     nowCaseErrData.value = getData.err_data;
@@ -413,7 +374,8 @@ getNowCaseFonDone(result => {
 
     // 校正
     nowCaseStartDate.value = (getData.start_Date)?getData.start_Date.split("T")[0]:" ";
-    
+    nowCaseCompleteDate.value = (getData.complete_date)?getData.complete_date.split("T")[0]:" ";
+
     nowCaseRefPrjID.value = getData.ref_id;
     nowCaseRefPrjCode.value = getData.ref_project
       ? getData.ref_project.project_code
@@ -427,16 +389,13 @@ getNowCaseFonDone(result => {
     nowCaseSTDv.value = getData.std_v;
     nowCaseKh.value = getData.k_h;
     nowCaseKv.value = getData.k_v;
-    nowCaseCalResult.value = getData.recal_table ? getData.recal_table : "";
+    nowCaseCalResult.value = getData.recal_table ? getData.recal_table : null;
     data1.value = calResultToData1();
-    nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table : "";
+    nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table : null;
 
     // 出具報告
     nowCaseHasLOGO.value = getData.has_logo;
-
     nowCaseReportEdit.value = getData.report_edit;
-    nowCaseCompleteDate.value = (getData.complete_date)?getData.complete_date.split("T")[0]:" ";
-    
     nowCaseChkDate.value = getData.chk_date
       ? getData.chk_date.split("T")[0]
       : " ";
@@ -961,29 +920,19 @@ const {
     phi: parseFloat(nowCaseImuPhi.value),
     kappa: parseFloat(nowCaseImuKap.value),
     precOri: parseFloat(nowCaseImuPrcO.value),
-    planYear: parseInt(nowCasePlanY.value),
-    planMonth: parseInt(nowCasePlanM.value),
-    stripsNo: parseInt(nowCaseStrips.value),
-    ellHeight: parseFloat(nowCaseEllH.value),
-    agl: parseFloat(nowCaseAGL.value),
+    planDate: parseInt(nowCasePlanDate.value),
     cloudDensity: parseFloat(nowCasePtDensity.value),
-    fov: parseFloat(nowCaseFOV.value),
     lidarReport: nowCaseLrReport.value,
     posReport: nowCasePosReport.value,
-    planMap: nowCasePlanMap.value,
     receiveDate: nowCaseRecDate.value.trim() === ""
       ? null
       : nowCaseRecDate.value.trim() + "T00:00:00.000Z",
-    flyDate: nowCaseFlyDate.value.trim() === ""
+    scanDate: nowCaseScanDate.value.trim() === ""
       ? null
-      : nowCaseFlyDate.value.trim() + "T00:00:00.000Z",
+      : nowCaseScanDate.value.trim() + "T00:00:00.000Z",
     stripsNoAc: parseInt(nowCaseStripsAc.value),
-    ellHeightAc: parseFloat(nowCaseEllHac.value),
-    aglAc: parseFloat(nowCaseAGLac.value),
     cloudDensityAc: parseFloat(nowCasePtDensityac.value),
-    fovAc: parseFloat(nowCaseFOVac.value),
-    flyMap: nowCaseFlyMapAc.value,
-    recTable: nowCaseRecTable.value,
+    scanMap: nowCaseScanMapAc.value,
     filesNo: parseInt(nowCaseLASNo.value),
     others: nowCaseOther.value,
     errData: nowCaseErrData.value,
@@ -991,8 +940,10 @@ const {
     startDate: nowCaseStartDate.value.trim() === ""
       ? null
       : nowCaseStartDate.value.trim() + "T00:00:00.000Z",
+    completeDate: nowCaseCompleteDate.value.trim() === ""
+      ? null
+      : nowCaseCompleteDate.value.trim() + "T00:00:00.000Z",
     refId: parseInt(nowCaseRefPrjID.value),
-    totalPt: parseInt(0),
     gcpFile: "",
     measFile: "",
     resultFile: "",
@@ -1006,9 +957,6 @@ const {
       ? null
       : nowCaseChkDate.value.trim() + "T00:00:00.000Z",
     chkPersonId: selectChkPersonID.value === "" ? null : parseInt(selectChkPersonID.value),
-    completeDate: nowCaseCompleteDate.value.trim() === ""
-      ? null
-      : nowCaseCompleteDate.value.trim() + "T00:00:00.000Z",
     signDate: nowCaseSignDate.value.trim() === ""
       ? null
       : nowCaseSignDate.value.trim() + "T00:00:00.000Z",
@@ -1020,8 +968,8 @@ const {
     hasLogo: nowCaseHasLOGO.value,
     reportTemplate: selectReportTemp.value,
     recordTamplate: "",
-    recalTable: nowCaseCalResult.value,
-    uccalTable: nowCaseUcResult.value,
+    recalTable: (nowCaseCalResult.value)?nowCaseCalResult.value:undefined,
+    uccalTable: (nowCaseUcResult.value)?nowCaseUcResult.value:undefined,
     ucModel: selectUcModel.value,
   },
 }));
@@ -1218,7 +1166,7 @@ function reloadUcMU(){
 const pramJsonStr = ref("");
 
 function computeUcBtn(){
-  let calResult = JSON.parse(nowCaseCalResult.value);
+  let calResult = nowCaseCalResult.value;
   let pramJson = {
     lrdis: nowCaseLrDisPrs.value, // LiDAR規格測距精度(mm)
     lrbeam: nowCaseLrBeam.value, // LiDAR規格雷射擴散角(秒)
@@ -1251,7 +1199,7 @@ const {
 computeUcOnDone((result) => {
   // console.log(result.data.computeUc);
   if (!result.loading && result.data.computeUc) {
-    nowCaseUcResult.value = JSON.stringify(result.data.computeUc);
+    nowCaseUcResult.value = result.data.computeUc;
     nowCaseSTDh.value = result.data.computeUc.fixUcH;
     nowCaseSTDv.value = result.data.computeUc.fixUcV;
     nowCaseKh.value = result.data.computeUc.tinvH.toFixed(2);
@@ -1350,7 +1298,7 @@ function loadtable(index){
       nowCaseSTDv.value="";
       nowCaseKh.value="";
       nowCaseKv.value="";
-      nowCaseUcResult.value="";
+      nowCaseUcResult.value=null;
 
       e.stopPropagation()
     });
@@ -1365,12 +1313,12 @@ function loadtable(index){
 
 // 計算成果匯入表格
 function calResultToData1(){
-  if(!nowCaseCalResult.value || nowCaseCalResult.value===''){
+  if(!nowCaseCalResult.value){
     // console.log("[]");
     return []
   }
   // console.log("calResultToData1");
-  let calTable = JSON.parse(nowCaseCalResult.value);
+  let calTable = nowCaseCalResult.value;
   let myArray = [];
   for(let key in calTable.data){
     // if(calTable.data[key].type==='T'){
@@ -1454,7 +1402,7 @@ function data1ToCalResult(){
   myCalResult.data = pt_Data;
   // console.log(myCalResult);
   // console.log(selectUcModel.value);
-  nowCaseCalResult.value = JSON.stringify(myCalResult)
+  nowCaseCalResult.value = myCalResult;
 }
 
 async function ptCloudAvg(POfile, ptIndex) {
@@ -1507,7 +1455,7 @@ async function ptCloudAvg(POfile, ptIndex) {
           nowCaseSTDv.value="";
           nowCaseKh.value="";
           nowCaseKv.value="";
-          nowCaseUcResult.value="";
+          nowCaseUcResult.value=null;
 
         }
       }
@@ -1555,9 +1503,9 @@ function buildReportBtn() {
   parms.nowCaseRefPrjPublishDateM = prjPubDateAy[1];
   parms.nowCaseRefPrjPublishDateD = prjPubDateAy[2];
 
-  let calTable = JSON.parse(nowCaseCalResult.value);
+  let calTable = nowCaseCalResult.value;
   // console.log("calTable",calTable);
-  let ucTable = JSON.parse(nowCaseUcResult.value);
+  let ucTable = nowCaseUcResult.value;
   // console.log("ucTable",ucTable);
 
   let defVerH = [];
@@ -2009,30 +1957,15 @@ defineExpose({
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="4" class="my-3">
-                    <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="預定拍攝年(民國)" v-model="nowCasePlanY" />
-                  </MDBCol>
-                  <MDBCol col="4" class="my-3">
-                    <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="預定拍攝月" v-model="nowCasePlanM" />
-                  </MDBCol>
-                  <MDBCol col="4" class="my-3">
-                    <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="航帶總數" v-model="nowCaseStrips" />
+                    <MDBDatepicker required size="sm" v-model="nowCasePlanDate" format="YYYY-MM-DD " label="預定拍攝日期"
+                      ref="nowCasePlanDateDOM" />
                   </MDBCol>
                   <div></div>
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="飛航橢球高" v-model="nowCaseEllH" />
-                  </MDBCol>
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="飛航離地高(AGL)" v-model="nowCaseAGL" />
-                  </MDBCol>
-                  <MDBCol col="4" class="mb-3">
-                    <div style="color: red;" class="border border-danger">※AGL = 橢球高 - 195 m</div>
-                  </MDBCol>
+
                   <MDBCol col="4" class="mb-3">
                     <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="點雲密度" v-model="nowCasePtDensity" />
                   </MDBCol>
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="FOV" v-model="nowCaseFOV" />
-                  </MDBCol>
+
                 </MDBRow>
               </MDBCol>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
@@ -2067,20 +2000,8 @@ defineExpose({
                       上傳</MDBBtn>
                     <MDBBtn tag="a" target=_blank size="sm" :href="nowCasePosReportDL" download color="secondary">下載</MDBBtn>
                   </MDBCol>
-                  <div></div>
-                  <!-- 規劃圖 -->
-                  <MDBCol col="9" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em;" size="sm" type="text"
-                      label="航線規劃圖" v-model="nowCasePlanMap">
-                      <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowCasePlanMap =''"
-                        class="btn-upload-close" />
-                    </MDBInput>
-                  </MDBCol>
-                  <MDBCol col="3" class="px-0 mb-3">
-                    <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('itemLrPlanUpload')">上傳
-                    </MDBBtn>
-                    <MDBBtn tag="a" target=_blank size="sm" :href="nowCasePlanMapDL" download color="secondary">下載</MDBBtn>
-                  </MDBCol>
+                  
+                  
                 </MDBRow>
               </MDBCol>
             </MDBRow>
@@ -2112,26 +2033,8 @@ defineExpose({
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="實際橢球高(m)"
-                      v-model="nowCaseEllHac" />
-                  </MDBCol>
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="實際離地高AGL(m)"
-                      v-model="nowCaseAGLac" />
-                  </MDBCol>
-                  <MDBCol col="4" class="mb-3">
-                    <div style="color: red" class="border border-danger">
-                      ※AGL = 橢球高 - 195 m
-                    </div>
-                  </MDBCol>
-                  <div></div>
-                  <MDBCol col="4" class="mb-3">
                     <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="單航帶點雲密度(pt/m2)"
                       v-model="nowCasePtDensityac" />
-                  </MDBCol>
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="最大掃描角FOV(°)"
-                      v-model="nowCaseFOVac" />
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -2143,28 +2046,15 @@ defineExpose({
                   <!-- 航線圖 -->
                   <MDBCol col="9" class="my-3">
                     <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                      label="實際航線圖" v-model="nowCaseFlyMapAc">
-                      <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowCaseFlyMapAc = ''"
+                      label="實際軌跡圖" v-model="nowCaseScanMapAc">
+                      <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowCaseScanMapAc = ''"
                         class="btn-upload-close" />
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 my-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('FlyMapAcUpload')">上傳
                     </MDBBtn>
-                    <MDBBtn tag="a" target=_blank :href="nowCaseFlyMapAcDL" download size="sm" color="secondary">下載</MDBBtn>
-                  </MDBCol>
-                  <!-- 掃描紀錄表 -->
-                  <MDBCol col="9" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                      label="航拍紀錄表" v-model="nowCaseRecTable">
-                      <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowCaseRecTable = ''"
-                        class="btn-upload-close" />
-                    </MDBInput>
-                  </MDBCol>
-                  <MDBCol col="3" class="px-0 mb-3">
-                    <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('RecTableUpload')">上傳
-                    </MDBBtn>
-                    <MDBBtn tag="a" target=_blank :href="nowCaseRecTableDL" download size="sm" color="secondary">下載</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCaseScanMapAcDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
@@ -2261,7 +2151,7 @@ defineExpose({
                         <span class="btn-primary">列印計算成果</span>
                       </RouterLink>
                     </MDBBtn>
-                    <MDBBtn :disabled="!rGroup[2] || nowCaseUcResult===''" size="sm" color="primary">
+                    <MDBBtn :disabled="!rGroup[2] || !nowCaseUcResult" size="sm" color="primary">
                       <RouterLink target="_blank" :to="{
                         path: '/sicltab06',
                         query: { caseID: props.caseID },

@@ -2,13 +2,17 @@
 // 作業紀錄表(適用空載光達)
 import { ref } from 'vue';
 import { computed } from "@vue/reactivity";
-import { useQuery } from '@vue/apollo-composable';
+import { useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
+import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
 
 // 引入案件編號
 const props = defineProps({
   caseID: String
 });
+const infomsg = ref('');
+const alert1 =ref(false);
+
 const nowCaseCalTypeCode = ref(""); //校正項目代碼
 const tableID = computed(() => { return props.caseID.slice(0, -2) }); //申請單編號
 const itemID = computed(() => { return props.caseID.slice(-2) }); //校正件編號
@@ -54,12 +58,19 @@ const nowCaseSTDh = ref(""); //水平不確定度(自動計算)
 const nowCaseSTDv = ref(""); //高程不確定度(自動計算)
 
 // 查詢Case_Record資料
-const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
+const { 
+  onDone: getNowCaseF, 
+  mutate: refgetNowCaseF, 
+  onError: getNowCaseFonError
+} = useMutation(
   CaseGQL.GETFULLCASEBYID,
   () => ({
-    getCasebyIdId: props.caseID
+    variables: {
+      getCasebyIdId: props.caseID
+    }
   })
 );
+getNowCaseFonError(e=>{errorHandle(e,infomsg,alert1)});
 getNowCaseF(result => {
   if (!result.loading && result && result.data.getCasebyID) {
     // 填入資料
@@ -91,13 +102,13 @@ getNowCaseF(result => {
     nowCaseImuPhi.value = getRecord.phi;
     nowCaseImuKap.value = getRecord.kappa;
     nowCaseImuPrcO.value = getRecord.prec_ori;
-    nowCaseCalResult.value = JSON.parse(getRecord.recal_table);
+    nowCaseCalResult.value = getRecord.recal_table;
     let myArray = [];
     for(let key in nowCaseCalResult.value.data){
       myArray.push({gcp_id:key,...nowCaseCalResult.value.data[key]});
     }
     pt_Data.value = myArray;
-    console.log(pt_Data.value);
+    // console.log(pt_Data.value);
     nowCaseSTDh.value = getRecord.std_h;
     nowCaseSTDv.value = getRecord.std_v;
   }

@@ -4,11 +4,14 @@ import {ref} from 'vue';
 // import { computed } from "@vue/reactivity";
 import { useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
+import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
 
 // 引入案件編號
 const props = defineProps({
   moduleName: String
 });
+const infomsg = ref('');
+const alert1 =ref(false);
 
 const viewDig = 2;
 const viewDigsub = 3;
@@ -36,6 +39,7 @@ const { mutate: testUc, onDone: testUcOnDone, onError: testUcError } = useMutati
     }
   })
 );
+testUcError(e=>{errorHandle(e,infomsg,alert1)});
 testUcOnDone(result => {
   if (!result.loading && result && result.data.getUcResultformJson) {
     // 填入資料

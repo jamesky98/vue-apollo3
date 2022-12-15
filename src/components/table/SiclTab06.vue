@@ -2,13 +2,16 @@
 // 航測不確定度計算表
 import {ref} from 'vue';
 // import { computed } from "@vue/reactivity";
-import { useQuery } from '@vue/apollo-composable';
+import { useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
+import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
 
 // 引入案件編號
 const props = defineProps({
   caseID: String
 });
+const infomsg = ref('');
+const alert1 =ref(false);
 
 const viewDig = 2;
 const viewDigsub = 3;
@@ -28,25 +31,32 @@ const nowUcConfLevel = ref("");
 const nowUcData = ref([]);
 
 // 查詢Case_Record資料
-const { result: nowCaseF, loading: lodingnowCaseF, onResult: getNowCaseF, refetch: refgetNowCaseF } = useQuery(
+const { 
+	onDone: getNowCaseF, 
+	mutate: refgetNowCaseF,
+	onError: getNowCaseFonError
+} = useMutation(
   CaseGQL.GETFULLCASEBYID,
   () => ({
-    getCasebyIdId: props.caseID
+		variables: {
+			getCasebyIdId: props.caseID
+		}
   })
 );
+getNowCaseFonError(e=>{errorHandle(e,infomsg,alert1)});
 getNowCaseF(result => {
   let getRecord;
   if (!result.loading && result && result.data.getCasebyID) {
     if(result.data.getCasebyID.case_record_01){
       getRecord = result.data.getCasebyID.case_record_01;
-    let nowUcResult = JSON.parse(getRecord.uccal_table);	
+    let nowUcResult = getRecord.uccal_table;	
     }else if(result.data.getCasebyID.case_record_02){
       getRecord = result.data.getCasebyID.case_record_02;
     }
     // 填入資料
     // console.log(getRecord.uccal_table);
-    let nowUcResult = JSON.parse(getRecord.uccal_table);
-    console.log(nowUcResult);
+    let nowUcResult = getRecord.uccal_table;
+    // console.log(nowUcResult);
     // nowUcVer.value = nowUcResult.ver;
     // nowUcPrjCode.value = nowUcResult.prjcode;
     // nowUcfreeH.value = nowUcResult.freeH.toFixed(viewDig);
