@@ -287,6 +287,7 @@ const { mutate: saveRefEqpt, onDone: saveRefEqptOnDone, onError: saveRefEqptErro
 saveRefEqptError(e=>{errorHandle(e,infomsg,alert1)});
 
 function saveEqpt(){
+  // console.log('saveEqpt');
   saveRefEqpt({
     refEquptId: (parseInt(nowEqptId.value))?parseInt(nowEqptId.value):-1,
     chop: (nowEqptChop.value===-1)?null:nowEqptChop.value,
