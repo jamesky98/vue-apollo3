@@ -1233,6 +1233,7 @@ function inputSelClear() {
   })
 }
 
+// 匯入選取之案件
 function inputAPICase() {
   for (let i = 0; i < dataAPI.value.length; i++) {
     let nowData = dataAPI.value[i];
@@ -1250,10 +1251,9 @@ function inputAPICase() {
             calType: parseInt(calTypeID),
             appDate: ((nowData.ARCHIVE_DATE).replaceAll("/", "-")).trim() + "T00:00:00.000Z",
             purpose: nowData.META_DESCRIPTION,
-          })
-            .then(result => {
-              saveAPIRecord(nowData);
-            });
+          }).then(result => {
+            saveAPIRecord(nowData);
+          });
         }
       } else {
         // 已匯入者重匯
@@ -1355,7 +1355,7 @@ function saveAPIRecord(nowData) {
       // payDate: null,
       agreement: nowData.EXTRA_10 + "\n" + nowData.EXTRA_9,
       // leaderId: null,
-      // operatorsId: null,
+      operatorsId: parseInt(nowData.Corrector),
       
     })
     return res;
@@ -1370,13 +1370,14 @@ function saveAPIRecord(nowData) {
           // 下載camReport
           result = dlFromAPI({
             fromUrl: nowData.COL24,
-            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+            toSubPath: "06_Case/" + nowData.caseid,
             toFileName: "01_CamReport" + path.extname(nowData.COL24),
           }).then(res=>{ 
             // 下載planMap
             dlFromAPI({
             fromUrl: nowData.COL25,
-            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+            // toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+            toSubPath: "06_Case/" + nowData.caseid,
             toFileName: "02_PlanDwg" + path.extname(nowData.COL25),
             })
           }).then(res=>{ 
@@ -1388,20 +1389,20 @@ function saveAPIRecord(nowData) {
           preresult = res;
           result = dlFromAPI({
             fromUrl: nowData.COL28,
-            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+            toSubPath: "06_Case/" + nowData.caseid,
             toFileName: "01_LrReport" + path.extname(nowData.COL28),
           }).then(res=>{  
             // 下載planMap
             dlFromAPI({
             fromUrl: nowData.COL29,
-            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+            toSubPath: "06_Case/" + nowData.caseid,
             toFileName: "02_POSReport" + path.extname(nowData.COL29),
             })
           }).then(res=>{  
             // 下載planMap
             dlFromAPI({
             fromUrl: nowData.COL30,
-            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+            toSubPath: "06_Case/" + nowData.caseid,
             toFileName: "03_LrPlan" + path.extname(nowData.COL30),
             })
           }).then(res=>{
@@ -1418,13 +1419,13 @@ function saveAPIRecord(nowData) {
           preresult = res;
           result = dlFromAPI({
             fromUrl: nowData.COL28,
-            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+            toSubPath: "06_Case/" + nowData.caseid,
             toFileName: "01_LrReport" + path.extname(nowData.COL28),
           }).then(res=>{  
             // 下載planMap
             dlFromAPI({
             fromUrl: nowData.COL29,
-            toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+            toSubPath: "06_Case/" + nowData.caseid,
             toFileName: "02_POSReport" + path.extname(nowData.COL29),
             })
           }).then(res=>{
@@ -1465,6 +1466,7 @@ function saveAPIRecord(nowData) {
             agl: parseFloat(nowData.COL22),
             camReport: res[0],
             planMap: res[1],
+            signPersonId: parseInt(nowData.Signatory),
           });
           break;
         case "J":
@@ -1493,6 +1495,7 @@ function saveAPIRecord(nowData) {
             agl: parseFloat(nowData.COL23),
             camReport: res[0],
             planMap: res[1],
+            signPersonId: parseInt(nowData.Signatory),
           });
           break;
         case "I":
@@ -1520,6 +1523,7 @@ function saveAPIRecord(nowData) {
             lidarReport: res[0],
             posReport: res[1],
             planMap: res[2],
+            signPersonId: parseInt(nowData.Signatory),
           });
           break;
         case "M":
@@ -1543,6 +1547,7 @@ function saveAPIRecord(nowData) {
             cloudDensity: parseFloat(nowData.COL26),
             lidarReport: res[0],
             posReport: res[1],
+            signPersonId: parseInt(nowData.Signatory),
           });
           break;
       }

@@ -185,278 +185,242 @@ refgetNowCaseF();
 	</div>
 
 	<div class="page">
-		<table width="100%">
 			<!-- 表單名稱 -->
 			<div class="fstyle01">
 				<div class="fstyle01C">校正申請表(適用空載光達)</div>
 				<div>Calibration Application Form</div>
 				<div style="margin-bottom: 20px;">(apply for airborne LiDAR)</div>
 			</div>
-			<table width="100%" cellspacing=0 cellpadding=0 class="sicltab01">
-				<!-- 申請表資料 -->
-				<tr>
-					<td scope="col" width="38%" class="fstyle02">
-						<div>申請單編號：{{tableID}}</div>
-						<div>Application Number</div>
-					</td>
-					<td scope="col" class="fstyle02">
-						<div>校正件編號：{{itemID}}</div>
-						<div>Item Number</div>
-					</td>
-					<td scope="col" width="38%" class="fstyle02">
-						<div>申請日期：{{appDateStr}}</div>
-						<div>Application Date</div>
-					</td>
-				</tr>
+			<div class="d-flex flex-wrap g-0 p-0">
+				<!-- 申請單號 -->
+				<div class="col-5 fstyle02 bl_t_5 bl_r_2 bl_b_5 bl_l_5">
+					<div>申請單編號：{{tableID}}</div>
+					<div>Application Number</div>
+				</div>
+				<div class="col-3 fstyle02 bl_t_5 bl_r_5 bl_b_5">
+					<div>校正件編號：{{itemID}}</div>
+					<div>Item Number</div>
+				</div>
+				<div class="col-4 fstyle02 bl_t_2 bl_r_2 bl_b_2">
+					<div>申請日期：{{appDateStr}}</div>
+					<div>Application Date</div>
+				</div>
 				<!-- 顧客資料 -->
-				<tr>
-					<th colspan="3">
-						<table width="100%" style="border: hidden;">
-							<tr>
-								<td width="8%" rowspan="5">
-									<div class="fstyle02V">顧客資料<br/>Applicant information</div>
-								</td>
-								<td colspan="2" scope="col" class="fstyle02">
-									<div>顧客名稱：{{nowCaseCustOrgName}}</div>
-									<div>Name</div>
-								</td>
-								<td scope="col" class="fstyle02">
-									<div>統一編號：{{nowCaseCustTaxID}}</div>
-									<div>tax ID Number</div>
-								</td>
-							</tr>
-							<tr>
-								<td width="28%" scope="col" class="fstyle02 nowrap">
-									<div>聯絡人：{{nowCaseCustName}}</div>
-									<div>Contact person</div>
-								</td>
-								<td width="28%" scope="col" class="fstyle02 nowrap">
-									<div>聯絡電話：{{nowCaseCustTel}}</div>
-									<div>Phone Number</div>
-								</td>
-								<td scope="col" class="fstyle02 nowrap">
-									<div>傳真：{{nowCaseCustFax}}</div>
-									<div>FAX</div>
-								</td>
-							</tr>
-							<tr>
-								<td colspan="3" scope="col" class="fstyle02 nowrap">
-									<div>聯絡地址：{{nowCaseCustAddress}}</div>
-									<div>Contact Address</div>
-								</td>
-							</tr>
-							<tr>
-								<td colspan="3" scope="col" class="fstyle02">
-									<div>報告抬頭：{{nowCaseTitle}}</div>
-									<div>Report Title</div>
-								</td>
-							</tr>
-							<tr>
-								<td colspan="3" scope="col" class="fstyle02">
-									<div>報告地址：{{nowCaseAddress}}</div>
-									<div>Report Address</div>
-								</td>
-							</tr>
-						</table>
-					</th>
-				</tr>
+				<div class="col-1 fstyle02 d-flex align-items-center bl_r_2 bl_l_2">
+					<div class="fstyle02V">
+						顧客資料<br/>Applicant information
+					</div>
+				</div>
+				<div class="col-11 p-0">
+					<div class="d-flex flex-wrap g-0 p-0">
+						<div class="col-8 fstyle02 bl_r bl_b">
+							<div>顧客名稱：{{nowCaseCustOrgName}}</div>
+							<div>Name</div>
+						</div>
+						<div class="col-4 fstyle02 bl_r_2 bl_b">
+							<div>統一編號：{{nowCaseCustTaxID}}</div>
+							<div>tax ID Number</div>
+						</div>
+
+						<div class="col-3 fstyle02 bl_r bl_b">
+							<div>聯絡人：{{nowCaseCustName}}</div>
+							<div>Contact person</div>
+						</div>
+						<div class="col-5 fstyle02 bl_r bl_b">
+							<div>聯絡電話：{{nowCaseCustTel}}</div>
+							<div>Phone Number</div>
+						</div>
+						<div class="col-4 fstyle02 bl_r_2 bl_b">
+							<div>傳真：{{nowCaseCustFax}}</div>
+							<div>FAX</div>
+						</div>
+						<div class="col-12 fstyle02 bl_r_2 bl_b">
+							<div>聯絡地址：{{nowCaseCustAddress}}</div>
+							<div>Contact Address</div>
+						</div>
+						<div class="col-12 fstyle02 bl_r_2 bl_b">
+							<div>報告抬頭：{{nowCaseTitle}}</div>
+							<div>Report Title</div>
+						</div>
+						<div class="col-12 fstyle02 bl_r_2">
+							<div>報告地址：{{nowCaseAddress}}</div>
+							<div>Report Address</div>
+						</div>
+					</div>
+				</div>
 				<!-- 校正目的 -->
-				<tr>
-					<th colspan="3">
-						<table width="100%" style="border: hidden;">
-							<tr>
-								<td width="25%" scope="col" class="fstyle03mid">
-									<div>校正目的</div>
-									<div>Calibration purpose</div>
-								</td>
-								<td scope="col" class="fstyle03">
-									<div>{{nowCasePurpose}}</div>
-								</td>
-							</tr>
-						</table>
-					</th>
-				</tr>
-				<!-- 校正件基本資料 -->
-				<tr>
-					<td colspan="3">
-						<table width="100%" style="border: hidden;">
-							<tr>
-							<td width="33%" scope="col" class="fstyle03 nowrap">
-								<div>廠牌：{{nowCaseItemChop}}</div>
-								<div>Manufacturer</div>
-							</td>
-							<td width="33%" scope="col" class="fstyle03 nowrap">
-								<div>型號：{{nowCaseItemModel}}</div>
-								<div>Model</div>
-							</td>
-							<td scope="col" class="fstyle03 nowrap">
-								<div>序號：{{nowCaseItemSN}}</div>
-								<div>Serial Number</div>
-							</td>
-						</tr>
-						</table>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="3" class="fstyle03mid bggray1">
-						<div class="fbolder">請擇一勾選填寫Please select one to fill in</div>
-					</td>
-				</tr>
-				<tr>
-					<td colspan="3">
-						<table width="100%" style="border: hidden;">
-							<tr>
-								<td width="55%" colspan="5" scope="col" class="fstyle03mid bggray1">
-									<div class="fbolder">
-										<span v-if="isFullPara" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span>
-										具各項系統規格參數
-									</div>
-									<div class="fbolder">has various system specifications</div>
-								</td>
-								<td scope="col" class="fstyle03mid bggray1">
-									<div class="fbolder">
-										<span v-if="!isFullPara" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span>
-										具空載光達系統整合精度
-									</div>
-									<div class="fbolder">has LiDAR integration accuracy</div>
-								</td>
-							</tr>
-							<tr>
-								<td colspan="5" scope="col" class="fstyle03">
-									<div>雷射掃描儀規格Scanner specification</div>
-								</td>
-								<td scope="col" style="border-bottom: hidden;"></td>
-							</tr>
-							<tr style="border-bottom: hidden;">
-								<td width="3%" scope="col"></td>
-								<td colspan="4" scope="col" class="fstyle03" style="border-left: hidden;">
-									<div v-if="isFullPara">測距精度：{{nowCaseLrDisPrs}} mm</div>
-									<div v-else>測距精度：</div>
-									<div>Distance Precision</div>
-								</td>
-								<td scope="col" class="fstyle03">
-									<div v-if="!isFullPara" >平面精度：{{nowCaseGnssPrcH}} mm</div>
-									<div v-else>平面精度：</div>
-									<div>Horizontal Precision</div>
-								</td>
-							</tr>
-							<tr style="border-bottom: hidden;">
-								<td width="3%" scope="col"></td>
-								<td colspan="4" scope="col" class="fstyle03" style="border-left: hidden;">
-									<div v-if="isFullPara">雷射掃描角解析度：{{nowCaseLrAngResol}} "</div>
-									<div v-else>雷射掃描角解析度：</div>
-									<div>Scanner Angular resolution</div>
-								</td>
-								<td scope="col" class="fstyle03">
-									<div v-if="!isFullPara">高程精度：{{nowCaseGnssPrcV}} mm</div>
-									<div v-else>高程精度：</div>
-									<div>Elevation Precision</div>
-								</td>
-							</tr>
-							<tr>
-								<td width="3%" scope="col"></td>
-								<td colspan="4" scope="col" class="fstyle03" style="border-left: hidden;">
-									<div v-if="isFullPara">雷射掃描儀發散角：{{nowCaseLrBeam}} "</div>
-									<div v-else>雷射掃描儀發散角：</div>
-									<div>Laser Beam divergence</div>
-								</td>
-								<td rowspan="9" scope="col"></td>
-							</tr>
-							<tr>
-								<td colspan="5" scope="col" class="fstyle03">
-									<div>GNSS規格GNSS specification</div>
-								</td>
-							</tr>
-							<tr style="border-bottom: hidden;">
-								<td width="3%" scope="col"></td>
-								<td scope="col" class="fstyle03 nowrap" style="border-left: hidden;">
-									<div>廠牌：{{nowCaseGnssChop}}</div>
-									<div>Manufacturer</div>
-								</td>
-								<td colspan="2" scope="col" class="fstyle03 nowrap" style="border-left: hidden;">
-									<div>型號：{{nowCaseGnssModel}}</div>
-									<div>Model</div>
-								</td>
-								<td scope="col" class="fstyle03 nowrap" style="border-left: hidden;">
-									<div>序號：{{nowCaseGnssSN}}</div>
-									<div>Serial Number</div>
-								</td>
-							</tr>
-							<tr style="border-bottom: hidden;">
-								<td width="3%" scope="col"></td>
-								<td colspan="4" scope="col" class="fstyle03" style="border-left: hidden;">
-									<div v-if="isFullPara">平面定位精度：{{nowCaseGnssPrcH}} mm</div>
-									<div v-else>平面定位精度：</div>
-									<div>Horizontal Precision</div>
-								</td>
-							</tr>
-							<tr>
-								<td width="3%" scope="col"></td>
-								<td colspan="4" scope="col" class="fstyle03" style="border-left: hidden;">
-									<div v-if="isFullPara">高程定位精度：{{nowCaseGnssPrcV}} mm</div>
-									<div v-else>高程定位精度：</div>
-									<div>Elevation Precision</div>
-								</td>
-							</tr>
-							<tr>
-								<td colspan="5" scope="col" class="fstyle03">
-									<div>IMU規格IMU specification</div>
-								</td>
-							</tr>
-							<tr style="border-bottom: hidden;">
-								<td width="3%" scope="col"></td>
-								<td scope="col" class="fstyle03 nowrap" style="border-left: hidden;">
-									<div>廠牌：{{nowCaseImuChop}}</div>
-									<div>Manufacturer</div>
-								</td>
-								<td colspan="2" scope="col" class="fstyle03 nowrap" style="border-left: hidden;">
-									<div>型號：{{nowCaseImuModel}}</div>
-									<div>Model</div>
-								</td>
-								<td scope="col" class="fstyle03 nowrap" style="border-left: hidden;">
-									<div>序號：{{nowCaseImuSN}}</div>
-									<div>Serial Number</div>
-								</td>
-							</tr>
-							<tr style="border-bottom: hidden;">
-								<td width="3%" scope="col"></td>
-								<td colspan="2" scope="col" class="fstyle03" style="border-left: hidden;">
-									<div v-if="isFullPara">ω測角精度：{{nowCaseImuOmg}} "</div>
-									<div v-else>ω測角精度：</div>
-									<div>Omega Precision</div>
-								</td>
-								<td colspan="2" scope="col" class="fstyle03" style="border-left: hidden;">
-									<div v-if="isFullPara">φ測角精度：{{nowCaseImuPhi}} "</div>
-									<div v-else>φ測角精度：</div>
-									<div>Phi Precision</div>
-								</td>
-							</tr>
-							<tr>
-								<td width="3%" scope="col"></td>
-								<td colspan="2" scope="col" class="fstyle03" style="border-left: hidden;">
-									<div v-if="isFullPara">κ測角精度：{{nowCaseImuKap}} "</div>
-									<div v-else>κ測角精度：</div>
-									<div>Kappa Precision</div>
-								</td>
-								<td colspan="2" scope="col" class="fstyle03" style="border-left: hidden;">
-									<div v-if="isFullPara">姿態角解析度：{{nowCaseImuPrcO}} "</div>
-									<div v-else>姿態角解析度：</div>
-									<div>Orientation resolution</div>
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-			</table>
-		</table>
+				<div class="col-3 fstyle02 bl_t_2 bl_r_2 bl_b_2 bl_l_2">
+					<div>校正目的</div>
+					<div>Calibration purpose</div>
+				</div>
+				<div class="col-9 fstyle02 d-flex align-items-center bl_t_2 bl_r_2 bl_b_2">
+					<div>{{nowCasePurpose}}</div>
+				</div>
+				<div class="col-4 fstyle02 border">
+					<div>廠牌：{{nowCaseItemChop}}</div>
+					<div>Manufacturer</div>
+				</div>
+				<div class="col-4 fstyle02 border">
+					<div>型號：{{nowCaseItemModel}}</div>
+					<div>Model</div>
+				</div>
+				<div class="col-4 fstyle02 border">
+					<div>序號：{{nowCaseItemSN}}</div>
+					<div>Serial Number</div>
+				</div>
+				<!-- 系統參數 -->
+				<div class="col-12 fstyle02 bggray1 text-center border">
+					<div class="fbolder">請擇一勾選填寫Please select one to fill in</div>
+				</div>
+				<div class="col-8 fstyle02 bggray1 text-center border">
+					<div class="fbolder">
+						<span v-if="isFullPara" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span>
+						具各項系統規格參數
+					</div>
+					<div class="fbolder">has various system specifications</div>
+				</div>
+				<div class="col-4 fstyle02 bggray1 text-center border">
+					<div class="fbolder">
+						<span v-if="!isFullPara" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span>
+						具空載光達系統整合精度
+					</div>
+					<div class="fbolder">has LiDAR integration accuracy</div>
+				</div>
+				<!-- 各項系統規格參數 -->
+				<div class="col-8 d-flex flex-wrap g-0 p-0">
+					<div class="col-12 fstyle02 border">
+						雷射掃描儀規格Scanner specification
+					</div>
+					<div class="col-1 p-0 border">
+						<!-- 空白間隔 -->
+					</div>
+					<div class="col-11 d-flex flex-wrap g-0 p-0">
+						<div class="col-12 fstyle02 p-0 border">
+							<div v-if="isFullPara">測距精度：{{nowCaseLrDisPrs}} mm</div>
+							<div v-else>測距精度：</div>
+							<div>Distance Precision</div>
+						</div>	
+						<div class="col-12 fstyle02 p-0 border">
+							<div v-if="isFullPara">雷射掃描角解析度：{{nowCaseLrAngResol}} "</div>
+							<div v-else>雷射掃描角解析度：</div>
+							<div>Scanner Angular resolution</div>
+						</div>
+						<div class="col-12 fstyle02 p-0 border">
+							<div v-if="isFullPara">雷射掃描儀發散角：{{nowCaseLrBeam}} "</div>
+							<div v-else>雷射掃描儀發散角：</div>
+							<div>Laser Beam divergence</div>
+						</div>
+					</div>
+					<!-- GNSS -->
+					<div class="col-12 fstyle02 border">
+						GNSS規格GNSS specification
+					</div>
+					<div class="col-1 p-0 border">
+						<!-- 空白間隔 -->
+					</div>
+					<div class="col-11 d-flex flex-wrap g-0 p-0">
+						<div class="col-3 fstyle03 px-0 pt-1 pb-0 border">
+							<div>廠牌：{{nowCaseGnssChop}}</div>
+						</div>
+						<div class="col-5 fstyle03 px-0 pt-1 pb-0 border">
+							<div>型號：{{nowCaseGnssModel}}</div>
+						</div>
+						<div class="col-4 fstyle03 px-0 pt-1 pb-0 border">
+							<div>序號：{{nowCaseGnssSN}}</div>
+						</div>
+						<div class="col-3 fstyle03 px-0 pt-0 pb-1 border">
+							<div>Manufacturer</div>
+						</div>
+						<div class="col-5 fstyle03 px-0 pt-0 pb-1 border">
+							<div>Model</div>
+						</div>
+						<div class="col-4 fstyle03 px-0 pt-0 pb-1 border">
+							<div>Serial Number</div>
+						</div>
+						<div class="col-12 fstyle02 px-0 py-1 border">
+							<div v-if="isFullPara">平面定位精度：{{nowCaseGnssPrcH}} mm</div>
+							<div v-else>平面定位精度：</div>
+							<div>Horizontal Precision</div>
+						</div>
+						<div class="col-12 fstyle02 px-0 py-1 border">
+							<div v-if="isFullPara">高程定位精度：{{nowCaseGnssPrcV}} mm</div>
+							<div v-else>高程定位精度：</div>
+							<div>Elevation Precision</div>
+						</div>
+					</div>
+					<!-- IMU -->
+					<div class="col-12 fstyle02 border">
+						IMU規格IMU specification
+					</div>
+					<div class="col-1 p-0 border">
+						<!-- 空白間隔 -->
+					</div>
+					<div class="col-11 d-flex flex-wrap g-0 p-0">
+						<div class="col-3 fstyle03 px-0 pt-1 pb-0 border">
+							<div>廠牌：{{nowCaseImuChop}}</div>
+						</div>
+						<div class="col-5 fstyle03 px-0 pt-1 pb-0 border">
+							<div>型號：{{nowCaseImuModel}}</div>
+						</div>
+						<div class="col-4 fstyle03 px-0 pt-1 pb-0 border">
+							<div>序號：{{nowCaseImuSN}}</div>
+						</div>
+						<div class="col-3 fstyle03 px-0 pt-0 pb-1 border">
+							<div>Manufacturer</div>
+						</div>
+						<div class="col-5 fstyle03 px-0 pt-0 pb-1 border">
+							<div>Model</div>
+						</div>
+						<div class="col-4 fstyle03 px-0 pt-0 pb-1 border">
+							<div>Serial Number</div>
+						</div>
+						<div class="col-12 fstyle02 px-0 py-1 border">
+							<div v-if="isFullPara">ω測角精度：{{nowCaseImuOmg}} "</div>
+							<div v-else>ω測角精度：</div>
+							<div>Omega Precision</div>
+						</div>
+						<div class="col-12 fstyle02 px-0 py-1 border">
+							<div v-if="isFullPara">φ測角精度：{{nowCaseImuPhi}} "</div>
+							<div v-else>φ測角精度：</div>
+							<div>Phi Precision</div>
+						</div>
+						<div class="col-12 fstyle02 px-0 py-1 border">
+							<div v-if="isFullPara">κ測角精度：{{nowCaseImuKap}} "</div>
+							<div v-else>κ測角精度：</div>
+							<div>Kappa Precision</div>
+						</div>
+						<div class="col-12 fstyle02 px-0 py-1 border">
+							<div v-if="isFullPara">姿態角解析度：{{nowCaseImuPrcO}} "</div>
+							<div v-else>姿態角解析度：</div>
+							<div>Orientation resolution</div>
+						</div>
+					</div>
+				</div>
+				<!-- 具空載光達系統整合精度 -->
+				<div class="col-4 d-flex flex-wrap g-0 p-0 align-content-start">
+					<div class="col-12 fstyle02 border">
+						　
+					</div>
+					<div class="col-12 fstyle02 border">
+						<div v-if="!isFullPara" >平面精度：{{nowCaseGnssPrcH}} mm</div>
+						<div v-else>平面精度：</div>
+						<div>Horizontal Precision</div>
+					</div>
+					<div class="col-12 fstyle02 border">
+						<div v-if="!isFullPara">高程精度：{{nowCaseGnssPrcV}} mm</div>
+						<div v-else>高程精度：</div>
+						<div>Elevation Precision</div>
+					</div>
+				</div>
+			</div>
 	</div>
 	<div class="page-gap"></div>
 	<div class="page">
-		<table width="100%" cellspacing=0 cellpadding=0 class="sicltab01">
+		<table width="100%" cellspacing=0 cellpadding=0>
 			<!-- 飛航規劃 -->
 			<tr>
 				<th colspan="3">
-					<table width="100%" style="border: hidden;">
+					<table width="100%">
 						<tr>
 							<td width="8%" rowspan="4">
 								<div class="fstyle02V">飛航拍攝規劃<br/>Flight plan</div>
@@ -518,8 +482,8 @@ refgetNowCaseF();
 					<div style="padding-left: 25px;">Flight planning map (*.dwg / *.shp), filename</div>
 				</td>
 			</tr>
-			<tr style="border-bottom: none; border-left: none">
-				<td width="40%" style="border-bottom: none; border-left: none">
+			<tr>
+				<td width="40%">
 				</td>
 				<td width="25%" class="fstyle02mid">
 					<div>校正人員</div>
@@ -532,7 +496,7 @@ refgetNowCaseF();
 	</div>
 	<div class="page-gap"></div>
 	<div class="page">
-		<table width="100%" cellspacing=0 cellpadding=0 class="sicltab01">
+		<table width="100%" cellspacing=0 cellpadding=0>
 			<!-- 收費 -->
 			<tr>
 				<td width="8%" class="fstyle02mid">
@@ -649,7 +613,7 @@ refgetNowCaseF();
 		height: 20px;
 	}
 	tr,td {
-		border: 1px solid;
+		/* border: 1px solid; */
 		page-break-inside: avoid;
 		/* white-space:nowrap; */
 		/* overflow: hidden; */
@@ -707,7 +671,7 @@ refgetNowCaseF();
 		display: none;
 	}
 	tr,td {
-		border: 1.5px solid;
+		/* border: 1.5px solid; */
 		page-break-inside: avoid;
 	}
 	
@@ -754,7 +718,7 @@ refgetNowCaseF();
 
 .fstyle02, .fstyle02mid{
 	padding: 3px 10px 3px 10px;
-  font-size: 12pt;
+  font-size: 11pt;
 	line-height: 1;
 	font-weight:normal;
 }
@@ -769,7 +733,7 @@ refgetNowCaseF();
 .fstyle02V, .fstyle02Vleft{
 	margin-left: auto;
 	margin-right: auto;
-  font-size: 12pt;
+  font-size: 11pt;
 	font-weight:normal;
 	line-height: 1.2;
 	writing-mode: vertical-lr;
@@ -800,4 +764,57 @@ refgetNowCaseF();
 	text-align: center;
 }
 
+/* 框線 */
+.bl_all{
+  border: 1px solid;
+}
+.bl_t{
+  border-top: 1px solid;
+}
+.bl_b{
+  border-bottom: 1px solid;
+}
+.bl_l{
+  border-left: 1px solid;
+}
+.bl_r{
+  border-right: 1px solid;
+}
+.bl_t_2{
+  border-top: 2px solid;
+}
+.bl_b_2{
+  border-bottom: 2px solid;
+}
+.bl_l_2{
+  border-left: 2px solid;
+}
+.bl_r_2{
+  border-right: 2px solid;
+}
+.bl_t_5{
+  border-top: 5px solid;
+}
+.bl_b_5{
+  border-bottom: 5px solid;
+}
+.bl_l_5{
+  border-left: 5px solid;
+}
+.bl_r_5{
+  border-right: 5px solid;
+}
+
+.bl_t_doble{
+  border-top: 5px double;
+}
+.bl_b_doble{
+  border-bottom: 5px double;
+}
+.bl_l_doble{
+  border-left: 5px double;
+}
+.bl_r_doble{
+  border-right: 5px double;
+}
 </style>

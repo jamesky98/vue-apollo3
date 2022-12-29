@@ -561,7 +561,18 @@ td{
 .bl_r{
   border-right: 1px solid;
 }
-
+.bl_t_2{
+  border-top: 1.5px solid;
+}
+.bl_b_2{
+  border-bottom: 5px solid;
+}
+.bl_l_2{
+  border-left: 5px solid;
+}
+.bl_r_2{
+  border-right: 5px solid;
+}
 .bl_t_doble{
   border-top: 5px double;
 }
