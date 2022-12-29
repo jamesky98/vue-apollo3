@@ -1270,8 +1270,8 @@ function saveLink(){
   data_eqpt.value.map(x=>{
     if(!x.id){
       newLinkIds.push({
-        eqpt_check_id: x.eqpt_check_id,
-        project_id: x.project_id,
+        eqpt_check_id: parseInt(x.eqpt_check_id),
+        project_id: parseInt(x.project_id),
       })
     }
   });
