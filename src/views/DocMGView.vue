@@ -9,6 +9,7 @@ import {
   MDBRow,
   MDBContainer,
   MDBBtn,
+  MDBSwitch,
   MDBSelect,
   MDBTabs,
   MDBTabNav,
@@ -165,7 +166,7 @@ const docStautsmu = ref([
   { text: "現役", value: 1 },
   { text: "廢止", value: 2 },
 ]);
-const docStautsel = ref("");
+const docStautsel = ref(false);
 const docStautsFilter = ref();
 
 const parentsmu = ref([]);
@@ -451,7 +452,8 @@ function filterAllDocLatest() {
   if (docDidsel.value !== "") where.docId = docDidsel.value;
   if (docnamesel.value !== "") where.name = docnamesel.value;
   if (docversel.value !== "") where.ver = docversel.value;
-  if (docStautsel.value !== "") where.stauts = docStautsel.value;
+  // if (docStautsel.value !== "") where.stauts = docStautsel.value;
+  where.stauts = docStautsel.value;
 
   // varAllDocLatest.value = where;
   refgetAllDocLatest(where)
@@ -466,8 +468,9 @@ function clearFilter(){
   docDidsel.value = "";
   docnamesel.value = "";
   docversel.value = "";
-  docStautsel.value = "";
-  docStautsFilter.value.setValue("");
+  docStautsel.value = false;
+  // docStautsel.value = "";
+  // docStautsFilter.value.setValue("");
 }
 
 // 增加上階文件
@@ -501,7 +504,7 @@ const { mutate: addDoc, onDone: addDocOnDone, onError: addDocError } = useMutati
   })
 );
 addDocOnDone(()=>{
-  refgetAllDocLatest();
+  filterAllDocLatest();
   refgetAllDocLatest2();
   refgetHistDoc();
   infomsg.value = "ID:" + nowIDed.value+ " " + nowDocIDed.value + "完成新增";
@@ -544,7 +547,7 @@ const { mutate: delDocfun, onDone: delDocOnDone, onError: delDocError } = useMut
     }
   }));
 delDocOnDone(()=>{
-  refgetAllDocLatest();
+  filterAllDocLatest();
   refgetAllDocLatest2();
   refgetHistDoc();
   infomsg.value = "ID:" + nowIDed.value+ " " + nowDocIDed.value + "完成刪除";
@@ -573,7 +576,7 @@ const { mutate: saveDoc, onDone: saveDocOnDone, onError: saveDocError } = useMut
   })
 );
 saveDocOnDone(()=>{
-  refgetAllDocLatest();
+  filterAllDocLatest();
   refgetAllDocLatest2();
   refgetHistDoc();
   infomsg.value = "ID:"+nowIDed.value+ " " + nowDocIDed.value + "完成修改";
@@ -621,7 +624,7 @@ function saveDocBtn() {
   // 儲存(更新)上傳路徑檔名
   const { mutate: saveUpload, onDone: saveUploadOnDone, onError: saveUploadError } = useMutation(DocsGQL.SAVEUPLOAD);
   saveUploadOnDone(() => {
-    refgetAllDocLatest();
+    filterAllDocLatest();
     refgetHistDoc();
   });
   saveUploadError(e=>{errorHandle(e,infomsg,alert1)});
@@ -697,7 +700,8 @@ function zoompdfView(){
 
 // 確認登入狀況
 getchecktoken().then(res=>{
-  refgetAllDocLatest();
+  // refgetAllDocLatest({stauts: false});
+  filterAllDocLatest();
   refgetAllDocLatest2();
   refgetAllDocType();
   refgetHistDoc();
@@ -799,6 +803,9 @@ onMounted(function () {
                         </div>
                         <!-- 條件欄位 -->
                         <MDBRow md="12" class="d-flex align-content-start overflow-auto">
+                          <MDBCol col="12" class="mt-3">
+                            <MDBSwitch label="顯示廢止文件" v-model="docStautsel" />
+                          </MDBCol>
                           <MDBSelect size="sm" class="mt-3 mb-3 col-6" label="文件層級" v-model:options="doclevelmu"
                             v-model:selected="doclevelsel" ref="docLevelFilter" />
                           <MDBSelect size="sm" class="mt-3 mb-3 col-6" label="文件類型" v-model:options="doctypemu"
@@ -812,8 +819,8 @@ onMounted(function () {
                           <MDBCol col="6" class="mb-3">
                             <MDBInput size="sm" type="text" label="版次" v-model="docversel" />
                           </MDBCol>
-                          <MDBSelect size="sm" class="mb-3 col-6" label="現役狀態" v-model:options="docStautsmu"
-                            v-model:selected="docStautsel" ref="docStautsFilter" />
+                          <!-- <MDBSelect size="sm" class="mb-3 col-6" label="現役狀態" v-model:options="docStautsmu"
+                            v-model:selected="docStautsel" ref="docStautsFilter" /> -->
                         </MDBRow>
                       </MDBTabPane>
                       <!-- 編輯表單 -->

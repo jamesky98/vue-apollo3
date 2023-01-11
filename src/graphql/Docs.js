@@ -7,7 +7,7 @@ const GETALLDOCLATEST = gql`
     $docType: Int
     $name: String
     $ver: String
-    $stauts: Int
+    $stauts: Boolean
   ) {
     getAllDocLatest(
       doc_id: $docId
