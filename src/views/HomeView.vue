@@ -1,4 +1,10 @@
 <script setup>
+import {
+  MDBCol,
+  MDBRow,
+  MDBContainer,
+  MDBSpinner,
+} from 'mdb-vue-ui-kit';
 import { ref } from "vue";
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -25,5 +31,5 @@ const infomsg =ref('');
 const alert1 =ref('');
 </script>
 <template>
-
+  <MDBSpinner size="md" color="primary" />Loading...
 </template>

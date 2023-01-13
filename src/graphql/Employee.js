@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 const GETALLEMP = gql`
-  mutation GetAllEmp {
-    getAllEmp {
+  mutation GetAllEmp($isRes: Boolean) {
+  getAllEmp(isRes: $isRes) {
       person_id
       lab_ee_id
       modify_date

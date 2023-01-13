@@ -194,13 +194,13 @@ getAllEqptonError(e=>{errorHandle(e,infomsg,alert1)});
 const { mutate: getEqptById, onDone: getEqptByIdOnDone, onError: getEqptByIdError } = useMutation(PrjGQL.GETEQPTBYID);
 getEqptByIdOnDone(result=>{
   let getData = result.data.getEqptById;
-  nowEqptType.value = parseInt(getData.type);
+  nowEqptType.value = (getData.type)?parseInt(getData.type):-1;
   nowEqptTypeDOM.value.setValue((nowEqptType.value)?nowEqptType.value:-1);
 
-  nowEqptChop.value = getData.chop;
+  nowEqptChop.value = (getData.chop)?getData.chop:-1;
   nowEqptChopDOM.value.setValue((nowEqptChop.value)?nowEqptChop.value:-1);
 
-  nowEqptModel.value = getData.model;
+  nowEqptModel.value = (getData.model)?getData.model:-1;
   nowEqptModelDOM.value.setValue((nowEqptModel.value)?nowEqptModel.value:-1);
 
   nowEqptSN.value = getData.serial_number;
@@ -273,9 +273,9 @@ function newEqpt(){
   nowEqptId.value = "";
   nowEqptType.value = -1;
   nowEqptTypeDOM.value.setValue(-1);
-  nowEqptChop.value = "";
+  nowEqptChop.value = -1;
   nowEqptChopDOM.value.setValue(-1);
-  nowEqptModel.value = "";
+  nowEqptModel.value = -1;
   nowEqptModelDOM.value.setValue(-1);
   nowEqptSN.value = "";
   nowEqptCycle.value = "";
@@ -290,8 +290,8 @@ function saveEqpt(){
   // console.log('saveEqpt');
   saveRefEqpt({
     refEquptId: (parseInt(nowEqptId.value))?parseInt(nowEqptId.value):-1,
-    chop: (nowEqptChop.value===-1)?null:nowEqptChop.value,
-    model: (nowEqptModel.value===-1)?null:nowEqptModel.value,
+    chop: (nowEqptChop.value===-1 || !nowEqptChop.value)?null:nowEqptChop.value,
+    model: (nowEqptModel.value===-1 || !nowEqptModel.value)?null:nowEqptModel.value,
     serialNumber: nowEqptSN.value,
     type: (parseInt(nowEqptType.value) && parseInt(nowEqptType.value)!==-1)?parseInt(nowEqptType.value):null,
     calCycle: nowEqptCycle.value,
@@ -398,7 +398,7 @@ function newChk(){
   nowChkType.value = "校正";
   nowChkDate.value = " ";
   nowChkReportId.value = "";
-  nowChkCalOrg.value = "";
+  nowChkCalOrg.value = -1;
   nowChkCalOrgDOM.value.setValue(-1);
 
   nowChkCalOrgCode.value = "";
@@ -418,7 +418,7 @@ function saveChk(){
     chekType: (nowChkType.value)?nowChkType.value:null,
     checkDate: (nowChkDate.value.trim() === "")? null: nowChkDate.value.trim() + "T00:00:00.000Z",
     reportId: (nowChkReportId.value)?nowChkReportId.value:null,
-    calOrg: (nowChkCalOrg.value)?nowChkCalOrg.value:null,
+    calOrg: (nowChkCalOrg.value && nowChkCalOrg.value!==-1)?nowChkCalOrg.value:null,
     calOrgId: (nowChkCalOrgCode.value)?nowChkCalOrgCode.value:null,
     pass: (nowChkCalPass.value)?true:false,
     result: (nowChkCalResult.value)?nowChkCalResult.value:null,

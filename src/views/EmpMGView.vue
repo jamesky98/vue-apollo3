@@ -19,7 +19,8 @@ import {
   MDBBtnClose,
   MDBPopconfirm,
   MDBSelect,
-  MDBAlert
+  MDBAlert,
+  MDBSwitch,
 } from 'mdb-vue-ui-kit';
 import ToolsGQL from "../graphql/Tools";
 import CaseGQL from "../graphql/Cases";
@@ -106,6 +107,18 @@ const updateKey = ref(0);
 const activeTabId1 = ref('train');
 
 // 人員詳細編輯資料==========start
+const showEmpRes = ref(false);
+const doSwitchShowEmpRes = computed(()=>{
+  // console.log(showEmpRes.value);
+  getAllEmp();
+  let labelstr
+  if(showEmpRes.value){
+    labelstr = '顯示解職人員';
+  }else{
+    labelstr = '顯示解職人員';
+  }
+  return labelstr
+})
 const nowEmpID = ref("");
 const nowEmpLabID = ref("");
 const nowEmpModifyDate = ref("");
@@ -214,7 +227,14 @@ const nowEmpowerComment = ref("");
 //#endregion 參數==========End
 
 //#region Table 人員列表==========Start
-const { mutate: getAllEmp, onDone: getAllEmponDone, onError: getAllEmponError } = useMutation(EmpGQL.GETALLEMP);
+const { mutate: getAllEmp, onDone: getAllEmponDone, onError: getAllEmponError } = useMutation(
+  EmpGQL.GETALLEMP,
+  ()=>({
+    variables: {
+      isRes: showEmpRes.value
+    }
+  })
+);
 getAllEmponDone(result => {
   if (!result.loading && result.data.getAllEmp) {
     let getData = result.data.getAllEmp;
@@ -1324,10 +1344,14 @@ onMounted(function () {
         <!-- 上方 -->
         <MDBCol col="12" class="my-2 bg-light border border-5 rounded-8 shadow-4" style="height: calc(50% - 1em)">
           <MDBRow class="h-100 overflow-auto">
-            <MDBCol md="5" class="h-100 overflow-auto">
+            <MDBCol md="5" class="h-100 overflow-auto" style="position: relative ;">
               <!-- 人員列表 -->
               <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1" style="font-size: smaller"
                 class="display w-100 compact" />
+
+              <div class="mt-2" style="position:absolute; top: 0; left: 1rem;">
+                <MDBSwitch :label="doSwitchShowEmpRes" v-model="showEmpRes"/>
+              </div>
             </MDBCol>
             <!-- 分割 -->
             <MDBCol md="7" class="h-100 border-start">
@@ -1344,6 +1368,7 @@ onMounted(function () {
                     message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delEmp">
                     刪除
                   </MDBPopconfirm>
+                  <!-- <MDBSwitch label="顯示解職" v-model="showEmpRes"/> -->
                 </MDBCol>
                 <MDBCol col="12" class="overflow-auto" style="height: calc(100% - 4rem);">
                   <MDBRow>
