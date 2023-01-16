@@ -16,10 +16,15 @@ import {
 import CaseGQL from "../graphql/Cases";
 import jStat from "jstat";
 
-import DataTable from 'datatables.net-vue3';
+import vueDataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
+import jQuery from "jquery";
+
+import * as DataTable from "datatables.net-dt";
+import "datatables.net-dt/css/jquery.dataTables.min.css";
+import "datatables.net-select-dt";
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -27,9 +32,13 @@ import UsersGQL from "../graphql/Users";
 import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
+// ======
+Object.assign(window, { $: jQuery, jQuery });
+new DataTable(window, $);
+Select();
 
-DataTable.use(DataTableBs5);
-DataTable.use(Select);
+vueDataTable.use(DataTableBs5);
+vueDataTable.use(Select);
 //#region 取得權限==========Start
 // const myUserId = ref("");
 const myUserName = ref("");
@@ -594,6 +603,7 @@ onMounted(function () {
     nowUcItemFa.value = 0;
     getItemData();
   });
+  
 
   // 收闔事件
   dt1.off('click', '.subtool');
@@ -636,11 +646,30 @@ onMounted(function () {
   });
 
   function subtable(id){
-    return '<div class="subgrid"><DataTable id="subgrid_' + id + '" class="display" style="width:100%"></DataTable></div>';
+    return '<div class="subgrid"><table id="subgrid_' + id + '" class="display" style="width:100%"></table></div>';
   }
 
   function createSubTable(data, id){
     let subData = data.data;
+
+    $('#subgrid_'+id).DataTable(
+      {
+        "columns": [
+          {title:"項次",render: function (data, type, row, meta ) {return meta.row;},width: "30px"},
+          {title:"Item", data:"name"},
+          {title:"變動時機", data:"frequency"},
+        ],
+        "data": subData,
+        dom: 't',
+        select: {style: 'single',info: false},
+        scrollX: true,
+        lengthChange: false,
+        searching: false,
+        paging: false,
+        responsive: true,
+      }
+    );
+
     // let subgrid = document.getElementById("subgrid_"+id);
     // let subtable = reactive(subgrid);
     // console.log('subgrid',subgrid);
@@ -784,7 +813,7 @@ onMounted(function () {
                     <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delSection">刪除項目</MDBBtn>
                   </MDBCol>
                   <MDBCol md="12" class="mb-3">
-                    <DataTable :data="nowUcModule.uc.data" :columns="columns1" :options="tboption1" ref="table1"
+                    <vueDataTable :data="nowUcModule.uc.data" :columns="columns1" :options="tboption1" ref="table1"
                       style="font-size: smaller" class="border border-info display w-100 compact" />
                   </MDBCol>
                 </MDBRow>
@@ -823,7 +852,7 @@ onMounted(function () {
                     <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delItem">刪除項目</MDBBtn>
                   </MDBCol>
                   <MDBCol md="12" class="mb-3">
-                    <DataTable :data="data2" :columns="columns2" :options="tboption2" ref="table2"
+                    <vueDataTable :data="data2" :columns="columns2" :options="tboption2" ref="table2"
                       style="font-size: smaller" class="border border-secondary display w-100 compact" />
                   </MDBCol>
                 </MDBRow>
@@ -860,7 +889,7 @@ onMounted(function () {
                     <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delUx">刪除項目</MDBBtn>
                   </MDBCol>
                   <MDBCol md="12" class="mb-3">
-                    <DataTable :data="data3" :columns="columns3" :options="tboption3" ref="table3"
+                    <vueDataTable :data="data3" :columns="columns3" :options="tboption3" ref="table3"
                       style="font-size: smaller" class="border border-success display w-100 compact" />
                   </MDBCol>
                   <MDBCol col="6" class="mb-0">
@@ -888,7 +917,7 @@ onMounted(function () {
                     <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delFr">刪除項目</MDBBtn>
                   </MDBCol>
                   <MDBCol md="12" class="mb-3">
-                    <DataTable :data="data4" :columns="columns4" :options="tboption4" ref="table4"
+                    <vueDataTable :data="data4" :columns="columns4" :options="tboption4" ref="table4"
                       style="font-size: smaller" class="border border-success display w-100 compact" />
                   </MDBCol>
                   <MDBCol col="6" class="mb-0">
@@ -916,7 +945,7 @@ onMounted(function () {
                     <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delFa">刪除項目</MDBBtn>
                   </MDBCol>
                   <MDBCol md="12" class="mb-3">
-                    <DataTable :data="data5" :columns="columns5" :options="tboption5" ref="table5"
+                    <vueDataTable :data="data5" :columns="columns5" :options="tboption5" ref="table5"
                       style="font-size: smaller" class="border border-success display w-100 compact" />
                   </MDBCol>
 
