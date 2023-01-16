@@ -612,49 +612,67 @@ onMounted(function () {
     let tdi = e.target; // 被click的物件=>收合圖示
     // console.log('tdi',tdi);
     let dtRow = e.target.parentElement.parentElement; // 取得該行的tr DOM物件
-    // console.log('dtRow',dtRow);
-    let  row = dt1.row(dtRow); // 取得該行DOM轉TAB物件
+    console.log('dtRow',dtRow);
+    let row = dt1.row(dtRow); // 取得該行DOM轉TAB物件
     // console.log('row',row);
+    // let  row2 = $(tdi).closest('table');
+    // console.log('row2',$('#subgrid_0').dataTable());
+    // console.log('row_is',row.dataTable.isDataTable());
     // console.log('data',row.data());
     if (row.child.isShown()) {
-        // This row is already open - close it
-        row.child.hide();
-        dtRow.classList.remove('shown');
-        tdi.classList.remove('fa-minus-square');
-        tdi.classList.add('fa-plus-square');
+      // This row is already open - close it
+      row.child.hide();
+      dtRow.classList.remove('shown');
+      tdi.classList.remove('fa-minus-square');
+      tdi.classList.add('fa-plus-square');
     }
     else {
-        // Open this row
-        let idx = e.target.parentElement.nextElementSibling.innerText;
-        // console.log('idx',idx);
-        row.child(subtable(idx)).show();
-        dtRow.classList.add('shown');
-        tdi.classList.remove('fa-plus-square');
-        tdi.classList.add('fa-minus-square');
-        new Promise((res)=>{
-          // console.log('in promise');
-          res(row.child(subtable(idx)).show());
-        }).then(res=>{
-          // console.log('go createSubTable');
-          // console.log('res',res);
-          createSubTable(row.data(),idx);
-        });
-        
+      // Open this row
+      let idx = e.target.parentElement.nextElementSibling.innerText;
+      // console.log('idx',idx);
+      row.child(subtable(idx)).show();
+      dtRow.classList.add('shown');
+      tdi.classList.remove('fa-plus-square');
+      tdi.classList.add('fa-minus-square');
+      new Promise((res)=>{
+        // console.log('in promise');
+        res(row.child(subtable(idx)).show());
+      }).then(res=>{
+        // console.log('go createSubTable');
+        // console.log('res',res);
+        createSubTable(row.data(),idx);
+      });
     }
 
     e.stopPropagation()
   });
 
   function subtable(id){
-    return '<div class="subgrid"><table id="subgrid_' + id + '" class="display" style="width:100%"></table></div>';
+    return '<div class="d-flex justify-content-start flex-nowrap">' + 
+      '<div style="width:2rem;height:2rem;position: relative;" class="">'+
+        '<div style="position: absolute;right:0;top:0;width:1rem;height:1.25rem;border-left: 1px dotted;border-bottom: 1px dotted"></div>'+
+      '</div>'+
+      '<div class="">'+
+        '<table id="subgrid_' + id + '" class="border" style=""></table>'+
+      '</div></div>';
   }
 
   function createSubTable(data, id){
+    console.log('data',data);
     let subData = data.data;
-
-    $('#subgrid_'+id).DataTable(
+    let subgrid = $('#subgrid_'+id).DataTable(
       {
         "columns": [
+          { // 收闔框
+            "className": 'details-control',
+            "orderable": false,
+            "data": null,
+            "defaultContent": '',
+            "render": function () {
+              return '<i class="ssubtool fa fa-plus-square" aria-hidden="true"></i>';
+            },
+            width:"0.5rem"
+          },
           {title:"項次",render: function (data, type, row, meta ) {return meta.row;},width: "30px"},
           {title:"Item", data:"name"},
           {title:"變動時機", data:"frequency"},
@@ -669,6 +687,39 @@ onMounted(function () {
         responsive: true,
       }
     );
+
+    subgrid.on('click', '.ssubtool', function (e) {
+      // console.log('e',e);
+      let tdi = e.target; // 被click的物件=>收合圖示
+      // console.log('tdi',tdi);
+      let dtRow = e.target.parentElement.parentElement; // 取得該行的tr DOM物件
+      console.log('dtRow',dtRow);
+      let row = subgrid.row(dtRow); // 取得該行DOM轉TAB物件
+      if (row.child.isShown()) {
+        // This row is already open - close it
+        row.child.hide();
+        dtRow.classList.remove('shown');
+        tdi.classList.remove('fa-minus-square');
+        tdi.classList.add('fa-plus-square');
+      }
+      else {
+        // Open this row
+        let idx = e.target.parentElement.nextElementSibling.innerText;
+        // console.log('idx',idx);
+        row.child(subtable(idx)).show();
+        dtRow.classList.add('shown');
+        tdi.classList.remove('fa-plus-square');
+        tdi.classList.add('fa-minus-square');
+        new Promise((res)=>{
+          // console.log('in promise');
+          res(row.child(subtable(idx)).show());
+        }).then(res=>{
+          // createSubTable(row.data(),idx);
+        });
+      }
+
+      e.stopPropagation()
+    });
 
     // let subgrid = document.getElementById("subgrid_"+id);
     // let subtable = reactive(subgrid);
@@ -812,7 +863,7 @@ onMounted(function () {
                     <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addSection">增加項目</MDBBtn>
                     <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delSection">刪除項目</MDBBtn>
                   </MDBCol>
-                  <MDBCol md="12" class="mb-3">
+                  <MDBCol md="12" class="mb-3 overflow-auto">
                     <vueDataTable :data="nowUcModule.uc.data" :columns="columns1" :options="tboption1" ref="table1"
                       style="font-size: smaller" class="border border-info display w-100 compact" />
                   </MDBCol>
