@@ -1685,6 +1685,13 @@ function buildReportBtn() {
   parms.nowCaseCompleteDateD = CompleteDateAy[2];
   parms.nowCaseID = props.caseID;
   parms.nowCaseFullID = nowCaseCalTypeCode.value + props.caseID;
+  parms.nowCaseCamTypeID = nowCaseCamTypeID.value;
+  if(nowCaseCamTypeID.value==='1'){
+    parms.nowCaseSite = '大校正場'
+  }else if(nowCaseCamTypeID.value==='2'){
+    parms.nowCaseSite = '小校正場'
+  }
+  
   parms.nowCaseItemChop = nowCaseItemChop.value;
   parms.nowCaseItemModel = nowCaseItemModel.value;
   parms.nowCaseItemSN = nowCaseItemSN.value;

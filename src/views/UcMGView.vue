@@ -34,8 +34,6 @@ import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 // ======
 Object.assign(window, { $: jQuery, jQuery });
-new DataTable(window, $);
-Select();
 
 vueDataTable.use(DataTableBs5);
 vueDataTable.use(Select);
@@ -614,11 +612,6 @@ onMounted(function () {
     let dtRow = e.target.parentElement.parentElement; // 取得該行的tr DOM物件
     console.log('dtRow',dtRow);
     let row = dt1.row(dtRow); // 取得該行DOM轉TAB物件
-    // console.log('row',row);
-    // let  row2 = $(tdi).closest('table');
-    // console.log('row2',$('#subgrid_0').dataTable());
-    // console.log('row_is',row.dataTable.isDataTable());
-    // console.log('data',row.data());
     if (row.child.isShown()) {
       // This row is already open - close it
       row.child.hide();
@@ -638,12 +631,9 @@ onMounted(function () {
         // console.log('in promise');
         res(row.child(subtable(idx)).show());
       }).then(res=>{
-        // console.log('go createSubTable');
-        // console.log('res',res);
         createSubTable(row.data(),idx);
       });
     }
-
     e.stopPropagation()
   });
 
@@ -658,7 +648,7 @@ onMounted(function () {
   }
 
   function createSubTable(data, id){
-    console.log('data',data);
+    // console.log('data',data);
     let subData = data.data;
     let subgrid = $('#subgrid_'+id).DataTable(
       {
@@ -687,13 +677,20 @@ onMounted(function () {
         responsive: true,
       }
     );
-
+    subgrid.on('select', function (e, dt, type, indexes) {
+      console.log('subgrid');
+      let idx =  dt.table().node().id;
+      nowUcSection.value = parseInt(idx.split('_')[1]);
+      nowUcItem.value = dt.rows(indexes)[0][0];
+      getItemData();
+      e.stopPropagation();
+    });
     subgrid.on('click', '.ssubtool', function (e) {
       // console.log('e',e);
       let tdi = e.target; // 被click的物件=>收合圖示
       // console.log('tdi',tdi);
       let dtRow = e.target.parentElement.parentElement; // 取得該行的tr DOM物件
-      console.log('dtRow',dtRow);
+      // console.log('dtRow',dtRow);
       let row = subgrid.row(dtRow); // 取得該行DOM轉TAB物件
       if (row.child.isShown()) {
         // This row is already open - close it
@@ -705,56 +702,60 @@ onMounted(function () {
       else {
         // Open this row
         let idx = e.target.parentElement.nextElementSibling.innerText;
-        // console.log('idx',idx);
-        row.child(subtable(idx)).show();
         dtRow.classList.add('shown');
         tdi.classList.remove('fa-plus-square');
         tdi.classList.add('fa-minus-square');
         new Promise((res)=>{
           // console.log('in promise');
-          res(row.child(subtable(idx)).show());
+          res(row.child(subItemTable(id,idx)).show());
         }).then(res=>{
-          // createSubTable(row.data(),idx);
+          createSubItemTable(row.data(),id,idx);
         });
       }
-
       e.stopPropagation()
     });
+  }
+  function subItemTable(id1,id2){
+    console.log('subitemgrid_' + id1 + '_' + id2);
+    return '<div class="d-flex justify-content-start flex-nowrap">' + 
+      '<div style="width:2rem;height:2rem;position: relative;" class="">'+
+        '<div style="position: absolute;right:0;top:0;width:1rem;height:1.25rem;border-left: 1px dotted;border-bottom: 1px dotted"></div>'+
+      '</div>'+
+      '<div class="">'+
+        '<table id="subitemgrid_' + id1 + '_' + id2 + '" class="border" style="">'+
+        '</table>'+
+      '</div></div>';
+  }
+  function createSubItemTable(data, id1, id2){
+    console.log('data',data);
+    // let subData = data.data;
+    let subData = [{name:'ux不確定度'},{name:'自由度'},{name:'靈敏係數'}];
+    let subgrid = $('#subitemgrid_'+id1 + '_' + id2).DataTable(
+      {
+        "columns": [
+          {title:"項次",render: function (data, type, row, meta ) {return meta.row;},width: "30px"},
+          {title:"Item", data:"name"},
+        ],
+        "data": subData,
+        dom: 't',
+        select: {style: 'single',info: false},
+        scrollX: true,
+        lengthChange: false,
+        searching: false,
+        paging: false,
+        responsive: true,
+      }
+    );
+    subgrid.on('select', function (e, dt, type, indexes) {
+      let idx =  dt.table().node().id;
+      console.log(idx);
+      // nowUcSection.value = parseInt(idx.split('_')[1]);
+      // nowUcItem.value = dt.rows(indexes)[0][0];
+      // getItemData();
 
-    // let subgrid = document.getElementById("subgrid_"+id);
-    // let subtable = reactive(subgrid);
-    // console.log('subgrid',subgrid);
-    
-    // subgrid.dt(
-    //   {
-    //     "columns": [
-    //       {title:"項次",render: function (data, type, row, meta ) {return meta.row;},width: "30px"},
-    //       {title:"Item", data:"name"},
-    //       {title:"變動時機", data:"frequency"},
-    //     ],
-    //     "data": subData
-    //   }
-    // )
-    // subgrid.DataTable({
-    //     "columns": [
-    //       {title:"項次",render: function (data, type, row, meta ) {return meta.row;},width: "30px"},
-    //       {title:"Item", data:"name"},
-    //       {title:"變動時機", data:"frequency"},
-    //     ],
-    //     "data": subData
-    // });
-    let htmlStr = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
-      '<tr><th>項次</th><th>Item</th><th>變動時機</th></tr>';
-    
-    for (let i=0 ; i< subData.length ; i++){
-      htmlStr = htmlStr + '<tr>';
-      htmlStr = htmlStr + '<td>'+ i +'</td>';
-      htmlStr = htmlStr + '<td>'+ subData[i].name +'</td>';
-      htmlStr = htmlStr + '<td>'+ subData[i].frequency +'</td>';
-      htmlStr = htmlStr + '</tr>';
-    }
-    htmlStr = htmlStr + '</table>';
-    return htmlStr;  
+      e.stopPropagation();
+    });
+
   }
 
   dt2 = table2.value.dt();
@@ -1038,33 +1039,5 @@ td.details-control {
 tr.shown td.details-control {
   text-align:center; 
   color:red;
-}
-/* Style the caret/arrow */
-.caret {
-  cursor: pointer;
-  user-select: none; /* Prevent text selection */
-}
-
-/* Create the caret/arrow with a unicode, and style it */
-.caret::before {
-  content: "\25B6";
-  color: black;
-  display: inline-block;
-  margin-right: 6px;
-}
-
-/* Rotate the caret/arrow icon when clicked on (using JavaScript) */
-.caret-down::before {
-  transform: rotate(90deg);
-}
-
-/* Hide the nested list */
-.nested {
-  display: none;
-}
-
-/* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
-.active {
-  display: block;
 }
 </style>

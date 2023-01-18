@@ -1,6 +1,6 @@
 <script setup>
 	// 作業紀錄表(適用航空測量攝影機)
-import {ref} from 'vue';
+import {ref,inject} from 'vue';
 import { computed } from "@vue/reactivity";
 import { useMutation } from '@vue/apollo-composable';
 import GcpGQL from "../../graphql/Gcp";
@@ -11,6 +11,7 @@ const props = defineProps({
 	recordID: String,
   selParams: String
 });
+const publicPath = inject('publicPath');
 const infomsg = ref('');
 const alert1 =ref(false);
 
@@ -87,7 +88,7 @@ function resToFixDataObj(getData){
   
   fixData.nowGcpDespImg = getData.gcp.pt_map;
   if(getData.gcp.pt_map){
-    fixData.nowGcpDespImgDL = "04_GCP/Pt/" + fixData.nowGcpDespImg + "?t=" + Math.random()
+    fixData.nowGcpDespImgDL = publicPath.value + "04_GCP/Pt/" + fixData.nowGcpDespImg + "?t=" + Math.random()
   }else{
     fixData.nowGcpDespImgDL = "";
   }
@@ -95,25 +96,25 @@ function resToFixDataObj(getData){
 
   fixData.nowPRecordImg0 = getData.close_photo;
   if(getData.close_photo){
-    fixData.nowPRecordImg0DL = "04_GCP/" + fixData.nowPRecordPrjCode + "/pic/" + fixData.nowPRecordPtId + "/" + fixData.nowPRecordImg0 + "?t=" + Math.random()
+    fixData.nowPRecordImg0DL = publicPath.value + "04_GCP/" + fixData.nowPRecordPrjCode + "/pic/" + fixData.nowPRecordPtId + "/" + fixData.nowPRecordImg0 + "?t=" + Math.random()
   }else{
     fixData.nowPRecordImg0DL = "";
   }
   fixData.nowPRecordImg1 = getData.far_photo1;
   if(getData.far_photo1){
-    fixData.nowPRecordImg1DL = "04_GCP/" + fixData.nowPRecordPrjCode + "/pic/" + fixData.nowPRecordPtId + "/" + fixData.nowPRecordImg1 + "?t=" + Math.random()
+    fixData.nowPRecordImg1DL = publicPath.value + "04_GCP/" + fixData.nowPRecordPrjCode + "/pic/" + fixData.nowPRecordPtId + "/" + fixData.nowPRecordImg1 + "?t=" + Math.random()
   }else{
     fixData.nowPRecordImg1DL = "";
   }
   fixData.nowPRecordImg2 = getData.far_photo2;
   if(getData.far_photo2){
-    fixData.nowPRecordImg2DL = "04_GCP/" + fixData.nowPRecordPrjCode + "/pic/" + fixData.nowPRecordPtId + "/" + fixData.nowPRecordImg2 + "?t=" + Math.random()
+    fixData.nowPRecordImg2DL = publicPath.value + "04_GCP/" + fixData.nowPRecordPrjCode + "/pic/" + fixData.nowPRecordPtId + "/" + fixData.nowPRecordImg2 + "?t=" + Math.random()
   }else{
     fixData.nowPRecordImg2DL = "";
   }
   fixData.nowPRecordImg3 = getData.far_photo3;
   if(getData.far_photo3){
-    fixData.nowPRecordImg3DL = "04_GCP/" + fixData.nowPRecordPrjCode + "/pic/" + fixData.nowPRecordPtId + "/" + fixData.nowPRecordImg3 + "?t=" + Math.random()
+    fixData.nowPRecordImg3DL = publicPath.value + "04_GCP/" + fixData.nowPRecordPrjCode + "/pic/" + fixData.nowPRecordPtId + "/" + fixData.nowPRecordImg3 + "?t=" + Math.random()
   }else{
     fixData.nowPRecordImg3DL = "";
   }

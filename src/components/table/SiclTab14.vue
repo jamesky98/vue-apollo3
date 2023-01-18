@@ -1,6 +1,6 @@
 <script setup>
 	// 作業紀錄表(適用航空測量攝影機)
-import {ref, onMounted} from 'vue';
+import {ref, onMounted,inject} from 'vue';
 import { computed } from "@vue/reactivity";
 import { useMutation } from '@vue/apollo-composable';
 import GcpGQL from "../../graphql/Gcp";
@@ -10,6 +10,7 @@ import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
 const props = defineProps({
 	recordID: String
 });
+const publicPath = inject('publicPath');
 const infomsg = ref('');
 const alert1 =ref(false);
 
@@ -40,7 +41,7 @@ const nowGcpContactCom = ref("");
 const nowGcpDespImg = ref("");
 const nowGcpDespImgDL = computed(()=>{
   if(nowGcpDespImg.value){
-    return "04_GCP/Pt/" + nowGcpDespImg.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/Pt/" + nowGcpDespImg.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -50,7 +51,7 @@ const nowGcpDespStr = ref("");
 const nowPRecordImg0 = ref("");
 const nowPRecordImg0DL = computed(()=>{
   if(nowPRecordImg0.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -59,7 +60,7 @@ const nowPRecordImg0DL = computed(()=>{
 const nowPRecordImg1 = ref("");
 const nowPRecordImg1DL = computed(()=>{
   if(nowPRecordImg1.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -68,7 +69,7 @@ const nowPRecordImg1DL = computed(()=>{
 const nowPRecordImg2 = ref("");
 const nowPRecordImg2DL = computed(()=>{
   if(nowPRecordImg2.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value + "?t=" + Math.random()
   }else{
     return ""
   }
@@ -77,7 +78,7 @@ const nowPRecordImg2DL = computed(()=>{
 const nowPRecordImg3 = ref("");
 const nowPRecordImg3DL = computed(()=>{
   if(nowPRecordImg3.value){
-    return "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value + "?t=" + Math.random()
   }else{
     return ""
   }
