@@ -860,7 +860,8 @@ getMoneybyMounthOnDone(result=>{
     options: {
       responsive: true,
       interaction: {
-        mode: 'index',
+        intersect: false,
+        mode: 'x',
       },
       parsing: {
         xAxisKey: 'id',
@@ -1129,7 +1130,7 @@ function zoomCart(Index){
             <MDBCol md="10" class="h-100">
               <!-- 加入統計圖 -->
               <MDBRow class="h-100 overflow-auto">
-                <!-- 圖表1 -->
+                <!-- 圖表1 各人員年度案件數 -->
                 <MDBCol v-show="chartShow[0]" :lg="chartShowCol[0]" class="border" :class="chartClass[0]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">
@@ -1140,6 +1141,7 @@ function zoomCart(Index){
                         v-model:selected="selYear" 
                         ref="selYearDOM" 
                         @change="changeChart1Year($event)"/>
+                      <span>※以收件日為準</span>
                       <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(0)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
                     </MDBCol>
                     <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
@@ -1149,7 +1151,7 @@ function zoomCart(Index){
                   
                   
                 </MDBCol>
-                <!-- 圖表2 -->
+                <!-- 圖表2 年度每月案件數 -->
                 <MDBCol v-show="chartShow[1]" :lg="chartShowCol[1]" class="border" :class="chartClass[1]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">
@@ -1174,7 +1176,7 @@ function zoomCart(Index){
                     </MDBCol>
                   </MDBRow>
                 </MDBCol>
-                <!-- 圖表5 -->
+                <!-- 圖表5 年度每月收費統計 -->
                 <MDBCol v-show="chartShow[4]" :lg="chartShowCol[4]" class="border" :class="chartClass[4]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">
@@ -1185,6 +1187,7 @@ function zoomCart(Index){
                         v-model:selected="selYear5" 
                         ref="selYearDOM5" 
                         @change="changeChart5Year($event)"/>
+                      <span>※以繳費日為準</span>
                       <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(4)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
                     </MDBCol>
                     <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
@@ -1192,7 +1195,7 @@ function zoomCart(Index){
                     </MDBCol>
                   </MDBRow>
                 </MDBCol>
-                <!-- 圖表3 -->
+                <!-- 圖表3 各項目年度案件數 -->
                 <MDBCol v-show="chartShow[2]" :lg="chartShowCol[2]" class="border" :class="chartClass[2]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">
@@ -1203,6 +1206,7 @@ function zoomCart(Index){
                         v-model:selected="selYear3" 
                         ref="selYearDOM3" 
                         @change="changeChart3Year($event)"/>
+                      <span>※以申請日為準</span>
                       <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(2)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
                     </MDBCol>
                     <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
@@ -1210,7 +1214,7 @@ function zoomCart(Index){
                     </MDBCol>
                   </MDBRow>
                 </MDBCol>
-                <!-- 圖表4 -->
+                <!-- 圖表4 年度案件進度統計 -->
                 <MDBCol v-show="chartShow[3]" :lg="chartShowCol[3]" class="border" :class="chartClass[3]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">
@@ -1221,6 +1225,7 @@ function zoomCart(Index){
                         v-model:selected="selYear4" 
                         ref="selYearDOM4" 
                         @change="changeChart4Year($event)"/>
+                      <span>※以申請日為準</span>
                       <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(3)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
                     </MDBCol>
                     <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
@@ -1229,7 +1234,7 @@ function zoomCart(Index){
                   </MDBRow>
                 </MDBCol>
                 
-                <!-- 圖表6 -->
+                <!-- 圖表6 月報統計表 -->
                 <MDBCol v-show="chartShow[5]" :lg="chartShowCol[5]" class="border" :class="chartClass[5]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">

@@ -1850,11 +1850,11 @@ onMounted(function () {
                   </MDBCol>
                   <MDBCol col="12" style="height: calc(100% - 5rem);" class="overflow-auto">
                     <MDBRow>
-                      <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mt-2  col-6" label="校正人員"
+                      <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mt-2 col-6" label="校正人員"
                         v-model:options="nowCaseOperatorMU" v-model:selected="nowCaseOperator" ref="nowCaseOperatorDOM" />
-                      <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mt-2  col-6" label="技術主管"
+                      <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mt-2 col-6" label="技術主管"
                         v-model:options="nowCaseLeaderMU" v-model:selected="nowCaseLeader" ref="nowCaseLeaderDOM" />
-                      <MDBSelect :disabled="!rGroup[2]" size="sm" class="mt-3  col-6" label="案件狀態"
+                      <MDBSelect :disabled="!rGroup[2]" size="sm" class="mt-3 col-6 showIC" label="案件狀態"
                         v-model:options="nowCaseStatusMU" v-model:selected="nowCaseStatus" ref="nowCaseStatusDOM" />
                       <div></div>
                       <MDBCol col="6" class="mt-3">
@@ -2002,7 +2002,7 @@ onMounted(function () {
   text-align: right;
 }
 
-tr>td>span.status89 {
+span.status89 {
   color: #DE3163;
 }
 
@@ -2010,7 +2010,7 @@ tr.selected>td>span.status89 {
   color: white;
 }
 
-tr>td>span.status7 {
+span.status7 {
   color: green;
 }
 
@@ -2018,7 +2018,7 @@ tr.selected>td>span.status7 {
   color: white;
 }
 
-tr>td>span.status6 {
+span.status6 {
   color: #F39C12;
 }
 
@@ -2026,7 +2026,7 @@ tr.selected>td>span.status6 {
   color: white;
 }
 
-tr>td>span.status45 {
+span.status45 {
   color: #6495ED;
 }
 
@@ -2034,7 +2034,7 @@ tr.selected>td>span.status45 {
   color: white;
 }
 
-tr>td>span.status23 {
+span.status23 {
   color: #FF7F50;
 }
 
@@ -2042,7 +2042,7 @@ tr.selected>td>span.status23 {
   color: white;
 }
 
-tr>td>span.status1 {
+span.status1 {
   color: Gray;
 }
 
@@ -2053,6 +2053,11 @@ tr.selected>td>span.status1 {
 .slide-left-ja {
   animation-name: slide-left-ja;
 }
+
+/* .showIC::before {
+  content: '';
+  color: red;
+} */
 
 @keyframes slide-left-ja {
   from {

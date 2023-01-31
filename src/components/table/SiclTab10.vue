@@ -178,7 +178,7 @@ refgetNowCaseF();
                   （3）飛航離地高（AGL）：{{nowCaseAGLac}} m
                 </td>
                 <td scope="col" class="fstyle02 nowrap tdborder-b tdborder-r2">
-                  （4）最大掃描角（FOV）：{{nowCaseFOVac}} m
+                  （4）最大掃描角（FOV）：{{nowCaseFOVac}} °
                 </td>
               </tr>
               <tr>
