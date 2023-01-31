@@ -148,6 +148,41 @@ const showCaseNew = ref(false);
 const nowCaseStatus = ref("");
 const nowCaseStatusMU = ref([]);
 const nowCaseStatusDOM = ref();
+
+const statusIcon =computed(() => {
+  let classn;
+  console.log(nowCaseStatus.value)
+  switch (nowCaseStatus.value) {
+      case 9: //退件
+        classn = "status9";
+        break;
+      case 8: //補件
+        classn = "status8";
+        break;
+      case 7: //結案
+        classn = "status7";
+        break;
+      case 6: //待繳費
+        classn = "status6";
+        break;
+      case 5: //陳核
+        classn = "status5";
+        break;
+      case 4: //校正中
+        classn = "status4";
+        break;
+      case 3: //待送件
+        classn = "status3";
+        break;
+      case 2: //審核中
+        classn = "status2";
+        break;
+      case 1: //(空)
+        classn = "status1";
+    }
+  return classn
+})
+
 // 案件編號
 const nowCaseID = ref("");
 const addCaseID = ref("");
@@ -1854,7 +1889,7 @@ onMounted(function () {
                         v-model:options="nowCaseOperatorMU" v-model:selected="nowCaseOperator" ref="nowCaseOperatorDOM" />
                       <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mt-2 col-6" label="技術主管"
                         v-model:options="nowCaseLeaderMU" v-model:selected="nowCaseLeader" ref="nowCaseLeaderDOM" />
-                      <MDBSelect :disabled="!rGroup[2]" size="sm" class="mt-3 col-6 showIC" label="案件狀態"
+                      <MDBSelect :disabled="!rGroup[2]" size="sm" :class="statusIcon" class="mt-3 col-6" label="案件狀態"
                         v-model:options="nowCaseStatusMU" v-model:selected="nowCaseStatus" ref="nowCaseStatusDOM" />
                       <div></div>
                       <MDBCol col="6" class="mt-3">
@@ -2054,10 +2089,77 @@ tr.selected>td>span.status1 {
   animation-name: slide-left-ja;
 }
 
-/* .showIC::before {
-  content: '';
-  color: red;
-} */
+div.status9 span::before {
+  font-family: "Font Awesome 6 Free"; 
+  font-weight: 900;
+  font-size: 1rem;
+  content: "\f122";
+  color: #DE3163;
+}
+
+div.status8 span::before {
+  font-family: "Font Awesome 6 Free"; 
+  font-weight: 900;
+  font-size: 1rem;
+  content: "\f1da";
+  color: #DE3163;
+}
+
+div.status7 span::before {
+  font-family: "Font Awesome 6 Free"; 
+  font-weight: 900;
+  font-size: 1rem;
+  content: "\f00c";
+  color: green;
+}
+
+div.status6 span::before {
+  font-family: "Font Awesome 6 Free"; 
+  font-weight: 900;
+  font-size: 1rem;
+  content: "\f4b9";
+  color: #F39C12;
+}
+
+div.status5 span::before {
+  font-family: "Font Awesome 6 Free"; 
+  font-weight: 900;
+  font-size: 1rem;
+  content: "\f0ea";
+  color: #6495ED;
+}
+
+div.status4 span::before {
+  font-family: "Font Awesome 6 Free"; 
+  font-weight: 900;
+  font-size: 1rem;
+  content: "\f04b";
+  color: #6495ED;
+}
+
+div.status3 span::before {
+  font-family: "Font Awesome 6 Free"; 
+  font-weight: 900;
+  font-size: 1rem;
+  content: "\f251";
+  color: #FF7F50;
+}
+
+div.status2 span::before {
+  font-family: "Font Awesome 6 Free"; 
+  font-weight: 900;
+  font-size: 1rem;
+  content: "\f530";
+  color: #FF7F50;
+}
+
+div.status1 span::before {
+  font-family: "Font Awesome 6 Free"; 
+  font-weight: 900;
+  font-size: 1rem;
+  content: "\f06a";
+  color: Gray;
+}
 
 @keyframes slide-left-ja {
   from {
