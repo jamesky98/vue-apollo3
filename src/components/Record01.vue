@@ -250,7 +250,7 @@ const nowCaseRsultFileDL = computed(() => {
 const nowCaseNetGraph = ref(""); //網形圖(上傳)
 const nowCaseNetGraphDL = computed(() => {
   if (nowCaseNetGraph.value && nowCaseNetGraph.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseNetGraph.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseNetGraph.value + "?t=" + Math.random();
   } else {
     return undefined;
   }
@@ -259,7 +259,7 @@ const nowCaseNetGraphDL = computed(() => {
 const nowCaseGCPGraph = ref(""); //點位分布圖(上傳)
 const nowCaseGCPGraphDL = computed(() => {
   if (nowCaseGCPGraph.value && nowCaseGCPGraph.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseGCPGraph.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseGCPGraph.value + "?t=" + Math.random();
   } else {
     return undefined;
   }
