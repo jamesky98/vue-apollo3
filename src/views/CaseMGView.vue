@@ -45,6 +45,7 @@ import { computed } from "@vue/reactivity";
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
 import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
+import { resolve } from "chart.js/helpers";
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -115,6 +116,7 @@ const alert1 = ref(false);
 const alertColor = ref("primary");
 const updateKey = ref(0);
 const publicPath = inject('publicPath');
+let getNowCaseData;
 
 // 顧客列表
 const showCustFrom = ref(false);
@@ -151,7 +153,7 @@ const nowCaseStatusDOM = ref();
 
 const statusIcon =computed(() => {
   let classn;
-  console.log(nowCaseStatus.value)
+  // console.log(nowCaseStatus.value)
   switch (nowCaseStatus.value) {
       case 9: //退件
         classn = "status9";
@@ -611,14 +613,12 @@ getCaseStatusonDone(result => {
     // 篩選區
     caseStatusMU.value = result.data.getCaseStatus.map(x => {
       return { text: x.status, value: parseInt(x.code) }
-    }); caseStatusMU.value.unshift({ text: "", value: "" });
+    }); caseStatusMU.value.unshift({ text: "", value: ""});
     // 資料區
-    nowCaseStatusMU.value = result.data.getCaseStatus.map(x => {
-      return { text: x.status, value: parseInt(x.code) }
-    }); nowCaseStatusMU.value.unshift({ text: "", value: "" });
-    // nowDocTypemu.value = result.data.getAllDocType.map(x => {
-    //   return { text: x.doc_type, value: parseInt(x.doc_type_id) }
-    // }); nowDocTypemu.value.unshift({ text: "", value: "" });
+    let tempMU = result.data.getCaseStatus.map(x => {
+      return { text: x.status, value: parseInt(x.code)}
+    }); 
+    nowCaseStatusMU.value = tempMU;
   }
 });
 getCaseStatusonError(e=>{errorHandle(e,infomsg,alert1)});
@@ -756,12 +756,18 @@ getCaseLeaderonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢顯示選擇案件之簡單資料
 const { mutate: refgetNowCaseS, onDone: getNowCaseSonDone, onError: getNowCaseSonError } = useMutation(
-  CaseGQL.GETSIMPLECASEBYID);
+  CaseGQL.GETFULLCASEBYID);
 getNowCaseSonDone(result => {
   if (!result.loading && result && result.data.getCasebyID) {
     // 填入簡單資料
-    let getData = result.data.getCasebyID;
-    nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
+    getNowCaseData = result.data.getCasebyID;
+    let getData = getNowCaseData;
+    // console.log(getData);
+    checkCaseStatus(getData).then(res=>{
+      // console.log('res',res);
+      return nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
+    });
+    // nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
     nowCaseItemID.value = (getData.item_id)?getData.item_id:"";
     nowCaseAppDate.value = (getData.app_date) ? getData.app_date.split("T")[0] : " ";
     nowCaseTypeName.value = getData.cal_type_cal_typeTocase_base.name;
@@ -1388,7 +1394,7 @@ function saveAPIRecord(nowData) {
       itemId: (res.item_id)?parseInt(res.item_id):null,
       // charge: null,
       // payDate: null,
-      agreement: nowData.EXTRA_10 + "\n" + nowData.EXTRA_9,
+      agreement: (!nowData.EXTRA_10 && !nowData.EXTRA_9)?'':(nowData.EXTRA_10 + "\n" + nowData.EXTRA_9),
       // leaderId: null,
       operatorsId: parseInt(nowData.Corrector),
       
@@ -1613,6 +1619,111 @@ const {
 } = useMutation(CaseGQL.SAVECASERECORD03);
 saveRecord03APIError(e=>{errorHandle(e,infomsg,alert1)});
 //#endregion 連線取得案件==========End
+
+//#region 檢驗案件狀態==========Start
+function checkCaseStatus(caseData){
+  return new Promise((resolve,reject)=>{
+    // 切換案件時要執行1次
+    // 其餘經由觸發事件執行檢驗
+    nowCaseStatusMU.value[0].disabled = false; // (無)
+    for(let i=1; i<nowCaseStatusMU.value.length ; i++){
+      nowCaseStatusMU.value[i].disabled = true;
+    }
+    //  審核中
+    if (caseData.leader_id && caseData.operators_id) {
+      nowCaseStatusMU.value[1].disabled = false;
+    }
+
+    // 待送件
+    if (caseData.cus_id && caseData.item_id && 
+      !nowCaseStatusMU.value[1].disabled) {
+      nowCaseStatusMU.value[2].disabled = false;
+    }
+
+    // 校正中
+    if (caseData.case_record_01){
+      if (caseData.case_record_01.receive_date && 
+        caseData.case_record_01.start_Date && 
+        !nowCaseStatusMU.value[2].disabled) {
+        nowCaseStatusMU.value[3].disabled = false;
+      }
+    }else if (caseData.case_record_02){
+      if (caseData.case_record_02.receive_date && 
+        caseData.case_record_02.start_Date && 
+        !nowCaseStatusMU.value[2].disabled) {
+        nowCaseStatusMU.value[3].disabled = false;
+      }
+    }else if (caseData.case_record_03){
+      if (caseData.case_record_03.receive_date && 
+        caseData.case_record_03.start_Date && 
+        !nowCaseStatusMU.value[2].disabled) {
+        nowCaseStatusMU.value[3].disabled = false;
+      }
+    }
+
+    // 報告陳核
+    if (caseData.case_record_01){
+      if (caseData.case_record_01.complete_date && 
+        caseData.case_record_01.report_edit && 
+        !nowCaseStatusMU.value[3].disabled) {
+        nowCaseStatusMU.value[4].disabled = false;
+      }
+    }else if (caseData.case_record_02){
+      if (caseData.case_record_02.complete_date && 
+        caseData.case_record_02.report_edit && 
+        !nowCaseStatusMU.value[3].disabled) {
+        nowCaseStatusMU.value[4].disabled = false;
+      }
+    }else if (caseData.case_record_03){
+      if (caseData.case_record_03.complete_date && 
+        caseData.case_record_03.report_edit && 
+        !nowCaseStatusMU.value[3].disabled) {
+        nowCaseStatusMU.value[4].disabled = false;
+      }
+    }
+
+    // 待繳費(出具報告)
+    if (caseData.case_record_01){
+      if (caseData.case_record_01.chk_person_id && 
+        caseData.case_record_01.sign_person_id && 
+        caseData.case_record_01.report_scan &&
+        !nowCaseStatusMU.value[4].disabled) {
+        nowCaseStatusMU.value[5].disabled = false;
+      }
+    }else if (caseData.case_record_02){
+      if (caseData.case_record_02.chk_person_id && 
+        caseData.case_record_02.sign_person_id && 
+        caseData.case_record_02.report_scan &&
+        !nowCaseStatusMU.value[4].disabled) {
+        nowCaseStatusMU.value[5].disabled = false;
+      }
+    }else if (caseData.case_record_03){
+      if (caseData.case_record_03.chk_person_id && 
+        caseData.case_record_03.sign_person_id && 
+        caseData.case_record_03.report_scan &&
+        !nowCaseStatusMU.value[4].disabled) {
+        nowCaseStatusMU.value[5].disabled = false;
+      }
+    }
+
+    // 結案
+    if ((caseData.pay_date || caseData.charge===0) && !nowCaseStatusMU.value[5].disabled) {
+      nowCaseStatusMU.value[6].disabled = false;
+    }
+
+    // 補件
+    if (caseData.agreement) {
+      nowCaseStatusMU.value[7].disabled = false;
+    }
+    
+    // 退件
+    if (caseData.agreement) {
+      nowCaseStatusMU.value[8].disabled = false;
+    }
+    resolve(nowCaseStatusMU.value);
+  })
+}
+//#endregion  檢驗案件狀態==========End
 
 getchecktoken().then(res=>{
     refgetAllCase();
