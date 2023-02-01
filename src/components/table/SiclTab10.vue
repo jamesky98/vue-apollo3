@@ -12,7 +12,7 @@ const props = defineProps({
 });
 const infomsg = ref('');
 const alert1 =ref(false);
-
+const isFullPara = ref(true);
 const nowCaseCalTypeCode = ref(""); //校正項目代碼
 const tableID = computed(() => { return props.caseID.slice(0, -2) }); //申請單編號
 const itemID = computed(() => { return props.caseID.slice(-2) }); //校正件編號
@@ -79,7 +79,7 @@ getNowCaseF(result => {
     let getCust = result.data.getCasebyID.cus;
     let getItem = result.data.getCasebyID.item_base;
     let getOpt = result.data.getCasebyID.employee_case_base_operators_idToemployee;
-
+    (getRecord.type === 1) ? isFullPara.value = true : isFullPara.value = false;
     nowCaseCalTypeCode.value = (result.data.getCasebyID.cal_type_cal_typeTocase_base) ? result.data.getCasebyID.cal_type_cal_typeTocase_base.code : "";
     nowCaseStartDate.value = (getRecord.start_Date) ? getRecord.start_Date.split("T")[0] : "";
     nowCaseFlyDate.value = (getRecord.fly_date) ? getRecord.fly_date.split("T")[0] : "";
@@ -214,12 +214,19 @@ refgetNowCaseF();
               </tr>
               <tr>
                 <td scope="col" width="6%" class="tdborder-b"></td>
-                <td colspan="3" scope="col" class="fstyle02 pb-2 tdborder-r2 tdborder-b" style="line-height: 1.2;">
+                <td v-if="isFullPara" colspan="3" scope="col" class="fstyle02 pb-2 tdborder-r2 tdborder-b" style="line-height: 1.2;">
                   雷射測距精度：{{nowCaseLrDisPrs}} mm，雷射掃描發散角：{{nowCaseLrBeam}} "
                   雷射掃描角解析度：{{nowCaseLrAngResol}} "<br/>
                   GNSS定位精度  平面：{{nowCaseGnssPrcH}} mm，高程：{{nowCaseGnssPrcV}}mm<br/>
                   IMU測角精度  Omega：{{nowCaseImuOmg}} "，Phi：{{nowCaseImuPhi}} "，Kappa：{{nowCaseImuKap}} "<br/>
                   姿態角解析度：{{nowCaseImuPrcO}} "
+                </td>
+                <td v-else colspan="3" scope="col" class="fstyle02 pb-2 tdborder-r2 tdborder-b" style="line-height: 1.2;">
+                  雷射測距精度：   mm，雷射掃描發散角：    "
+                  雷射掃描角解析度：    "<br/>
+                  GNSS定位精度  平面：   mm，高程：  mm<br/>
+                  IMU測角精度  Omega：   "，Phi：   "，Kappa：   "<br/>
+                  姿態角解析度：   "
                 </td>
               </tr>
               <tr>
@@ -229,8 +236,11 @@ refgetNowCaseF();
               </tr>
               <tr>
                 <td scope="col" width="6%"></td>
-                <td colspan="3" scope="col" class="fstyle02 pb-2 tdborder-r2" style="line-height: 1.2;">
+                <td v-if="!isFullPara" colspan="3" scope="col" class="fstyle02 pb-2 tdborder-r2" style="line-height: 1.2;">
                   平面精度：{{nowCaseGnssPrcH}} mm，高程精度：{{nowCaseGnssPrcV}} mm
+                </td>
+                <td v-else colspan="3" scope="col" class="fstyle02 pb-2 tdborder-r2" style="line-height: 1.2;">
+                  平面精度：   mm，高程精度：   mm
                 </td>
               </tr>
               <tr>

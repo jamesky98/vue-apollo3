@@ -189,7 +189,7 @@ refgetNowCaseF();
 			<div class="fstyle01">
 				<div class="fstyle01C">校正申請表(適用空載光達)</div>
 				<div>Calibration Application Form</div>
-				<div style="margin-bottom: 20px;">(apply for airborne LiDAR)</div>
+				<div style="margin-bottom: 10px;">(apply for airborne LiDAR)</div>
 			</div>
 			<div class="d-flex flex-wrap g-0 p-0">
 				<!-- 申請單號 -->
@@ -256,30 +256,30 @@ refgetNowCaseF();
 				<div class="col-9 fstyle02 d-flex align-items-center bl_t_2 bl_r_2 bl_b_2">
 					<div>{{nowCasePurpose}}</div>
 				</div>
-				<div class="col-4 fstyle02 border">
+				<div class="col-4 fstyle02 bl_r bl_l_2">
 					<div>廠牌：{{nowCaseItemChop}}</div>
 					<div>Manufacturer</div>
 				</div>
-				<div class="col-4 fstyle02 border">
+				<div class="col-4 fstyle02 bl_r">
 					<div>型號：{{nowCaseItemModel}}</div>
 					<div>Model</div>
 				</div>
-				<div class="col-4 fstyle02 border">
+				<div class="col-4 fstyle02 bl_r_2">
 					<div>序號：{{nowCaseItemSN}}</div>
 					<div>Serial Number</div>
 				</div>
 				<!-- 系統參數 -->
-				<div class="col-12 fstyle02 bggray1 text-center border">
+				<div class="col-12 fstyle02 bggray1 text-center bl_t_2 bl_r_2 bl_l_2 bl_b_2">
 					<div class="fbolder">請擇一勾選填寫Please select one to fill in</div>
 				</div>
-				<div class="col-8 fstyle02 bggray1 text-center border">
+				<div class="col-8 fstyle02 bggray1 text-center bl_r_2 bl_b bl_l_2">
 					<div class="fbolder">
 						<span v-if="isFullPara" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span>
 						具各項系統規格參數
 					</div>
 					<div class="fbolder">has various system specifications</div>
 				</div>
-				<div class="col-4 fstyle02 bggray1 text-center border">
+				<div class="col-4 fstyle02 bggray1 text-center bl_r_2 bl_b">
 					<div class="fbolder">
 						<span v-if="!isFullPara" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span>
 						具空載光達系統整合精度
@@ -287,109 +287,109 @@ refgetNowCaseF();
 					<div class="fbolder">has LiDAR integration accuracy</div>
 				</div>
 				<!-- 各項系統規格參數 -->
-				<div class="col-8 d-flex flex-wrap g-0 p-0">
-					<div class="col-12 fstyle02 border">
+				<div class="col-8 d-flex flex-wrap g-0 p-0 bl_r_2 bl_b_2 bl_l_2">
+					<div class="col-12 fstyle02 bl_b_desh">
 						雷射掃描儀規格Scanner specification
 					</div>
-					<div class="col-1 p-0 border">
+					<div class="col-1 p-0 bl_r_desh">
 						<!-- 空白間隔 -->
 					</div>
 					<div class="col-11 d-flex flex-wrap g-0 p-0">
-						<div class="col-12 fstyle02 p-0 border">
+						<div class="col-12 fstyle02 p-0 bl_b_desh">
 							<div v-if="isFullPara">測距精度：{{nowCaseLrDisPrs}} mm</div>
 							<div v-else>測距精度：</div>
 							<div>Distance Precision</div>
 						</div>	
-						<div class="col-12 fstyle02 p-0 border">
+						<div class="col-12 fstyle02 p-0 bl_b_desh">
 							<div v-if="isFullPara">雷射掃描角解析度：{{nowCaseLrAngResol}} "</div>
 							<div v-else>雷射掃描角解析度：</div>
 							<div>Scanner Angular resolution</div>
 						</div>
-						<div class="col-12 fstyle02 p-0 border">
+						<div class="col-12 fstyle02 p-0">
 							<div v-if="isFullPara">雷射掃描儀發散角：{{nowCaseLrBeam}} "</div>
 							<div v-else>雷射掃描儀發散角：</div>
 							<div>Laser Beam divergence</div>
 						</div>
 					</div>
 					<!-- GNSS -->
-					<div class="col-12 fstyle02 border">
+					<div class="col-12 fstyle02 bl_t bl_b_desh">
 						GNSS規格GNSS specification
 					</div>
-					<div class="col-1 p-0 border">
+					<div class="col-1 p-0 bl_r_desh">
 						<!-- 空白間隔 -->
 					</div>
 					<div class="col-11 d-flex flex-wrap g-0 p-0">
-						<div class="col-3 fstyle03 px-0 pt-1 pb-0 border">
+						<div class="col-3 fstyle03 px-0 pt-1 pb-0 bl_r_desh">
 							<div>廠牌：{{nowCaseGnssChop}}</div>
 						</div>
-						<div class="col-5 fstyle03 px-0 pt-1 pb-0 border">
+						<div class="col-5 fstyle03 px-0 pt-1 pb-0 bl_r_desh">
 							<div>型號：{{nowCaseGnssModel}}</div>
 						</div>
-						<div class="col-4 fstyle03 px-0 pt-1 pb-0 border">
+						<div class="col-4 fstyle03 px-0 pt-1 pb-0">
 							<div>序號：{{nowCaseGnssSN}}</div>
 						</div>
-						<div class="col-3 fstyle03 px-0 pt-0 pb-1 border">
+						<div class="col-3 fstyle03 px-0 pt-0 pb-1 bl_r_desh">
 							<div>Manufacturer</div>
 						</div>
-						<div class="col-5 fstyle03 px-0 pt-0 pb-1 border">
+						<div class="col-5 fstyle03 px-0 pt-0 pb-1 bl_r_desh">
 							<div>Model</div>
 						</div>
-						<div class="col-4 fstyle03 px-0 pt-0 pb-1 border">
+						<div class="col-4 fstyle03 px-0 pt-0 pb-1">
 							<div>Serial Number</div>
 						</div>
-						<div class="col-12 fstyle02 px-0 py-1 border">
+						<div class="col-12 fstyle02 px-0 py-1 bl_t_desh">
 							<div v-if="isFullPara">平面定位精度：{{nowCaseGnssPrcH}} mm</div>
 							<div v-else>平面定位精度：</div>
 							<div>Horizontal Precision</div>
 						</div>
-						<div class="col-12 fstyle02 px-0 py-1 border">
+						<div class="col-12 fstyle02 px-0 py-1 bl_t_desh">
 							<div v-if="isFullPara">高程定位精度：{{nowCaseGnssPrcV}} mm</div>
 							<div v-else>高程定位精度：</div>
 							<div>Elevation Precision</div>
 						</div>
 					</div>
 					<!-- IMU -->
-					<div class="col-12 fstyle02 border">
+					<div class="col-12 fstyle02 bl_t bl_b_desh">
 						IMU規格IMU specification
 					</div>
-					<div class="col-1 p-0 border">
+					<div class="col-1 p-0 bl_r_desh">
 						<!-- 空白間隔 -->
 					</div>
 					<div class="col-11 d-flex flex-wrap g-0 p-0">
-						<div class="col-3 fstyle03 px-0 pt-1 pb-0 border">
+						<div class="col-3 fstyle03 px-0 pt-1 pb-0 bl_r_desh">
 							<div>廠牌：{{nowCaseImuChop}}</div>
 						</div>
-						<div class="col-5 fstyle03 px-0 pt-1 pb-0 border">
+						<div class="col-5 fstyle03 px-0 pt-1 pb-0 bl_r_desh">
 							<div>型號：{{nowCaseImuModel}}</div>
 						</div>
-						<div class="col-4 fstyle03 px-0 pt-1 pb-0 border">
+						<div class="col-4 fstyle03 px-0 pt-1 pb-0">
 							<div>序號：{{nowCaseImuSN}}</div>
 						</div>
-						<div class="col-3 fstyle03 px-0 pt-0 pb-1 border">
+						<div class="col-3 fstyle03 px-0 pt-0 pb-1 bl_r_desh">
 							<div>Manufacturer</div>
 						</div>
-						<div class="col-5 fstyle03 px-0 pt-0 pb-1 border">
+						<div class="col-5 fstyle03 px-0 pt-0 pb-1 bl_r_desh">
 							<div>Model</div>
 						</div>
-						<div class="col-4 fstyle03 px-0 pt-0 pb-1 border">
+						<div class="col-4 fstyle03 px-0 pt-0 pb-1">
 							<div>Serial Number</div>
 						</div>
-						<div class="col-12 fstyle02 px-0 py-1 border">
+						<div class="col-12 fstyle02 px-0 py-1 bl_t_desh">
 							<div v-if="isFullPara">ω測角精度：{{nowCaseImuOmg}} "</div>
 							<div v-else>ω測角精度：</div>
 							<div>Omega Precision</div>
 						</div>
-						<div class="col-12 fstyle02 px-0 py-1 border">
+						<div class="col-12 fstyle02 px-0 py-1">
 							<div v-if="isFullPara">φ測角精度：{{nowCaseImuPhi}} "</div>
 							<div v-else>φ測角精度：</div>
 							<div>Phi Precision</div>
 						</div>
-						<div class="col-12 fstyle02 px-0 py-1 border">
+						<div class="col-12 fstyle02 px-0 py-1">
 							<div v-if="isFullPara">κ測角精度：{{nowCaseImuKap}} "</div>
 							<div v-else>κ測角精度：</div>
 							<div>Kappa Precision</div>
 						</div>
-						<div class="col-12 fstyle02 px-0 py-1 border">
+						<div class="col-12 fstyle02 px-0 py-1">
 							<div v-if="isFullPara">姿態角解析度：{{nowCaseImuPrcO}} "</div>
 							<div v-else>姿態角解析度：</div>
 							<div>Orientation resolution</div>
@@ -397,16 +397,16 @@ refgetNowCaseF();
 					</div>
 				</div>
 				<!-- 具空載光達系統整合精度 -->
-				<div class="col-4 d-flex flex-wrap g-0 p-0 align-content-start">
-					<div class="col-12 fstyle02 border">
+				<div class="col-4 d-flex flex-wrap g-0 p-0 align-content-start bl_r_2 bl_b_2">
+					<div class="col-12 fstyle02">
 						　
 					</div>
-					<div class="col-12 fstyle02 border">
+					<div class="col-12 fstyle02 bl_t_desh bl_b_desh">
 						<div v-if="!isFullPara" >平面精度：{{nowCaseGnssPrcH}} mm</div>
 						<div v-else>平面精度：</div>
 						<div>Horizontal Precision</div>
 					</div>
-					<div class="col-12 fstyle02 border">
+					<div class="col-12 fstyle02 bl_b_desh">
 						<div v-if="!isFullPara">高程精度：{{nowCaseGnssPrcV}} mm</div>
 						<div v-else>高程精度：</div>
 						<div>Elevation Precision</div>
@@ -416,173 +416,147 @@ refgetNowCaseF();
 	</div>
 	<div class="page-gap"></div>
 	<div class="page">
-		<table width="100%" cellspacing=0 cellpadding=0>
-			<!-- 飛航規劃 -->
-			<tr>
-				<th colspan="3">
-					<table width="100%">
-						<tr>
-							<td width="8%" rowspan="4">
-								<div class="fstyle02V">飛航拍攝規劃<br/>Flight plan</div>
-							</td>
-							<td width="46%" scope="col" class="fstyle02">
-								<div>預定航拍期間：{{nowCasePlanY}} 年{{nowCasePlanM}} 月</div>
-								<div>Scheduled flight date</div>
-							</td>
-							<td scope="col" class="fstyle02">
-								<div>航帶總數：{{nowCaseStrips}}</div>
-								<div>strip number</div>
-							</td>
-						</tr>
-						<tr>
-							<td scope="col" class="fstyle02">
-								<div>飛航橢球高：{{nowCaseEllH}} m</div>
-								<div>Ellipsoidal Height</div>
-							</td>
-							<td scope="col" class="fstyle02">
-								<div>飛航離地高：{{nowCaseAGL}} m</div>
-								<div>AGL (Above Ground Level)</div>
-							</td>
-						</tr>
-						<tr>
-							<td scope="col" class="fstyle02">
-								<div>單航線平均點雲密度：{{nowCasePtDensity}} 點/m<sup>2</sup></div>
-								<div>average point density</div>
-							</td>
-							<td scope="col" class="fstyle02">
-								<div>最大掃描角：{{nowCaseFOV}} °</div>
-								<div>FOV（Filed of View）</div>
-							</td>
-						</tr>
-					</table>
-				</th>
-			</tr>
-			<!-- 應檢附資料 -->
-			<tr>
-				<td colspan="3" class="fstyle02 bggray2" style="border-bottom: 2px dashed;">
-					<div>應檢附資料：</div>
-					<div>Attach information</div>
-				</td>
-			</tr>
-			<tr>
-				<td colspan="3" class="fstyle02 bggray2" style="border-bottom: 2px dashed;">
-					<div><span v-if="nowCaseLrReport !== ''" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span> LiDAR原廠規格書或率定報告，檔名：{{nowCaseLrReport}}</div>
-					<div style="padding-left: 25px;">Lidar OEM specification or calibration report, filename</div>
-				</td>
-			</tr>
-			<tr>
-				<td colspan="3" class="fstyle02 bggray2" style="border-bottom: 2px dashed;">
-					<div><span v-if="nowCasePosReport !== ''" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span> POS原廠規格書或率定報告，檔名：{{nowCasePosReport}}</div>
-					<div style="padding-left: 25px;">POS OEM specification or calibration report, filename</div>
-				</td>
-			</tr>
-			<tr>
-				<td colspan="3" class="fstyle02 bggray2">
-					<div><span v-if="nowCasePlanMap !== ''" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span> 飛行航線規劃圖(dwg或shp檔)，檔名：{{nowCasePlanMap}}</div>
-					<div style="padding-left: 25px;">Flight planning map (*.dwg / *.shp), filename</div>
-				</td>
-			</tr>
-			<tr>
-				<td width="40%">
-				</td>
-				<td width="25%" class="fstyle02mid">
-					<div>校正人員</div>
-					<div>Calibration Person</div>
-				</td>
-				<td class="fstyle02mid">
-				</td>
-			</tr>
-		</table>
+		<div class="d-flex flex-wrap g-0 p-0">
+			<div class="col-1 fstyle02 bl_t_2 bl_r_2 bl_l_2">
+				<div class="fstyle02V">飛航拍攝規劃<br/>Flight plan</div>
+			</div>
+			<div class="col-11 d-flex flex-wrap g-0 p-0 align-content-start bl_t_2 bl_r_2">
+				<div class="col-6 fstyle02 bl_r bl_b">
+					<div>預定航拍期間：{{nowCasePlanY}} 年{{nowCasePlanM}} 月</div>
+					<div>Scheduled flight date</div>
+				</div>
+				<div class="col-6 fstyle02 bl_b">
+					<div>航帶總數：{{nowCaseStrips}}</div>
+					<div>strip number</div>
+				</div>
+				<div class="col-6 fstyle02 bl_r bl_b">
+					<div>飛航橢球高：{{nowCaseEllH}} m</div>
+					<div>Ellipsoidal Height</div>
+				</div>
+
+				<div class="col-6 fstyle02 bl_b">
+					<div>飛航離地高：{{nowCaseAGL}} m</div>
+					<div>AGL (Above Ground Level)</div>
+				</div>
+
+				<div class="col-6 fstyle02 bl_r">
+					<div>單航線平均點雲密度：{{nowCasePtDensity}} 點/m<sup>2</sup></div>
+					<div>average point density</div>
+				</div>
+
+				<div class="col-6 fstyle02">
+					<div>最大掃描角：{{nowCaseFOV}} °</div>
+					<div>FOV（Filed of View）</div>
+				</div>
+			</div>
+		</div>
+		<div class="g-0 p-1 fstyle02 bggray2 bl_t_2 bl_r_2 bl_l_2" style="border-bottom: 1px dashed;">
+			<div>應檢附資料：</div>
+			<div>Attach information</div>
+		</div>
+		<div class="g-0 p-1 fstyle02 bggray2 bl_r_2 bl_l_2" style="border-bottom: 1px dashed;">
+			<div><span v-if="nowCaseLrReport !== ''" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span> LiDAR原廠規格書或率定報告，檔名：{{nowCaseLrReport}}</div>
+			<div style="padding-left: 25px;">Lidar OEM specification or calibration report, filename</div>
+		</div>
+		<div class="g-0 p-1 fstyle02 bggray2 bl_r_2 bl_l_2" style="border-bottom: 1px dashed;">
+			<div><span v-if="nowCasePosReport !== ''" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span> POS原廠規格書或率定報告，檔名：{{nowCasePosReport}}</div>
+			<div style="padding-left: 25px;">POS OEM specification or calibration report, filename</div>
+		</div>
+		<div class="g-0 p-1 fstyle02 bggray2 bl_r_2 bl_b_2 bl_l_2">
+			<div><span v-if="nowCasePlanMap !== ''" class="wingdings2">&#82;</span><span v-else class="wingdings2">&#163;</span> 飛行航線規劃圖(dwg或shp檔)，檔名：{{nowCasePlanMap}}</div>
+			<div style="padding-left: 25px;">Flight planning map (*.dwg / *.shp), filename</div>
+		</div>
+		<div class="d-flex flex-wrap g-0 p-0">
+			<div class="col-5 fstyle02">
+				<!-- 空白 -->
+			</div>
+			<div class="col-3 fstyle02mid bl_r bl_b_5 bl_l_5">
+				<div>校正人員</div>
+				<div>Calibration Person</div>
+			</div>
+			<div class="col-4 fstyle02mid bl_r_5 bl_b_5" style="display: flex;align-items:center;">
+				<span class="c_gray">（由技術主管核定後填入）</span>
+			</div>
+		</div>
 	</div>
 	<div class="page-gap"></div>
 	<div class="page">
-		<table width="100%" cellspacing=0 cellpadding=0>
+		<div class="d-flex flex-wrap g-0 p-0">
 			<!-- 收費 -->
-			<tr>
-				<td width="8%" class="fstyle02mid">
-					<div>收費</div>
-					<div>Price</div>
-				</td>
-				<td colspan="3" class="fstyle03">
-					<div>費用合計新臺幣{{nowCaseChargeF}}元整，領取校正報告前請先繳費。</div>
-					<div>Total amount of payment （NT dollars）{{nowCaseChargeF}}，Please complete payment before receiving the calibration report.</div>
-				</td>
-			</tr>
+			<div class="col-1 fstyle02mid bl_t_2 bl_r_2 bl_b bl_l_2">
+				<div>收費</div>
+				<div>Price</div>
+			</div>
+			<div class="col-11 fstyle03 bl_t_2 bl_r_2 bl_b">
+				<div>費用合計新臺幣{{nowCaseChargeF}}元整，領取校正報告前請先繳費。</div>
+				<div>Total amount of payment （NT dollars）{{nowCaseChargeF}}，Please complete payment before receiving the calibration report.</div>
+			</div>
 			<!-- 注意事項 -->
-			<tr>
-				<td width="8%"  class="fstyle02Vleft">
-					<p>注意事項<br/>Precautions</p>
-				</td>
-				<td colspan="3" class="fstyle03" style="line-height: 1.1;">
-					<ol style="padding-left: 20px;">
-						<li>
-							<div>請參考本實驗室服務網（網址：https://sicl-nlsc.moi.gov.tw/）下載專區公告之校正掃描作業須知，辦理航線圖設計及飛航規劃，以利辦理校正作業。</div>
-							<div>Please refer to the laboratory website (https://sicl-nlsc.moi.gov.tw/) to download the procedure for aerial photograph calibration. To facilitate the calibration operation, organize and design the aerial route and flight planning at first.</div>
-						</li>
-						<li>
-							<div>請自行指定校正件操作人員，並辦理其能力評估及授權後，方可至本實驗室空載光達校正場辦理掃描作業，作業結果並詳實記錄於校正掃描成果表（請至本實驗室服務網下載）。掃描成果交付當天將進行檢查，倘發現不符合校正作業要求時，將請顧客補件或退件。</div>
-							<div>Specify the program operator and perform its capability assessment and authorization before going to calibration field for LiDAR scan. The results should recorded in detail in calibrate LiDAR scan results table. The LiDAR scan results will be inspected on delivering day. If it is found to be inconsistent with the calibration requirements, the customer will be requested to replenish or return data.</div>		
-						</li>
-						<li>
-							<div class="fbolder">顧客案件經申請審核通過後，應於三個月內完成掃描作業，並將掃描成果送至本實驗室辦理校正作業；超出期限時，本實驗室將通知顧客並予以退件。</div>
-							<div>After the customer's case has been approved by the application, the LiDAR scan should be completed in three months, and the LiDAR scan results should be sent to the laboratory for calibration work; when the time limit is exceeded, the laboratory will notify the customer and return the case.</div>
-						</li>
-						<li>
-							<div>校正掃描成果通過書面檢查，但仍可能於校正作業中發現異常現象而無法校正，則再另行通知。</div>
-							<div>If an abnormality is found in the calibration work and cannot be corrected even through calibrated LiDAR scan results pass documentary review, it will be notified separately.</div>
-						</li>
-						<li>
-							<div>校正件校正完畢後，請先付費後領取校正報告。</div>
-							<div>After calibrating, the applicant should complete payment  before receiving the calibration report.</div>
-						</li>
-						<li>
-							<div>本實驗室經通知顧客校正完畢或退件後，最長代管顧客設備15個工作天，逾期不領回恕不負責。</div>
-							<div>After calibrating and notifying the applicant, the longest time of instrument escrow is 15 working days. If it is overdue for retrieve, we do not take any responsibility for instrument.</div>
-						</li>
-						<li>
-							<div>顧客倘對校正報告內容有疑問，請於15個工作天內向本實驗室反應，逾期恕不受理。</div>
-							<div>If there is any questions about the report, please contact us within 15 working days, and it will not be accepted over the time limit.</div>
-						</li>
-						<li>
-							<div>本表經顧客及收件人簽章後，即具「委託契約」效力，實驗室應影印1份供顧客留存。</div>
-							<div>This form is valid after the signing of the applicant and the recipient, and we shall copy this form for the applicant to keep.</div>
-						</li>
-						<li>
-							<div>顧客簽章後即同意所委託之校正作業依照本實驗室所訂之作業程序執行，並同意遵守本實驗室所有校正作業相關規定事宜。</div>
-							<div>After signing, the customer agrees that the calibration operation entrusted will be performed in accordance with the operating procedures set by the laboratory, and agrees to abide by all relevant regulations of the laboratory.</div>
-						</li>
-					</ol>
-				</td>
-			</tr>
-			<!-- 簽章欄 -->
-			<tr>
-				<td rowspan="4" colspan="3" width="60%" class="fstyle03mid">
-					<div>本件為網路收件，已電子郵件請顧客確認，無需雙方簽章。</div>
-				</td>
-				<td class="fstyle03mid">
-					<div>收費簽章</div>
-					<div>signature after charge</div>
-				</td>
-			</tr>
-			<tr>
-				<td height="50px">
-				</td>
-			</tr>
-			<tr>
-				<td class="fstyle03mid">
-					<div>收據編號</div>
-					<div>Receipt number</div>
-				</td>
-			</tr>
-			<tr>
-				<td height="50px">
-				</td>
-			</tr>
-		</table>
+			<div class="col-1 fstyle02Vleft bl_r_2 bl_l_2">
+				<p>注意事項<br/>Precautions</p>
+			</div>
+			<div class="col-11 fstyle03 bl_r_2">
+				<ol style="padding-left: 20px;">
+					<li>
+						<div>請參考本實驗室服務網（網址：https://sicl-nlsc.moi.gov.tw/）下載專區公告之校正掃描作業須知，辦理航線圖設計及飛航規劃，以利辦理校正作業。</div>
+						<div>Please refer to the laboratory website (https://sicl-nlsc.moi.gov.tw/) to download the procedure for aerial photograph calibration. To facilitate the calibration operation, organize and design the aerial route and flight planning at first.</div>
+					</li>
+					<li>
+						<div>請自行指定校正件操作人員，並辦理其能力評估及授權後，方可至本實驗室空載光達校正場辦理掃描作業，作業結果並詳實記錄於校正掃描成果表（請至本實驗室服務網下載）。掃描成果交付當天將進行檢查，倘發現不符合校正作業要求時，將請顧客補件或退件。</div>
+						<div>Specify the program operator and perform its capability assessment and authorization before going to calibration field for LiDAR scan. The results should recorded in detail in calibrate LiDAR scan results table. The LiDAR scan results will be inspected on delivering day. If it is found to be inconsistent with the calibration requirements, the customer will be requested to replenish or return data.</div>		
+					</li>
+					<li>
+						<div class="fbolder">顧客案件經申請審核通過後，應於三個月內完成掃描作業，並將掃描成果送至本實驗室辦理校正作業；超出期限時，本實驗室將通知顧客並予以退件。</div>
+						<div>After the customer's case has been approved by the application, the LiDAR scan should be completed in three months, and the LiDAR scan results should be sent to the laboratory for calibration work; when the time limit is exceeded, the laboratory will notify the customer and return the case.</div>
+					</li>
+					<li>
+						<div>校正掃描成果通過書面檢查，但仍可能於校正作業中發現異常現象而無法校正，則再另行通知。</div>
+						<div>If an abnormality is found in the calibration work and cannot be corrected even through calibrated LiDAR scan results pass documentary review, it will be notified separately.</div>
+					</li>
+					<li>
+						<div>校正件校正完畢後，請先付費後領取校正報告。</div>
+						<div>After calibrating, the applicant should complete payment  before receiving the calibration report.</div>
+					</li>
+					<li>
+						<div>本實驗室經通知顧客校正完畢或退件後，最長代管顧客設備15個工作天，逾期不領回恕不負責。</div>
+						<div>After calibrating and notifying the applicant, the longest time of instrument escrow is 15 working days. If it is overdue for retrieve, we do not take any responsibility for instrument.</div>
+					</li>
+					<li>
+						<div>顧客倘對校正報告內容有疑問，請於15個工作天內向本實驗室反應，逾期恕不受理。</div>
+						<div>If there is any questions about the report, please contact us within 15 working days, and it will not be accepted over the time limit.</div>
+					</li>
+					<li>
+						<div>本表經顧客及收件人簽章後，即具「委託契約」效力，實驗室應影印1份供顧客留存。</div>
+						<div>This form is valid after the signing of the applicant and the recipient, and we shall copy this form for the applicant to keep.</div>
+					</li>
+					<li>
+						<div>顧客簽章後即同意所委託之校正作業依照本實驗室所訂之作業程序執行，並同意遵守本實驗室所有校正作業相關規定事宜。</div>
+						<div>After signing, the customer agrees that the calibration operation entrusted will be performed in accordance with the operating procedures set by the laboratory, and agrees to abide by all relevant regulations of the laboratory.</div>
+					</li>
+				</ol>
+			</div>
+		</div>
+		<!-- 簽章欄 -->
+		<div class="d-flex flex-wrap g-0 p-0">
+			<div class="col-8 fstyle03mid bl_t_2 bl_b_2 bl_l_2 d-flex align-items-center justify-content-center">
+				<div>本件為網路收件，已電子郵件請顧客確認，無需雙方簽章。</div>
+			</div>
+			<div class="col-4 d-flex flex-wrap bl_t_5 bl_r_5 bl_b_5 bl_l_5">
+				<div class="col-12 fstyle03mid bl_b d-flex flex-wrap align-items-center" style="height: 2.5rem;">
+					<div class="col-12">收費簽章</div>
+					<div class="col-12">signature after charge</div>
+				</div>
+				<div class="col-12 bl_b" style="height: 2.5rem;">
+				</div>
+				<div class="col-12 fstyle03mid bl_b d-flex flex-wrap align-items-center" style="height: 2.5rem;">
+					<div class="col-12">收費簽章</div>
+					<div class="col-12">signature after charge</div>
+				</div>
+				<div class="col-12" style="height: 2.5rem;">
+				</div>
+			</div>
+		</div>
 	</div>
-
-
-
 </template>
 <style>
 @media screen {
@@ -648,7 +622,7 @@ refgetNowCaseF();
 		position: relative;
 		width: 100%;
 		height: 100%;
-		padding-top: 1.5cm;
+		padding-top: 1cm;
 		padding-bottom: 1.5cm;
 		page-break-inside: avoid;
 		page-break-before: always;
@@ -690,6 +664,10 @@ refgetNowCaseF();
 
 .bggray2{
 	background-color: #f3f3f3;
+}
+
+.c_gray {
+	color: #d9d9d9;
 }
 
 .sicltab01 {
@@ -816,5 +794,18 @@ refgetNowCaseF();
 }
 .bl_r_doble{
   border-right: 5px double;
+}
+
+.bl_t_desh{
+  border-top: 1px dashed;
+}
+.bl_b_desh{
+  border-bottom: 1px dashed;
+}
+.bl_l_desh{
+  border-left: 1px dashed;
+}
+.bl_r_desh{
+  border-right: 1px dashed;
 }
 </style>

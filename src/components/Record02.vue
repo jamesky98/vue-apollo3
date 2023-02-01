@@ -1597,7 +1597,7 @@ function buildReportBtn() {
   parms.nowCaseChkNo = calTable.ptUsed;
 
   parms.nowCaseRmseH = fixDataDigPos(parseFloat(calTable.rmseH), parseInt(ucTable.digPosH));
-  parms.nowCaseRmseV = fixDataDigPos(parseFloat(calTable.rmseV), parseInt(ucTable.digPosH));
+  parms.nowCaseRmseV = fixDataDigPos(parseFloat(calTable.rmseV), parseInt(ucTable.digPosV));
 
   parms.nowCaseLrDisPrs = nowCaseLrDisPrs.value;
   parms.nowCaseLrAngResol = nowCaseLrAngResol.value;
