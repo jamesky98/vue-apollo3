@@ -500,12 +500,14 @@ const ADDCASE = gql`
     $calType: Int!
     $appDate: Date
     $purpose: String
+    $operatorsId: Int
   ) {
     creatCase(
       id: $creatCaseId
       cal_type: $calType
       app_date: $appDate
       purpose: $purpose
+      operators_id: $operatorsId
     ) {
       id
     }

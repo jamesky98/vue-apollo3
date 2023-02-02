@@ -81,27 +81,27 @@ const rGroup = computed(() => {
   // rGroup[3]最低權限(訪客不可)
   // rGroup[4]完全開放
   switch (myUserRole.value) {
-    case 0:
+    case 0: // 訪客
       result = [false, false, false, false, false];
       break;
-    case 1:
+    case 1: // 技術人員
       if (parseInt(myUserName.value) === parseInt(nowCaseOperator.value)) {
         result = [false, false, true, true, true];
       } else {
-        result = [false, false, false, false, false];
+        result = [false, false, false, false, true];
       }
       break;
-    case 2:
+    case 2: // 技術主管
       result = [false, true, false, true, true];
       break;
-    case 3:
+    case 3: // 系統負責人
       result = [true, true, true, true, true];
       break;
   }
   // console.log("myUserName",myUserName.value);
   // console.log("myUserRole",myUserRole.value);
   // console.log("nowCaseOperator",nowCaseOperator.value);
-  // console.log("rGroup",rGroup.value);
+  // console.log("rGroup",result);
   return result;
 });
 provide("rGroup", rGroup);
@@ -117,6 +117,7 @@ const alertColor = ref("primary");
 const updateKey = ref(0);
 const publicPath = inject('publicPath');
 let getNowCaseData;
+const varAllCust = ref({});
 
 // 顧客列表
 const showCustFrom = ref(false);
@@ -452,7 +453,7 @@ const tboptionCust = {
 };
 
 // 查詢顧客資料
-const { mutate: refgetAllCust , variables: varAllCust, onDone: getAllCustonDone, onError: getAllCustonError } = useMutation(
+const { mutate: refgetAllCust , onDone: getAllCustonDone, onError: getAllCustonError } = useMutation(
   CustGQL.GETALLCUST,
   ()=>({
     variables: varAllCust.value
@@ -1030,6 +1031,7 @@ const { mutate: addCase, onDone: addCaseOnDone, onError: addCaseError } = useMut
       calType: parseInt(addCaseTypeIdSEL.value),
       appDate: (addCaseAppDate.value.trim() === "") ? null : (addCaseAppDate.value.trim() + "T00:00:00.000Z"),
       purpose: addCasePurpose.value,
+      operatorsId: parseInt(myUserName.value),
     }
   })
 );
@@ -1987,7 +1989,7 @@ onMounted(function () {
                         message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delCase">
                         刪除案件
                       </MDBPopconfirm>
-                      <MDBBtn size="sm" :disabled="addBtnDisabled || !rGroup[3]" color="primary" @click="openAddCaseForm()">新增
+                      <MDBBtn size="sm" :disabled="addBtnDisabled || !rGroup[4]" color="primary" @click="openAddCaseForm()">新增
                       </MDBBtn>
                       <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveNowCaseData()">儲存</MDBBtn>
                       <MDBBtn size="sm" color="primary" @click.prevent="showCaseEdit()" v-html="caseBtnText">
@@ -1998,7 +2000,7 @@ onMounted(function () {
                     <MDBRow>
                       <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mt-2 col-6" label="校正人員"
                         v-model:options="nowCaseOperatorMU" v-model:selected="nowCaseOperator" ref="nowCaseOperatorDOM" />
-                      <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mt-2 col-6" label="技術主管"
+                      <MDBSelect :disabled="!rGroup[2]" filter size="sm" class="mt-2 col-6" label="技術主管"
                         v-model:options="nowCaseLeaderMU" v-model:selected="nowCaseLeader" ref="nowCaseLeaderDOM" />
                       <MDBSelect :disabled="!rGroup[2]" size="sm" :class="statusIcon" class="mt-3 col-6" label="案件狀態"
                         v-model:options="nowCaseStatusMU" v-model:selected="nowCaseStatus" ref="nowCaseStatusDOM" />

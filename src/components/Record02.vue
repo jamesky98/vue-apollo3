@@ -646,7 +646,9 @@ function shownItemModal() {
     seletItemId.value = getData.id;
     refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
   });
-  refgetAllItem().then(result=>{
+  let where = {};
+  where.type = iType.value;
+  refgetAllItem(where).then(result=>{
     // 建立廠牌型號下拉式選單
     let choplist = [];
     let modellist = [];
@@ -772,10 +774,10 @@ function setItemBtn() {
 }
 
 function showItemFromBtn(x) {
-  let where = {};
+  // let where = {};
   iType.value = x;
-  where.type = iType.value;
-  varAllItem.value = where;
+  // where.type = iType.value;
+  // varAllItem.value = where;
   showItemFrom.value = true;
 }
 

@@ -43,7 +43,7 @@ onMounted(()=>{
           ref="nowCaseChkDateDOM" />
       </MDBCol>
 
-      <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mt-3 col-lg-6" label="數據檢核人" v-model:options="nowCaseChkPersonMU"
+      <MDBSelect :disabled="!rGroup[3]" filter size="sm" class="mt-3 col-lg-6" label="數據檢核人" v-model:options="nowCaseChkPersonMU"
         v-model:selected="selectChkPersonID" ref="nowCaseChkPersonDOM" />
       <div></div>
       <MDBCol lg="6" class="mt-3">
@@ -51,7 +51,7 @@ onMounted(()=>{
           ref="nowCaseSignDateDOM" />
       </MDBCol>
 
-      <MDBSelect :disabled="!rGroup[1]" filter size="sm" class="mt-3 col-lg-6" label="報告簽署人" v-model:options="nowCaseSignPersonMU"
+      <MDBSelect :disabled="!rGroup[3]" filter size="sm" class="mt-3 col-lg-6" label="報告簽署人" v-model:options="nowCaseSignPersonMU"
         v-model:selected="selectSignPersonID" ref="nowCaseSignPersonDOM" />
     </MDBRow>
   </MDBContainer>

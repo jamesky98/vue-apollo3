@@ -339,7 +339,7 @@ const nowCaseReportScanDL = computed(() => {
 const nowCasePDFPath = ref("pdfjs-dist/web/viewer.html"); //校正報告掃描檔路徑
 
 // 校正件列表
-const varAllItem = ref();
+// const varAllItem = ref();
 const showItemFrom = ref(false);
 const itemTabId = ref("itemEditor");
 
@@ -2674,6 +2674,7 @@ defineExpose({
                   </MDBCol>
                   <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                     <MDBRow>
+                      <!-- 檢核人與簽署人 -->
                       <SelectPs ref="selectPsData" />
                       <!-- 校正報告掃描檔 -->
                       <MDBCol col="8" class="mt-3">
