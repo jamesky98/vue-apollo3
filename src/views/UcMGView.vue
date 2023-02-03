@@ -855,15 +855,13 @@ onMounted(function () {
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
-              <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+              <MDBCol col="12" class="py-1 rounded-top-5 bg-info text-white">
                 Section列表
+                <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addSection">增加項目</MDBBtn>
+                <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delSection">刪除項目</MDBBtn>
               </MDBCol>
               <MDBCol col="12" class="mb-3 border rounded-bottom-5">
                 <MDBRow>
-                  <MDBCol md="12" class="mt-2">
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addSection">增加項目</MDBBtn>
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delSection">刪除項目</MDBBtn>
-                  </MDBCol>
                   <MDBCol md="12" class="mb-3 overflow-auto">
                     <vueDataTable :data="nowUcModule.uc.data" :columns="columns1" :options="tboption1" ref="table1"
                       style="font-size: smaller" class="border border-info display w-100 compact" />
@@ -872,154 +870,163 @@ onMounted(function () {
               </MDBCol>
             </MDBRow>
           </MDBCol>
-          <!-- 中 -->
-          <MDBCol md="4" class="h-100 px-1">
-            <MDBRow style="margin-left:0;margin-right:0;height: calc(100% - 1em);" class="px-2 my-2 align-content-start overflow-auto border border-5 rounded-8 shadow-4">
-              <!-- Section內容 -->
-              <MDBCol col="8" class="my-3">
-                目前Section：{{nowUcSection}}
-              </MDBCol>
-              <MDBCol col="12" class="rounded-top-5 bg-secondary text-white">
-                Section基本資料
-              </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
-                <MDBRow>
-                  <MDBCol col="8" class="my-3">
-                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="Section" v-model="nowUcModule.uc.data[nowUcSection].section"/>
+          <!-- 新右 -->
+          <MDBCol md="8" class="h-100">
+            <MDBRow class="h-100">
+              <MDBCol md="12" style="height: calc(100% - 1em);" class="mt-2 align-content-start overflow-auto border border-5 rounded-8 shadow-4">
+                <!-- 右上 -->
+                <MDBRow style="height: 11em;" class="">
+                  <MDBCol md="6" class="h-100 border-end">
+                    <!-- Section內容 -->
+                    <MDBCol col="12" class="mt-2">
+                      目前Section：{{nowUcSection}}
+                    </MDBCol>
+                    <MDBCol col="12" class="">
+                      <MDBRow>
+                        <MDBCol col="8" class="my-2">
+                          <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="Section" v-model="nowUcModule.uc.data[nowUcSection].section"/>
+                        </MDBCol>
+                        <MDBSelect :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="mb-2 col-8" label="type" v-model:options="nowUcSecTypeMU"
+                          v-model:selected="selectUcSecType" ref="nowUcSecTypeDOM" @change="updataSecType"/>
+                        <MDBCol col="12" class="mb-2">
+                          <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" label="comment" rows="2" v-model="nowUcModule.uc.data[nowUcSection].comment"/>
+                        </MDBCol>
+                      </MDBRow>
+                    </MDBCol>
                   </MDBCol>
-                  <MDBSelect :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="mb-3 col-8" label="type" v-model:options="nowUcSecTypeMU"
-                    v-model:selected="selectUcSecType" ref="nowUcSecTypeDOM" @change="updataSecType"/>
-                  <MDBCol col="12" class="mb-3">
-                    <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" label="comment" rows="2" v-model="nowUcModule.uc.data[nowUcSection].comment"/>
-                  </MDBCol>
-                </MDBRow>
-              </MDBCol>
-              <MDBCol col="12" class="rounded-top-5 bg-secondary text-white">
-                Item列表
-              </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
-                <MDBRow>
-                  <MDBCol md="12" class="mt-2">
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addItem">增加項目</MDBBtn>
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delItem">刪除項目</MDBBtn>
-                  </MDBCol>
-                  <MDBCol md="12" class="mb-3">
-                    <vueDataTable :data="data2" :columns="columns2" :options="tboption2" ref="table2"
-                      style="font-size: smaller" class="border border-secondary display w-100 compact" />
-                  </MDBCol>
-                </MDBRow>
-              </MDBCol>
-            </MDBRow>
-          </MDBCol>
-          <!-- 右 -->
-          <MDBCol md="4" class="h-100 ps-1 pe-0">
-            <MDBRow style="margin-left:0;margin-right:0;height: calc(100% - 1em);" class="px-2 my-2 align-content-start overflow-auto border border-5 rounded-8 shadow-4">
-              <!-- Item內容 -->
-              <MDBCol col="8" class="my-3">
-                目前Item：{{nowUcItem}}
-              </MDBCol>
-              <MDBCol col="12" class="rounded-top-5 bg-success text-white">
-                Item基本資料
-              </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
-                <MDBRow>
-                  <MDBCol col="8" class="my-3">
-                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="name" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].name"/>
-                  </MDBCol>
-                  <MDBSelect :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="mb-3 col-8" label="變動時機" v-model:options="nowFrequencyMU"
-                    v-model:selected="selectFrequency" ref="nowFrequencyDOM" @change="updataFr"/>
-                </MDBRow>
-              </MDBCol>
-              <MDBCol col="12" class="rounded-top-5 bg-success text-white">
-                ux不確定度
-              </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
-                <MDBRow>
-                  <!-- ux -->
-                  <MDBCol md="12" class="mt-2">
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addUx">增加項目</MDBBtn>
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delUx">刪除項目</MDBBtn>
-                  </MDBCol>
-                  <MDBCol md="12" class="mb-3">
-                    <vueDataTable :data="data3" :columns="columns3" :options="tboption3" ref="table3"
-                      style="font-size: smaller" class="border border-success display w-100 compact" />
-                  </MDBCol>
-                  <MDBCol col="6" class="mb-0">
-                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x_title[nowUcItemX]" @keyup="getItemData"/>
-                  </MDBCol>
-                  <MDBCol col="6" class="mb-0">
-                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x[nowUcItemX]" @keyup="getItemData"/>
-                  </MDBCol>
-                  <MDBCol col="12" class="mb-2">
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(3)"><i class="fas fa-angle-double-down"></i></MDBBtn>
-                  </MDBCol>
-                  <MDBCol col="12" class="mb-3">
-                    <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="ux計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].ux"/>
+                  <MDBCol md="6" class="h-100">
+                    <!-- Item內容 -->
+                    <MDBCol col="12" class="mt-2">
+                      目前Item：{{nowUcItem}}
+                    </MDBCol>
+                    <MDBCol col="12" class="mb-2">
+                      <MDBRow>
+                        <MDBCol col="8" class="my-2">
+                          <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="name" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].name"/>
+                        </MDBCol>
+                        <MDBSelect :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="mb-2 col-8" label="變動時機" v-model:options="nowFrequencyMU"
+                          v-model:selected="selectFrequency" ref="nowFrequencyDOM" @change="updataFr"/>
+                      </MDBRow>
+                    </MDBCol>
                   </MDBCol>
                 </MDBRow>
-              </MDBCol>
-              <MDBCol col="12" class="rounded-top-5 bg-success text-white">
-                自由度
-              </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
-                <MDBRow>
-                  <!-- freedom -->
-                  <MDBCol md="12" class="mt-2">
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addFr">增加項目</MDBBtn>
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delFr">刪除項目</MDBBtn>
+                <!-- 右下 -->
+                <MDBRow style="height: calc(100% - 11em);" class="">
+                  <MDBCol md="12" style="height: calc(50%);" class="border-top overflow-auto">
+                    <MDBCol col="12" class="mt-2 px-2 py-1 rounded-5 bg-secondary text-white">
+                      Item列表
+                      <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addItem">增加項目</MDBBtn>
+                      <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delItem">刪除項目</MDBBtn>
+                    </MDBCol>
+                    <MDBCol col="12" class="">
+                      <MDBRow>
+                        <MDBCol md="12" class="mb-2">
+                          <vueDataTable :data="data2" :columns="columns2" :options="tboption2" ref="table2"
+                            style="font-size: smaller" class="border border-secondary display w-100 compact" />
+                        </MDBCol>
+                      </MDBRow>
+                    </MDBCol>
                   </MDBCol>
-                  <MDBCol md="12" class="mb-3">
-                    <vueDataTable :data="data4" :columns="columns4" :options="tboption4" ref="table4"
-                      style="font-size: smaller" class="border border-success display w-100 compact" />
-                  </MDBCol>
-                  <MDBCol col="6" class="mb-0">
-                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr_title[nowUcItemFr]" @keyup="getItemData"/>
-                  </MDBCol>
-                  <MDBCol col="6" class="mb-0">
-                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr[nowUcItemFr]" @keyup="getItemData"/>
-                  </MDBCol>
-                  <MDBCol col="12" class="mb-2">
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(4)"><i class="fas fa-angle-double-down"></i></MDBBtn>
-                  </MDBCol>
-                  <MDBCol col="12" class="mb-3">
-                    <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="freedom計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].freedom"/>
-                  </MDBCol>
-                </MDBRow>
-              </MDBCol>
-              <MDBCol col="12" class="rounded-top-5 bg-success text-white">
-                靈敏係數
-              </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
-                <MDBRow>
-                  <!-- factor -->
-                  <MDBCol md="12" class="mt-2">
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addFa">增加項目</MDBBtn>
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delFa">刪除項目</MDBBtn>
-                  </MDBCol>
-                  <MDBCol md="12" class="mb-3">
-                    <vueDataTable :data="data5" :columns="columns5" :options="tboption5" ref="table5"
-                      style="font-size: smaller" class="border border-success display w-100 compact" />
-                  </MDBCol>
+                  <MDBCol md="12" style="height: calc(50%);" class="border-top overflow-auto">
+                    <MDBRow class="h-100 overflow-auto">
+                      <!-- 不確定度 -->
+                      <MDBCol col="4">
+                        <MDBRow class="p-2">
+                          <MDBCol col="12" class="py-1 border border-2 rounded-top-5 border-success">
+                            ux不確定度
+                            <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addUx">增加參數</MDBBtn>
+                            <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delUx">刪除參數</MDBBtn>
+                          </MDBCol>
+                          <MDBCol col="12" class="border-start border-end border-bottom border-2 rounded-bottom-5 border-success">
+                            <MDBRow>
+                              <MDBCol md="12" class="mb-3">
+                                <vueDataTable :data="data3" :columns="columns3" :options="tboption3" ref="table3"
+                                  style="font-size: smaller" class="border display w-100 compact" />
+                              </MDBCol>
+                              <MDBCol col="6" class="mb-0">
+                                <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x_title[nowUcItemX]" @keyup="getItemData"/>
+                              </MDBCol>
+                              <MDBCol col="6" class="mb-0">
+                                <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x[nowUcItemX]" @keyup="getItemData"/>
+                              </MDBCol>
+                              <MDBCol col="12" class="mb-2">
+                                <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(3)"><i class="fas fa-angle-double-down"></i></MDBBtn>
+                              </MDBCol>
+                              <MDBCol col="12" class="mb-3">
+                                <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="ux計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].ux"/>
+                              </MDBCol>
+                            </MDBRow>
+                          </MDBCol>
+                        </MDBRow>
+                      </MDBCol>
+                      <!-- 自由度 -->
+                      <MDBCol col="4">
+                        <MDBRow class="p-2">
+                          <MDBCol col="12" class="py-1 border border-2 rounded-top-5 border-success">
+                            自由度
+                            <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addFr">增加參數</MDBBtn>
+                            <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delFr">刪除參數</MDBBtn>
+                          </MDBCol>
+                          <MDBCol col="12" class="border-start border-end border-bottom border-2 rounded-bottom-5 border-success">
+                            <MDBRow>
+                              <MDBCol md="12" class="mb-3">
+                                <vueDataTable :data="data4" :columns="columns4" :options="tboption4" ref="table4"
+                                  style="font-size: smaller" class="border display w-100 compact" />
+                              </MDBCol>
+                              <MDBCol col="6" class="mb-0">
+                                <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr_title[nowUcItemFr]" @keyup="getItemData"/>
+                              </MDBCol>
+                              <MDBCol col="6" class="mb-0">
+                                <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr[nowUcItemFr]" @keyup="getItemData"/>
+                              </MDBCol>
+                              <MDBCol col="12" class="mb-2">
+                                <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(4)"><i class="fas fa-angle-double-down"></i></MDBBtn>
+                              </MDBCol>
+                              <MDBCol col="12" class="mb-3">
+                                <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="freedom計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].freedom"/>
+                              </MDBCol>
+                            </MDBRow>
+                          </MDBCol>
+                        </MDBRow>
+                      </MDBCol>
+                      <!-- 靈敏係數 -->
+                      <MDBCol col="4">
+                        <MDBRow class="p-2">
+                          <MDBCol col="12" class="py-1 border border-2 rounded-top-5 border-success">
+                            靈敏係數
+                            <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addFa">增加參數</MDBBtn>
+                            <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delFa">刪除參數</MDBBtn>
+                          </MDBCol>
+                          <MDBCol col="12" class="border-start border-end border-bottom border-2 rounded-bottom-5 border-success">
+                            <MDBRow>
+                              <MDBCol md="12" class="mb-3">
+                                <vueDataTable :data="data5" :columns="columns5" :options="tboption5" ref="table5"
+                                  style="font-size: smaller" class="border display w-100 compact" />
+                              </MDBCol>
 
-                  <MDBCol col="6" class="mb-0">
-                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa_title[nowUcItemFa]" @keyup="getItemData"/>
-                  </MDBCol>
-                  <MDBCol col="6" class="mb-0">
-                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa[nowUcItemFa]" @keyup="getItemData"/>
-                  </MDBCol>
-                  <MDBCol col="12" class="mb-2">
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(5)"><i class="fas fa-angle-double-down"></i></MDBBtn>
-                  </MDBCol>
-                  <MDBCol col="12" class="mb-3">
-                    <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="factor計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].factor"/>
+                              <MDBCol col="6" class="mb-0">
+                                <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa_title[nowUcItemFa]" @keyup="getItemData"/>
+                              </MDBCol>
+                              <MDBCol col="6" class="mb-0">
+                                <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa[nowUcItemFa]" @keyup="getItemData"/>
+                              </MDBCol>
+                              <MDBCol col="12" class="mb-2">
+                                <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(5)"><i class="fas fa-angle-double-down"></i></MDBBtn>
+                              </MDBCol>
+                              <MDBCol col="12" class="mb-3">
+                                <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="factor計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].factor"/>
+                              </MDBCol>
+                            </MDBRow>
+                          </MDBCol>
+                        </MDBRow>
+                      </MDBCol>
+                    </MDBRow>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
             </MDBRow>
           </MDBCol>
         </MDBRow>
-        
-
       </div>
       <!-- 頁腳 -->
       <Footer1 :msg="infomsg" />
