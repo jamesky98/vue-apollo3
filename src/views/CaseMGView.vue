@@ -785,7 +785,7 @@ getNowCaseSonDone(result => {
     // 填入簡單資料
     getNowCaseData = result.data.getCasebyID;
     let getData = getNowCaseData;
-    console.log(getData);
+    // console.log(getData);
     nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
     nowCaseItemID.value = (getData.item_id)?getData.item_id:"";
     nowCaseAppDate.value = (getData.app_date) ? getData.app_date.split("T")[0] : " ";
