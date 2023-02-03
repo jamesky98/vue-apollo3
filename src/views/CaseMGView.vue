@@ -4,7 +4,7 @@ import Navbar1 from "../components/Navbar.vue";
 import Record01 from "../components/Record01.vue";
 import Record02 from "../components/Record02.vue";
 import Record03 from "../components/Record03.vue";
-import { ref, reactive, onMounted, provide, inject } from "vue";
+import { ref, reactive, onMounted, provide, inject, watch } from "vue";
 import path from "path-browserify";
 import {
   MDBInput,
@@ -150,6 +150,7 @@ const showCaseNew = ref(false);
 // 案件狀態
 const nowCaseStatus = ref("");
 const nowCaseStatusMU = ref([]);
+provide("nowCaseStatusMU", nowCaseStatusMU);
 const nowCaseStatusDOM = ref();
 
 const statusIcon =computed(() => {
@@ -234,6 +235,22 @@ const nowCaseOperatorDOM = ref();
 const nowCaseLeader = ref("");
 const nowCaseLeaderMU =ref([]);
 const nowCaseLeaderDOM = ref();
+
+const nowCaseRecDate = ref(""); // 送校日期
+provide("nowCaseRecDate", nowCaseRecDate);
+const nowCaseStartDate = ref(""); //開始校正日
+provide("nowCaseStartDate", nowCaseStartDate);
+const nowCaseCompleteDate = ref(""); //報告(列印)日期
+provide("nowCaseCompleteDate", nowCaseCompleteDate);
+const nowCaseReportEdit = ref(""); //校正報告編輯檔
+provide("nowCaseReportEdit", nowCaseReportEdit);
+
+const nowCaseChkPersonID = ref(""); //數據檢核人
+provide("nowCaseChkPersonID_0", nowCaseChkPersonID);
+const nowCaseSignPersonID = ref(""); // 報告簽署人
+provide("nowCaseSignPersonID_0", nowCaseSignPersonID);
+const nowCaseReportScan = ref(""); //校正報告掃描檔
+provide("nowCaseReportScan", nowCaseReportScan);
 
 // 篩選參數==========
 // 案件狀態
@@ -388,7 +405,7 @@ const columns1 = [
   { data: "item_base.chop", title: "廠牌", defaultContent: "-" },
   { data: "item_base.model", title: "型號", defaultContent: "-" },
   { data: "item_base.serial_number", title: "序號", defaultContent: "-" },
-  { data: "agreement", title: "協議事項", defaultContent: "-", visible: true },
+  { data: "agreement", title: "註明事項", defaultContent: "-", visible: true },
 ];
 const tboption1 = {
   dom: 'tif',
@@ -476,6 +493,7 @@ const {  mutate: refgetselCust, onDone: getselCustonDone, onError: getselCustonE
 );
 getselCustonDone(result => {
   if (!result.loading && result && result.data.getCustById) {
+    // console.log('selCustID',seletCustId.value);
     let getData = result.data.getCustById
     selCustName.value = getData.name;
     selCustOrgNameDOM.value.setValue(parseInt(getData.org_id));
@@ -487,14 +505,17 @@ getselCustonDone(result => {
 });
 getselCustonError(e=>{errorHandle(e,infomsg,alert1)});
 
+// 開啟顧客視窗
 function shownCustModal() {
   dtCust = tableCust.value.dt();
   dtCust.on('select', function (e, dt, type, indexes) {
     let getData = dt.rows(indexes).data()[0];
-    seletCustId.value = getData.id;
+    // console.log('getID',getData.id);
+    seletCustId.value = (parseInt(getData.id))?parseInt(getData.id):-1;
+    refgetselCust({getCustByIdId: seletCustId.value});
   });
   refgetAllCust();
-  if (nowCaseCustId) {
+  if (nowCaseCustId.value) {
     seletCustId.value = nowCaseCustId.value;
   }
 }
@@ -515,7 +536,7 @@ const { mutate: saveCust, onDone: saveCustOnDone, onError: saveCustError } = use
 );
 saveCustOnDone(() => {
   refgetAllCust();
-  refgetselCust();
+  refgetselCust({getCustByIdId: seletCustId.value});
   refgetCaseAllOrg();
   infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
   alert1.value = true;
@@ -547,12 +568,10 @@ function doCustFilter() {
 // 案加入後回填顧客id
 function setCustBtn() {
   nowCaseCustId.value = seletCustId.value;
-
   let getData = selCustOrgList.value.filter((x) => {
     return parseInt(x.id) === selCustOrgName.value;
   })[0];
   nowCaseCustOrgName.value = (getData) ? getData.name : "";
-
   nowCaseCustTaxID.value = selCustTaxId.value;
   nowCaseCustName.value = selCustName.value;
   nowCaseCustTel.value = selCustTel.value;
@@ -725,9 +744,10 @@ getCaseOperatoronDone(result => {
       return { text: x.name, value: x.person_id }
     }); caseOptMU.value.unshift({ text: "", value: "" });
     // 資料區
-    nowCaseOperatorMU.value = mylist.map(x => {
+    let operatorList = mylist.map(x => {
       return { text: x.name, value: parseInt(x.person_id) }
-    }); nowCaseOperatorMU.value.unshift({ text: "", value: "" });
+    }); operatorList.unshift({ text: "-未選取-", value: -1 });
+    nowCaseOperatorMU.value = operatorList;
   }
 });
 getCaseOperatoronError(e=>{errorHandle(e,infomsg,alert1)});
@@ -748,9 +768,11 @@ getCaseLeaderonDone(result => {
     let mylist = [];
     mylist = result.data.getEmpowerbyRole.map(x => { return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
     mylist = filterArrayforObj(mylist,"person_id");// 去除重複
-    nowCaseLeaderMU.value = mylist.map(x => {
+    let leaderList = mylist.map(x => {
       return { text: x.name, value: x.person_id }
-    }); nowCaseLeaderMU.value.unshift({ text: "", value: "" });
+    }); leaderList.unshift({ text: "-未選取-", value: -1 });
+
+    nowCaseLeaderMU.value = leaderList;
   }
 });
 getCaseLeaderonError(e=>{errorHandle(e,infomsg,alert1)});
@@ -763,12 +785,8 @@ getNowCaseSonDone(result => {
     // 填入簡單資料
     getNowCaseData = result.data.getCasebyID;
     let getData = getNowCaseData;
-    // console.log(getData);
-    checkCaseStatus(getData).then(res=>{
-      // console.log('res',res);
-      return nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
-    });
-    // nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
+    console.log(getData);
+    nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
     nowCaseItemID.value = (getData.item_id)?getData.item_id:"";
     nowCaseAppDate.value = (getData.app_date) ? getData.app_date.split("T")[0] : " ";
     nowCaseTypeName.value = getData.cal_type_cal_typeTocase_base.name;
@@ -795,16 +813,46 @@ getNowCaseSonDone(result => {
       roleType:'校正人員',
       calType: parseInt(getData.cal_type),
     }).then(res=>{
-      nowCaseOperator.value = parseInt(getData.operators_id);
+      nowCaseOperator.value = (parseInt(getData.operators_id))?parseInt(getData.operators_id):-1;
       nowCaseOperatorDOM.value.setValue(nowCaseOperator.value);
     });
     refgetCaseLeader({
       roleType:'技術主管',
       calType: parseInt(getData.cal_type),
     }).then(res=>{
-      nowCaseLeader.value = parseInt(getData.leader_id);
+      nowCaseLeader.value = (parseInt(getData.leader_id))?parseInt(getData.leader_id):-1;
       nowCaseLeaderDOM.value.setValue(nowCaseLeader.value);
     });
+    // 為判斷案件狀態增加獲取參數
+    if (getData.case_record_01){
+      // 屬航測相機
+      nowCaseRecDate.value = (getData.case_record_01.receive_date)?getData.case_record_01.receive_date.split("T")[0]:" ";
+      nowCaseStartDate.value = (getData.case_record_01.start_Date)?getData.case_record_01.start_Date.split("T")[0]:" ";
+      nowCaseCompleteDate.value = (getData.case_record_01.complete_date)?getData.case_record_01.complete_date.split("T")[0]:" ";
+      nowCaseReportEdit.value = getData.case_record_01.report_edit;
+      nowCaseChkPersonID.value = getData.case_record_01.chk_person_id;
+      nowCaseSignPersonID.value = getData.case_record_01.sign_person_id;
+      nowCaseReportScan.value = getData.case_record_01.report_scan;
+    }else if (getData.case_record_02){
+      // 屬空載光達
+      nowCaseRecDate.value = (getData.case_record_02.receive_date)?getData.case_record_02.receive_date.split("T")[0]:" ";
+      nowCaseStartDate.value = (getData.case_record_02.start_Date)?getData.case_record_02.start_Date.split("T")[0]:" ";
+      nowCaseCompleteDate.value = (getData.case_record_02.complete_date)?getData.case_record_02.complete_date.split("T")[0]:" ";
+      nowCaseReportEdit.value = getData.case_record_02.report_edit;
+      nowCaseChkPersonID.value = getData.case_record_02.chk_person_id;
+      nowCaseSignPersonID.value = getData.case_record_02.sign_person_id;
+      nowCaseReportScan.value = getData.case_record_02.report_scan;
+    }else if (getData.case_record_03){
+      // 屬車載光達
+      nowCaseRecDate.value = (getData.case_record_03.receive_date)?getData.case_record_03.receive_date.split("T")[0]:" ";
+      nowCaseStartDate.value = (getData.case_record_03.start_Date)?getData.case_record_03.start_Date.split("T")[0]:" ";
+      nowCaseCompleteDate.value = (getData.case_record_03.complete_date)?getData.case_record_03.complete_date.split("T")[0]:" ";
+      nowCaseReportEdit.value = getData.case_record_03.report_edit;
+      nowCaseChkPersonID.value = getData.case_record_03.chk_person_id;
+      nowCaseSignPersonID.value = getData.case_record_03.sign_person_id;
+      nowCaseReportScan.value = getData.case_record_03.report_scan;
+    }
+    
     
   }
 });
@@ -1388,7 +1436,7 @@ function saveAPIRecord(nowData) {
   }).then(res => {
     let result = saveCaseS({
       updateCaseId: nowData.caseid,
-      statusCode: parseInt(2),
+      statusCode: parseInt(1),
       cusId: (res.cust_id)?parseInt(res.cust_id):null,
       title: nowData.EXTRA_4,
       address: nowData.EXTRA_6,
@@ -1623,108 +1671,206 @@ saveRecord03APIError(e=>{errorHandle(e,infomsg,alert1)});
 //#endregion 連線取得案件==========End
 
 //#region 檢驗案件狀態==========Start
-function checkCaseStatus(caseData){
-  return new Promise((resolve,reject)=>{
-    // 切換案件時要執行1次
-    // 其餘經由觸發事件執行檢驗
+// function checkCaseStatus(caseData){
+//   return new Promise((resolve,reject)=>{
+//     // 切換案件時要執行1次
+//     // 其餘經由觸發事件執行檢驗
+//     nowCaseStatusMU.value[0].disabled = false; // (無)
+//     for(let i=1; i<nowCaseStatusMU.value.length ; i++){
+//       nowCaseStatusMU.value[i].disabled = true;
+//     }
+//     //  審核中
+//     if (caseData.leader_id && caseData.operators_id) {
+//       nowCaseStatusMU.value[1].disabled = false;
+//     }
+
+//     // 待送件
+//     if (caseData.cus_id && caseData.item_id && 
+//       !nowCaseStatusMU.value[1].disabled) {
+//       nowCaseStatusMU.value[2].disabled = false;
+//     }
+
+//     // 校正中
+//     if (caseData.case_record_01){
+//       if (caseData.case_record_01.receive_date && 
+//         caseData.case_record_01.start_Date && 
+//         !nowCaseStatusMU.value[2].disabled) {
+//         nowCaseStatusMU.value[3].disabled = false;
+//       }
+//     }else if (caseData.case_record_02){
+//       if (caseData.case_record_02.receive_date && 
+//         caseData.case_record_02.start_Date && 
+//         !nowCaseStatusMU.value[2].disabled) {
+//         nowCaseStatusMU.value[3].disabled = false;
+//       }
+//     }else if (caseData.case_record_03){
+//       if (caseData.case_record_03.receive_date && 
+//         caseData.case_record_03.start_Date && 
+//         !nowCaseStatusMU.value[2].disabled) {
+//         nowCaseStatusMU.value[3].disabled = false;
+//       }
+//     }
+
+//     // 報告陳核
+//     if (caseData.case_record_01){
+//       if (caseData.case_record_01.complete_date && 
+//         caseData.case_record_01.report_edit && 
+//         !nowCaseStatusMU.value[3].disabled) {
+//         nowCaseStatusMU.value[4].disabled = false;
+//       }
+//     }else if (caseData.case_record_02){
+//       if (caseData.case_record_02.complete_date && 
+//         caseData.case_record_02.report_edit && 
+//         !nowCaseStatusMU.value[3].disabled) {
+//         nowCaseStatusMU.value[4].disabled = false;
+//       }
+//     }else if (caseData.case_record_03){
+//       if (caseData.case_record_03.complete_date && 
+//         caseData.case_record_03.report_edit && 
+//         !nowCaseStatusMU.value[3].disabled) {
+//         nowCaseStatusMU.value[4].disabled = false;
+//       }
+//     }
+
+//     // 待繳費(出具報告)
+//     if (caseData.case_record_01){
+//       if (caseData.case_record_01.chk_person_id && 
+//         caseData.case_record_01.sign_person_id && 
+//         caseData.case_record_01.report_scan &&
+//         !nowCaseStatusMU.value[4].disabled) {
+//         nowCaseStatusMU.value[5].disabled = false;
+//       }
+//     }else if (caseData.case_record_02){
+//       if (caseData.case_record_02.chk_person_id && 
+//         caseData.case_record_02.sign_person_id && 
+//         caseData.case_record_02.report_scan &&
+//         !nowCaseStatusMU.value[4].disabled) {
+//         nowCaseStatusMU.value[5].disabled = false;
+//       }
+//     }else if (caseData.case_record_03){
+//       if (caseData.case_record_03.chk_person_id && 
+//         caseData.case_record_03.sign_person_id && 
+//         caseData.case_record_03.report_scan &&
+//         !nowCaseStatusMU.value[4].disabled) {
+//         nowCaseStatusMU.value[5].disabled = false;
+//       }
+//     }
+
+//     // 結案
+//     if ((caseData.pay_date || caseData.charge===0) && !nowCaseStatusMU.value[5].disabled) {
+//       nowCaseStatusMU.value[6].disabled = false;
+//     }
+
+//     // 補件
+//     if (caseData.agreement) {
+//       nowCaseStatusMU.value[7].disabled = false;
+//     }
+    
+//     // 退件
+//     if (caseData.agreement) {
+//       nowCaseStatusMU.value[8].disabled = false;
+//     }
+//     resolve(nowCaseStatusMU.value);
+//   })
+// }
+
+watch(
+  [
+    nowCaseOperator,
+    nowCaseLeader,
+    nowCaseCustId,
+    nowCaseItemID,
+    nowCaseRecDate,
+    nowCaseStartDate,
+    nowCaseCompleteDate,
+    nowCaseReportEdit,
+    nowCaseChkPersonID,
+    nowCaseSignPersonID,
+    nowCaseReportScan,
+    nowCasePayDate,
+    nowCaseCharge,
+    nowCaseAgreement,
+  ],
+  ([
+    operators_id,
+    leader_id,
+    cus_id,
+    item_id,
+    receive_date,
+    start_Date,
+    complete_date,
+    report_edit,
+    chk_person_id,
+    sign_person_id,
+    report_scan,
+    pay_date,
+    charge,
+    agreement,
+  ])=>{
+    // 選單初始設定全部停用
     nowCaseStatusMU.value[0].disabled = false; // (無)
     for(let i=1; i<nowCaseStatusMU.value.length ; i++){
       nowCaseStatusMU.value[i].disabled = true;
     }
+
     //  審核中
-    if (caseData.leader_id && caseData.operators_id) {
+    if ((leader_id && leader_id!==-1) && (operators_id && operators_id!==-1)) {
       nowCaseStatusMU.value[1].disabled = false;
+    }else{
+      nowCaseStatusMU.value[1].disabled = true;
     }
 
     // 待送件
-    if (caseData.cus_id && caseData.item_id && 
+    if ((cus_id && cus_id!==-1) && (item_id && item_id!==-1) && 
       !nowCaseStatusMU.value[1].disabled) {
       nowCaseStatusMU.value[2].disabled = false;
+    }else{
+      nowCaseStatusMU.value[2].disabled = true;
     }
 
     // 校正中
-    if (caseData.case_record_01){
-      if (caseData.case_record_01.receive_date && 
-        caseData.case_record_01.start_Date && 
-        !nowCaseStatusMU.value[2].disabled) {
-        nowCaseStatusMU.value[3].disabled = false;
-      }
-    }else if (caseData.case_record_02){
-      if (caseData.case_record_02.receive_date && 
-        caseData.case_record_02.start_Date && 
-        !nowCaseStatusMU.value[2].disabled) {
-        nowCaseStatusMU.value[3].disabled = false;
-      }
-    }else if (caseData.case_record_03){
-      if (caseData.case_record_03.receive_date && 
-        caseData.case_record_03.start_Date && 
-        !nowCaseStatusMU.value[2].disabled) {
-        nowCaseStatusMU.value[3].disabled = false;
-      }
+    if (receive_date.trim() && start_Date.trim() && 
+      !nowCaseStatusMU.value[2].disabled) {
+      nowCaseStatusMU.value[3].disabled = false;
+    }else{
+      nowCaseStatusMU.value[3].disabled = true;
     }
 
     // 報告陳核
-    if (caseData.case_record_01){
-      if (caseData.case_record_01.complete_date && 
-        caseData.case_record_01.report_edit && 
-        !nowCaseStatusMU.value[3].disabled) {
-        nowCaseStatusMU.value[4].disabled = false;
-      }
-    }else if (caseData.case_record_02){
-      if (caseData.case_record_02.complete_date && 
-        caseData.case_record_02.report_edit && 
-        !nowCaseStatusMU.value[3].disabled) {
-        nowCaseStatusMU.value[4].disabled = false;
-      }
-    }else if (caseData.case_record_03){
-      if (caseData.case_record_03.complete_date && 
-        caseData.case_record_03.report_edit && 
-        !nowCaseStatusMU.value[3].disabled) {
-        nowCaseStatusMU.value[4].disabled = false;
-      }
+    if (complete_date.trim() && report_edit.trim() && 
+      !nowCaseStatusMU.value[3].disabled) {
+      nowCaseStatusMU.value[4].disabled = false;
+    }else{
+      nowCaseStatusMU.value[4].disabled = true;
     }
 
     // 待繳費(出具報告)
-    if (caseData.case_record_01){
-      if (caseData.case_record_01.chk_person_id && 
-        caseData.case_record_01.sign_person_id && 
-        caseData.case_record_01.report_scan &&
-        !nowCaseStatusMU.value[4].disabled) {
-        nowCaseStatusMU.value[5].disabled = false;
-      }
-    }else if (caseData.case_record_02){
-      if (caseData.case_record_02.chk_person_id && 
-        caseData.case_record_02.sign_person_id && 
-        caseData.case_record_02.report_scan &&
-        !nowCaseStatusMU.value[4].disabled) {
-        nowCaseStatusMU.value[5].disabled = false;
-      }
-    }else if (caseData.case_record_03){
-      if (caseData.case_record_03.chk_person_id && 
-        caseData.case_record_03.sign_person_id && 
-        caseData.case_record_03.report_scan &&
-        !nowCaseStatusMU.value[4].disabled) {
-        nowCaseStatusMU.value[5].disabled = false;
-      }
+    if ((chk_person_id && chk_person_id!==-1) && (sign_person_id && sign_person_id!==-1) && report_scan.trim() &&
+      !nowCaseStatusMU.value[4].disabled) {
+      nowCaseStatusMU.value[5].disabled = false;
+    }else{
+      nowCaseStatusMU.value[5].disabled = true;
     }
 
     // 結案
-    if ((caseData.pay_date || caseData.charge===0) && !nowCaseStatusMU.value[5].disabled) {
+    if ((pay_date.trim() || parseInt(charge)===0) && !nowCaseStatusMU.value[5].disabled) {
       nowCaseStatusMU.value[6].disabled = false;
+    }else{
+      nowCaseStatusMU.value[6].disabled = true;
     }
 
-    // 補件
-    if (caseData.agreement) {
+    // 補件 退件
+    if (agreement) {
       nowCaseStatusMU.value[7].disabled = false;
-    }
-    
-    // 退件
-    if (caseData.agreement) {
       nowCaseStatusMU.value[8].disabled = false;
+    }else{
+      nowCaseStatusMU.value[7].disabled = true;
+      nowCaseStatusMU.value[8].disabled = true;
     }
-    resolve(nowCaseStatusMU.value);
-  })
-}
+  }
+);
+
+
 //#endregion  檢驗案件狀態==========End
 
 getchecktoken().then(res=>{
@@ -2058,7 +2204,7 @@ onMounted(function () {
                           ref="nowCasePayDateDOM" />
                       </MDBCol>
                       <MDBCol col="12" class="mt-3">
-                        <MDBTextarea :disabled="!rGroup[2]" size="sm" label="協議事項" rows="2" v-model="nowCaseAgreement" />
+                        <MDBTextarea :disabled="!rGroup[2]" size="sm" label="註明事項" rows="2" v-model="nowCaseAgreement" />
                       </MDBCol>
                     </MDBRow>
                   </MDBCol>

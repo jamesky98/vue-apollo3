@@ -123,7 +123,7 @@ const nowCasePlanMapDL = computed(() => {
   }
 });
 // 送校
-const nowCaseRecDate = ref(""); // 送校日期
+const nowCaseRecDate = inject('nowCaseRecDate'); // 送校日期
 const nowCaseRecDateDOM = ref();
 
 const nowCaseFlyDate = ref(""); // 航拍日期
@@ -181,7 +181,7 @@ const nowCaseOtherDL = computed(() => {
 const nowCaseErrData = ref(""); // 送校資料異常註記
 const nowCaseErrPhoto = ref(""); // 送校影像異常註記
 // 校正
-const nowCaseStartDate = ref(""); //開始校正日
+const nowCaseStartDate = inject('nowCaseStartDate'); //開始校正日
 const nowCaseStartDateDOM = ref();
 
 const nowCaseRefPrjID = ref(""); // 量測作業索引
@@ -295,7 +295,7 @@ provide("selectReportTemp", selectReportTemp);
 const nowCaseReportTempMU = ref([]);
 provide("nowCaseReportTempMU", nowCaseReportTempMU);
 
-const nowCaseReportEdit = ref(""); //校正報告編輯檔
+const nowCaseReportEdit = inject('nowCaseReportEdit'); //校正報告編輯檔
 const nowCaseReportEditDL = computed(() => {
   if (nowCaseReportEdit.value && nowCaseReportEdit.value !== "") {
     return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseReportEdit.value;
@@ -304,13 +304,13 @@ const nowCaseReportEditDL = computed(() => {
   }
 });
 
-const nowCaseCompleteDate = ref(""); //報告(列印)日期
+const nowCaseCompleteDate = inject('nowCaseCompleteDate'); //報告(列印)日期
 const nowCaseCompleteDateDOM = ref();
 
 const nowCaseChkDate = ref(""); // 數據檢核日
 provide("nowCaseChkDate", nowCaseChkDate);
 
-const nowCaseChkPersonID = ref(""); //數據檢核人
+const nowCaseChkPersonID = inject('nowCaseChkPersonID_0'); //數據檢核人
 provide("nowCaseChkPersonID", nowCaseChkPersonID);
 const selectChkPersonID = ref("");
 provide("selectChkPersonID", selectChkPersonID);
@@ -320,7 +320,7 @@ provide("nowCaseChkPersonMU", nowCaseChkPersonMU);
 const nowCaseSignDate = ref(""); // 報告簽署日
 provide("nowCaseSignDate", nowCaseSignDate);
 
-const nowCaseSignPersonID = ref(""); // 報告簽署人
+const nowCaseSignPersonID = inject('nowCaseSignPersonID_0'); // 報告簽署人
 provide("nowCaseSignPersonID", nowCaseSignPersonID);
 const selectSignPersonID = ref("");
 provide("selectSignPersonID", selectSignPersonID);
@@ -328,7 +328,7 @@ const nowCaseSignPersonMU = ref([]);
 provide("nowCaseSignPersonMU", nowCaseSignPersonMU);
 
 const selectPsData = ref();
-const nowCaseReportScan = ref(""); //校正報告掃描檔
+const nowCaseReportScan = inject('nowCaseReportScan'); //校正報告掃描檔
 const nowCaseReportScanDL = computed(() => {
   if (nowCaseReportScan.value && nowCaseReportScan.value !== "") {
     return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseReportScan.value;
