@@ -44,7 +44,7 @@ testUcOnDone(result => {
   if (!result.loading && result && result.data.getUcResultformJson) {
     // 填入資料
 		let nowUcResult = result.data.getUcResultformJson;
-		// console.log(nowUcResult);
+		console.log(nowUcResult);
 		nowUcVer.value = nowUcResult.ver;
 		nowUcPrjCode.value = nowUcResult.prjcode;
 		nowUcfreeH.value = nowUcResult.freeH.toFixed(viewDig);
