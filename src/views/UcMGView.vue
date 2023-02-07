@@ -174,6 +174,9 @@ const nowUcModuleDL = computed(() => {
   }
 });
 
+const combUx = ref("");
+const combFr = ref("");
+
 // Section表格
 let dt1;
 const table1 = ref(); 
@@ -213,16 +216,22 @@ const columns2 = [
   {title:"Item", data:"name", defaultContent: "-"},
   {title:"變動時機", data:"frequency", defaultContent: "-"},
   {title:"標準不確定度",data:"ux", defaultContent: "-", render: (data, type, row) => {
-    return (isNaN(data))?data:parseFloat(data).toFixed(4)
+    return (isNaN(data) || !data)?data:parseFloat(data).toFixed(4)
   }},
   {title:"靈敏係數",data:"factor", defaultContent: "-", render: (data, type, row) => {
-    return (isNaN(data))?data:parseFloat(data).toFixed(4)
+    return (isNaN(data) || !data)?data:parseFloat(data).toFixed(4)
   }},
   {title:"不確定度分量", defaultContent: "-", render: (data, type, row) => {
-    return 1
+    let ux = row.ux;
+    let factor = row.factor;
+    if(isNaN(ux) || !ux || isNaN(factor) || !factor){
+      return '';
+    }else{
+      return (ux*factor).toFixed(4)
+    }
   }},
   {title:"自由度",data:"freedom", defaultContent: "-", render: (data, type, row) => {
-    return (isNaN(data))?data:parseFloat(data).toFixed(4)
+    return (isNaN(data) || !data)?data:parseFloat(data).toFixed(4)
   }},
 ];
 const tboption2 = {
@@ -251,7 +260,7 @@ const tboption3 = {
   dom: 't',
   select: {style: 'single',info: false},
   order: [[0, 'asc']],
-  // scrollY: '53vh',
+  scrollY: '4.5rem',
   scrollX: true,
   lengthChange: false,
   searching: false,
@@ -273,7 +282,7 @@ const tboption4 = {
   dom: 't',
   select: {style: 'single',info: false},
   order: [[0, 'asc']],
-  // scrollY: '53vh',
+  scrollY: '4.5rem',
   scrollX: true,
   lengthChange: false,
   searching: false,
@@ -295,7 +304,7 @@ const tboption5 = {
   dom: 't',
   select: {style: 'single',info: false},
   order: [[0, 'asc']],
-  // scrollY: '53vh',
+  scrollY: '4.5rem',
   scrollX: true,
   lengthChange: false,
   searching: false,
@@ -379,8 +388,10 @@ getUcModuleOnDone(result=>{
   nowUcItemFr.value=0;
   nowUcItemFa.value=0;
   data2.value=nowUcModule.uc.data[nowUcSection.value].data;
+  combUx.value="";
+  combFr.value="";
   getItemData();
-  console.log('nowUcModule',nowUcModule);
+  // console.log('nowUcModule',nowUcModule);
   // console.log(nowUcCalTypeDOM.value);
 
 });
@@ -427,6 +438,8 @@ function createNewUc(){
   nowUcItemFr.value = 0;
   nowUcItemFa.value = 0;
   data2.value=nowUcModule.uc.data[nowUcSection.value].data;
+  combUx.value="";
+  combFr.value="";
   getItemData();
 }
 
@@ -470,6 +483,8 @@ function delSection(){
     nowUcItemFr.value=0;
     nowUcItemFa.value=0;
     data2.value=nowUcModule.uc.data[nowUcSection.value].data;
+    combUx.value="";
+    combFr.value="";
     getItemData();
   }
 }
@@ -490,6 +505,8 @@ function delItem(){
     nowUcItemFr.value=0;
     nowUcItemFa.value=0;
     data2.value=nowUcModule.uc.data[nowUcSection.value].data;
+    combUx.value="";
+    combFr.value="";
     getItemData();
   }
 }
@@ -513,6 +530,8 @@ function delUx(){
     // nowUcItemFr.value=0;
     // nowUcItemFa.value=0;
     // data2.value=nowUcModule.uc.data[nowUcSection.value].data;
+    combUx.value="";
+    combFr.value="";
     getItemData();
   }
 }
@@ -536,6 +555,8 @@ function delFr(){
     nowUcItemFr.value=0;
     // nowUcItemFa.value=0;
     // data2.value=nowUcModule.uc.data[nowUcSection.value].data;
+    combUx.value="";
+    combFr.value="";
     getItemData();
   }
 }
@@ -559,6 +580,8 @@ function delFa(){
     // nowUcItemFr.value=0;
     nowUcItemFa.value=0;
     // data2.value=nowUcModule.uc.data[nowUcSection.value].data;
+    combUx.value="";
+    combFr.value="";
     getItemData();
   }
 }
@@ -598,11 +621,15 @@ function testUcBtn(){
     filename: 'temp.json',
     ucModuleStr: JSON.stringify(nowUcModule.uc),
   }).then(res=>{
-    console.log('has save temp!!');
+    // console.log('has save temp!!');
     testUc({
       filename: 'temp.json',
     }).then(res=>{
-      console.log('testUc',res.data.getUcResultformJson);
+      let secID = nowUcSection.value;
+      let secData = res.data.getUcResultformJson.data[secID];
+      // console.log(secData);
+      combUx.value = (secData.combUx).toFixed(4);
+      combFr.value = (secData.combFr).toFixed(4);
     })
   });
 }
@@ -769,6 +796,8 @@ onMounted(function () {
 function changeSectionUpdatItem(sectoin, item){
   new Promise((resolve,reject)=>{
     data2.value=nowUcModule.uc.data[sectoin].data;
+    combUx.value="";
+    combFr.value="";
     resolve(data2.value);
   }).then(res=>{
     dt2.rows(nowUcItem.value).select();
@@ -794,64 +823,80 @@ function changeSectionUpdatItem(sectoin, item){
           <!-- 左 -->
           <MDBCol md="4" class="h-100 ps-0 pe-1">
             <MDBRow style="margin-left:0;margin-right:0;height: calc(100% - 1em);" class="px-2 my-2 align-content-start overflow-auto border border-5 rounded-8 shadow-4">
-              <!-- Base內容 -->
-              <MDBSelect size="sm" class="my-3 col-12" label="選擇不確定度模組" v-model:options="nowUcModuleNameMU"
-                v-model:selected="selectUcModuleName" ref="nowUcModuleNameDOM" @change="readUcModule"/>
-              <MDBCol col="12" class="py-1 rounded-top-5 bg-info text-white">
-                基本資訊
-                <!-- 模組存取工具列 -->
-                  <MDBBtn :disabled="!rGroup[1]" v-if="nowUcModuleName===selectUcModuleName" size="sm" color="primary" @click="saveUcModule">儲存</MDBBtn>
-                  <MDBBtn :disabled="!rGroup[1]" v-else size="sm" color="primary" @click="saveUcModuleBtn">另存新檔</MDBBtn>
-                  <MDBBtn :disabled="selectUcModuleName===''" size="sm" color="primary" @click="testUcBtn">試算</MDBBtn>
-                  <MDBBtn :disabled="selectUcModuleName===''" size="sm" color="primary">
-                    <RouterLink target="_blank" :to="{ path: '/sicltab08', query: { moduleName: nowUcModuleName },}">
-                      <span class="btn-primary">列印計算表</span>
-                    </RouterLink>
-                  </MDBBtn>
-                  <MDBBtn tag="a" :href="nowUcModuleDL" download size="sm" color="secondary">下載</MDBBtn>
-              </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
-                <MDBRow class="pt-2">
-                  <MDBCol md="6" class="mb-2">
-                    <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="模組名稱" v-model="nowUcModuleName"/>
-                  </MDBCol>
-                  <MDBSelect :disabled="!rGroup[1]" size="sm" class="mb-2 col-md-6" label="校正項目" v-model:options="nowUcCalTypeMU"
-                    v-model:selected="selectUcCalType" ref="nowUcCalTypeDOM" @change="updateCalType"/>
-                  
-                  <MDBCol md="4" class="mb-2">
-                    <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="量測作業編號" v-model="nowUcModule.uc.prjcode"/>
-                  </MDBCol>
-                  
-                  <MDBCol md="4" class="mb-2">
-                    <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="系統評估版本" v-model="nowUcModule.uc.ver"/>
-                  </MDBCol>
-                  <MDBSelect :disabled="!rGroup[1] || selectUcCalType!=='I'" size="sm" class="mb-2 col-md-4" label="規格型態" v-model:options="nowUcParmTypeMU"
-                    v-model:selected="selectUcParmType" ref="nowUcParmTypeDOM"/>
+              
+                <!-- Base內容 -->
+                <MDBSelect size="sm" class="my-3 col-12" label="選擇不確定度模組" v-model:options="nowUcModuleNameMU"
+                  v-model:selected="selectUcModuleName" ref="nowUcModuleNameDOM" @change="readUcModule"/>
+                <!-- 基本資訊 -->
+                <MDBCol style="height: 2.25rem;" col="12" class="py-1 rounded-top-5 bg-info text-white d-flex justify-content-between overflow-hidden">
+                  <div>基本資訊</div>
+                  <!-- 模組存取工具列 -->
+                  <div>
+                    <MDBBtn :disabled="!rGroup[1]" v-if="nowUcModuleName===selectUcModuleName" size="sm" color="primary" style="background-color: rgb(172, 43, 172);" @click="saveUcModule">
+                      <i class="far fa-save">儲存</i>
+                    </MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" v-else size="sm" color="primary" style="background-color: rgb(172, 43, 172);" @click="saveUcModuleBtn">
+                      <i class="far fa-save">另存新檔</i>
+                    </MDBBtn>
+                    
+                    <MDBBtn :disabled="selectUcModuleName===''" size="sm" color="primary" style="background-color: rgb(172, 43, 172);">
+                      <RouterLink target="_blank" :to="{ path: '/sicltab08', query: { moduleName: nowUcModuleName },}">
+                        <span style="background-color: rgb(172, 43, 172); color: white;"><i class="fas fa-th-list">列印計算表</i></span>
+                      </RouterLink>
+                    </MDBBtn>
+                    <MDBBtn tag="a" :href="nowUcModuleDL" download size="sm" color="secondary">
+                      <i class="fas fa-cloud-download-alt">下載</i>
+                    </MDBBtn>
+                  </div>
+                </MDBCol>
+                <MDBCol style="height: 8rem;" col="12" class="mb-3 border rounded-bottom-5 overflow-auto">
+                  <MDBRow class="pt-2">
+                    <MDBCol md="6" class="mb-2">
+                      <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="模組名稱" v-model="nowUcModuleName"/>
+                    </MDBCol>
+                    <MDBSelect :disabled="!rGroup[1]" size="sm" class="mb-2 col-md-6" label="校正項目" v-model:options="nowUcCalTypeMU"
+                      v-model:selected="selectUcCalType" ref="nowUcCalTypeDOM" @change="updateCalType"/>
+                    
+                    <MDBCol md="4" class="mb-2">
+                      <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="量測作業編號" v-model="nowUcModule.uc.prjcode"/>
+                    </MDBCol>
+                    
+                    <MDBCol md="4" class="mb-2">
+                      <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="系統評估版本" v-model="nowUcModule.uc.ver"/>
+                    </MDBCol>
+                    <MDBSelect :disabled="!rGroup[1] || selectUcCalType!=='I'" size="sm" class="mb-2 col-md-4" label="規格型態" v-model:options="nowUcParmTypeMU"
+                      v-model:selected="selectUcParmType" ref="nowUcParmTypeDOM"/>
 
-                  <MDBCol md="4" class="mb-3">
-                    <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="最小不確定度H" v-model="nowUcModule.uc.minUcH"/>
-                  </MDBCol>
-                  <MDBCol md="4" class="mb-3">
-                    <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="最小不確定度V" v-model="nowUcModule.uc.minUcV"/>
-                  </MDBCol>
-                  <MDBCol md="4" class="mb-3">
-                    <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="長度單位" v-model="nowUcModule.uc.uom"/>
-                  </MDBCol>
-                </MDBRow>
-              </MDBCol>
-              <MDBCol col="12" class="py-1 rounded-top-5 bg-info text-white">
-                Section列表
-                <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addSection">增加項目</MDBBtn>
-                <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delSection">刪除項目</MDBBtn>
-              </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
-                <MDBRow>
-                  <MDBCol md="12" class="mb-3 overflow-auto">
-                    <vueDataTable :data="nowUcModule.uc.data" :columns="columns1" :options="tboption1" ref="table1"
-                      style="font-size: smaller" class="border border-info display w-100 compact" />
-                  </MDBCol>
-                </MDBRow>
-              </MDBCol>
+                    <MDBCol md="4" class="mb-2">
+                      <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="最小不確定度H" v-model="nowUcModule.uc.minUcH"/>
+                    </MDBCol>
+                    <MDBCol md="4" class="mb-2">
+                      <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="最小不確定度V" v-model="nowUcModule.uc.minUcV"/>
+                    </MDBCol>
+                    <MDBCol md="4" class="mb-2">
+                      <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="長度單位" v-model="nowUcModule.uc.uom"/>
+                    </MDBCol>
+                  </MDBRow>
+                </MDBCol>
+                <!-- Section列表 -->
+              
+                <MDBCol style="height: 2.25rem;" col="12" class="py-1 rounded-top-5 bg-info text-white d-flex justify-content-between overflow-hidden">
+                  <div>Section列表</div>
+                  <div>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" style="background-color: rgb(172, 43, 172);" floating @click="addSection"><i class="fas fa-plus"></i></MDBBtn>
+                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" style="background-color: rgb(172, 43, 172);" floating @click="delSection"><i class="fas fa-minus"></i></MDBBtn>
+                  </div>
+                </MDBCol>
+              
+                <MDBCol style="height: calc(100% - 18rem);" col="12" class="border rounded-bottom-5 overflow-auto">
+                  <MDBRow>
+                    <MDBCol md="12" class="mb-3 overflow-auto">
+                      <vueDataTable :data="nowUcModule.uc.data" :columns="columns1" :options="tboption1" ref="table1"
+                        style="font-size: smaller" class="border border-info display w-100 compact" />
+                    </MDBCol>
+                  </MDBRow>
+                </MDBCol>
+              
             </MDBRow>
           </MDBCol>
           <!-- 新右 -->
@@ -859,7 +904,7 @@ function changeSectionUpdatItem(sectoin, item){
             <MDBRow class="h-100">
               <MDBCol md="12" style="height: calc(100% - 1em);" class="mt-2 align-content-start overflow-auto border border-5 rounded-8 shadow-4">
                 <!-- 右上 -->
-                <MDBRow style="height: 11em;" class="">
+                <MDBRow style="height: 11em;" class="overflow-auto">
                   <MDBCol md="6" class="h-100 border-end">
                     <!-- Section內容 -->
                     <MDBCol col="12" class="mt-2">
@@ -897,16 +942,26 @@ function changeSectionUpdatItem(sectoin, item){
                 <!-- 右下 -->
                 <MDBRow style="height: calc(100% - 11em);" class="">
                   <MDBCol md="12" style="height: calc(50%);" class="border-top overflow-auto">
-                    <MDBCol col="12" class="mt-2 px-2 py-1 rounded-5 bg-secondary text-white">
-                      Item列表
-                      <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addItem">增加項目</MDBBtn>
-                      <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delItem">刪除項目</MDBBtn>
+                    <MDBCol col="12" class="mt-2 px-2 py-1 rounded-5 d-flex justify-content-between" style="background-color: rgb(224, 224, 224);">
+                      <div>
+                        Item列表
+                        <MDBBtn :disabled="selectUcModuleName===''" size="sm" color="primary" @click="testUcBtn">
+                          <i class="fas fa-calculator">試算</i>
+                        </MDBBtn>
+                      </div>
+                      <div>
+                        <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="addItem"><i class="fas fa-plus"></i></MDBBtn>
+                        <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="delItem"><i class="fas fa-minus"></i></MDBBtn>
+                      </div>
                     </MDBCol>
                     <MDBCol col="12" class="">
                       <MDBRow>
                         <MDBCol md="12" class="mb-2">
                           <vueDataTable :data="data2" :columns="columns2" :options="tboption2" ref="table2"
                             style="font-size: smaller" class="border border-secondary display w-100 compact" />
+                        </MDBCol>
+                        <MDBCol md="12" class="mb-2">
+                          組合不確定度：{{combUx}}  組合自由度：{{combFr}}
                         </MDBCol>
                       </MDBRow>
                     </MDBCol>
@@ -916,26 +971,33 @@ function changeSectionUpdatItem(sectoin, item){
                       <!-- 不確定度 -->
                       <MDBCol col="4">
                         <MDBRow class="p-2">
-                          <MDBCol col="12" class="py-1 border border-2 rounded-top-5 border-success">
-                            ux不確定度
-                            <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addUx">增加參數</MDBBtn>
-                            <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delUx">刪除參數</MDBBtn>
+                          <MDBCol col="12" class="py-1 border border-2 rounded-top-5 border-success d-flex justify-content-between">
+                            <div>ux不確定度</div>
+                            <div>
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="addUx"><i class="fas fa-plus"></i></MDBBtn>
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="delUx"><i class="fas fa-minus"></i></MDBBtn>
+                            </div>
                           </MDBCol>
                           <MDBCol col="12" class="border-start border-end border-bottom border-2 rounded-bottom-5 border-success">
                             <MDBRow>
                               <MDBCol md="12" class="mb-3">
                                 <vueDataTable :data="data3" :columns="columns3" :options="tboption3" ref="table3"
-                                  style="font-size: smaller" class="border display w-100 compact" />
-                              </MDBCol>
-                              <MDBCol col="6" class="mb-0">
-                                <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x_title[nowUcItemX]" @keyup="getItemData"/>
-                              </MDBCol>
-                              <MDBCol col="6" class="mb-0">
-                                <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x[nowUcItemX]" @keyup="getItemData"/>
+                                  style="font-size: smaller;" class="border display w-100 compact"/>
                               </MDBCol>
                               <MDBCol col="12" class="mb-2">
-                                <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(3)"><i class="fas fa-angle-double-down"></i></MDBBtn>
+                                <div class="d-flex justify-content-between">
+                                  <div>
+                                    <MDBBtn style="margin: 0;padding: 0.375rem;" :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(3)"><i class="fas fa-angle-double-down"></i></MDBBtn>
+                                  </div>
+                                  <div class="mx-1">
+                                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x_title[nowUcItemX]" @keyup="getItemData"/>
+                                  </div>
+                                  <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x[nowUcItemX]" @keyup="getItemData"/>
+                                </div>
                               </MDBCol>
+                              <div class="px-2 mb-2">
+                                <div class="bl_t bl_b bl_c_grey" style="height: 0.25rem;"></div>
+                              </div>
                               <MDBCol col="12" class="mb-3">
                                 <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="ux計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].ux"/>
                               </MDBCol>
@@ -946,10 +1008,12 @@ function changeSectionUpdatItem(sectoin, item){
                       <!-- 靈敏係數 -->
                       <MDBCol col="4">
                         <MDBRow class="p-2">
-                          <MDBCol col="12" class="py-1 border border-2 rounded-top-5 border-success">
-                            靈敏係數
-                            <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addFa">增加參數</MDBBtn>
-                            <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delFa">刪除參數</MDBBtn>
+                          <MDBCol col="12" class="py-1 border border-2 rounded-top-5 border-success d-flex justify-content-between">
+                            <div>靈敏係數</div>
+                            <div>
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="addFa"><i class="fas fa-plus"></i></MDBBtn>
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="delFa"><i class="fas fa-minus"></i></MDBBtn>
+                            </div>
                           </MDBCol>
                           <MDBCol col="12" class="border-start border-end border-bottom border-2 rounded-bottom-5 border-success">
                             <MDBRow>
@@ -957,16 +1021,22 @@ function changeSectionUpdatItem(sectoin, item){
                                 <vueDataTable :data="data5" :columns="columns5" :options="tboption5" ref="table5"
                                   style="font-size: smaller" class="border display w-100 compact" />
                               </MDBCol>
-
-                              <MDBCol col="6" class="mb-0">
-                                <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa_title[nowUcItemFa]" @keyup="getItemData"/>
-                              </MDBCol>
-                              <MDBCol col="6" class="mb-0">
-                                <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa[nowUcItemFa]" @keyup="getItemData"/>
-                              </MDBCol>
                               <MDBCol col="12" class="mb-2">
-                                <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(5)"><i class="fas fa-angle-double-down"></i></MDBBtn>
+                                <div class="d-flex justify-content-between">
+                                  <div>
+                                    <MDBBtn style="margin: 0;padding: 0.375rem;" :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(5)"><i class="fas fa-angle-double-down"></i></MDBBtn>
+                                  </div>
+                                  <div class="mx-1">
+                                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa_title[nowUcItemFa]" @keyup="getItemData"/>
+                                  </div>
+                                  <div>
+                                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa[nowUcItemFa]" @keyup="getItemData"/>
+                                  </div>
+                                </div>
                               </MDBCol>
+                              <div class="px-2 mb-2">
+                                <div class="bl_t bl_b bl_c_grey" style="height: 0.25rem;"></div>
+                              </div>
                               <MDBCol col="12" class="mb-3">
                                 <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="factor計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].factor"/>
                               </MDBCol>
@@ -977,10 +1047,12 @@ function changeSectionUpdatItem(sectoin, item){
                       <!-- 自由度 -->
                       <MDBCol col="4">
                         <MDBRow class="p-2">
-                          <MDBCol col="12" class="py-1 border border-2 rounded-top-5 border-success">
-                            自由度
-                            <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="addFr">增加參數</MDBBtn>
-                            <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="delFr">刪除參數</MDBBtn>
+                          <MDBCol col="12" class="py-1 border border-2 rounded-top-5 border-success d-flex justify-content-between">
+                            <div>自由度</div>
+                            <div>
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="addFr"><i class="fas fa-plus"></i></MDBBtn>
+                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="delFr"><i class="fas fa-minus"></i></MDBBtn>
+                            </div>
                           </MDBCol>
                           <MDBCol col="12" class="border-start border-end border-bottom border-2 rounded-bottom-5 border-success">
                             <MDBRow>
@@ -988,15 +1060,22 @@ function changeSectionUpdatItem(sectoin, item){
                                 <vueDataTable :data="data4" :columns="columns4" :options="tboption4" ref="table4"
                                   style="font-size: smaller" class="border display w-100 compact" />
                               </MDBCol>
-                              <MDBCol col="6" class="mb-0">
-                                <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr_title[nowUcItemFr]" @keyup="getItemData"/>
-                              </MDBCol>
-                              <MDBCol col="6" class="mb-0">
-                                <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr[nowUcItemFr]" @keyup="getItemData"/>
-                              </MDBCol>
                               <MDBCol col="12" class="mb-2">
-                                <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(4)"><i class="fas fa-angle-double-down"></i></MDBBtn>
+                                <div class="d-flex justify-content-between">
+                                  <div>
+                                    <MDBBtn style="margin: 0;padding: 0.375rem;" :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(4)"><i class="fas fa-angle-double-down"></i></MDBBtn>
+                                  </div>
+                                  <div class="mx-1">
+                                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr_title[nowUcItemFr]" @keyup="getItemData"/>
+                                  </div>
+                                  <div col="6" class="mb-0">
+                                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr[nowUcItemFr]" @keyup="getItemData"/>
+                                  </div>
+                                </div>
                               </MDBCol>
+                              <div class="px-2 mb-2">
+                                <div class="bl_t bl_b bl_c_grey" style="height: 0.25rem;"></div>
+                              </div>
                               <MDBCol col="12" class="mb-3">
                                 <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="freedom計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].freedom"/>
                               </MDBCol>
@@ -1030,5 +1109,48 @@ td.details-control {
 tr.shown td.details-control {
   text-align:center; 
   color:red;
+}
+/* 框線 */
+.bl_all{
+  border: 1px solid;
+}
+.bl_t{
+  border-top: 1px solid;
+}
+.bl_b{
+  border-bottom: 1px solid;
+}
+.bl_l{
+  border-left: 1px solid;
+}
+.bl_r{
+  border-right: 1px solid;
+}
+.bl_t_2{
+  border-top: 1.5px solid;
+}
+.bl_b_2{
+  border-bottom: 5px solid;
+}
+.bl_l_2{
+  border-left: 5px solid;
+}
+.bl_r_2{
+  border-right: 5px solid;
+}
+.bl_t_doble{
+  border-top: 5px double;
+}
+.bl_b_doble{
+  border-bottom: 5px double;
+}
+.bl_l_doble{
+  border-left: 5px double;
+}
+.bl_r_doble{
+  border-right: 5px double;
+}
+.bl_c_grey{
+  border-color: rgb(209, 209, 209);
 }
 </style>
