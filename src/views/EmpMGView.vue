@@ -62,36 +62,13 @@ getNowUser(result => {
   }
 });
 
+const rGroupSetting = inject("rGroupSetting");
 const rGroup = computed(() => {
-  let result = [];
-  // rGroup[0]最高權限
-  // rGroup[1]技術主管專用
-  // rGroup[2]技術人員專用(非己不可改)
-  // rGroup[3]最低權限
-  // rGroup[4]完全開放
-  switch (myUserRole.value) {
-    case 0:
-      if (parseInt(myUserName.value) === parseInt(nowEmpID.value)) {
-        result = [false, false, false, false, true];
-      } else {
-        result = [false, false, false, false, false];
-      }
-      break;
-    case 1:
-      if ( parseInt(myUserName.value) === parseInt(nowEmpID.value)) {
-        result = [false, false, true, true, true];
-      } else {
-        result = [false, false, false, false, false];
-      }
-      break;
-    case 2:
-      result = [false, true, false, true, true];
-      break;
-    case 3:
-      result = [true, true, true, true, true];
-      break;
+  let opt1=false;
+  if (parseInt(myUserName.value) === parseInt(nowEmpID.value)){
+    opt1=true;
   }
-  return result;
+  return rGroupSetting(myUserRole.value,opt1)
 });
 //#endregion 取得權限==========End
 
@@ -874,7 +851,7 @@ const columns_optcase = [
         classn = "typeF"
         break;
       case "I": //空載光達
-        markicon = '<i class="fas fa-wifi"></i>';
+        markicon = '<i class="fas fa-wifi rotation180"></i>';
         classn = "typeI"
         break;
       case "J": //小像幅
@@ -1014,7 +991,7 @@ const columns_signcase = [
         classn = "typeF"
         break;
       case "I": //空載光達
-        markicon = '<i class="fas fa-wifi"></i>';
+        markicon = '<i class="fas fa-wifi rotation180"></i>';
         classn = "typeI"
         break;
       case "J": //小像幅

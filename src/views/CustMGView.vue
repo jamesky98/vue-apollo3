@@ -1,7 +1,7 @@
 <script setup>
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
-import { ref, reactive, onMounted, provide } from "vue";
+import { ref, reactive, onMounted, provide,inject } from "vue";
 import {
   MDBCol,
   MDBRow,
@@ -52,28 +52,9 @@ getNowUser(result=>{
 });
 refgetNowUser();
 
+const rGroupSetting = inject("rGroupSetting");
 const rGroup =computed(()=>{
-  let result=[];
-  // rGroup[0]最高權限
-  // rGroup[1]技術主管專用
-  // rGroup[2]技術人員專用(非己不可改)
-  // rGroup[3]最低權限
-  // rGroup[4]完全開放
-  switch (myUserRole.value){
-    case 0:
-        result = [false,false,false,false,false];
-      break;
-    case 1:
-        result = [false,false,false,false,false];
-      break;
-    case 2:
-      result = [false,true,false,true,true];
-      break;
-    case 3:
-      result = [true,true,true,true,true];
-    break;
-  }
-  return result;
+  return rGroupSetting(myUserRole.value,true)
 });
 //#endregion 取得權限==========End
 
@@ -781,8 +762,8 @@ onMounted(function () {
                     <!-- 機關操作表單 -->
                     <MDBCol col="12" class="border-top" style="height: 7rem;">
                       <MDBCol lg="12" class="mt-2">
-                        <MDBBtn :disabled="nowCustOrgID===''" size="sm" color="primary" @click="newOrg">新增</MDBBtn>
-                        <MDBBtn size="sm" color="primary" @click="saveOrg">儲存</MDBBtn>
+                        <MDBBtn :disabled="!rGroup[2] || nowCustOrgID===''" size="sm" color="primary" @click="newOrg">新增</MDBBtn>
+                        <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveOrg">儲存</MDBBtn>
                         <!-- <MDBBtn size="sm" color="primary" @click="delOrg">刪除</MDBBtn> -->
                         <MDBPopconfirm v-if="rGroup[0]" :disabled="!rGroup[0] || nowCustOrgID===''" color="danger" class="btn-sm btn-light btn-outline-danger me-auto"
                           message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delOrg">
@@ -820,8 +801,8 @@ onMounted(function () {
                     <!-- 左下右 -->
                     <MDBCol col="7" class="h-100 border-start">
                       <MDBCol col="12" class="py-2 w-100 border-bottom overflow-auto" style="white-space: nowrap">
-                        <MDBBtn :disabled="nowCustId===''" size="sm" color="primary" @click="newCust">新增</MDBBtn>
-                        <MDBBtn size="sm" color="primary" @click="saveCust">儲存</MDBBtn>
+                        <MDBBtn :disabled="!rGroup[2] || nowCustId===''" size="sm" color="primary" @click="newCust">新增</MDBBtn>
+                        <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveCust">儲存</MDBBtn>
                         <!-- <MDBBtn size="sm" color="primary" @click="delCust">刪除</MDBBtn> -->
                         <MDBPopconfirm v-if="rGroup[0]" :disabled="!rGroup[0] || nowCustId===''" class="btn-sm btn-light btn-outline-danger me-auto"
                           message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delCust">
@@ -889,8 +870,8 @@ onMounted(function () {
                             </MDBCol>
                             <!-- 操作按鈕 -->
                             <MDBCol col="12" class="py-2 w-100 overflow-auto" style="white-space: nowrap">
-                              <MDBBtn :disabled="nowItemId===''" size="sm" color="primary" @click="newItem">新增</MDBBtn>
-                              <MDBBtn size="sm" color="primary" @click="saveItem">儲存</MDBBtn>
+                              <MDBBtn :disabled="!rGroup[2] || nowItemId===''" size="sm" color="primary" @click="newItem">新增</MDBBtn>
+                              <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveItem">儲存</MDBBtn>
                               <!-- <MDBBtn size="sm" color="primary" @click="delItem">刪除</MDBBtn> -->
                               <MDBPopconfirm v-if="rGroup[0]" :disabled="!rGroup[0] || nowItemId===''" class="btn-sm btn-light btn-outline-danger me-auto"
                                 message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delItem">

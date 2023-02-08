@@ -59,28 +59,10 @@ getNowUser(result=>{
   }
 });
 refgetNowUser();
+
+const rGroupSetting = inject("rGroupSetting");
 const rGroup =computed(()=>{
-  let result=[];
-  // rGroup[0]最高權限
-  // rGroup[1]技術主管專用
-  // rGroup[2]技術人員專用(非己不可改)
-  // rGroup[3]最低權限
-  // rGroup[4]完全開放
-  switch (myUserRole.value){
-    case 0:
-      result = [false,false,false,false,true];
-      break;
-    case 1:
-      result = [false,false,true,true,true];
-      break;
-    case 2:
-      result = [false,true,false,true,true];
-      break;
-    case 3:
-      result = [true,true,true,true,true];
-    break;
-  }
-  return result;
+  return rGroupSetting(myUserRole.value,false)
 });
 //#endregion 取得權限==========End
 

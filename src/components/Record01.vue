@@ -1640,7 +1640,7 @@ getRefGcpOnDone((result) => {
     refData.sort(function (a, b) {
       return a.gcp_id > b.gcp_id ? 1 : -1;
     });
-    console.log(refData);
+    // console.log(refData);
 
     for (let i = 0; i < refData.length; i++) {
       dataStr =

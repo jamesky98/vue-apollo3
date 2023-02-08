@@ -25,6 +25,7 @@ import {
   MDBSwitch,
   MDBCheckbox,
   MDBAlert,
+  MDBDropdown, MDBDropdownToggle, MDBDropdownMenu, MDBDropdownItem
 } from 'mdb-vue-ui-kit';
 import ToolsGQL from "../graphql/Tools";
 import GcpGQL from "../graphql/Gcp";
@@ -34,6 +35,7 @@ import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
+import { downloadGCP, downloadRef } from "../methods/share.js"
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -67,28 +69,9 @@ getNowUser(result=>{
 });
 refgetNowUser();
 
+const rGroupSetting = inject("rGroupSetting");
 const rGroup =computed(()=>{
-  let result=[];
-  // rGroup[0]最高權限
-  // rGroup[1]技術主管以上專用
-  // rGroup[2]技術人員專用(非己不可改)
-  // rGroup[3]最低權限
-  // rGroup[4]完全開放
-  switch (myUserRole.value){
-    case 0://訪客
-        result = [false,false,false,false,false];
-      break;
-    case 1://校正人員
-        result = [false,false,false,false,false];
-      break;
-    case 2://技術主管
-      result = [false,true,false,true,true];
-      break;
-    case 3://系統負責人
-      result = [true,true,true,true,true];
-    break;
-  }
-  return result;
+  return rGroupSetting(myUserRole.value,false)
 });
 //#endregion 取得權限==========End
 
@@ -104,10 +87,11 @@ const activeTabId1 = ref("gcp_mg");
 const notProssing = ref(false);
 const notProssing2 = ref(true);
 const notProssing3 = ref(true);
-
 const updateKey = ref(0);
 const updateKey2 = ref(0);
 const updateKey3 = ref(0);
+const dlGCPdropdown1 = ref(false);
+const showRefReport = ref(false);
 
 const nowPrjId = ref("");
 const nowPrjCode = ref("");
@@ -308,6 +292,7 @@ const nowChkCalResultDL = computed(()=>{
     return ""
   }
 });
+const chkResultPDF = ref("pdfjs-dist/web/viewer.html");
 
 const nowChkCalComment = ref("");
 
@@ -374,7 +359,7 @@ const columns_prj = [
           calName = "航測像機";
           break;
         case 2: //空載光達
-          markicon = '<i class="fas fa-wifi"></i>';
+          markicon = '<i class="fas fa-wifi rotation180"></i>';
           classn = "typeI"
           calName = "空載光達";
           break;
@@ -601,17 +586,17 @@ const dt_gcp = ref();
 const table_gcp = ref(); 
 const data_gcp = ref([]);
 const columns_gcp = [
-  {title:"序號", data:"id", defaultContent: "-", visible: false},
-  {title:"點號", data:"gcp_id", defaultContent: "-"},
-  {title:"狀態", data:"status", defaultContent: "-", render: statusRender},
-  {title:"清查人", data:"person", defaultContent: "-"},
-  {title:"清查日", data:"date", defaultContent: "-", render: (data) => {
+  {title:"序號", data:"gcp_record[0].id", defaultContent: "-", visible: false},
+  {title:"點號", data:"id", defaultContent: "-"},
+  {title:"狀態", data:"gcp_record[0].status", defaultContent: "-", render: statusRender},
+  {title:"清查人", data:"gcp_record[0].person", defaultContent: "-"},
+  {title:"清查日", data:"gcp_record[0].date", defaultContent: "-", render: (data) => {
       return toTWDate(data);}},
-  {title:"類別", data:"gcp.gcp_type.type_name", defaultContent: "-"},
-  {title:"坐標E", data:"coor_E", defaultContent: "-"},
-  {title:"坐標N", data:"coor_N", defaultContent: "-"},
-  {title:"坐標h", data:"coor_h", defaultContent: "-"},
-  {title:"備註", data:"comment", defaultContent: "-"},
+  {title:"類別", data:"gcp_type.type_name", defaultContent: "-"},
+  {title:"坐標E", data:"gcp_record[0].coor_E", defaultContent: "-"},
+  {title:"坐標N", data:"gcp_record[0].coor_N", defaultContent: "-"},
+  {title:"坐標h", data:"gcp_record[0].coor_h", defaultContent: "-"},
+  {title:"備註", data:"gcp_record[0].comment", defaultContent: "-"},
 ];
 const tboption_gcp = {
   dom: 'fti',
@@ -629,9 +614,11 @@ const tboption_gcp = {
 };
 
 // 查詢record by prj
-const { mutate: getRcordByPrj, onDone: getRcordByPrjOnDone, onError: getRcordByPrjError } = useMutation(PrjGQL.CALREFGCP);
+const { mutate: getRcordByPrj, onDone: getRcordByPrjOnDone, onError: getRcordByPrjError } = useMutation(
+  GcpGQL.GETALLGCP
+);
 getRcordByPrjOnDone(result=>{
-  data_gcp.value = result.data.calRefGcp;
+  data_gcp.value = result.data.getAllGcp;
   notProssing2.value = true;
 });
 getRcordByPrjError(e=>{errorHandle(e,infomsg,alert1)});
@@ -1070,6 +1057,7 @@ const { onDone: getAllEqptonDone, mutate: refgetAllEqpt, onError: getAllEqptonEr
 getAllEqptonDone(result=>{
   if(!result.loading){
     data_eqpt2.value = result.data.getAllEqpt;
+    // console.log('data_eqpt2',data_eqpt2.value);
   }
 });
 getAllEqptonError(e=>{errorHandle(e,infomsg,alert1)});
@@ -1152,6 +1140,13 @@ getChkByIdOnDone(result=>{
   nowChkCalOrgCode.value = getData.cal_org_id;
   nowChkCalPass.value = (getData.pass)?true:false;
   nowChkCalResult.value = getData.result;
+  if (!getData.result){
+    chkResultPDF.value = "pdfjs-dist/web/viewer.html";  
+  }else{
+    chkResultPDF.value = "pdfjs-dist/web/viewer.html?file=" + publicPath.value + "01_Equipment/" + nowEqptId.value + "/" + nowChkCalResult.value;
+    // console.log(pdfPath.value)
+  }
+
   nowChkCalComment.value = getData.comment;
 });
 getChkByIdError(e=>{errorHandle(e,infomsg,alert1)});
@@ -1933,7 +1928,7 @@ onMounted(function () {
   dt_gcp.value = table_gcp.value.dt();
   dt_gcp.value.on('select', function (e, dt, type, indexes) {
     // console.log("dt_gcp select")
-    nowPRecordId.value = dt.rows(indexes).data()[0].id;
+    nowPRecordId.value = dt.rows(indexes).data()[0].gcp_record[0].id;
     getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
     e.preventDefault();
     e.stopPropagation();
@@ -1943,7 +1938,26 @@ onMounted(function () {
   dt_eqpt.value.on('select', function (e, dt, type, indexes) {
     nowLinkId.value = dt.rows(indexes).data()[0].id;
     nowLinkChkId.value = dt.rows(indexes).data()[0].eqpt_check_id;
-    // console.log('nowLinkId',nowLinkId.value,'nowLinkChkId',nowLinkChkId.value);
+    // 連動顯示儀器列表
+    nowEqptId.value = dt.rows(indexes).data()[0].ref_eqpt_check.ref_eqpt_id;
+    refgetAllEqpt({type: null}).then(res=>{
+      // 由儀器列表中選擇目前儀器
+      let selRowID = dt_eqpt2.value.rows(function ( idx, data, node ) {
+        return (data.ref_equpt_id=== nowEqptId.value+'')?true:false
+      })[0][0];
+      // 捲動到視窗內(模擬select，不觸動select事件)
+      dt_eqpt2.value.row(selRowID).node().classList.add('selected');
+      dt_eqpt2.value.row(selRowID).node().scrollIntoView();
+      // 連動顯示查核歷程
+      return getChkByEqpt({refEqptId: parseInt(nowEqptId.value)})
+    }).then(res=>{
+      // 由查核紀錄中選擇目前記錄
+      let selRowID = dt_chk.value.rows(function ( idx, data, node ) {
+        return (data.eq_ck_id === nowLinkChkId.value + '')?true:false
+      }).select()[0][0];
+      // 捲動到視窗內
+      dt_chk.value.row(selRowID).node().scrollIntoView();
+    });
     e.preventDefault();
     e.stopPropagation();
   });
@@ -1951,7 +1965,6 @@ onMounted(function () {
   dt_eqpt2.value = table_eqpt2.value.dt();
   dt_eqpt2.value.on('select', function (e, dt, type, indexes) {
     nowEqptId.value = dt.rows(indexes).data()[0].ref_equpt_id;
-    
     getChkByEqpt({refEqptId: parseInt(nowEqptId.value)}).then(res=>{
       newChk();
     });
@@ -2098,8 +2111,17 @@ function selectNowChk(nowId, col, dt){
                         <MDBCol lg="7" class="h-100">
                           <MDBRow>
                             <MDBCol col="12" class="d-flex py-2 border-bottom">
-                              <MDBBtn :disabled="!rGroup[1] || !nowPrjId" class="me-auto" size="sm" color="primary" @click="uploadBtn('inputRecord')">匯入紀錄</MDBBtn>
-
+                              <MDBBtn :disabled="!rGroup[1] || !nowPrjId" size="sm" color="primary" @click="uploadBtn('inputRecord')">匯入紀錄</MDBBtn>
+                              
+                              <MDBDropdown class="me-auto" dropend v-model="dlGCPdropdown1">
+                                <MDBDropdownToggle :disabled="!rGroup[4] || !nowPrjId" color="secondary" size="sm" @click="dlGCPdropdown1 = !dlGCPdropdown1">
+                                  <i class="fas fa-cloud-download-alt">下載</i>
+                                </MDBDropdownToggle>
+                                <MDBDropdownMenu dark>
+                                  <MDBDropdownItem href="#" @click.stop="downloadGCP(data_gcp)">詳細資料</MDBDropdownItem>
+                                  <MDBDropdownItem href="#" @click.stop="downloadRef(data_gcp)">參考值檔</MDBDropdownItem>
+                                </MDBDropdownMenu>
+                              </MDBDropdown>
                               <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newPRecordBtn">新增</MDBBtn>
                               <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveGcpRecordBtn">儲存</MDBBtn>
                               <MDBPopconfirm :disabled="!rGroup[1] || !nowPRecordId" 
@@ -2440,7 +2462,7 @@ function selectNowChk(nowId, col, dt){
                           </MDBRow>
                         </MDBCol>
                         <!-- 表單 -->
-                        <MDBCol lg="7" class="h-100">
+                        <MDBCol v-show="!showRefReport" lg="7" class="h-100">
                           <!-- 左上 -->
                           <MDBRow style="height: 45%;" class="border-bottom overflow-auto align-content-start">
                             <MDBCol col="6"><span>查詢標準件</span></MDBCol>
@@ -2466,12 +2488,12 @@ function selectNowChk(nowId, col, dt){
                             <!-- 左下右(表單) -->
                             <div style="width: calc(100% - 4rem);" class="h-100">
                               <MDBRow class="h-100 align-content-start">
-                                <!-- 資料表 -->
+                                <!-- 查核歷程 -->
                                 <DataTable :data="data_chk" :columns="columns_chk" :options="tboption_chk" ref="table_chk"
                                   style="font-size: smaller;" class="display w-100 compact" />
                                 <!-- 功能按鈕 -->
                                 <MDBRow>
-                                  <MDBCol col="12" class="py-2 border-bottom">
+                                  <MDBCol col="12" class="py-2 border-bottom d-flex">
                                     <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newChk">新增</MDBBtn>
                                     <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveChk">儲存</MDBBtn>
                                     <MDBPopconfirm :disabled="!rGroup[1] || !nowChkId" 
@@ -2481,6 +2503,7 @@ function selectNowChk(nowId, col, dt){
                                       @confirm="delChk">
                                       刪除
                                     </MDBPopconfirm>
+                                    <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="showRefReport=!showRefReport">顯示報告</MDBBtn>
                                   </MDBCol>
                                 </MDBRow>
                                 <!-- 資料區 -->
@@ -2526,7 +2549,14 @@ function selectNowChk(nowId, col, dt){
                               </MDBRow>
                             </div>
                           </MDBRow>
-                        </MDBCol> 
+                        </MDBCol>
+                        <!-- 標準件校正報告 -->
+                        <MDBCol v-show="showRefReport" lg="7" class="h-100">
+                          <div>
+                            <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="showRefReport=!showRefReport">關閉報告</MDBBtn>
+                          </div>
+                          <iframe id="pdf-js-viewer" :src="chkResultPDF" class="w-100" style="height: calc(100% - 2rem);"></iframe>
+                        </MDBCol>
                       </MDBRow> 
                     </MDBTabPane>
                     <!-- 管制圖 -->
@@ -2615,7 +2645,7 @@ function selectNowChk(nowId, col, dt){
                         <MDBCol v-show="(nowPrjCalTypeId===2)" col="12" class="border-top" >
                           <!-- I -->
                           <div class="hstack gap-3 mt-2">
-                            <span class="typeI"><i class="fas fa-wifi"></i>空載光達</span>
+                            <span class="typeI"><i class="fas fa-wifi rotation180"></i>空載光達</span>
                             <div>目前作業：<span class="text-info">{{nowPrjCode}}</span></div>
                             <MDBInput size="sm" type="text" label="簡稱標籤" v-model="ccLabel_I"/>
                             <MDBSelect size="sm" label="參考作業" 

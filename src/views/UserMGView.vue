@@ -1,7 +1,7 @@
 <script setup>
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
-import { ref, reactive, onMounted, provide } from "vue";
+import { ref, reactive, onMounted, provide,inject } from "vue";
 import path, { join } from "path-browserify";
 import {
   MDBInput,
@@ -48,36 +48,14 @@ getNowUser(result=>{
   }
 });
 refgetNowUser();
+
+const rGroupSetting = inject("rGroupSetting");
 const rGroup =computed(()=>{
-  let result=[];
-  // rGroup[0]最高權限
-  // rGroup[1]技術主管專用
-  // rGroup[2]技術人員專用(非己不可改)
-  // rGroup[3]最低權限
-  // rGroup[4]完全開放
-  switch (myUserRole.value){
-    case 0:
-      if(parseInt(myUserName.value)=== parseInt(nowUserName.value)){
-        result = [false,false,false,false,true];
-      }else{
-        result = [false,false,false,false,false];
-      }
-      break;
-    case 1:
-      if(parseInt(myUserName.value)===parseInt(nowUserName.value)){
-        result = [false,false,true,true,true];
-      }else{
-        result = [false,false,false,false,false];
-      }
-      break;
-    case 2:
-      result = [false,true,false,true,true];
-      break;
-    case 3:
-      result = [true,true,true,true,true];
-    break;
+  let opt1=false;
+  if (parseInt(myUserName.value) === parseInt(nowUserName.value)){
+    opt1=true;
   }
-  return result;
+  return rGroupSetting(myUserRole.value,opt1)
 });
 
 //#endregion 取得權限==========End

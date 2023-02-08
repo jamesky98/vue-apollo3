@@ -1,7 +1,7 @@
 <script setup>
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
-import { ref, reactive, onMounted, provide,toRef } from "vue";
+import { ref, reactive, onMounted, provide,inject } from "vue";
 import path, { join } from "path-browserify";
 import {
   MDBInput,
@@ -58,28 +58,10 @@ getNowUser(result=>{
   }
 });
 refgetNowUser();
+
+const rGroupSetting = inject("rGroupSetting");
 const rGroup =computed(()=>{
-  let result=[];
-  // rGroup[0]最高權限
-  // rGroup[1]技術主管專用
-  // rGroup[2]技術人員專用(非己不可改)
-  // rGroup[3]最低權限
-  // rGroup[4]完全開放
-  switch (myUserRole.value){
-    case 0:
-      result = [false,false,false,false,true];
-      break;
-    case 1:
-      result = [false,false,true,true,true];
-      break;
-    case 2:
-      result = [false,true,false,true,true];
-      break;
-    case 3:
-      result = [true,true,true,true,true];
-    break;
-  }
-  return result;
+  return rGroupSetting(myUserRole.value,false)
 });
 //#endregion 取得權限==========End
 
@@ -852,29 +834,29 @@ function changeSectionUpdatItem(sectoin, item){
                 <MDBCol style="height: 8rem;" col="12" class="mb-3 border rounded-bottom-5 overflow-auto">
                   <MDBRow class="pt-2">
                     <MDBCol md="6" class="mb-2">
-                      <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="模組名稱" v-model="nowUcModuleName"/>
+                      <MDBInput size="sm" type="text" label="模組名稱" v-model="nowUcModuleName"/>
                     </MDBCol>
-                    <MDBSelect :disabled="!rGroup[1]" size="sm" class="mb-2 col-md-6" label="校正項目" v-model:options="nowUcCalTypeMU"
+                    <MDBSelect size="sm" class="mb-2 col-md-6" label="校正項目" v-model:options="nowUcCalTypeMU"
                       v-model:selected="selectUcCalType" ref="nowUcCalTypeDOM" @change="updateCalType"/>
                     
                     <MDBCol md="4" class="mb-2">
-                      <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="量測作業編號" v-model="nowUcModule.uc.prjcode"/>
+                      <MDBInput size="sm" type="text" label="量測作業編號" v-model="nowUcModule.uc.prjcode"/>
                     </MDBCol>
                     
                     <MDBCol md="4" class="mb-2">
-                      <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="系統評估版本" v-model="nowUcModule.uc.ver"/>
+                      <MDBInput size="sm" type="text" label="系統評估版本" v-model="nowUcModule.uc.ver"/>
                     </MDBCol>
-                    <MDBSelect :disabled="!rGroup[1] || selectUcCalType!=='I'" size="sm" class="mb-2 col-md-4" label="規格型態" v-model:options="nowUcParmTypeMU"
+                    <MDBSelect :disabled="selectUcCalType!=='I'" size="sm" class="mb-2 col-md-4" label="規格型態" v-model:options="nowUcParmTypeMU"
                       v-model:selected="selectUcParmType" ref="nowUcParmTypeDOM"/>
 
                     <MDBCol md="4" class="mb-2">
-                      <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="最小不確定度H" v-model="nowUcModule.uc.minUcH"/>
+                      <MDBInput size="sm" type="text" label="最小不確定度H" v-model="nowUcModule.uc.minUcH"/>
                     </MDBCol>
                     <MDBCol md="4" class="mb-2">
-                      <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="最小不確定度V" v-model="nowUcModule.uc.minUcV"/>
+                      <MDBInput size="sm" type="text" label="最小不確定度V" v-model="nowUcModule.uc.minUcV"/>
                     </MDBCol>
                     <MDBCol md="4" class="mb-2">
-                      <MDBInput :disabled="!rGroup[1]" size="sm" type="text" label="長度單位" v-model="nowUcModule.uc.uom"/>
+                      <MDBInput size="sm" type="text" label="長度單位" v-model="nowUcModule.uc.uom"/>
                     </MDBCol>
                   </MDBRow>
                 </MDBCol>
@@ -883,8 +865,8 @@ function changeSectionUpdatItem(sectoin, item){
                 <MDBCol style="height: 2.25rem;" col="12" class="py-1 rounded-top-5 bg-info text-white d-flex justify-content-between overflow-hidden">
                   <div>Section列表</div>
                   <div>
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" style="background-color: rgb(172, 43, 172);" floating @click="addSection"><i class="fas fa-plus"></i></MDBBtn>
-                    <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" style="background-color: rgb(172, 43, 172);" floating @click="delSection"><i class="fas fa-minus"></i></MDBBtn>
+                    <MDBBtn size="sm" color="primary" style="background-color: rgb(172, 43, 172);" floating @click="addSection"><i class="fas fa-plus"></i></MDBBtn>
+                    <MDBBtn size="sm" color="primary" style="background-color: rgb(172, 43, 172);" floating @click="delSection"><i class="fas fa-minus"></i></MDBBtn>
                   </div>
                 </MDBCol>
               
@@ -913,12 +895,12 @@ function changeSectionUpdatItem(sectoin, item){
                     <MDBCol col="12" class="">
                       <MDBRow>
                         <MDBCol col="8" class="my-2">
-                          <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="Section" v-model="nowUcModule.uc.data[nowUcSection].section"/>
+                          <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="Section" v-model="nowUcModule.uc.data[nowUcSection].section"/>
                         </MDBCol>
-                        <MDBSelect :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="mb-2 col-8" label="type" v-model:options="nowUcSecTypeMU"
+                        <MDBSelect v-if="nowUcModule.uc.data" size="sm" class="mb-2 col-8" label="type" v-model:options="nowUcSecTypeMU"
                           v-model:selected="selectUcSecType" ref="nowUcSecTypeDOM" @change="updataSecType"/>
                         <MDBCol col="12" class="mb-2">
-                          <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" label="comment" rows="2" v-model="nowUcModule.uc.data[nowUcSection].comment"/>
+                          <MDBTextarea v-if="nowUcModule.uc.data" size="sm" label="comment" rows="2" v-model="nowUcModule.uc.data[nowUcSection].comment"/>
                         </MDBCol>
                       </MDBRow>
                     </MDBCol>
@@ -931,9 +913,9 @@ function changeSectionUpdatItem(sectoin, item){
                     <MDBCol col="12" class="mb-2">
                       <MDBRow>
                         <MDBCol col="8" class="my-2">
-                          <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="name" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].name"/>
+                          <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="name" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].name"/>
                         </MDBCol>
-                        <MDBSelect :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="mb-2 col-8" label="變動時機" v-model:options="nowFrequencyMU"
+                        <MDBSelect v-if="nowUcModule.uc.data" size="sm" class="mb-2 col-8" label="變動時機" v-model:options="nowFrequencyMU"
                           v-model:selected="selectFrequency" ref="nowFrequencyDOM" @change="updataFr"/>
                       </MDBRow>
                     </MDBCol>
@@ -950,8 +932,8 @@ function changeSectionUpdatItem(sectoin, item){
                         </MDBBtn>
                       </div>
                       <div>
-                        <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="addItem"><i class="fas fa-plus"></i></MDBBtn>
-                        <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="delItem"><i class="fas fa-minus"></i></MDBBtn>
+                        <MDBBtn size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="addItem"><i class="fas fa-plus"></i></MDBBtn>
+                        <MDBBtn size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="delItem"><i class="fas fa-minus"></i></MDBBtn>
                       </div>
                     </MDBCol>
                     <MDBCol col="12" class="">
@@ -974,8 +956,8 @@ function changeSectionUpdatItem(sectoin, item){
                           <MDBCol col="12" class="py-1 border border-2 rounded-top-5 border-success d-flex justify-content-between">
                             <div>ux不確定度</div>
                             <div>
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="addUx"><i class="fas fa-plus"></i></MDBBtn>
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="delUx"><i class="fas fa-minus"></i></MDBBtn>
+                              <MDBBtn size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="addUx"><i class="fas fa-plus"></i></MDBBtn>
+                              <MDBBtn size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="delUx"><i class="fas fa-minus"></i></MDBBtn>
                             </div>
                           </MDBCol>
                           <MDBCol col="12" class="border-start border-end border-bottom border-2 rounded-bottom-5 border-success">
@@ -990,16 +972,16 @@ function changeSectionUpdatItem(sectoin, item){
                                     <MDBBtn style="margin: 0;padding: 0.375rem;" :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(3)"><i class="fas fa-angle-double-down"></i></MDBBtn>
                                   </div>
                                   <div class="mx-1">
-                                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x_title[nowUcItemX]" @keyup="getItemData"/>
+                                    <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x_title[nowUcItemX]" @keyup="getItemData"/>
                                   </div>
-                                  <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x[nowUcItemX]" @keyup="getItemData"/>
+                                  <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].x[nowUcItemX]" @keyup="getItemData"/>
                                 </div>
                               </MDBCol>
                               <div class="px-2 mb-2">
                                 <div class="bl_t bl_b bl_c_grey" style="height: 0.25rem;"></div>
                               </div>
                               <MDBCol col="12" class="mb-3">
-                                <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="ux計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].ux"/>
+                                <MDBTextarea v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="ux計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].ux"/>
                               </MDBCol>
                             </MDBRow>
                           </MDBCol>
@@ -1011,8 +993,8 @@ function changeSectionUpdatItem(sectoin, item){
                           <MDBCol col="12" class="py-1 border border-2 rounded-top-5 border-success d-flex justify-content-between">
                             <div>靈敏係數</div>
                             <div>
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="addFa"><i class="fas fa-plus"></i></MDBBtn>
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="delFa"><i class="fas fa-minus"></i></MDBBtn>
+                              <MDBBtn size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="addFa"><i class="fas fa-plus"></i></MDBBtn>
+                              <MDBBtn size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="delFa"><i class="fas fa-minus"></i></MDBBtn>
                             </div>
                           </MDBCol>
                           <MDBCol col="12" class="border-start border-end border-bottom border-2 rounded-bottom-5 border-success">
@@ -1027,10 +1009,10 @@ function changeSectionUpdatItem(sectoin, item){
                                     <MDBBtn style="margin: 0;padding: 0.375rem;" :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(5)"><i class="fas fa-angle-double-down"></i></MDBBtn>
                                   </div>
                                   <div class="mx-1">
-                                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa_title[nowUcItemFa]" @keyup="getItemData"/>
+                                    <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa_title[nowUcItemFa]" @keyup="getItemData"/>
                                   </div>
                                   <div>
-                                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa[nowUcItemFa]" @keyup="getItemData"/>
+                                    <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fa[nowUcItemFa]" @keyup="getItemData"/>
                                   </div>
                                 </div>
                               </MDBCol>
@@ -1038,7 +1020,7 @@ function changeSectionUpdatItem(sectoin, item){
                                 <div class="bl_t bl_b bl_c_grey" style="height: 0.25rem;"></div>
                               </div>
                               <MDBCol col="12" class="mb-3">
-                                <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="factor計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].factor"/>
+                                <MDBTextarea v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="factor計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].factor"/>
                               </MDBCol>
                             </MDBRow>
                           </MDBCol>
@@ -1050,8 +1032,8 @@ function changeSectionUpdatItem(sectoin, item){
                           <MDBCol col="12" class="py-1 border border-2 rounded-top-5 border-success d-flex justify-content-between">
                             <div>自由度</div>
                             <div>
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="addFr"><i class="fas fa-plus"></i></MDBBtn>
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="delFr"><i class="fas fa-minus"></i></MDBBtn>
+                              <MDBBtn size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="addFr"><i class="fas fa-plus"></i></MDBBtn>
+                              <MDBBtn size="sm" color="primary" floating style="background-color: rgb(172, 43, 172);" @click="delFr"><i class="fas fa-minus"></i></MDBBtn>
                             </div>
                           </MDBCol>
                           <MDBCol col="12" class="border-start border-end border-bottom border-2 rounded-bottom-5 border-success">
@@ -1066,10 +1048,10 @@ function changeSectionUpdatItem(sectoin, item){
                                     <MDBBtn style="margin: 0;padding: 0.375rem;" :disabled="!rGroup[1]" size="sm" color="primary" class="addParamBtn" @click="addParam(4)"><i class="fas fa-angle-double-down"></i></MDBBtn>
                                   </div>
                                   <div class="mx-1">
-                                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr_title[nowUcItemFr]" @keyup="getItemData"/>
+                                    <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="名稱" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr_title[nowUcItemFr]" @keyup="getItemData"/>
                                   </div>
                                   <div col="6" class="mb-0">
-                                    <MDBInput :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr[nowUcItemFr]" @keyup="getItemData"/>
+                                    <MDBInput v-if="nowUcModule.uc.data" size="sm" type="text" label="值" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].fr[nowUcItemFr]" @keyup="getItemData"/>
                                   </div>
                                 </div>
                               </MDBCol>
@@ -1077,7 +1059,7 @@ function changeSectionUpdatItem(sectoin, item){
                                 <div class="bl_t bl_b bl_c_grey" style="height: 0.25rem;"></div>
                               </div>
                               <MDBCol col="12" class="mb-3">
-                                <MDBTextarea :disabled="!rGroup[1]" v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="freedom計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].freedom"/>
+                                <MDBTextarea v-if="nowUcModule.uc.data" size="sm" class="text-primary" label="freedom計算公式" rows="2" v-model="nowUcModule.uc.data[nowUcSection].data[nowUcItem].freedom"/>
                               </MDBCol>
                             </MDBRow>
                           </MDBCol>

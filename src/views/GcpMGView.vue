@@ -2,7 +2,7 @@
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import path from "path-browserify";
-import { ref, reactive, onMounted, provide, inject } from "vue";
+import { ref, unref, onMounted, provide, inject } from "vue";
 import {
   MDBInput,
   MDBCol,
@@ -23,6 +23,7 @@ import {
   MDBLightboxItem,
   MDBSpinner,
   MDBAlert,
+  MDBDropdown, MDBDropdownToggle, MDBDropdownMenu, MDBDropdownItem
 } from 'mdb-vue-ui-kit';
 import ToolsGQL from "../graphql/Tools";
 import GcpGQL from "../graphql/Gcp";
@@ -32,7 +33,7 @@ import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
-
+import { downloadGCP, downloadRef } from "../methods/share.js"
 import OpenMap from "../components/Map.vue";
 
 // 判斷token狀況
@@ -67,28 +68,9 @@ getNowUser(result=>{
 });
 refgetNowUser();
 
+const rGroupSetting = inject("rGroupSetting");
 const rGroup =computed(()=>{
-  let result=[];
-  // rGroup[0]最高權限
-  // rGroup[1]技術主管以上專用
-  // rGroup[2]技術人員專用(非己不可改)
-  // rGroup[3]最低權限
-  // rGroup[4]完全開放
-  switch (myUserRole.value){
-    case 0://訪客
-        result = [false,false,false,false,false];
-      break;
-    case 1://校正人員
-        result = [false,false,false,false,false];
-      break;
-    case 2://技術主管
-      result = [false,true,false,true,true];
-      break;
-    case 3://系統負責人
-      result = [true,true,true,true,true];
-    break;
-  }
-  return result;
+  return rGroupSetting(myUserRole.value,false)
 });
 //#endregion 取得權限==========End
 
@@ -106,6 +88,7 @@ const alert1 = ref(false);
 const alertColor = ref("primary");
 const notProssing = ref(false);
 const openMapDOM = ref();
+const dlGCPdropdown1 = ref(false);
 
 const activeTabId1 = ref('filter');
 const activeTabId2 = ref('ptRecord');
@@ -1062,12 +1045,6 @@ function selectNowGCPRecord(){
 
 //#endregion 加載表格選取事件
 
-function testfun(){
-  console.log(new Date('2022/07/08 GMT+0000'));
-  console.log(new Date('2022/07/08 GMT+0000').toISOString());
-}
-
-
 </script>
 <template>
   <input type="file" id="AllUpload" @change="uploadChenge($event)" style="display: none" />
@@ -1098,19 +1075,31 @@ function testfun(){
                       <DataTable :data="data_gcp" :columns="columns_gcp" :options="tboption_gcp" ref="table_gcp"
                         style="font-size: smaller;" class="display w-100 compact" />
                       
-                      <div id="gcpbtn" class="gcptools">
-                        <RouterLink target="_blank" :to="{
-                            path: '/sicltab13',
-                            query: { recordID: nowGcpRecordId },
-                          }">
-                          <MDBBtn size="sm" color="primary">列印調查表</MDBBtn>
-                        </RouterLink>
-                        <RouterLink target="_blank" :to="{
-                            path: '/sicltab13',
-                            query: { selParams: nowSelParams },
-                          }">
-                          <MDBBtn size="sm" color="primary">列印全部調查表</MDBBtn>
-                        </RouterLink>
+                      <div id="gcpbtn" class="gcptools d-flex">
+                        <MDBDropdown dropend v-model="dlGCPdropdown1">
+                          <MDBDropdownToggle color="secondary" size="sm" @click="dlGCPdropdown1 = !dlGCPdropdown1">
+                            <i class="fas fa-cloud-download-alt">下載</i>
+                          </MDBDropdownToggle>
+                          <MDBDropdownMenu dark>
+                            <MDBDropdownItem href="#" @click.stop="downloadGCP(data_gcp)">詳細資料</MDBDropdownItem>
+                            <MDBDropdownItem href="#" @click.stop="downloadRef(data_gcp)">參考值檔</MDBDropdownItem>
+                          </MDBDropdownMenu>
+                        </MDBDropdown>
+
+                        <div>
+                          <RouterLink target="_blank" :to="{
+                              path: '/sicltab13',
+                              query: { recordID: nowGcpRecordId },
+                            }">
+                            <MDBBtn size="sm" color="primary">列印調查表</MDBBtn>
+                          </RouterLink>
+                          <RouterLink target="_blank" :to="{
+                              path: '/sicltab13',
+                              query: { selParams: nowSelParams },
+                            }">
+                            <MDBBtn size="sm" color="primary">列印全部調查表</MDBBtn>
+                          </RouterLink>
+                        </div>
                       </div>
                     </MDBCol>
                     <!-- 分割右 -->

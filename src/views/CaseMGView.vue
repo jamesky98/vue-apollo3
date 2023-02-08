@@ -73,36 +73,14 @@ getNowUser(result => {
   }
 });
 refgetNowUser();
+
+const rGroupSetting = inject("rGroupSetting");
 const rGroup = computed(() => {
-  let result = [];
-  // rGroup[0]最高權限
-  // rGroup[1]技術主管專用
-  // rGroup[2]技術人員專用(非己不可改)
-  // rGroup[3]最低權限(訪客不可)
-  // rGroup[4]完全開放
-  switch (myUserRole.value) {
-    case 0: // 訪客
-      result = [false, false, false, false, false];
-      break;
-    case 1: // 技術人員
-      if (parseInt(myUserName.value) === parseInt(nowCaseOperator.value)) {
-        result = [false, false, true, true, true];
-      } else {
-        result = [false, false, false, false, true];
-      }
-      break;
-    case 2: // 技術主管
-      result = [false, true, false, true, true];
-      break;
-    case 3: // 系統負責人
-      result = [true, true, true, true, true];
-      break;
+  let opt1=false;
+  if (parseInt(myUserName.value) === parseInt(nowCaseOperator.value)){
+    opt1=true;
   }
-  // console.log("myUserName",myUserName.value);
-  // console.log("myUserRole",myUserRole.value);
-  // console.log("nowCaseOperator",nowCaseOperator.value);
-  // console.log("rGroup",result);
-  return result;
+  return rGroupSetting(myUserRole.value,opt1)
 });
 provide("rGroup", rGroup);
 //#endregion 取得權限==========End
@@ -357,7 +335,7 @@ const columns1 = [
           classn = "typeF"
           break;
         case "I": //空載光達
-          markicon = '<i class="fas fa-wifi"></i>';
+          markicon = '<i class="fas fa-wifi rotation180"></i>';
           classn = "typeI"
           break;
         case "J": //小像幅
