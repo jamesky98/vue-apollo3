@@ -29,6 +29,7 @@ import {
   MDBTabContent,
   MDBTabItem,
   MDBTabPane,
+  MDBSwitch,
 } from 'mdb-vue-ui-kit';
 import gql from "graphql-tag";
 import CaseGQL from "../graphql/Cases";
@@ -231,6 +232,8 @@ const nowCaseReportScan = ref(""); //校正報告掃描檔
 provide("nowCaseReportScan", nowCaseReportScan);
 
 // 篩選參數==========
+// 顯示退件
+const showRejectCase = ref(false);
 // 案件狀態
 const caseStatusMU = ref([]);
 const caseStatusSEL = ref("");
@@ -576,7 +579,8 @@ function caseDoFilter() {
     appdateEnd: (caseAppDateEndtSEL.value.trim())?(caseAppDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
     paydateStart: (casePayDateStartSEL.value.trim())?(casePayDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
     paydateEnd: (casePayDateEndtSEL.value.trim())?(casePayDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
-  });
+    notstatus: (showRejectCase.value)?9:null,
+  })
 }
 // 清除條件
 function caseClearFilter() {
@@ -854,7 +858,7 @@ const { mutate: delCase, onDone: delCaseOnDone, onError: delCaseError } = useMut
 delCaseOnDone(() => {
   nowCaseID.value = "";
   // 更新列表==重新查詢案件
-  refgetAllCase();
+  caseDoFilter();
 });
 delCaseError(e=>{errorHandle(e,infomsg,alert1)});
 
@@ -1078,7 +1082,7 @@ function AddCaseOK() {
       // // 填入基本資料
       // nowCaseID.value = getResultData.id;
       // 更新列表==重新查詢案件
-      refgetAllCase();
+      caseDoFilter();
       showCaseNew.value = false;
       // 更新狀態訊息
       infomsg.value = "ID:" + nowCaseID.value + "完成新增";
@@ -1649,109 +1653,6 @@ saveRecord03APIError(e=>{errorHandle(e,infomsg,alert1)});
 //#endregion 連線取得案件==========End
 
 //#region 檢驗案件狀態==========Start
-// function checkCaseStatus(caseData){
-//   return new Promise((resolve,reject)=>{
-//     // 切換案件時要執行1次
-//     // 其餘經由觸發事件執行檢驗
-//     nowCaseStatusMU.value[0].disabled = false; // (無)
-//     for(let i=1; i<nowCaseStatusMU.value.length ; i++){
-//       nowCaseStatusMU.value[i].disabled = true;
-//     }
-//     //  審核中
-//     if (caseData.leader_id && caseData.operators_id) {
-//       nowCaseStatusMU.value[1].disabled = false;
-//     }
-
-//     // 待送件
-//     if (caseData.cus_id && caseData.item_id && 
-//       !nowCaseStatusMU.value[1].disabled) {
-//       nowCaseStatusMU.value[2].disabled = false;
-//     }
-
-//     // 校正中
-//     if (caseData.case_record_01){
-//       if (caseData.case_record_01.receive_date && 
-//         caseData.case_record_01.start_Date && 
-//         !nowCaseStatusMU.value[2].disabled) {
-//         nowCaseStatusMU.value[3].disabled = false;
-//       }
-//     }else if (caseData.case_record_02){
-//       if (caseData.case_record_02.receive_date && 
-//         caseData.case_record_02.start_Date && 
-//         !nowCaseStatusMU.value[2].disabled) {
-//         nowCaseStatusMU.value[3].disabled = false;
-//       }
-//     }else if (caseData.case_record_03){
-//       if (caseData.case_record_03.receive_date && 
-//         caseData.case_record_03.start_Date && 
-//         !nowCaseStatusMU.value[2].disabled) {
-//         nowCaseStatusMU.value[3].disabled = false;
-//       }
-//     }
-
-//     // 報告陳核
-//     if (caseData.case_record_01){
-//       if (caseData.case_record_01.complete_date && 
-//         caseData.case_record_01.report_edit && 
-//         !nowCaseStatusMU.value[3].disabled) {
-//         nowCaseStatusMU.value[4].disabled = false;
-//       }
-//     }else if (caseData.case_record_02){
-//       if (caseData.case_record_02.complete_date && 
-//         caseData.case_record_02.report_edit && 
-//         !nowCaseStatusMU.value[3].disabled) {
-//         nowCaseStatusMU.value[4].disabled = false;
-//       }
-//     }else if (caseData.case_record_03){
-//       if (caseData.case_record_03.complete_date && 
-//         caseData.case_record_03.report_edit && 
-//         !nowCaseStatusMU.value[3].disabled) {
-//         nowCaseStatusMU.value[4].disabled = false;
-//       }
-//     }
-
-//     // 待繳費(出具報告)
-//     if (caseData.case_record_01){
-//       if (caseData.case_record_01.chk_person_id && 
-//         caseData.case_record_01.sign_person_id && 
-//         caseData.case_record_01.report_scan &&
-//         !nowCaseStatusMU.value[4].disabled) {
-//         nowCaseStatusMU.value[5].disabled = false;
-//       }
-//     }else if (caseData.case_record_02){
-//       if (caseData.case_record_02.chk_person_id && 
-//         caseData.case_record_02.sign_person_id && 
-//         caseData.case_record_02.report_scan &&
-//         !nowCaseStatusMU.value[4].disabled) {
-//         nowCaseStatusMU.value[5].disabled = false;
-//       }
-//     }else if (caseData.case_record_03){
-//       if (caseData.case_record_03.chk_person_id && 
-//         caseData.case_record_03.sign_person_id && 
-//         caseData.case_record_03.report_scan &&
-//         !nowCaseStatusMU.value[4].disabled) {
-//         nowCaseStatusMU.value[5].disabled = false;
-//       }
-//     }
-
-//     // 結案
-//     if ((caseData.pay_date || caseData.charge===0) && !nowCaseStatusMU.value[5].disabled) {
-//       nowCaseStatusMU.value[6].disabled = false;
-//     }
-
-//     // 補件
-//     if (caseData.agreement) {
-//       nowCaseStatusMU.value[7].disabled = false;
-//     }
-    
-//     // 退件
-//     if (caseData.agreement) {
-//       nowCaseStatusMU.value[8].disabled = false;
-//     }
-//     resolve(nowCaseStatusMU.value);
-//   })
-// }
-
 watch(
   [
     nowCaseOperator,
@@ -1852,7 +1753,7 @@ watch(
 //#endregion  檢驗案件狀態==========End
 
 getchecktoken().then(res=>{
-    refgetAllCase();
+    refgetAllCase({notstatus:9});
     refgetCaseStatus();
     refgetCaseCalType();
     refgetCaseAllOrg();
@@ -2052,7 +1953,10 @@ onMounted(function () {
                     <MDBCol md="12" class="h-25 mb-2 border border-5 rounded-8 shadow-4">
                       <MDBRow class="h-100">
                         <MDBCol col="12" class="py-2 d-flex border-bottom">
-                          <div class="flex-grow-1">條件篩選</div>
+                          <div class="">條件篩選</div>
+                          <div class="ms-2 flex-grow-1">
+                            <MDBSwitch label="顯示退件" v-model="showRejectCase" @change="caseDoFilter" />
+                          </div>
                           <div>
                             <MDBBtn size="sm" color="primary" @click="caseClearFilter()">清除</MDBBtn>
                             <MDBBtn size="sm" color="primary" @click="caseDoFilter()">篩選</MDBBtn>

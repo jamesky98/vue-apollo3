@@ -89,6 +89,7 @@ const alertColor = ref("primary");
 const notProssing = ref(false);
 const openMapDOM = ref();
 const dlGCPdropdown1 = ref(false);
+const dlGCPdropdown2 = ref(false);
 
 const activeTabId1 = ref('filter');
 const activeTabId2 = ref('ptRecord');
@@ -1076,6 +1077,7 @@ function selectNowGCPRecord(){
                         style="font-size: smaller;" class="display w-100 compact" />
                       
                       <div id="gcpbtn" class="gcptools d-flex">
+                        <!-- 點位資料下載 -->
                         <MDBDropdown dropend v-model="dlGCPdropdown1">
                           <MDBDropdownToggle color="secondary" size="sm" @click="dlGCPdropdown1 = !dlGCPdropdown1">
                             <i class="fas fa-cloud-download-alt">下載</i>
@@ -1085,21 +1087,30 @@ function selectNowGCPRecord(){
                             <MDBDropdownItem href="#" @click.stop="downloadRef(data_gcp)">參考值檔</MDBDropdownItem>
                           </MDBDropdownMenu>
                         </MDBDropdown>
-
-                        <div>
-                          <RouterLink target="_blank" :to="{
-                              path: '/sicltab13',
-                              query: { recordID: nowGcpRecordId },
-                            }">
-                            <MDBBtn size="sm" color="primary">列印調查表</MDBBtn>
-                          </RouterLink>
-                          <RouterLink target="_blank" :to="{
-                              path: '/sicltab13',
-                              query: { selParams: nowSelParams },
-                            }">
-                            <MDBBtn size="sm" color="primary">列印全部調查表</MDBBtn>
-                          </RouterLink>
-                        </div>
+                        <!-- 調查表列印 -->
+                        <MDBDropdown dropend v-model="dlGCPdropdown2">
+                          <MDBDropdownToggle color="primary" size="sm" @click="dlGCPdropdown2 = !dlGCPdropdown2">
+                            列印調查表
+                          </MDBDropdownToggle>
+                          <MDBDropdownMenu dark>
+                            <MDBDropdownItem href="#">
+                              <RouterLink target="_blank" :to="{
+                                  path: '/sicltab13',
+                                  query: { recordID: nowGcpRecordId },
+                                }" style="color: inherit;">
+                                單一調查表
+                              </RouterLink>
+                            </MDBDropdownItem>
+                            <MDBDropdownItem href="#">
+                              <RouterLink target="_blank" :to="{
+                                  path: '/sicltab13',
+                                  query: { selParams: nowSelParams },
+                                }" style="color: inherit;">
+                                全部調查表
+                              </RouterLink>
+                            </MDBDropdownItem>
+                          </MDBDropdownMenu>
+                        </MDBDropdown>
                       </div>
                     </MDBCol>
                     <!-- 分割右 -->

@@ -16,6 +16,7 @@ const GETALLCASE = gql`
     $appdateEnd: String
     $paydateStart: String
     $paydateEnd: String
+    $notstatus: Int
   ) {
     getAllCase(
       id: $getAllCaseId
@@ -32,6 +33,7 @@ const GETALLCASE = gql`
       appdate_end: $appdateEnd
       paydate_start: $paydateStart
       paydate_end: $paydateEnd
+      not_status: $notstatus
     ) {
       id
       status_code

@@ -2122,21 +2122,34 @@ function selectNowChk(nowId, col, dt){
                                   <MDBDropdownItem href="#" @click.stop="downloadRef(data_gcp)">參考值檔</MDBDropdownItem>
                                 </MDBDropdownMenu>
                               </MDBDropdown>
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newPRecordBtn">新增</MDBBtn>
-                              <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveGcpRecordBtn">儲存</MDBBtn>
-                              <MDBPopconfirm :disabled="!rGroup[1] || !nowPRecordId" 
-                                class="btn-sm btn-danger" 
-                                message="刪除後無法恢復，確定刪除嗎？"
-                                cancelText="取消" confirmText="確定" 
-                                @confirm="delGcpRecordBtn">
-                                刪除
-                              </MDBPopconfirm>
+
+
+                              
                             </MDBCol>
                           </MDBRow>
                           <!-- 參考值表單 -->
                           <MDBRow :key="updateKey2" class="overflow-auto align-content-start mx-0" style="height: calc(100% - 3rem);">
-                            <MDBCol xl="12" class="mt-2">
-                              目前點號：<span class="text-info">{{nowPRecordPtId}} - {{nowPRecordId}}</span>
+                            <MDBCol xl="12" class="my-2 d-flex justify-content-between">
+                              <div>
+                                目前點號：<span class="text-info">{{nowPRecordPtId}} - {{nowPRecordId}}</span>
+                              </div>
+                              <div>
+                                <RouterLink target="_blank" :to="{
+                                    path: '/sicltab13',
+                                    query: { recordID: nowPRecordId },
+                                  }">
+                                  <MDBBtn :disabled="!nowPRecordId" size="sm" color="primary">列印調查表</MDBBtn>
+                                </RouterLink>
+                                <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newPRecordBtn">新增</MDBBtn>
+                                <MDBBtn :disabled="!rGroup[1] || !nowPRecordPtId" size="sm" color="primary" @click="saveGcpRecordBtn">儲存</MDBBtn>
+                                <MDBPopconfirm :disabled="!rGroup[1] || !nowPRecordId" 
+                                  class="btn-sm btn-danger" 
+                                  message="刪除後無法恢復，確定刪除嗎？"
+                                  cancelText="取消" confirmText="確定" 
+                                  @confirm="delGcpRecordBtn">
+                                  刪除
+                                </MDBPopconfirm>
+                              </div>
                             </MDBCol>
                             <!-- 基本資料 -->
                             <MDBCol col="12" class="rounded-top-5 bg-info text-white" @click="collapseDIV($event,'baseclick')">
