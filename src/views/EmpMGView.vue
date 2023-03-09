@@ -5,22 +5,10 @@ import { ref, onMounted, provide, inject } from "vue";
 import path, { join } from "path-browserify";
 import {
   MDBInput,
-  MDBCol,
-  MDBRow,
-  MDBContainer,
-  MDBBtn,
-  MDBDatepicker,
-  MDBTextarea,
-  MDBTabs,
-  MDBTabNav,
-  MDBTabItem,
-  MDBTabContent,
-  MDBTabPane,
-  MDBBtnClose,
-  MDBPopconfirm,
-  MDBSelect,
-  MDBAlert,
-  MDBSwitch,
+  MDBCol,  MDBRow,  MDBContainer,
+  MDBBtn,  MDBDatepicker,  MDBTextarea,
+  MDBTabs,  MDBTabNav,  MDBTabItem,  MDBTabContent,  MDBTabPane,
+  MDBBtnClose,  MDBPopconfirm,  MDBSelect,  MDBAlert,  MDBSwitch,
 } from 'mdb-vue-ui-kit';
 import ToolsGQL from "../graphql/Tools";
 import CaseGQL from "../graphql/Cases";
@@ -30,6 +18,13 @@ import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
+import { 
+    monthsFull, 
+    monthsShort, 
+    weekdaysFull, 
+    weekdaysShort,
+    weekdaysNarrow
+  } from "../methods/datePickerParams.js"
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -1331,10 +1326,10 @@ onMounted(function () {
               </div>
             </MDBCol>
             <!-- 分割 -->
-            <MDBCol md="7" class="h-100 border-start">
+            <MDBCol md="7" class="h-100 border-1 border-start">
               <MDBRow class="h-100">
                 <!-- 人員基本資料 -->
-                <MDBCol col="12" class="mt-3 border-bottom">
+                <MDBCol col="12" class="mt-3 border-1 border-bottom">
                   <MDBBtn :disabled="nowEmpID===''" v-if="rGroup[0]" size="sm" color="primary" @click="newEmpBtn">
                     新增
                   </MDBBtn>
@@ -1368,14 +1363,34 @@ onMounted(function () {
                             v-model="nowEmpIDNumber" />
                         </MDBCol>
                         <MDBCol md="4" class="mt-3">
-                          <MDBDatepicker required size="sm" v-model="nowEmpBirthday" format="YYYY-MM-DD" label="出生日"
+                          <MDBDatepicker 
+                            required size="sm" 
+                            v-model="nowEmpBirthday" 
+                            format="YYYY-MM-DD" label="出生日"
+                            :monthsFull = "monthsFull"
+                            :monthsShort = "monthsShort"
+                            :weekdaysFull = "weekdaysFull"
+                            :weekdaysShort = "weekdaysShort"
+                            :weekdaysNarrow = "weekdaysNarrow"
+                            confirmDateOnSelect
+                            removeCancelBtn removeOkBtn
                             ref="nowEmpBirthdayDOM" />
                         </MDBCol>
                         <MDBCol md="4" class="mt-3">
                           <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="職稱" v-model="nowEmpJobTitle" />
                         </MDBCol>
                         <MDBCol md="4" class="mt-3">
-                          <MDBDatepicker required size="sm" v-model="nowEmpAppDate" format="YYYY-MM-DD" label="到職日"
+                          <MDBDatepicker 
+                            required size="sm" 
+                            v-model="nowEmpAppDate" 
+                            format="YYYY-MM-DD" label="到職日"
+                            :monthsFull = "monthsFull"
+                            :monthsShort = "monthsShort"
+                            :weekdaysFull = "weekdaysFull"
+                            :weekdaysShort = "weekdaysShort"
+                            :weekdaysNarrow = "weekdaysNarrow"
+                            confirmDateOnSelect
+                            removeCancelBtn removeOkBtn
                             ref="nowEmpAppDateDOM" />
                         </MDBCol>
                         <div></div>
@@ -1407,7 +1422,17 @@ onMounted(function () {
                     <MDBCol lg="6">
                       <MDBRow>
                         <MDBCol md="6" class="mt-3">
-                          <MDBDatepicker required size="sm" v-model="nowEmpResDate" format="YYYY-MM-DD" label="解職日"
+                          <MDBDatepicker 
+                            required size="sm" 
+                            v-model="nowEmpResDate" 
+                            format="YYYY-MM-DD" label="解職日"
+                            :monthsFull = "monthsFull"
+                            :monthsShort = "monthsShort"
+                            :weekdaysFull = "weekdaysFull"
+                            :weekdaysShort = "weekdaysShort"
+                            :weekdaysNarrow = "weekdaysNarrow"
+                            confirmDateOnSelect
+                            removeCancelBtn removeOkBtn
                             ref="nowEmpResDateDOM" />
                         </MDBCol>
                         <div></div>
@@ -1456,12 +1481,12 @@ onMounted(function () {
                   <!-- 訓練資料 -->
                   <MDBTabPane tabId="train" class="h-100">
                     <MDBRow class="h-100 overflow-auto">
-                      <MDBCol md="6" class="h-100 border-top border-bottom overflow-auto">
+                      <MDBCol md="6" class="h-100 border-1 border-top border-bottom overflow-auto">
                         <DataTable :data="data_train" :columns="columns_train" :options="tboption_train" ref="table_train" style="font-size: smaller"
                           class="display w-100 compact" />
                       </MDBCol>
                       <!-- 分割 -->
-                      <MDBCol md="6" class="h-100 border-top border-bottom border-start">
+                      <MDBCol md="6" class="h-100 border-1 border-top border-bottom border-start">
                         <MDBRow class="h-100 align-content-start">
                           <MDBCol md="12" class="my-2">
                             <MDBBtn :disabled="!rGroup[2] || nowEmpID===''" size="sm" color="primary">
@@ -1480,7 +1505,7 @@ onMounted(function () {
                               刪除
                             </MDBPopconfirm>
                           </MDBCol>
-                          <MDBCol col="12" class="overflow-auto border-top" style="height: calc(100% - 4rem);">
+                          <MDBCol col="12" class="overflow-auto border-1 border-top" style="height: calc(100% - 4rem);">
                             <MDBRow>
                               <MDBCol lg="6">
                                 <MDBRow>
@@ -1508,7 +1533,17 @@ onMounted(function () {
                                   </MDBSelect>
 
                                   <MDBCol md="6" class="mt-3">
-                                    <MDBDatepicker required size="sm" v-model="nowTrainEndDate" format="YYYY-MM-DD" label="結訓日期"
+                                    <MDBDatepicker 
+                                      required size="sm" 
+                                      v-model="nowTrainEndDate" 
+                                      format="YYYY-MM-DD" label="結訓日期"
+                                      :monthsFull = "monthsFull"
+                                      :monthsShort = "monthsShort"
+                                      :weekdaysFull = "weekdaysFull"
+                                      :weekdaysShort = "weekdaysShort"
+                                      :weekdaysNarrow = "weekdaysNarrow"
+                                      confirmDateOnSelect
+                                      removeCancelBtn removeOkBtn
                                       ref="nowTrainEndDateDOM" />
                                   </MDBCol>
                                 </MDBRow>
@@ -1546,12 +1581,12 @@ onMounted(function () {
                   <!-- 授權資料 -->
                   <MDBTabPane tabId="empower" class="h-100">
                     <MDBRow class="h-100 overflow-auto">
-                      <MDBCol md="6" class="h-100 border-top border-bottom overflow-auto">
+                      <MDBCol md="6" class="h-100 border-1 border-top border-bottom overflow-auto">
                         <DataTable :data="data_empower" :columns="columns_empower" :options="tboption_empower" ref="table_empower" style="font-size: smaller"
                           class="display w-100 compact" />
                       </MDBCol>
                       <!-- 分割 -->
-                      <MDBCol md="6" class="h-100 border-top border-bottom border-start overflow-auto">
+                      <MDBCol md="6" class="h-100 border-1 border-top border-bottom border-start overflow-auto">
                         <MDBRow class="h-100 align-content-start">
                           <MDBCol md="12" class="my-2">
                             <MDBBtn :disabled="!rGroup[2] || nowEmpowerID===''" size="sm" color="primary">
@@ -1570,7 +1605,7 @@ onMounted(function () {
                               刪除
                             </MDBPopconfirm>
                           </MDBCol>
-                          <MDBCol col="12" class="overflow-auto border-top" style="height: calc(100% - 4rem);">
+                          <MDBCol col="12" class="overflow-auto border-1 border-top" style="height: calc(100% - 4rem);">
                             <MDBRow>
                               <MDBCol lg="6">
                                 <MDBRow>
@@ -1591,21 +1626,51 @@ onMounted(function () {
                               <MDBCol lg="6">
                                 <MDBRow>
                                   <MDBCol md="6" class="mt-3">
-                                    <MDBDatepicker required size="sm" v-model="nowEmpowerAssDate" format="YYYY-MM-DD" label="評估日"
+                                    <MDBDatepicker 
+                                      required size="sm" 
+                                      v-model="nowEmpowerAssDate" 
+                                      format="YYYY-MM-DD" label="評估日"
+                                      :monthsFull = "monthsFull"
+                                      :monthsShort = "monthsShort"
+                                      :weekdaysFull = "weekdaysFull"
+                                      :weekdaysShort = "weekdaysShort"
+                                      :weekdaysNarrow = "weekdaysNarrow"
+                                      confirmDateOnSelect
+                                      removeCancelBtn removeOkBtn
                                       ref="nowEmpowerAssDateDOM" />
                                   </MDBCol>
                                   <MDBSelect :disabled="!rGroup[2]" size="sm" class="mt-3 col-md-6" label="評估人員" v-model:options="nowEmpowerAssMU"
                                     v-model:selected="nowEmpowerAssID" ref="nowEmpowerAssDOM" />
                                   <div></div>
                                   <MDBCol md="6" class="mt-3">
-                                    <MDBDatepicker required size="sm" v-model="nowEmpowerDate" format="YYYY-MM-DD" label="授權日"
+                                    <MDBDatepicker 
+                                      required size="sm" 
+                                      v-model="nowEmpowerDate" 
+                                      format="YYYY-MM-DD" label="授權日"
+                                      :monthsFull = "monthsFull"
+                                      :monthsShort = "monthsShort"
+                                      :weekdaysFull = "weekdaysFull"
+                                      :weekdaysShort = "weekdaysShort"
+                                      :weekdaysNarrow = "weekdaysNarrow"
+                                      confirmDateOnSelect
+                                      removeCancelBtn removeOkBtn
                                       ref="nowEmpowerDateDOM" />
                                   </MDBCol>
                                   <MDBSelect :disabled="!rGroup[2]" size="sm" class="mt-3 col-md-6" label="授權人員" v-model:options="nowEmpowerSupMU"
                                     v-model:selected="nowEmpowerSupID" ref="nowEmpowerSupDOM" />
 
                                   <MDBCol md="6" class="mt-3">
-                                    <MDBDatepicker required size="sm" v-model="nowEmpowerSusDate" format="YYYY-MM-DD" label="停權日"
+                                    <MDBDatepicker 
+                                      required size="sm" 
+                                      v-model="nowEmpowerSusDate" 
+                                      format="YYYY-MM-DD" label="停權日"
+                                      :monthsFull = "monthsFull"
+                                      :monthsShort = "monthsShort"
+                                      :weekdaysFull = "weekdaysFull"
+                                      :weekdaysShort = "weekdaysShort"
+                                      :weekdaysNarrow = "weekdaysNarrow"
+                                      confirmDateOnSelect
+                                      removeCancelBtn removeOkBtn
                                       ref="nowEmpowerSusDateDOM" />
                                   </MDBCol>
                                   <div></div>

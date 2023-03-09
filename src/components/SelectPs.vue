@@ -7,8 +7,15 @@ import {
   MDBSelect,
   MDBDatepicker,
 } from 'mdb-vue-ui-kit';
+import { 
+    monthsFull, 
+    monthsShort, 
+    weekdaysFull, 
+    weekdaysShort,
+    weekdaysNarrow
+  } from "../methods/datePickerParams.js"
 // 取得權限
-const rGroup = inject("rGroup");
+  const rGroup = inject("rGroup");
   // 出具報告
   const nowCaseChkDate = inject('nowCaseChkDate'); // 數據檢核日
   const nowCaseChkDateDOM = ref();
@@ -39,7 +46,18 @@ onMounted(()=>{
   <MDBContainer fluid>
     <MDBRow>
       <MDBCol lg="6" class="mt-3">
-        <MDBDatepicker required size="sm" v-model="nowCaseChkDate" format="YYYY-MM-DD" label="數據檢核日"
+        <MDBDatepicker 
+          required size="sm" 
+          v-model="nowCaseChkDate" 
+          format="YYYY-MM-DD" label="數據檢核日"
+          :monthsFull = "monthsFull"
+          :monthsShort = "monthsShort"
+          :weekdaysFull = "weekdaysFull"
+          :weekdaysShort = "weekdaysShort"
+          :weekdaysNarrow = "weekdaysNarrow"
+          confirmDateOnSelect
+          removeCancelBtn
+          removeOkBtn
           ref="nowCaseChkDateDOM" />
       </MDBCol>
 
@@ -47,7 +65,18 @@ onMounted(()=>{
         v-model:selected="selectChkPersonID" ref="nowCaseChkPersonDOM" />
       <div></div>
       <MDBCol lg="6" class="mt-3">
-        <MDBDatepicker required size="sm" v-model="nowCaseSignDate" format="YYYY-MM-DD" label="報告簽署日"
+        <MDBDatepicker 
+          required size="sm" 
+          v-model="nowCaseSignDate" 
+          format="YYYY-MM-DD" label="報告簽署日"
+          :monthsFull = "monthsFull"
+          :monthsShort = "monthsShort"
+          :weekdaysFull = "weekdaysFull"
+          :weekdaysShort = "weekdaysShort"
+          :weekdaysNarrow = "weekdaysNarrow"
+          confirmDateOnSelect
+          removeCancelBtn
+          removeOkBtn
           ref="nowCaseSignDateDOM" />
       </MDBCol>
 

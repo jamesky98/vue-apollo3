@@ -5,22 +5,11 @@ import { ref, reactive, onMounted, provide, inject } from "vue";
 import path from "path-browserify";
 import {
   MDBInput,
-  MDBCol,
-  MDBRow,
-  MDBContainer,
-  MDBBtn,
-  MDBSwitch,
-  MDBSelect,
-  MDBTabs,
-  MDBTabNav,
-  MDBTabContent,
-  MDBTabItem,
-  MDBTabPane,
-  MDBDatepicker,
-  MDBTextarea,
-  MDBAlert, 
-  MDBBtnClose,
-  MDBPopconfirm,
+  MDBCol,  MDBRow,  MDBContainer,
+  MDBBtn,  MDBSwitch,  MDBSelect,
+  MDBTabs,  MDBTabNav,  MDBTabContent,  MDBTabItem,  MDBTabPane,
+  MDBDatepicker,  MDBTextarea,
+  MDBAlert,   MDBBtnClose,  MDBPopconfirm,
 } from "mdb-vue-ui-kit";
 import { computed } from "@vue/reactivity";
 import DocsGQL from "../graphql/Docs";
@@ -28,6 +17,13 @@ import DocsGQL from "../graphql/Docs";
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
+import { 
+    monthsFull, 
+    monthsShort, 
+    weekdaysFull, 
+    weekdaysShort,
+    weekdaysNarrow
+  } from "../methods/datePickerParams.js"
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -763,7 +759,7 @@ onMounted(function () {
                   </MDBTabs>
                 </MDBCol>
                 <!-- 下方右側資料 -->
-                <MDBCol md="5" class="h-100 border-start">
+                <MDBCol md="5" class="h-100 border-1 border-start">
                   <MDBTabs v-model="activeTabId1">
                     <!-- Tabs navs -->
                     <MDBTabNav tabsClasses="mb-1">
@@ -840,11 +836,31 @@ onMounted(function () {
                           </MDBCol>
                           <MDBCol col="6" class="mb-3"></MDBCol>
                           <MDBCol col="6" class="mb-3">
-                            <MDBDatepicker size="sm" v-model="nowReleaseDate" format="YYYY-MM-DD" label="發行日"
+                            <MDBDatepicker 
+                              size="sm" 
+                              v-model="nowReleaseDate" 
+                              format="YYYY-MM-DD" label="發行日"
+                              :monthsFull = "monthsFull"
+                              :monthsShort = "monthsShort"
+                              :weekdaysFull = "weekdaysFull"
+                              :weekdaysShort = "weekdaysShort"
+                              :weekdaysNarrow = "weekdaysNarrow"
+                              confirmDateOnSelect
+                              removeCancelBtn removeOkBtn
                               ref="itemRelDate" />
                           </MDBCol>
                           <MDBCol col="6" class="mb-3">
-                            <MDBDatepicker size="sm" v-model="nowExpDate" format="YYYY-MM-DD" label="廢止日"
+                            <MDBDatepicker 
+                              size="sm" 
+                              v-model="nowExpDate" 
+                              format="YYYY-MM-DD" label="廢止日"
+                              :monthsFull = "monthsFull"
+                              :monthsShort = "monthsShort"
+                              :weekdaysFull = "weekdaysFull"
+                              :weekdaysShort = "weekdaysShort"
+                              :weekdaysNarrow = "weekdaysNarrow"
+                              confirmDateOnSelect
+                              removeCancelBtn removeOkBtn
                               ref="itemExpDate" />
                           </MDBCol>
                           <MDBCol col="12" class="mb-3">

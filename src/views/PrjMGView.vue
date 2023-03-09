@@ -5,26 +5,12 @@ import Navbar1 from "../components/Navbar.vue";
 import path from "path-browserify";
 import { ref, reactive, onMounted, provide, inject } from "vue";
 import {
-  MDBInput,
-  MDBSelect,
-  MDBDatepicker,
-  MDBCol,
-  MDBRow,
-  MDBContainer,
-  MDBSpinner,
-  MDBBtn,
-  MDBPopconfirm,
-  MDBTabs,
-  MDBTabNav,
-  MDBTabItem,
-  MDBTabContent,
-  MDBTabPane,
-  MDBTextarea,
-  MDBLightbox,
-  MDBLightboxItem,
-  MDBSwitch,
-  MDBCheckbox,
-  MDBAlert,
+  MDBInput,  MDBSelect,  MDBDatepicker,
+  MDBCol,  MDBRow,  MDBContainer,
+  MDBSpinner,  MDBBtn,  MDBPopconfirm,
+  MDBTabs,  MDBTabNav,  MDBTabItem,  MDBTabContent,  MDBTabPane,
+  MDBTextarea,  MDBLightbox,  MDBLightboxItem,
+  MDBSwitch,  MDBCheckbox,  MDBAlert,
   MDBDropdown, MDBDropdownToggle, MDBDropdownMenu, MDBDropdownItem
 } from 'mdb-vue-ui-kit';
 import ToolsGQL from "../graphql/Tools";
@@ -36,6 +22,13 @@ import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
 import { downloadGCP, downloadRef } from "../methods/share.js"
+import { 
+    monthsFull, 
+    monthsShort, 
+    weekdaysFull, 
+    weekdaysShort,
+    weekdaysNarrow
+  } from "../methods/datePickerParams.js"
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -2016,7 +2009,7 @@ function selectNowChk(nowId, col, dt){
             <MDBCol col="12" style="height: calc(100% - 1rem);" class="border border-5 rounded-8 shadow-4 my-2">
               <MDBRow class="h-100">
                 <!-- 左上列表 -->
-                <MDBCol col="12" style="height: 50%;position: relative ;" class="overflow-auto border-bottom">
+                <MDBCol col="12" style="height: 50%;position: relative ;" class="overflow-auto border-1 border-bottom">
                   <div :class="{ 'hiddenSpinner': notProssing}" style="position: absolute; left: 50%; top: 10rem;">
                     <MDBSpinner size="md" color="primary" />Loading...
                   </div>
@@ -2028,7 +2021,7 @@ function selectNowChk(nowId, col, dt){
                 <MDBCol col="12" style="height: 50%;" class="">
                   <MDBRow class="align-content-start">
                     <!-- 功能按鈕 -->
-                    <MDBCol col="12" class="d-flex py-2 border-bottom">
+                    <MDBCol col="12" class="d-flex py-2 border-1 border-bottom">
                       <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="createPrj">新增</MDBBtn>
                       <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="savePrjBtn">儲存</MDBBtn>
                       <MDBPopconfirm :disabled="!rGroup[1] || !nowPrjId" class="btn-sm btn-danger me-auto" message="刪除後無法恢復，確定刪除嗎？"
@@ -2064,15 +2057,47 @@ function selectNowChk(nowId, col, dt){
                       <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowPrjOrganizer" />
                     </MDBSelect>
                     <MDBCol xl="6" class="mt-2">
-                      <MDBDatepicker size="sm" v-model="nowPrjStartDate" format="YYYY-MM-DD" label="開始作業"
-                        ref="nowPrjStartDateDOM" />
+                      <MDBDatepicker 
+                        size="sm" 
+                        v-model="nowPrjStartDate" 
+                        format="YYYY-MM-DD" label="開始作業"
+                        confirmDateOnSelect
+                        removeClearBtn
+                        removeCancelBtn
+                        removeOkBtn
+                        :monthsFull = "monthsFull"
+                        :monthsShort = "monthsShort"
+                        :weekdaysFull = "weekdaysFull"
+                        :weekdaysShort = "weekdaysShort"
+                        :weekdaysNarrow = "weekdaysNarrow"
+                        />
                     </MDBCol>
                     <MDBCol xl="6" class="mt-2">
-                      <MDBDatepicker size="sm" v-model="nowPrjEndDate" format="YYYY-MM-DD" label="結束作業"
+                      <MDBDatepicker 
+                        size="sm" 
+                        v-model="nowPrjEndDate" 
+                        format="YYYY-MM-DD" label="結束作業"
+                        confirmDateOnSelect
+                        removeCancelBtn removeOkBtn
+                        :monthsFull = "monthsFull"
+                        :monthsShort = "monthsShort"
+                        :weekdaysFull = "weekdaysFull"
+                        :weekdaysShort = "weekdaysShort"
+                        :weekdaysNarrow = "weekdaysNarrow"
                         ref="nowPrjEndDateDOM" />
                     </MDBCol>
                     <MDBCol xl="6" class="mt-2">
-                      <MDBDatepicker size="sm" v-model="nowPrjPublishDate" format="YYYY-MM-DD" label="發布日期"
+                      <MDBDatepicker 
+                        size="sm" 
+                        v-model="nowPrjPublishDate" 
+                        format="YYYY-MM-DD" label="發布日期"
+                        confirmDateOnSelect
+                        removeCancelBtn removeOkBtn
+                        :monthsFull = "monthsFull"
+                        :monthsShort = "monthsShort"
+                        :weekdaysFull = "weekdaysFull"
+                        :weekdaysShort = "weekdaysShort"
+                        :weekdaysNarrow = "weekdaysNarrow"
                         ref="nowPrjPublishDateDOM" />
                     </MDBCol>
 
@@ -2100,7 +2125,7 @@ function selectNowChk(nowId, col, dt){
                     <MDBTabPane tabId="gcp_mg" class="h-100">
                       <MDBRow class="h-100">
                         <!-- 列表 -->
-                        <MDBCol lg="5" class="h-100 border-end" style="position:relative ;">
+                        <MDBCol lg="5" class="h-100 border-1 border-end" style="position:relative ;">
                           <div :class="{ 'hiddenSpinner': notProssing2}" style="position: absolute; left: 50%; top: 10rem;">
                             <MDBSpinner size="md" color="primary" />Loading...
                           </div>
@@ -2110,7 +2135,7 @@ function selectNowChk(nowId, col, dt){
                         <!-- 表單 -->
                         <MDBCol lg="7" class="h-100">
                           <MDBRow>
-                            <MDBCol col="12" class="d-flex py-2 border-bottom">
+                            <MDBCol col="12" class="d-flex py-2 border-1 border-bottom">
                               <MDBBtn :disabled="!rGroup[1] || !nowPrjId" size="sm" color="primary" @click="uploadBtn('inputRecord')">匯入紀錄</MDBBtn>
                               
                               <MDBDropdown class="me-auto" dropend v-model="dlGCPdropdown1">
@@ -2155,7 +2180,7 @@ function selectNowChk(nowId, col, dt){
                             <MDBCol col="12" class="rounded-top-5 bg-info text-white" @click="collapseDIV($event,'baseclick')">
                               基本資料
                             </MDBCol>
-                            <MDBCol col="12" class="mb-2 pb-2 border rounded-bottom-5">
+                            <MDBCol col="12" class="mb-2 pb-2 border border-1 rounded-bottom-5">
                               <MDBRow v-show="baseShow">
                                 <MDBCol col="12" class="mt-2">
                                   <MDBSwitch label="啟用" labelClass="fs-7" v-model="nowGcpEnable" />
@@ -2278,7 +2303,7 @@ function selectNowChk(nowId, col, dt){
                             <MDBCol col="12" class="rounded-top-5 bg-info text-white" @click="collapseDIV($event,'recordclick')">
                               紀錄資料
                             </MDBCol>
-                            <MDBCol col="12" class="mb-2 pb-2 border rounded-bottom-5">
+                            <MDBCol col="12" class="mb-2 pb-2 border border-1 rounded-bottom-5">
                               <MDBRow v-show="recordShow">
                                 <MDBCol md="6" xl="4" class="mt-2">
                                   <MDBInput readonly size="sm" type="text" label="索引" v-model="nowPRecordId" />
@@ -2286,7 +2311,17 @@ function selectNowChk(nowId, col, dt){
                                 <MDBSelect id="PrjMGSelPrjId" size="sm" class="mt-2 col-md-6 col-xl-4" label="作業編號" v-model:options="nowPRecordPrjIdMU"
                                   v-model:selected="nowPRecordPrjId" ref="nowPRecordPrjIdDOM" @close="nowPrjClose($event)"/>
                                 <MDBCol md="6" xl="4" class="mt-2">
-                                  <MDBDatepicker size="sm" v-model="nowPRecordDate" format="YYYY-MM-DD" label="紀錄日期"
+                                  <MDBDatepicker 
+                                    size="sm" 
+                                    v-model="nowPRecordDate" 
+                                    format="YYYY-MM-DD" label="紀錄日期"
+                                    :monthsFull = "monthsFull"
+                                    :monthsShort = "monthsShort"
+                                    :weekdaysFull = "weekdaysFull"
+                                    :weekdaysShort = "weekdaysShort"
+                                    :weekdaysNarrow = "weekdaysNarrow"
+                                    confirmDateOnSelect
+                                    removeCancelBtn removeOkBtn
                                     ref="nowPRecordDateDOM" />
                                 </MDBCol>
                                 <MDBSelect filter size="sm" class="mt-2 col-md-6 col-xl-4" 
@@ -2455,10 +2490,10 @@ function selectNowChk(nowId, col, dt){
                     <MDBTabPane tabId="item_mg" class="h-100">
                       <MDBRow class="h-100">
                         <!-- 列表 -->
-                        <MDBCol lg="5" class="h-100 border-end">
+                        <MDBCol lg="5" class="h-100 border-1 border-end">
                           <!-- 功能列 -->
                           <MDBRow>
-                            <MDBCol col="12" class="d-flex py-2 border-bottom">
+                            <MDBCol col="12" class="d-flex py-2 border-1 border-bottom">
                               <span class="me-auto">作業使用之標準件</span>
                               <MDBBtn :disabled="!rGroup[1] || data_eqpt.length===0" size="sm" color="secondary" @click="copyLink">全複製</MDBBtn>
                               <MDBBtn :disabled="!rGroup[1] || !nowPrjId || tempLink.length===0" size="sm" color="secondary" @click="pasteLink">貼上</MDBBtn>
@@ -2477,7 +2512,7 @@ function selectNowChk(nowId, col, dt){
                         <!-- 表單 -->
                         <MDBCol v-show="!showRefReport" lg="7" class="h-100">
                           <!-- 左上 -->
-                          <MDBRow style="height: 45%;" class="border-bottom overflow-auto align-content-start">
+                          <MDBRow style="height: 45%;" class="border-1 border-bottom overflow-auto align-content-start">
                             <MDBCol col="6"><span>查詢標準件</span></MDBCol>
                             <MDBSelect filter size="sm" class="mt-2 col-6" 
                               label="儀器類型" 
@@ -2491,7 +2526,7 @@ function selectNowChk(nowId, col, dt){
                           <!-- 左下 -->
                           <MDBRow style="height: 55%;">
                             <!-- 左下左(按鈕) -->
-                            <div style="width: 4rem;" class="h-100 border-end d-flex align-items-center">
+                            <div style="width: 4rem;" class="h-100 border-1 border-end d-flex align-items-center">
                               <MDBCol col="12">
                                 <MDBBtn :disabled="!rGroup[1] || !nowChkId || !nowPrjId" size="sm" color="primary" class="px-1 my-2" @click="addChk">加入</MDBBtn>
                                 <MDBBtn :disabled="!rGroup[1] || !nowLinkChkId" size="sm" color="secondary" class="px-1 my-2" @click="removeChk">移除</MDBBtn>
@@ -2506,7 +2541,7 @@ function selectNowChk(nowId, col, dt){
                                   style="font-size: smaller;" class="display w-100 compact" />
                                 <!-- 功能按鈕 -->
                                 <MDBRow>
-                                  <MDBCol col="12" class="py-2 border-bottom d-flex">
+                                  <MDBCol col="12" class="py-2 border-1 border-bottom d-flex">
                                     <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newChk">新增</MDBBtn>
                                     <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveChk">儲存</MDBBtn>
                                     <MDBPopconfirm :disabled="!rGroup[1] || !nowChkId" 
@@ -2528,7 +2563,17 @@ function selectNowChk(nowId, col, dt){
                                     <MDBInput readonly size="sm" type="text" label="校正類型" v-model="nowChkType" />
                                   </MDBCol>
                                   <MDBCol md="6" xl="4" class="mt-2">
-                                    <MDBDatepicker size="sm" v-model="nowChkDate" format="YYYY-MM-DD" label="校正日"
+                                    <MDBDatepicker 
+                                      size="sm" 
+                                      v-model="nowChkDate" 
+                                      format="YYYY-MM-DD" label="校正日"
+                                      :monthsFull = "monthsFull"
+                                      :monthsShort = "monthsShort"
+                                      :weekdaysFull = "weekdaysFull"
+                                      :weekdaysShort = "weekdaysShort"
+                                      :weekdaysNarrow = "weekdaysNarrow"
+                                      confirmDateOnSelect
+                                      removeCancelBtn removeOkBtn
                                       ref="nowChkDateDOM" />
                                   </MDBCol>
                                   <div></div>
@@ -2575,12 +2620,15 @@ function selectNowChk(nowId, col, dt){
                     <!-- 管制圖 -->
                     <MDBTabPane tabId="ctrl_chart" class="h-100">
                       <MDBRow class="h-100 overflow-auto">
-                        <MDBCol v-show="(nowPrjCalTypeId===1)" col="12" class="border-top" >
+                        <MDBCol v-show="(nowPrjCalTypeId===1)" col="12" class="border-1 border-top" >
                           <!-- F -->
                           <div class="hstack gap-3 mt-2">
                             <span class="typeF"><i class="fas fa-plane-departure"></i>航測像機</span>
                             <div>目前作業：<span class="text-info">{{nowPrjCode}}</span></div>
-                            <MDBInput size="sm" type="text" label="簡稱標籤" v-model="ccLabel_F"/>
+                            <div>
+                              <MDBInput size="sm" type="text" label="簡稱標籤" v-model="ccLabel_F"/>
+                            </div>
+                            
                             <MDBSelect size="sm" label="參考作業" 
                               v-model:options="refPrjCodeFMU"
                               v-model:selected="refPrjCodeF" 
@@ -2610,17 +2658,20 @@ function selectNowChk(nowId, col, dt){
                           <MDBRow class="justify-content-center">
                             <MDBCol xl="8" class="my-2">
                               <!-- <div class="w-100"> -->
-                                <canvas id="ctlChartF" class="border"></canvas>
+                                <canvas id="ctlChartF" class="border border-1"></canvas>
                               <!-- </div> -->
                             </MDBCol>
                           </MDBRow>
                         </MDBCol>
-                        <MDBCol v-show="(nowPrjCalTypeId===1)" col="12" class="border-top" >
+                        <MDBCol v-show="(nowPrjCalTypeId===1)" col="12" class="border-1 border-top" >
                           <!-- J -->
                           <div class="hstack gap-3 mt-2">
                             <span class="typeJ"><i class="fas fa-camera"></i>小像幅航拍攝影機</span>
                             <div>目前作業：<span class="text-info">{{nowPrjCode}}</span></div>
-                            <MDBInput size="sm" type="text" label="簡稱標籤" v-model="ccLabel_J"/>
+                            <div>
+                              <MDBInput size="sm" type="text" label="簡稱標籤" v-model="ccLabel_J"/>
+                            </div>
+                            
                             <MDBSelect size="sm" label="參考作業" 
                               v-model:options="refPrjCodeJMU"
                               v-model:selected="refPrjCodeJ" 
@@ -2650,17 +2701,20 @@ function selectNowChk(nowId, col, dt){
                           <MDBRow class="justify-content-center">
                             <MDBCol xl="8" class="my-2">
                               <!-- <div class="w-100"> -->
-                                <canvas id="ctlChartJ" class="border"></canvas>
+                                <canvas id="ctlChartJ" class="border border-1"></canvas>
                               <!-- </div> -->
                             </MDBCol>
                           </MDBRow>
                         </MDBCol>
-                        <MDBCol v-show="(nowPrjCalTypeId===2)" col="12" class="border-top" >
+                        <MDBCol v-show="(nowPrjCalTypeId===2)" col="12" class="border-1 border-top" >
                           <!-- I -->
                           <div class="hstack gap-3 mt-2">
                             <span class="typeI"><i class="fas fa-wifi rotation180"></i>空載光達</span>
                             <div>目前作業：<span class="text-info">{{nowPrjCode}}</span></div>
-                            <MDBInput size="sm" type="text" label="簡稱標籤" v-model="ccLabel_I"/>
+                            <div>
+                              <MDBInput size="sm" type="text" label="簡稱標籤" v-model="ccLabel_I"/>
+                            </div>
+                            
                             <MDBSelect size="sm" label="參考作業" 
                               v-model:options="refPrjCodeIMU"
                               v-model:selected="refPrjCodeI" 
@@ -2690,7 +2744,7 @@ function selectNowChk(nowId, col, dt){
                           <MDBRow class="justify-content-center">
                             <MDBCol xl="8" class="my-2">
                               <!-- <div class="w-100"> -->
-                                <canvas id="ctlChartI" class="border"></canvas>
+                                <canvas id="ctlChartI" class="border border-1"></canvas>
                               <!-- </div> -->
                             </MDBCol>
                           </MDBRow>

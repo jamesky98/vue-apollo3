@@ -7,28 +7,12 @@ import Record03 from "../components/Record03.vue";
 import { ref, reactive, onMounted, provide, inject, watch } from "vue";
 import path from "path-browserify";
 import {
-  MDBInput,
-  MDBTextarea,
-  MDBCol,
-  MDBRow,
-  MDBContainer,
-  MDBSelect,
-  MDBDatepicker,
-  MDBBtn,
-  MDBPopconfirm,
-  MDBSpinner,
-  MDBAnimation,
-  MDBAlert,
-  MDBModal,
-  MDBModalHeader,
-  MDBModalTitle,
-  MDBModalBody,
-  MDBModalFooter,
-  MDBTabs,
-  MDBTabNav,
-  MDBTabContent,
-  MDBTabItem,
-  MDBTabPane,
+  MDBInput,  MDBTextarea,
+  MDBCol,  MDBRow,  MDBContainer,
+  MDBSelect,  MDBDatepicker,  MDBBtn,  MDBPopconfirm,
+  MDBSpinner,  MDBAnimation,  MDBAlert,
+  MDBModal,  MDBModalHeader,  MDBModalTitle,  MDBModalBody,  MDBModalFooter,
+  MDBTabs,  MDBTabNav,  MDBTabContent,  MDBTabItem,  MDBTabPane,
   MDBSwitch,
 } from 'mdb-vue-ui-kit';
 import gql from "graphql-tag";
@@ -41,6 +25,13 @@ import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
+import { 
+    monthsFull, 
+    monthsShort, 
+    weekdaysFull, 
+    weekdaysShort,
+    weekdaysNarrow
+  } from "../methods/datePickerParams.js"
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -1794,7 +1785,7 @@ onMounted(function () {
               style="font-size: smaller" class="display w-100 compact" />
           </MDBCol>
           <!-- 篩選 或 編輯 -->
-          <MDBCol col="12" class="border">
+          <MDBCol col="12" class="border border-1">
             <MDBTabs v-model="custTabId">
               <MDBTabNav tabsClasses="">
                 <MDBTabItem tabId="editor" href="editor">資料編輯</MDBTabItem>
@@ -1876,7 +1867,7 @@ onMounted(function () {
               style="font-size: smaller" class="display w-100 compact" />
           </MDBCol>
           <!-- 下方 操作面板 -->
-          <MDBCol col="12" class="border h-50 mt-2">
+          <MDBCol col="12" class="border border-1 h-50 mt-2">
             查詢API條件
             <MDBRow class="h-100">
               <!-- 左側 -->
@@ -1891,11 +1882,31 @@ onMounted(function () {
                     v-model:selected="apiCalTypeID" ref="apiCalTypeIdDOM" />
                   <div></div>
                   <MDBCol md="6" class="mb-2">
-                    <MDBDatepicker size="sm" v-model="apiStartDate" format="YYYY-MM-DD" label="申請日(起)"
+                    <MDBDatepicker 
+                      size="sm" 
+                      v-model="apiStartDate" 
+                      format="YYYY-MM-DD" label="申請日(起)"
+                      :monthsFull = "monthsFull"
+                      :monthsShort = "monthsShort"
+                      :weekdaysFull = "weekdaysFull"
+                      :weekdaysShort = "weekdaysShort"
+                      :weekdaysNarrow = "weekdaysNarrow"
+                      confirmDateOnSelect
+                      removeCancelBtn removeOkBtn
                       ref="apiStartDateDOM" />
                   </MDBCol>
                   <MDBCol md="6" class="mb-2">
-                    <MDBDatepicker size="sm" v-model="apiEndDate" format="YYYY-MM-DD" label="申請日(迄)"
+                    <MDBDatepicker 
+                      size="sm" 
+                      v-model="apiEndDate" 
+                      format="YYYY-MM-DD" label="申請日(迄)"
+                      :monthsFull = "monthsFull"
+                      :monthsShort = "monthsShort"
+                      :weekdaysFull = "weekdaysFull"
+                      :weekdaysShort = "weekdaysShort"
+                      :weekdaysNarrow = "weekdaysNarrow"
+                      confirmDateOnSelect
+                      removeCancelBtn removeOkBtn
                       ref="apiEndDateDOM" />
                   </MDBCol>
                   <MDBCol col="12" class="mb-2 d-flex justify-content-end">
@@ -1952,7 +1963,7 @@ onMounted(function () {
                     <!-- 下方篩選 -->
                     <MDBCol md="12" class="h-25 mb-2 border border-5 rounded-8 shadow-4">
                       <MDBRow class="h-100">
-                        <MDBCol col="12" class="py-2 d-flex border-bottom">
+                        <MDBCol col="12" class="py-2 d-flex border-1 border-bottom">
                           <div class="">條件篩選</div>
                           <div class="ms-2 flex-grow-1">
                             <MDBSwitch label="顯示退件" v-model="showRejectCase" @change="caseDoFilter" />
@@ -1983,19 +1994,59 @@ onMounted(function () {
                               <MDBInput size="sm" type="text" label="序號" v-model="caseSelnumSEL" />
                             </MDBCol>
                             <MDBCol md="3" class="mt-2">
-                              <MDBDatepicker size="sm" v-model="caseAppDateStartSEL" format="YYYY-MM-DD" label="申請日(起)"
+                              <MDBDatepicker 
+                                size="sm" 
+                                v-model="caseAppDateStartSEL" 
+                                format="YYYY-MM-DD" label="申請日(起)"
+                                :monthsFull = "monthsFull"
+                                :monthsShort = "monthsShort"
+                                :weekdaysFull = "weekdaysFull"
+                                :weekdaysShort = "weekdaysShort"
+                                :weekdaysNarrow = "weekdaysNarrow"
+                                confirmDateOnSelect
+                                removeCancelBtn removeOkBtn
                                 ref="caseAppDateStartFilter" />
                             </MDBCol>
                             <MDBCol md="3" class="mt-2">
-                              <MDBDatepicker size="sm" v-model="caseAppDateEndtSEL" format="YYYY-MM-DD" label="申請日(迄)"
+                              <MDBDatepicker 
+                                size="sm" 
+                                v-model="caseAppDateEndtSEL" 
+                                format="YYYY-MM-DD" label="申請日(迄)"
+                                :monthsFull = "monthsFull"
+                                :monthsShort = "monthsShort"
+                                :weekdaysFull = "weekdaysFull"
+                                :weekdaysShort = "weekdaysShort"
+                                :weekdaysNarrow = "weekdaysNarrow"
+                                confirmDateOnSelect
+                                removeCancelBtn removeOkBtn
                                 ref="caseAppDateEndFilter" />
                             </MDBCol>
                             <MDBCol md="3" class="mt-2">
-                              <MDBDatepicker size="sm" v-model="casePayDateStartSEL" format="YYYY-MM-DD" label="繳費日(起)"
+                              <MDBDatepicker 
+                                size="sm" 
+                                v-model="casePayDateStartSEL" 
+                                format="YYYY-MM-DD" label="繳費日(起)"
+                                :monthsFull = "monthsFull"
+                                :monthsShort = "monthsShort"
+                                :weekdaysFull = "weekdaysFull"
+                                :weekdaysShort = "weekdaysShort"
+                                :weekdaysNarrow = "weekdaysNarrow"
+                                confirmDateOnSelect
+                                removeCancelBtn removeOkBtn
                                 ref="casePayDateStartFilter" />
                             </MDBCol>
                             <MDBCol md="3" class="mt-2">
-                              <MDBDatepicker size="sm" v-model="casePayDateEndtSEL" format="YYYY-MM-DD" label="繳費日(迄)"
+                              <MDBDatepicker 
+                                size="sm" 
+                                v-model="casePayDateEndtSEL" 
+                                format="YYYY-MM-DD" label="繳費日(迄)"
+                                :monthsFull = "monthsFull"
+                                :monthsShort = "monthsShort"
+                                :weekdaysFull = "weekdaysFull"
+                                :weekdaysShort = "weekdaysShort"
+                                :weekdaysNarrow = "weekdaysNarrow"
+                                confirmDateOnSelect
+                                removeCancelBtn removeOkBtn
                                 ref="casePayDateEndFilter" />
                             </MDBCol>
                           </MDBRow>
@@ -2010,7 +2061,7 @@ onMounted(function () {
               <MDBCol md="4" v-show="!showCaseNew" class="h-100">
                 <MDBRow style="margin-left: auto;height: calc(100% - 1rem);"
                   class="my-2 bg-light border border-5 rounded-8 shadow-4">
-                  <MDBCol col="12" class="py-2 border-bottom">
+                  <MDBCol col="12" class="py-2 border-1 border-bottom">
                     <div>案件資料</div>
                     <div class="d-flex mt-2">
                       <MDBPopconfirm :disabled="!rGroup[2]" class="btn-sm btn-light btn-outline-danger me-auto" position="top"
@@ -2082,7 +2133,17 @@ onMounted(function () {
                           v-model="nowCaseCharge" />
                       </MDBCol>
                       <MDBCol col="6" class="mt-3">
-                        <MDBDatepicker size="sm" v-model="nowCasePayDate" format="YYYY-MM-DD" label="繳費日"
+                        <MDBDatepicker 
+                          size="sm" 
+                          v-model="nowCasePayDate" 
+                          format="YYYY-MM-DD" label="繳費日"
+                          :monthsFull = "monthsFull"
+                          :monthsShort = "monthsShort"
+                          :weekdaysFull = "weekdaysFull"
+                          :weekdaysShort = "weekdaysShort"
+                          :weekdaysNarrow = "weekdaysNarrow"
+                          confirmDateOnSelect
+                          removeCancelBtn removeOkBtn
                           ref="nowCasePayDateDOM" />
                       </MDBCol>
                       <MDBCol col="12" class="mt-3">
@@ -2107,7 +2168,7 @@ onMounted(function () {
                       <MDBInput required counter :maxlength="12" size="sm" type="number" label="案件編號" v-model="addCaseID" />
                     </MDBCol>
                     <div></div>
-                    <MDBCol style="font-size: 0.8rem" class="mx-3 mb-3 p-2 border">
+                    <MDBCol style="font-size: 0.8rem" class="mx-3 mb-3 p-2 border border-1">
                       案件編號編碼方式：
                       <br>"西元日期(8碼)"
                       <br> + "當日第幾案(2碼)"
@@ -2116,14 +2177,24 @@ onMounted(function () {
                     </MDBCol>
                     <div></div>
                     <MDBCol col="6" class="mb-3">
-                      <MDBDatepicker required size="sm" v-model="addCaseAppDate" format="YYYY-MM-DD" label="申請日"
+                      <MDBDatepicker 
+                        required size="sm" 
+                        v-model="addCaseAppDate" 
+                        format="YYYY-MM-DD" label="申請日"
+                        :monthsFull = "monthsFull"
+                        :monthsShort = "monthsShort"
+                        :weekdaysFull = "weekdaysFull"
+                        :weekdaysShort = "weekdaysShort"
+                        :weekdaysNarrow = "weekdaysNarrow"
+                        confirmDateOnSelect
+                        removeCancelBtn removeOkBtn
                         ref="addCaseAppDateDOM" />
                     </MDBCol>
                     <MDBCol col="6" class="mb-3">
                       <MDBBtn size="sm" color="primary" @click="getAppDateByCaseId()">自動取得</MDBBtn>
                     </MDBCol>
                     <div></div>
-                    <MDBCol style="font-size: 0.8rem" class="mx-3 mb-3 p-2 border">
+                    <MDBCol style="font-size: 0.8rem" class="mx-3 mb-3 p-2 border border-1">
                       申請日期可由案件編號前8碼取得或自行設定
                     </MDBCol>
                     <div></div>

@@ -24,6 +24,13 @@ import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
+import { 
+    monthsFull, 
+    monthsShort, 
+    weekdaysFull, 
+    weekdaysShort,
+    weekdaysNarrow
+  } from "../methods/datePickerParams.js"
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -611,7 +618,7 @@ function selectNowId(nowId, col, dt){
             <MDBCol col="12" style="height: calc(100% - 1rem);" class="border border-5 rounded-8 shadow-4 my-2">
               <MDBRow class="h-100">
                 <!-- 左上列表 -->
-                <MDBCol col="12" style="height: 50%;" class="border-bottom">
+                <MDBCol col="12" style="height: 50%;" class="border-1 border-bottom">
                   <MDBRow class="h-100 align-content-start">
                     <MDBCol col="6"><span>標準件清單</span></MDBCol>
                     <MDBSelect filter size="sm" class="mt-2 col-6" 
@@ -628,7 +635,7 @@ function selectNowId(nowId, col, dt){
                 <MDBCol col="12" style="height: 50%;" class="">
                   <!-- 功能按鈕 -->
                   <MDBRow>
-                    <MDBCol col="12" class="py-2 border-bottom">
+                    <MDBCol col="12" class="py-2 border-1 border-bottom">
                       <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newEqpt">新增</MDBBtn>
                       <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveEqpt">儲存</MDBBtn>
                       <MDBPopconfirm :disabled="!rGroup[1] || !nowEqptId" 
@@ -691,10 +698,10 @@ function selectNowId(nowId, col, dt){
         <MDBCol md="7" xl="7" class="h-100">
           <MDBRow style="margin-left: auto;height: calc(100% - 1rem);" class="my-2 bg-light border border-5 rounded-8 shadow-4 overflow-auto">
             <!-- 查核紀錄 -->
-            <MDBCol col="6" class="h-100 border-end">
+            <MDBCol col="6" class="h-100 border-1 border-end">
               <MDBRow class="h-100">
                 <!-- 上方 -->
-                <MDBCol col="12" class="h-50 border-bottom">
+                <MDBCol col="12" class="h-50 border-1 border-bottom">
                   查核紀錄
                   <DataTable :data="data_chk" :columns="columns_chk" :options="tboption_chk" ref="table_chk"
                     style="font-size: smaller;" class="display w-100 compact" />
@@ -703,7 +710,7 @@ function selectNowId(nowId, col, dt){
                 <MDBCol col="12" class="h-50">
                   <!-- 功能按鈕 -->
                   <MDBRow>
-                    <MDBCol col="12" class="py-2 border-bottom">
+                    <MDBCol col="12" class="py-2 border-1 border-bottom">
                       <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newChk">新增</MDBBtn>
                       <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveChk">儲存</MDBBtn>
                       <MDBPopconfirm :disabled="!rGroup[1] || !nowChkId" 
@@ -725,7 +732,17 @@ function selectNowId(nowId, col, dt){
                       <MDBInput readonly size="sm" type="text" label="校正類型" v-model="nowChkType" />
                     </MDBCol>
                     <MDBCol md="6" xl="4" class="mt-2">
-                      <MDBDatepicker size="sm" v-model="nowChkDate" format="YYYY-MM-DD" label="校正日"
+                      <MDBDatepicker 
+                        size="sm" 
+                        v-model="nowChkDate" 
+                        format="YYYY-MM-DD" label="校正日"
+                        :monthsFull = "monthsFull"
+                        :monthsShort = "monthsShort"
+                        :weekdaysFull = "weekdaysFull"
+                        :weekdaysShort = "weekdaysShort"
+                        :weekdaysNarrow = "weekdaysNarrow"
+                        confirmDateOnSelect
+                        removeCancelBtn removeOkBtn
                         ref="nowChkDateDOM" />
                     </MDBCol>
                     <div></div>

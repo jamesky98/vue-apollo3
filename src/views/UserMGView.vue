@@ -274,7 +274,7 @@ onMounted(function () {
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 基本資訊
               </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+              <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
                     <MDBSwitch label="啟用狀態" v-model="nowUserActive"/>
@@ -303,7 +303,7 @@ onMounted(function () {
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 變更密碼
               </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+              <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <MDBCol v-if="!rGroup[0]" col="12" class="mt-3">
                     <MDBInput size="sm" type="password" label="舊密碼" v-model="oldPassWord"/>
@@ -333,7 +333,7 @@ onMounted(function () {
               <MDBCol col="12" class="mt-3 rounded-top-5 bg-info text-white">
                 進階管理
               </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+              <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <MDBCol v-show="rGroup[0]" md="12" class="my-3">
                     <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1"

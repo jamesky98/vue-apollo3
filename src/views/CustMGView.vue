@@ -644,7 +644,7 @@ const tboption_Case = {
   dom: 'fti',
   select: {style: 'single',info: false},
   order: [[1, 'desc']],
-  scrollY: 'calc(40vh - 12rem)',
+  scrollY: 'calc(40vh - 13rem)',
   scrollX: true,
   lengthChange: false,
   searching: true,
@@ -760,7 +760,7 @@ onMounted(function () {
                         style="font-size: smaller;" class="display w-100 compact" />
                     </MDBCol>
                     <!-- 機關操作表單 -->
-                    <MDBCol col="12" class="border-top" style="height: 7rem;">
+                    <MDBCol col="12" class="border-1 border-top" style="height: 7rem;">
                       <MDBCol lg="12" class="mt-2">
                         <MDBBtn :disabled="!rGroup[2] || nowCustOrgID===''" size="sm" color="primary" @click="newOrg">新增</MDBBtn>
                         <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveOrg">儲存</MDBBtn>
@@ -799,8 +799,8 @@ onMounted(function () {
                         style="font-size: smaller;" class="display w-100 compact" />
                     </MDBCol>
                     <!-- 左下右 -->
-                    <MDBCol col="7" class="h-100 border-start">
-                      <MDBCol col="12" class="py-2 w-100 border-bottom overflow-auto" style="white-space: nowrap">
+                    <MDBCol col="7" class="h-100 border-1 border-start">
+                      <MDBCol col="12" class="py-2 w-100 border-1 border-bottom overflow-auto" style="white-space: nowrap">
                         <MDBBtn :disabled="!rGroup[2] || nowCustId===''" size="sm" color="primary" @click="newCust">新增</MDBBtn>
                         <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveCust">儲存</MDBBtn>
                         <!-- <MDBBtn size="sm" color="primary" @click="delCust">刪除</MDBBtn> -->
@@ -856,7 +856,7 @@ onMounted(function () {
                           </MDBCol>
                         </MDBCol>
                         <!-- 右資料 -->
-                        <MDBCol lg="4" class="border-start">
+                        <MDBCol lg="4" class="border-1 border-start">
                           <MDBRow class="h-100 d-flex align-content-start">
                             <!-- 右上篩選 -->
                             <MDBCol col="12" class="">
@@ -865,7 +865,7 @@ onMounted(function () {
                             <MDBSelect size="sm" class="my-2 col-lg-8" label="儀器類型" v-model:options="selItemTypeMU"
                               v-model:selected="selItemType" ref="selItemTypeDOM" @change="selItemTypeChange"/>
 
-                            <MDBCol col="12" class="border-top">
+                            <MDBCol col="12" class="border-1 border-top">
                               資料編輯
                             </MDBCol>
                             <!-- 操作按鈕 -->
@@ -919,7 +919,7 @@ onMounted(function () {
             <MDBCol col="12" style="height: 40%;">
               <MDBRow class="h-100">
                 <MDBCol col="12" class="border border-5 rounded-8 shadow-4 mb-2" style="height: calc(100% - 0.5rem)">
-                  <MDBRow class="h-100 d-flex align-content-start">
+                  <MDBRow class="h-100 d-flex align-content-start overflow-auto">
                     <MDBCol col="12">
                       校正紀錄
                     </MDBCol>

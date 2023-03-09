@@ -1080,45 +1080,45 @@ function zoomCart(Index){
         <MDBCol col="12" class="py-2 h-100">
           <MDBRow class="h-100 border border-5 rounded-8 shadow-4">
             <!-- 左方導航列 -->
-            <MDBCol md="2" class="border-top border-bottom">
+            <MDBCol md="2" class="border-1 border-top border-bottom">
               <MDBRow class="d-flex flex-column">
                 <MDBCol class="px-2 p-3 border-bottom w-100">
                   <RouterLink :to="{ name: 'docs'}">
                     <MDBIcon icon="file-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />文件查詢
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class=" px-2 p-3 border-bottom w-100">
+                <MDBCol class=" px-2 p-3 border-1 border-bottom w-100">
                   <RouterLink :to="{ name: 'cases'}">
                     <MDBIcon icon="balance-scale" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />校正案件
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class="px-2 p-3 border-bottom w-100">
+                <MDBCol class="px-2 p-3 border-1 border-bottom w-100">
                   <RouterLink :to="{ name: 'employee'}">
                     <MDBIcon icon="user-edit" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />人員管理
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class="px-2 p-3 border-bottom w-100">
+                <MDBCol class="px-2 p-3 border-1 border-bottom w-100">
                   <RouterLink :to="{ name: 'gcps'}">
                     <MDBIcon icon="map-marked-alt" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />點位管理
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class="px-2 p-3 border-bottom w-100">
+                <MDBCol class="px-2 p-3 border-1 border-bottom w-100">
                   <RouterLink :to="{ name: 'prjs'}">
                     <MDBIcon icon="drafting-compass" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />
                     參考值量測作業
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class="px-2 p-3 border-bottom w-100">
+                <MDBCol class="px-2 p-3 border-1 border-bottom w-100">
                   <RouterLink :to="{ name: 'items'}">
                     <MDBIcon icon="wrench" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />標準件管理
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class="px-2 p-3 border-bottom w-100">
+                <MDBCol class="px-2 p-3 border-1 border-bottom w-100">
                   <RouterLink :to="{ name: 'cust' }">
                     <MDBIcon far icon="handshake" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />顧客管理
                   </RouterLink>
                 </MDBCol>
-                <MDBCol class="px-2 p-3 border-bottom w-100">
+                <MDBCol class="px-2 p-3 border-1 border-bottom w-100">
                   <RouterLink :to="{ name: 'ucedit'}">
                     <MDBIcon icon="project-diagram" fw size="lg" style="color: #39C0ED; margin-right: 1vw;" />
                     不確定度管理
@@ -1131,7 +1131,7 @@ function zoomCart(Index){
               <!-- 加入統計圖 -->
               <MDBRow class="h-100 overflow-auto">
                 <!-- 圖表1 各人員年度案件數 -->
-                <MDBCol v-show="chartShow[0]" :lg="chartShowCol[0]" class="border" :class="chartClass[0]" style="max-height: 30rem;">
+                <MDBCol v-show="chartShow[0]" :lg="chartShowCol[0]" class="border border-1" :class="chartClass[0]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">
                       <MDBSelect size="sm"
@@ -1152,7 +1152,7 @@ function zoomCart(Index){
                   
                 </MDBCol>
                 <!-- 圖表2 年度每月案件數 -->
-                <MDBCol v-show="chartShow[1]" :lg="chartShowCol[1]" class="border" :class="chartClass[1]" style="max-height: 30rem;">
+                <MDBCol v-show="chartShow[1]" :lg="chartShowCol[1]" class="border border-1" :class="chartClass[1]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">
                       <MDBSelect size="sm"
@@ -1177,7 +1177,7 @@ function zoomCart(Index){
                   </MDBRow>
                 </MDBCol>
                 <!-- 圖表5 年度每月收費統計 -->
-                <MDBCol v-show="chartShow[4]" :lg="chartShowCol[4]" class="border" :class="chartClass[4]" style="max-height: 30rem;">
+                <MDBCol v-show="chartShow[4]" :lg="chartShowCol[4]" class="border border-1" :class="chartClass[4]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">
                       <MDBSelect size="sm"
@@ -1196,7 +1196,7 @@ function zoomCart(Index){
                   </MDBRow>
                 </MDBCol>
                 <!-- 圖表3 各項目年度案件數 -->
-                <MDBCol v-show="chartShow[2]" :lg="chartShowCol[2]" class="border" :class="chartClass[2]" style="max-height: 30rem;">
+                <MDBCol v-show="chartShow[2]" :lg="chartShowCol[2]" class="border border-1" :class="chartClass[2]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">
                       <MDBSelect size="sm"
@@ -1215,7 +1215,7 @@ function zoomCart(Index){
                   </MDBRow>
                 </MDBCol>
                 <!-- 圖表4 年度案件進度統計 -->
-                <MDBCol v-show="chartShow[3]" :lg="chartShowCol[3]" class="border" :class="chartClass[3]" style="max-height: 30rem;">
+                <MDBCol v-show="chartShow[3]" :lg="chartShowCol[3]" class="border border-1" :class="chartClass[3]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">
                       <MDBSelect size="sm"
@@ -1235,7 +1235,7 @@ function zoomCart(Index){
                 </MDBCol>
                 
                 <!-- 圖表6 月報統計表 -->
-                <MDBCol v-show="chartShow[5]" :lg="chartShowCol[5]" class="border" :class="chartClass[5]" style="max-height: 30rem;">
+                <MDBCol v-show="chartShow[5]" :lg="chartShowCol[5]" class="border border-1" :class="chartClass[5]" style="max-height: 30rem;">
                   <MDBRow class="h-100">
                     <MDBCol col="12" style="position:relative ;" class="mt-2">
                       <MDBSelect size="sm"

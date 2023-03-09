@@ -694,7 +694,7 @@ onMounted(function () {
         '<div style="position: absolute;right:0;top:0;width:1rem;height:1.25rem;border-left: 1px dotted;border-bottom: 1px dotted"></div>'+
       '</div>'+
       '<div class="">'+
-        '<table id="subgrid_' + id + '" class="subgrid border" style=""></table>'+
+        '<table id="subgrid_' + id + '" class="subgrid border border-1" style=""></table>'+
       '</div></div>';
   }
 
@@ -831,7 +831,7 @@ function changeSectionUpdatItem(sectoin, item){
                     </MDBBtn>
                   </div>
                 </MDBCol>
-                <MDBCol style="height: 8rem;" col="12" class="mb-3 border rounded-bottom-5 overflow-auto">
+                <MDBCol style="height: 8rem;" col="12" class="mb-3 border border-1 rounded-bottom-5 overflow-auto">
                   <MDBRow class="pt-2">
                     <MDBCol md="6" class="mb-2">
                       <MDBInput size="sm" type="text" label="模組名稱" v-model="nowUcModuleName"/>
@@ -870,11 +870,11 @@ function changeSectionUpdatItem(sectoin, item){
                   </div>
                 </MDBCol>
               
-                <MDBCol style="height: calc(100% - 18rem);" col="12" class="border rounded-bottom-5 overflow-auto">
+                <MDBCol style="height: calc(100% - 18rem);" col="12" class="border border-1 rounded-bottom-5 overflow-auto">
                   <MDBRow>
                     <MDBCol md="12" class="mb-3 overflow-auto">
                       <vueDataTable :data="nowUcModule.uc.data" :columns="columns1" :options="tboption1" ref="table1"
-                        style="font-size: smaller" class="border border-info display w-100 compact" />
+                        style="font-size: smaller" class="border border-1 border-info display w-100 compact" />
                     </MDBCol>
                   </MDBRow>
                 </MDBCol>
@@ -887,7 +887,7 @@ function changeSectionUpdatItem(sectoin, item){
               <MDBCol md="12" style="height: calc(100% - 1em);" class="mt-2 align-content-start overflow-auto border border-5 rounded-8 shadow-4">
                 <!-- 右上 -->
                 <MDBRow style="height: 11em;" class="overflow-auto">
-                  <MDBCol md="6" class="h-100 border-end">
+                  <MDBCol md="6" class="h-100 border-1 border-end">
                     <!-- Section內容 -->
                     <MDBCol col="12" class="mt-2">
                       目前Section：{{nowUcSection}}
@@ -923,7 +923,7 @@ function changeSectionUpdatItem(sectoin, item){
                 </MDBRow>
                 <!-- 右下 -->
                 <MDBRow style="height: calc(100% - 11em);" class="">
-                  <MDBCol md="12" style="height: calc(50%);" class="border-top overflow-auto">
+                  <MDBCol md="12" style="height: calc(50%);" class="border-1 border-top overflow-auto">
                     <MDBCol col="12" class="mt-2 px-2 py-1 rounded-5 d-flex justify-content-between" style="background-color: rgb(224, 224, 224);">
                       <div>
                         Item列表
@@ -940,7 +940,7 @@ function changeSectionUpdatItem(sectoin, item){
                       <MDBRow>
                         <MDBCol md="12" class="mb-2">
                           <vueDataTable :data="data2" :columns="columns2" :options="tboption2" ref="table2"
-                            style="font-size: smaller" class="border border-secondary display w-100 compact" />
+                            style="font-size: smaller" class="border border-1 border-secondary display w-100 compact" />
                         </MDBCol>
                         <MDBCol md="12" class="mb-2">
                           組合不確定度：{{combUx}}  組合自由度：{{combFr}}
@@ -948,7 +948,7 @@ function changeSectionUpdatItem(sectoin, item){
                       </MDBRow>
                     </MDBCol>
                   </MDBCol>
-                  <MDBCol md="12" style="height: calc(50%);" class="border-top overflow-auto">
+                  <MDBCol md="12" style="height: calc(50%);" class="border-1 border-top overflow-auto">
                     <MDBRow class="h-100 overflow-auto">
                       <!-- 不確定度 -->
                       <MDBCol col="4">
@@ -964,7 +964,7 @@ function changeSectionUpdatItem(sectoin, item){
                             <MDBRow>
                               <MDBCol md="12" class="mb-3">
                                 <vueDataTable :data="data3" :columns="columns3" :options="tboption3" ref="table3"
-                                  style="font-size: smaller;" class="border display w-100 compact"/>
+                                  style="font-size: smaller;" class="border border-1 display w-100 compact"/>
                               </MDBCol>
                               <MDBCol col="12" class="mb-2">
                                 <div class="d-flex justify-content-between">
@@ -1001,7 +1001,7 @@ function changeSectionUpdatItem(sectoin, item){
                             <MDBRow>
                               <MDBCol md="12" class="mb-3">
                                 <vueDataTable :data="data5" :columns="columns5" :options="tboption5" ref="table5"
-                                  style="font-size: smaller" class="border display w-100 compact" />
+                                  style="font-size: smaller" class="border border-1 display w-100 compact" />
                               </MDBCol>
                               <MDBCol col="12" class="mb-2">
                                 <div class="d-flex justify-content-between">
@@ -1040,7 +1040,7 @@ function changeSectionUpdatItem(sectoin, item){
                             <MDBRow>
                               <MDBCol md="12" class="mb-3">
                                 <vueDataTable :data="data4" :columns="columns4" :options="tboption4" ref="table4"
-                                  style="font-size: smaller" class="border display w-100 compact" />
+                                  style="font-size: smaller" class="border border-1 display w-100 compact" />
                               </MDBCol>
                               <MDBCol col="12" class="mb-2">
                                 <div class="d-flex justify-content-between">

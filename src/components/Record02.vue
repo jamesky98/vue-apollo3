@@ -2,31 +2,12 @@
 import { ref, provide, inject } from "vue";
 import path from "path-browserify";
 import {
-  MDBInput,
-  MDBSwitch,
-  MDBTextarea,
-  MDBCol,
-  MDBRow,
-  MDBContainer,
-  MDBSelect,
-  MDBDatepicker,
-  MDBBtn,
-  MDBBtnClose,
-  MDBStepper,
-  MDBStepperStep,
-  MDBStepperHead,
-  MDBStepperContent,
-  MDBStepperForm,
-  MDBModal,
-  MDBModalHeader,
-  MDBModalTitle,
-  MDBModalBody,
-  MDBModalFooter,
-  MDBTabs,
-  MDBTabNav,
-  MDBTabContent,
-  MDBTabItem,
-  MDBTabPane,
+  MDBInput,  MDBSwitch,  MDBTextarea,
+  MDBCol,  MDBRow,  MDBContainer,
+  MDBSelect,  MDBDatepicker,  MDBBtn,  MDBBtnClose,
+  MDBStepper,  MDBStepperStep,  MDBStepperHead,  MDBStepperContent,  MDBStepperForm,
+  MDBModal,  MDBModalHeader,  MDBModalTitle,  MDBModalBody,  MDBModalFooter,
+  MDBTabs,  MDBTabNav,  MDBTabContent,  MDBTabItem,  MDBTabPane,
 } from 'mdb-vue-ui-kit';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
@@ -46,6 +27,13 @@ import { computed } from "@vue/reactivity";
 import router from '../router'
 import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 import { floatify } from "../methods/mathpor";
+import { 
+    monthsFull, 
+    monthsShort, 
+    weekdaysFull, 
+    weekdaysShort,
+    weekdaysNarrow
+  } from "../methods/datePickerParams.js"
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -1736,7 +1724,7 @@ defineExpose({
                 style="font-size: smaller" class="display w-100 compact" />
             </MDBCol>
             <!-- 篩選 或 編輯 -->
-            <MDBCol col="12" class="border">
+            <MDBCol col="12" class="border border-1">
               <MDBTabs v-model="itemTabId">
                 <MDBTabNav tabsClasses="">
                   <MDBTabItem tabId="itemEditor" href="itemEditor">資料編輯</MDBTabItem>
@@ -1813,7 +1801,7 @@ defineExpose({
                 style="font-size: smaller" class="display w-100 compact" />
             </MDBCol>
             <!-- 篩選 或 編輯 -->
-            <MDBCol col="12" class="border">
+            <MDBCol col="12" class="border border-1">
               <MDBTabs v-model="prjTabId">
                 <MDBTabNav tabsClasses="">
                   <MDBTabItem tabId="prjFilter" href="prjFilter">條件篩選</MDBTabItem>
@@ -1837,11 +1825,33 @@ defineExpose({
                       </MDBCol>
                       <div></div>
                       <MDBCol col="6" class="mb-3">
-                        <MDBDatepicker size="sm" v-model="filterPrjPubDateStart" format="YYYY-MM-DD" label="發布日(起)"
+                        <MDBDatepicker 
+                          size="sm" 
+                          v-model="filterPrjPubDateStart" 
+                          format="YYYY-MM-DD" label="發布日(起)"
+                          :monthsFull = "monthsFull"
+                          :monthsShort = "monthsShort"
+                          :weekdaysFull = "weekdaysFull"
+                          :weekdaysShort = "weekdaysShort"
+                          :weekdaysNarrow = "weekdaysNarrow"
+                          confirmDateOnSelect
+                          removeCancelBtn
+                          removeOkBtn
                           ref="filterPrjPubDateStartDOM" />
                       </MDBCol>
                       <MDBCol col="6" class="mb-3">
-                        <MDBDatepicker size="sm" v-model="filterPrjPubDateEnd" format="YYYY-MM-DD" label="發布日(迄)"
+                        <MDBDatepicker 
+                          size="sm" 
+                          v-model="filterPrjPubDateEnd" 
+                          format="YYYY-MM-DD" label="發布日(迄)"
+                          :monthsFull = "monthsFull"
+                          :monthsShort = "monthsShort"
+                          :weekdaysFull = "weekdaysFull"
+                          :weekdaysShort = "weekdaysShort"
+                          :weekdaysNarrow = "weekdaysNarrow"
+                          confirmDateOnSelect
+                          removeCancelBtn
+                          removeOkBtn
                           ref="filterPrjPubDateEndDOM" />
                       </MDBCol>
                     </MDBRow>
@@ -1868,7 +1878,7 @@ defineExpose({
               <MDBCol col="12" class="mt-3 rounded-top-5 bg-info text-white">
                 校正件
               </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+              <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="showItemFromBtn(2)">查詢校正件</MDBBtn>
@@ -1900,7 +1910,7 @@ defineExpose({
                   <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                     各項參數
                   </MDBCol>
-                  <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                  <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                     <MDBRow>
                       <MDBCol col="12" class="mb-3">
                         LiDAR規格
@@ -1991,7 +2001,7 @@ defineExpose({
                   <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                     整合精度
                   </MDBCol>
-                  <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                  <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                     <MDBRow>
                       <MDBCol col="4" class="my-3">
                         <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="平面定位精度(mm)"
@@ -2008,7 +2018,7 @@ defineExpose({
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 飛航規劃
               </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+              <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="4" class="my-3">
                     <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="預定拍攝年(民國)" v-model="nowCasePlanY" />
@@ -2027,7 +2037,7 @@ defineExpose({
                     <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="飛航離地高(AGL)" v-model="nowCaseAGL" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <div style="color: red;" class="border border-danger">※AGL = 橢球高 - 195 m</div>
+                    <div style="color: red;" class="border border-1 border-danger">※AGL = 橢球高 - 195 m</div>
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="點雲密度" v-model="nowCasePtDensity" />
@@ -2040,7 +2050,7 @@ defineExpose({
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 檢附資料
               </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+              <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <!-- 光達規格 -->
                   <MDBCol col="9" class="my-3">
@@ -2095,17 +2105,39 @@ defineExpose({
           <MDBStepperContent :key="updateKey">
             <MDBRow>
               <MDBCol col="4" class="my-3">
-                <MDBDatepicker required size="sm" v-model="nowCaseRecDate" format="YYYY-MM-DD" label="送件日"
+                <MDBDatepicker 
+                  required size="sm" 
+                  v-model="nowCaseRecDate" 
+                  format="YYYY-MM-DD" label="送件日"
+                  :monthsFull = "monthsFull"
+                  :monthsShort = "monthsShort"
+                  :weekdaysFull = "weekdaysFull"
+                  :weekdaysShort = "weekdaysShort"
+                  :weekdaysNarrow = "weekdaysNarrow"
+                  confirmDateOnSelect
+                  removeCancelBtn
+                  removeOkBtn
                   ref="nowCaseRecDateDOM" />
               </MDBCol>
               <div></div>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 掃描資料
               </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+              <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="4" class="my-3">
-                    <MDBDatepicker required size="sm" v-model="nowCaseFlyDate" format="YYYY-MM-DD " label="掃描日"
+                    <MDBDatepicker 
+                      required size="sm" 
+                      v-model="nowCaseFlyDate" 
+                      format="YYYY-MM-DD " label="掃描日"
+                      :monthsFull = "monthsFull"
+                      :monthsShort = "monthsShort"
+                      :weekdaysFull = "weekdaysFull"
+                      :weekdaysShort = "weekdaysShort"
+                      :weekdaysNarrow = "weekdaysNarrow"
+                      confirmDateOnSelect
+                      removeCancelBtn
+                      removeOkBtn
                       ref="nowCaseFlyDateDOM" />
                   </MDBCol>
                   <MDBCol col="4" class="my-3">
@@ -2122,7 +2154,7 @@ defineExpose({
                       v-model="nowCaseAGLac" />
                   </MDBCol>
                   <MDBCol col="4" class="mb-3">
-                    <div style="color: red" class="border border-danger">
+                    <div style="color: red" class="border border-1 border-danger">
                       ※AGL = 橢球高 - 195 m
                     </div>
                   </MDBCol>
@@ -2140,7 +2172,7 @@ defineExpose({
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 檢附資料
               </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+              <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <!-- 航線圖 -->
                   <MDBCol col="9" class="my-3">
@@ -2190,7 +2222,7 @@ defineExpose({
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 異常註記
               </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+              <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
                     <MDBTextarea :disabled="!rGroup[2]" size="sm" label="文件異常註記" rows="2" v-model="nowCaseErrData" />
@@ -2210,14 +2242,25 @@ defineExpose({
           <MDBStepperContent :key="updateKey">
             <MDBRow>
               <MDBCol col="4" class="my-3">
-                <MDBDatepicker required size="sm" v-model="nowCaseStartDate" format="YYYY-MM-DD" label="校正開始日"
+                <MDBDatepicker 
+                  required size="sm" 
+                  v-model="nowCaseStartDate" 
+                  format="YYYY-MM-DD" label="校正開始日"
+                  :monthsFull = "monthsFull"
+                  :monthsShort = "monthsShort"
+                  :weekdaysFull = "weekdaysFull"
+                  :weekdaysShort = "weekdaysShort"
+                  :weekdaysNarrow = "weekdaysNarrow"
+                  confirmDateOnSelect
+                  removeCancelBtn
+                  removeOkBtn
                   ref="nowCaseStartDateDOM" />
               </MDBCol>
               <div></div>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 參考值
               </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+              <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click.stop="showPrjFrom = true">查詢量測作業</MDBBtn>
@@ -2238,7 +2281,7 @@ defineExpose({
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 量測紀錄
               </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+              <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="mb-3">
                     <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1"
@@ -2249,7 +2292,7 @@ defineExpose({
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 作業紀錄
               </MDBCol>
-              <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+              <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
                     <MDBBtn :disabled="!rGroup[2] || !isCalResult || !selectUcModel || selectUcModel==='-1'" size="sm" color="primary" @click.stop="computeUcBtn">
@@ -2260,7 +2303,7 @@ defineExpose({
                         path: '/sicltab09',
                         query: { caseID: props.caseID },
                       }">
-                        <span class="btn-primary">列印計算成果</span>
+                        <span class="btn-primary text-white">列印計算成果</span>
                       </RouterLink>
                     </MDBBtn>
                     <MDBBtn :disabled="!rGroup[2] || !nowCaseUcResult" size="sm" color="primary">
@@ -2268,7 +2311,7 @@ defineExpose({
                         path: '/sicltab06',
                         query: { caseID: props.caseID },
                       }">
-                        <span class="btn-primary">列印不確定度計算表</span>
+                        <span class="btn-primary text-white">列印不確定度計算表</span>
                       </RouterLink>
                     </MDBBtn>
                   </MDBCol>
@@ -2298,7 +2341,7 @@ defineExpose({
                         path: '/sicltab10',
                         query: { caseID: props.caseID },
                       }">
-                        <span class="btn-primary">列印作業紀錄表</span>
+                        <span class="btn-primary text-white">列印作業紀錄表</span>
                       </RouterLink>
                     </MDBBtn>
                   </MDBCol>
@@ -2319,7 +2362,7 @@ defineExpose({
                   <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                     報告設定
                   </MDBCol>
-                  <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                  <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                     <MDBRow>
                       <MDBCol col="12" class="my-3">
                         <MDBSwitch label="具TAF-LOGO" v-model="nowCaseHasLOGO" />
@@ -2327,8 +2370,19 @@ defineExpose({
                       <!-- 選擇報告範本 -->
                       <SelectRptTemp ref="selectReportObj" />
                       <MDBCol lg="6" class="mb-3">
-                        <MDBDatepicker required size="sm" v-model="nowCaseCompleteDate" format="YYYY-MM-DD"
-                          label="報告完成日" ref="nowCaseCompleteDateDOM" />
+                        <MDBDatepicker 
+                          required size="sm" 
+                          v-model="nowCaseCompleteDate" 
+                          format="YYYY-MM-DD" label="報告完成日"
+                          :monthsFull = "monthsFull"
+                          :monthsShort = "monthsShort"
+                          :weekdaysFull = "weekdaysFull"
+                          :weekdaysShort = "weekdaysShort"
+                          :weekdaysNarrow = "weekdaysNarrow"
+                          confirmDateOnSelect
+                          removeCancelBtn
+                          removeOkBtn 
+                          ref="nowCaseCompleteDateDOM" />
                       </MDBCol>
 
                       <MDBCol col="12" class="mb-3">
@@ -2357,7 +2411,7 @@ defineExpose({
                   <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                     檢核與簽署
                   </MDBCol>
-                  <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                  <MDBCol col="12" class="pb-3 border border-1 rounded-bottom-5">
                     <MDBRow>
                       <SelectPs />
                       <!-- 校正報告掃描檔 -->
@@ -2384,7 +2438,7 @@ defineExpose({
                   <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                     校正報告
                   </MDBCol>
-                  <MDBCol col="12" class="mb-3 border rounded-bottom-5">
+                  <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                     <MDBRow>
                       <iframe id="nowCasePDF-viewer" :src="nowCasePDFPath" style="height: calc(100vh - 16rem)"
                         class="w-100"></iframe>

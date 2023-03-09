@@ -35,6 +35,13 @@ import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
 import { downloadGCP, downloadRef } from "../methods/share.js"
 import OpenMap from "../components/Map.vue";
+import { 
+    monthsFull, 
+    monthsShort, 
+    weekdaysFull, 
+    weekdaysShort,
+    weekdaysNarrow
+  } from "../methods/datePickerParams.js"
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -1114,9 +1121,9 @@ function selectNowGCPRecord(){
                       </div>
                     </MDBCol>
                     <!-- 分割右 -->
-                    <MDBCol lg="5" class="h-100 border-start">
+                    <MDBCol lg="5" class="h-100 border-1 border-start">
                       <MDBRow>
-                        <MDBCol col="12" class="py-2 border-bottom">
+                        <MDBCol col="12" class="py-2 border-1 border-bottom">
                           <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newGcpBtn">新增</MDBBtn>
                           <MDBBtn :disabled="!rGroup[1] || !nowGcpId" size="sm" color="primary" @click="saveGcpBtn">儲存</MDBBtn>
                           <!-- <MDBBtn size="sm" color="primary" @click="delGcp">刪除</MDBBtn> -->
@@ -1138,7 +1145,7 @@ function selectNowGCPRecord(){
                           <!-- 篩選 -->
                           <MDBTabPane tabId="filter" class="h-100">
                             <MDBRow>
-                              <MDBCol col="12" class="py-2 border-bottom">
+                              <MDBCol col="12" class="py-2 border-1 border-bottom">
                                 <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="clearfilter">清除</MDBBtn>
                                 <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="dofilter">篩選</MDBBtn>
                                 <!-- <MDBBtn :disabled="!rGroup[4]" size="sm" color="primary" @click="testfun">test</MDBBtn> -->
@@ -1307,9 +1314,9 @@ function selectNowGCPRecord(){
                         style="font-size: smaller;" class="display w-100 compact" />
                     </MDBCol>
                     <!-- 分割右 -->
-                    <MDBCol lg="5" class="h-100 border-start">
+                    <MDBCol lg="5" class="h-100 border-1 border-start">
                       <MDBRow>
-                        <MDBCol col="12" class="py-2 border-bottom">
+                        <MDBCol col="12" class="py-2 border-1 border-bottom">
                           <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="newPRecordBtn">新增</MDBBtn>
                           <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="saveGcpRecordBtn">儲存</MDBBtn>
                           <!-- <MDBBtn size="sm" color="primary" @click="delGcpRecord">刪除</MDBBtn> -->
@@ -1339,7 +1346,17 @@ function selectNowGCPRecord(){
                               <MDBSelect id="GCPMGSelPrjId" size="sm" class="mt-2 col-xl-6" label="作業編號" v-model:options="nowPRecordPrjIdMU"
                                 v-model:selected="nowPRecordPrjId" ref="nowPRecordPrjIdDOM" @close="nowPrjClose($event)"/>
                               <MDBCol xl="6" class="mt-2">
-                                <MDBDatepicker size="sm" v-model="nowPRecordDate" format="YYYY-MM-DD" label="紀錄日期"
+                                <MDBDatepicker 
+                                  size="sm" 
+                                  v-model="nowPRecordDate" 
+                                  format="YYYY-MM-DD" label="紀錄日期"
+                                  :monthsFull = "monthsFull"
+                                  :monthsShort = "monthsShort"
+                                  :weekdaysFull = "weekdaysFull"
+                                  :weekdaysShort = "weekdaysShort"
+                                  :weekdaysNarrow = "weekdaysNarrow"
+                                  confirmDateOnSelect
+                                  removeCancelBtn removeOkBtn
                                   ref="nowPRecordDateDOM" />
                               </MDBCol>
 
