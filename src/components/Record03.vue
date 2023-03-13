@@ -1669,62 +1669,30 @@ defineExpose({
               <DataTable :data=" dataItem" :columns="columnsItem" :options="tboptionItem" ref="tableItem"
                 style="font-size: smaller" class="display w-100 compact" />
             </MDBCol>
-            <!-- 篩選 或 編輯 -->
+            <!-- 編輯 -->
             <MDBCol col="12" class="border border-1">
-              <MDBTabs v-model="itemTabId">
-                <MDBTabNav tabsClasses="">
-                  <MDBTabItem tabId="itemEditor" href="itemEditor">資料編輯</MDBTabItem>
-                  <MDBTabItem tabId="itemFilter" href="itemFilter">條件篩選</MDBTabItem>
-                </MDBTabNav>
-                <MDBTabContent>
-                  <!-- 編輯表單 -->
-                  <MDBTabPane class="h-100" tabId="itemEditor">
-                    <!-- 功能列 -->
-                    <div class="mt-2">
-                      <MDBBtn size="sm" color="primary" @click="saveItem">儲存</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="gotoItemMG">校正件管理</MDBBtn>
-                    </div>
-                    <MDBRow>
-                      <MDBSelect filter size="sm" class="my-3  col-6" label="儀器類型" v-model:options="selItemTypeMU"
-                        v-model:selected="selItemTypeID" ref="selItemTypeDOM" />
-                      <MDBCol col="6" class="my-3 fs-6">
-                        目前:{{ seletItemId }}
-                      </MDBCol>
-                      <!-- <div></div> -->
-                      <MDBCol col="6" class="mb-2">
-                        <MDBInput size="sm" type="text" label="廠牌" v-model="selItemChop" />
-                      </MDBCol>
-                      <MDBCol col="6" class="mb-2">
-                        <MDBInput size="sm" type="text" label="型號" v-model="selItemModel" />
-                      </MDBCol>
-                      <MDBCol col="12" class="mb-2">
-                        <MDBInput size="sm" type="text" label="序號" v-model="selItemSN" />
-                      </MDBCol>
-                    </MDBRow>
-                  </MDBTabPane>
-                  <!-- 篩選表單 -->
-                  <MDBTabPane tabId="itemFilter">
-                    <!-- 功能列 -->
-                    <div class="mt-2">
-                      <MDBBtn size="sm" color="primary" @click="doItemFilter">篩選</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="clearItemFilter">清除</MDBBtn>
-                    </div>
-                    <!-- 條件欄位 -->
-                    <MDBRow>
-                      <MDBSelect filter size="sm" class="my-3  col-6" label="儀器類型" v-model:options="filterItemTypeMU"
-                        v-model:selected="filterItemTypeID" ref="filterItemTypeDOM" />
-                      <div></div>
-                      <MDBSelect filter size="sm" class="mb-2  col-6" label="廠牌" v-model:options="filterItemChopMU"
-                        v-model:selected="filterItemChop" ref="filterItemChopDOM" />
-                      <MDBSelect filter size="sm" class="mb-2  col-6" label="型號" v-model:options="filterItemModelMU"
-                        v-model:selected="filterItemModel" ref="filterItemModelDOM" />
-                      <MDBCol col="12" class="mb-2">
-                        <MDBInput size="sm" type="text" label="序號" v-model="filterItemSN" />
-                      </MDBCol>
-                    </MDBRow>
-                  </MDBTabPane>
-                </MDBTabContent>
-              </MDBTabs>
+              <!-- 功能列 -->
+              <div class="mt-2">
+                <MDBBtn size="sm" color="primary" @click="saveItem">儲存</MDBBtn>
+                <MDBBtn size="sm" color="primary" @click="gotoItemMG">校正件管理</MDBBtn>
+              </div>
+              <MDBRow>
+                <MDBSelect filter size="sm" class="my-3  col-6" label="儀器類型" v-model:options="selItemTypeMU"
+                  v-model:selected="selItemTypeID" ref="selItemTypeDOM" />
+                <MDBCol col="6" class="my-3 fs-6">
+                  目前:{{ seletItemId }}
+                </MDBCol>
+                <!-- <div></div> -->
+                <MDBCol col="6" class="mb-2">
+                  <MDBInput size="sm" type="text" label="廠牌" v-model="selItemChop" />
+                </MDBCol>
+                <MDBCol col="6" class="mb-2">
+                  <MDBInput size="sm" type="text" label="型號" v-model="selItemModel" />
+                </MDBCol>
+                <MDBCol col="12" class="mb-2">
+                  <MDBInput size="sm" type="text" label="序號" v-model="selItemSN" />
+                </MDBCol>
+              </MDBRow>
             </MDBCol>
           </MDBRow>
         </MDBContainer>

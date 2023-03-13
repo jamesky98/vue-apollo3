@@ -20,7 +20,7 @@ import CaseGQL from "../graphql/Cases";
 import CustGQL from "../graphql/Cust";
 import EmpGQL from "../graphql/Employee";
 import ItemGQL from "../graphql/Item";
-
+import router from "../router";
 import DataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
@@ -882,8 +882,8 @@ const saveCaseSVar = computed(()=>{
     charge: parseInt(nowCaseCharge.value),
     payDate: (nowCasePayDate.value.trim() === "") ? null : (nowCasePayDate.value.trim() + "T00:00:00.000Z"),
     agreement: nowCaseAgreement.value,
-    leaderId: parseInt(nowCaseLeader.value),
-    operatorsId: parseInt(nowCaseOperator.value),
+    leaderId: (parseInt(nowCaseLeader.value)===-1)?null:parseInt(nowCaseLeader.value),
+    operatorsId: (parseInt(nowCaseOperator.value)===-1)?null:parseInt(nowCaseOperator.value),
   }
 })
 const { mutate: saveCaseS, onDone: saveCaseSOnDone, onError: saveCaseSError } = useMutation(
@@ -1784,63 +1784,32 @@ onMounted(function () {
             <DataTable :data=" dataCust" :columns="columnsCust" :options="tboptionCust" ref="tableCust"
               style="font-size: smaller" class="display w-100 compact" />
           </MDBCol>
-          <!-- 篩選 或 編輯 -->
+          <!-- 編輯 -->
           <MDBCol col="12" class="border border-1">
-            <MDBTabs v-model="custTabId">
-              <MDBTabNav tabsClasses="">
-                <MDBTabItem tabId="editor" href="editor">資料編輯</MDBTabItem>
-                <MDBTabItem tabId="filter" href="filter">條件篩選</MDBTabItem>
-              </MDBTabNav>
-              <MDBTabContent>
-                <!-- 編輯表單 -->
-                <MDBTabPane class="h-100" tabId="editor">
-                  <!-- 功能列 -->
-                  <div class="mt-2">
-                    <MDBBtn size="sm" color="primary" @click="saveCust()">儲存</MDBBtn>
-                    <MDBBtn size="sm" color="primary" @click="gotoCustMG()">顧客管理</MDBBtn>
-                  </div>
-                  <MDBRow>
-                    <MDBSelect filter size="sm" class="my-3  col-12" label="公司名稱" v-model:options="selCustOrgNameMU"
-                      v-model:selected="selCustOrgName" ref="selCustOrgNameDOM" />
-                    <MDBCol col="6" class="mb-2">
-                      <MDBInput size="sm" type="text" label="聯絡人" v-model="selCustName" />
-                    </MDBCol>
-                    <MDBCol col="6" class="mb-2">
-                      <MDBInput size="sm" type="text" label="統一編號" v-model="selCustTaxId" disabled />
-                    </MDBCol>
-                    <MDBCol col="6" class="mb-2">
-                      <MDBInput size="sm" type="text" label="聯絡電話" v-model="selCustTel" />
-                    </MDBCol>
-                    <MDBCol col="6" class="mb-2">
-                      <MDBInput size="sm" type="text" label="傳真" v-model="selCustFax" />
-                    </MDBCol>
-                    <MDBCol col="12" class="mb-2">
-                      <MDBInput size="sm" type="text" label="地址" v-model="selCustAddress" />
-                    </MDBCol>
-                  </MDBRow>
-                </MDBTabPane>
-                <!-- 篩選表單 -->
-                <MDBTabPane tabId="filter">
-                  <!-- 功能列 -->
-                  <div class="mt-2">
-                    <MDBBtn size="sm" color="primary" @click="doCustFilter()">篩選</MDBBtn>
-                    <MDBBtn size="sm" color="primary" @click="clearCustFilter()">清除</MDBBtn>
-                  </div>
-                  <!-- 條件欄位 -->
-                  <MDBRow>
-                    <MDBCol col="12" class="my-2">
-                      <MDBInput size="sm" type="text" label="公司名稱" v-model="filterCustOrgName" />
-                    </MDBCol>
-                    <MDBCol col="6" class="mb-2">
-                      <MDBInput size="sm" type="text" label="聯絡人" v-model="filterCustName" />
-                    </MDBCol>
-                    <MDBCol col="6" class="mb-2">
-                      <MDBInput size="sm" type="text" label="統一編號" v-model="filterCustTaxId" />
-                    </MDBCol>
-                  </MDBRow>
-                </MDBTabPane>
-              </MDBTabContent>
-            </MDBTabs>
+            <!-- 功能列 -->
+            <div class="mt-2">
+              <MDBBtn size="sm" color="primary" @click="saveCust()">儲存</MDBBtn>
+              <MDBBtn size="sm" color="primary" @click="gotoCustMG()">顧客管理</MDBBtn>
+            </div>
+            <MDBRow>
+              <MDBSelect filter size="sm" class="my-3  col-12" label="公司名稱" v-model:options="selCustOrgNameMU"
+                v-model:selected="selCustOrgName" ref="selCustOrgNameDOM" />
+              <MDBCol col="6" class="mb-2">
+                <MDBInput size="sm" type="text" label="聯絡人" v-model="selCustName" />
+              </MDBCol>
+              <MDBCol col="6" class="mb-2">
+                <MDBInput size="sm" type="text" label="統一編號" v-model="selCustTaxId" disabled />
+              </MDBCol>
+              <MDBCol col="6" class="mb-2">
+                <MDBInput size="sm" type="text" label="聯絡電話" v-model="selCustTel" />
+              </MDBCol>
+              <MDBCol col="6" class="mb-2">
+                <MDBInput size="sm" type="text" label="傳真" v-model="selCustFax" />
+              </MDBCol>
+              <MDBCol col="12" class="mb-2">
+                <MDBInput size="sm" type="text" label="地址" v-model="selCustAddress" />
+              </MDBCol>
+            </MDBRow>
           </MDBCol>
         </MDBRow>
       </MDBContainer>
