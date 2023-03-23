@@ -1491,7 +1491,7 @@ onMounted(function () {
                           <MDBCol md="12" class="my-2">
                             <MDBBtn :disabled="!rGroup[2] || nowEmpID===''" size="sm" color="primary">
                               <RouterLink target="_blank" :to="{ path: '/sicltab11', query: { empID: nowEmpID }, }">
-                                <span class="btn-primary">列印基本資料表</span>
+                                <span class="btn-primary text-white">列印基本資料表</span>
                               </RouterLink>
                             </MDBBtn>
                             <MDBBtn :disabled="!rGroup[2] || nowTrainID===''" size="sm" color="primary" @click="newTrainBtn">
@@ -1591,7 +1591,7 @@ onMounted(function () {
                           <MDBCol md="12" class="my-2">
                             <MDBBtn :disabled="!rGroup[2] || nowEmpowerID===''" size="sm" color="primary">
                               <RouterLink target="_blank" :to="{ path: '/sicltab12', query: { empowerID: nowEmpowerID }, }">
-                                <span class="btn-primary">列印評估表</span>
+                                <span class="btn-primary text-white">列印評估表</span>
                               </RouterLink>
                             </MDBBtn>
                             <MDBBtn :disabled="!rGroup[2] || nowEmpowerID===''" size="sm" color="primary" @click="newEmpowerBtn">

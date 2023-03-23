@@ -557,6 +557,7 @@ function setCustBtn() {
 // 執行篩選
 function caseDoFilter() {
   notProssing2.value = false;
+  console.log('showRejectCase',showRejectCase.value)
   refgetAllCase({
     statusCode: (caseStatusSEL.value)?parseInt(caseStatusSEL.value):null,
     getAllCaseId: (caseIDSEL.value)?caseIDSEL.value:null,
@@ -758,7 +759,7 @@ getNowCaseSonDone(result => {
     // 填入簡單資料
     getNowCaseData = result.data.getCasebyID;
     let getData = getNowCaseData;
-    // console.log(getData);
+    console.log('getData',getData);
     nowCaseStatusDOM.value.setValue(parseInt(getData.status_code));
     nowCaseItemID.value = (getData.item_id)?getData.item_id:"";
     nowCaseAppDate.value = (getData.app_date) ? getData.app_date.split("T")[0] : " ";
@@ -1438,7 +1439,7 @@ function saveAPIRecord(nowData) {
             toFileName: "01_CamReport" + path.extname(nowData.COL24),
           }).then(res=>{ 
             // 下載planMap
-            dlFromAPI({
+            return dlFromAPI({
             fromUrl: nowData.COL25,
             // toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
             toSubPath: "06_Case/" + nowData.caseid,
@@ -1457,7 +1458,7 @@ function saveAPIRecord(nowData) {
             toFileName: "01_LrReport" + path.extname(nowData.COL28),
           }).then(res=>{  
             // 下載planMap
-            dlFromAPI({
+            return dlFromAPI({
             fromUrl: nowData.COL29,
             toSubPath: "06_Case/" + nowData.caseid,
             toFileName: "02_POSReport" + path.extname(nowData.COL29),
@@ -1756,13 +1757,24 @@ getchecktoken().then(res=>{
   });
 
 
+function updateAllCaseList(){
+  console.log('5s update')
+  refgetAllCase().then(res=>{
+    // DataTable select nowCaseID
+    dt1.rows(function ( idx, data, node ) {
+      return (data.id===nowCaseID.value)?true:false
+    }).select();
+  });
+}
 // 加載表格選取事件
+let updateTimerId;
 onMounted(function () {
   dt1 = table1.value.dt();
   dt1.on('select', function (e, dt, type, indexes) {
     nowCaseID.value = dt.rows(indexes).data()[0].id
     refgetNowCaseS({getCasebyIdId: nowCaseID.value});
   });
+  updateTimerId = window.setInterval(updateAllCaseList,5000);
 });
 
 </script>
