@@ -115,6 +115,24 @@ const filterCustOrgName = ref("");
 const filterCustTaxId = ref("");
 const caseCalType = ref();
 
+const getAllCaseVariables = computed(()=>{
+  return {
+    statusCode: (caseStatusSEL.value)?parseInt(caseStatusSEL.value):null,
+    getAllCaseId: (caseIDSEL.value)?caseIDSEL.value:null,
+    calType: (caseTypeSEL.value)?parseInt(caseTypeSEL.value):null,
+    operatorsId: (caseOptSEL.value)?parseInt(caseOptSEL.value):null,
+    orgId: (caseCustSEL.value)?parseInt(caseCustSEL.value):null,
+    itemChop: (caseChopSEL.value)?caseChopSEL.value:null,
+    itemModel: (caseModelSEL.value)?caseModelSEL.value:null,
+    itemSn: (caseSelnumSEL.value)?caseSelnumSEL.value:null,
+    appdateStart: (caseAppDateStartSEL.value.trim())?(caseAppDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
+    appdateEnd: (caseAppDateEndtSEL.value.trim())?(caseAppDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
+    paydateStart: (casePayDateStartSEL.value.trim())?(casePayDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
+    paydateEnd: (casePayDateEndtSEL.value.trim())?(casePayDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
+    notstatus: (showRejectCase.value)?null:9,
+  }
+});
+
 // 新增案件指標
 const showCaseNew = ref(false);
 // 案件狀態
@@ -557,22 +575,8 @@ function setCustBtn() {
 // 執行篩選
 function caseDoFilter() {
   notProssing2.value = false;
-  console.log('showRejectCase',showRejectCase.value)
-  refgetAllCase({
-    statusCode: (caseStatusSEL.value)?parseInt(caseStatusSEL.value):null,
-    getAllCaseId: (caseIDSEL.value)?caseIDSEL.value:null,
-    calType: (caseTypeSEL.value)?parseInt(caseTypeSEL.value):null,
-    operatorsId: (caseOptSEL.value)?parseInt(caseOptSEL.value):null,
-    orgId: (caseCustSEL.value)?parseInt(caseCustSEL.value):null,
-    itemChop: (caseChopSEL.value)?caseChopSEL.value:null,
-    itemModel: (caseModelSEL.value)?caseModelSEL.value:null,
-    itemSn: (caseSelnumSEL.value)?caseSelnumSEL.value:null,
-    appdateStart: (caseAppDateStartSEL.value.trim())?(caseAppDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
-    appdateEnd: (caseAppDateEndtSEL.value.trim())?(caseAppDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
-    paydateStart: (casePayDateStartSEL.value.trim())?(casePayDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
-    paydateEnd: (casePayDateEndtSEL.value.trim())?(casePayDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
-    notstatus: (showRejectCase.value)?null:9,
-  })
+  // console.log('showRejectCase',showRejectCase.value)
+  refgetAllCase(getAllCaseVariables.value);
 }
 // 清除條件
 function caseClearFilter() {
@@ -892,12 +896,13 @@ const { mutate: saveCaseS, onDone: saveCaseSOnDone, onError: saveCaseSError } = 
 saveCaseSOnDone(result => {
   if (!addBtnDisabled.value) {
     //簡單模式
-    refgetAllCase().then(res=>{
-      // DataTable select nowCaseID
-      dt1.rows(function ( idx, data, node ) {
-        return (data.id===nowCaseID.value)?true:false
-      }).select();
-    });
+    // refgetAllCase(getAllCaseVariables.value).then(res=>{
+    //   // DataTable select nowCaseID
+    //   dt1.rows(function ( idx, data, node ) {
+    //     return (data.id===nowCaseID.value)?true:false
+    //   }).select();
+    // });
+    updateAllCaseList();
     infomsg.value = "ID:" + nowCaseID.value + "完成儲存";
     // alert1.value = true;
   }
@@ -978,6 +983,7 @@ function showCaseEdit() {
     // console.log('3-變更標籤，播放動畫');
     animationType.value = "slide-right-ja"
     showCaseEditAnima.value=true;
+    updateAllCaseList();
   }else if (isAniLeft.value) {
     // console.log('1-向左移==出現進階');
     // 向左移==出現進階編輯
@@ -1758,12 +1764,15 @@ getchecktoken().then(res=>{
 
 
 function updateAllCaseList(){
-  console.log('5s update')
-  refgetAllCase().then(res=>{
+  // console.log('5s update')
+  refgetAllCase(getAllCaseVariables.value).then(res=>{
     // DataTable select nowCaseID
-    dt1.rows(function ( idx, data, node ) {
-      return (data.id===nowCaseID.value)?true:false
-    }).select();
+    // console.log(showCaseLeftDiv.value)
+    if (showCaseLeftDiv.value){
+      dt1.rows(function ( idx, data, node ) {
+        return (data.id===nowCaseID.value)?true:false
+      }).select();
+    }
   });
 }
 // 加載表格選取事件
