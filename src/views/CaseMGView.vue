@@ -571,7 +571,7 @@ function caseDoFilter() {
     appdateEnd: (caseAppDateEndtSEL.value.trim())?(caseAppDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
     paydateStart: (casePayDateStartSEL.value.trim())?(casePayDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
     paydateEnd: (casePayDateEndtSEL.value.trim())?(casePayDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
-    notstatus: (showRejectCase.value)?9:null,
+    notstatus: (showRejectCase.value)?null:9,
   })
 }
 // 清除條件
