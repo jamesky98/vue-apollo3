@@ -95,7 +95,7 @@ const GETALLCASE = gql`
 `;
 
 const GETCASESTATUS = gql`
-  mutation GetCaseStatus {
+  query GetCaseStatus {
     getCaseStatus {
       code
       status
@@ -104,7 +104,7 @@ const GETCASESTATUS = gql`
 `;
 
 const GETCASECALTYPE = gql`
-  mutation GetCaseCalType {
+  query GetCaseCalType {
     getCaseCalType {
       id
       name
@@ -123,7 +123,7 @@ const GETOPERATOR = gql`
 `;
 
 const GETALLORG = gql`
-  mutation GetAllOrg {
+  query GetAllOrg {
     getAllOrg {
       id
       name
@@ -140,6 +140,18 @@ const GETALLITEM = gql`
       model
       serial_number
     }
+  }
+`;
+
+const GETUNIITEMCHOP = gql`
+  query GetUniItemChop {
+    getUniItemChop
+  }
+`;
+
+const GETUNIITEMMODEL = gql`
+  query GetUniItemModel {
+    getUniItemModel
   }
 `;
 
@@ -1128,6 +1140,8 @@ export default {
   GETOPERATOR,
   GETALLORG,
   GETALLITEM,
+  GETUNIITEMCHOP,
+  GETUNIITEMMODEL,
   GETFULLCASEBYID,
   GETSIMPLECASEBYID,
   ADDCASE,

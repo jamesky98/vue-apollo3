@@ -723,18 +723,6 @@ function clearItemFilter() {
   filterItemSN.value = "";
 }
 
-// 執行校正件篩選
-function doItemFilter() {
-  let where = {};
-  if (filterItemTypeID.value !== "") where.type = filterItemTypeID.value;
-  if (filterItemChop.value !== "") where.chop = filterItemChop.value;
-  if (filterItemModel.value !== "") where.model = filterItemModel.value;
-  if (filterItemSN.value !== "") where.serialNumber = filterItemSN.value;
-
-  // varAllItem.value = where;
-  refgetAllItem(where);
-}
-
 // 案加入後回填校正件id
 function setItemBtn() {
   switch (iType.value) {

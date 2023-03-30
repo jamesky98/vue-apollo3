@@ -330,10 +330,6 @@ const itemTabId = ref("itemEditor");
 
 const seletItemId = ref("");
 
-const selItemTypeID = ref("");
-const selItemTypeMU = ref([]);
-const selItemTypeDOM = ref();
-
 const selItemChop = ref("");
 const selItemModel = ref("");
 const selItemSN = ref("");
@@ -341,16 +337,6 @@ const selItemSN = ref("");
 const filterItemTypeID = ref("");
 const filterItemTypeMU = ref([]);
 const filterItemTypeDOM = ref();
-
-const filterItemChop = ref("");
-const filterItemChopMU = ref([]);
-const filterItemChopDOM = ref();
-
-const filterItemModel = ref("");
-const filterItemModelMU = ref([]);
-const filterItemModelDOM = ref();
-
-const filterItemSN = ref("");
 
 // 參考值列表
 const showPrjFrom = ref(false);
@@ -488,10 +474,7 @@ getNowCaseFonDone((result) => {
 
     // 出具報告
     nowCaseHasLOGO.value = getData.has_logo;
-    
-
     nowCaseReportEdit.value = getData.report_edit;
-    
     nowCaseCompleteDate.value = (getData.complete_date)?getData.complete_date.split("T")[0]:" ";
     
     nowCaseChkDate.value = getData.chk_date
@@ -654,54 +637,10 @@ getAllItemonDone((result) => {
   // 加入校正件資料
   if (!result.loading && result.data.getAllItem) {
     dataItem.value = result.data.getAllItem;
-
-    // 加入下拉式選單
-    // let choplist = [];
-    // let modellist = [];
-
-    // choplist = result.data.getAllItem.map((x) => {
-    //   return x.chop;
-    // }); //從物件陣列中取出成陣列
-    // choplist = [...new Set(choplist)]; //ES6排除重複值語法
-    // filterItemChopMU.value = choplist.sort().map((x) => {
-    //   return { text: x, value: x };
-    // });
-    // filterItemChopMU.value.unshift({ text: "", value: "" });
-
-    // modellist = result.data.getAllItem.map((x) => {
-    //   return x.model;
-    // }); //從物件陣列中取出成陣列
-    // modellist = [...new Set(modellist)]; //ES6排除重複值語法
-    // filterItemModelMU.value = modellist.sort().map((x) => {
-    //   return { text: x, value: x };
-    // });
-    // filterItemModelMU.value.unshift({ text: "", value: "" });
   }
 });
 getAllItemonError(e=>{errorHandle(e,infomsg,alert1)});
 
-// 查詢儀器類型
-const {
-  mutate: refgetAllItemType,
-  onDone: getAllItemTypeonDone,
-  onError: getAllItemTypeonError
-} = useMutation(ItemGQL.GETALLITEMTYPE);
-getAllItemTypeonDone((result) => {
-  // 加入儀器類型選單資料
-  if (!result.loading && result.data.getAllItemType) {
-    // 資料區
-    selItemTypeMU.value = result.data.getAllItemType.map((x) => {
-      return { text: x.type, value: parseInt(x.id) };
-    });
-    selItemTypeMU.value.unshift({ text: "", value: "" });
-    // 篩選區
-    filterItemTypeMU.value = result.data.getAllItemType.map((x) => {
-      return { text: x.type, value: parseInt(x.id) };
-    });
-    filterItemTypeMU.value.unshift({ text: "", value: "" });
-  }
-});
-getAllItemTypeonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢選取校正件資料
 const {
@@ -713,8 +652,6 @@ getselItemonDone((result) => {
   if (!result.loading && result && result.data.getItemByID) {
     let getData = result.data.getItemByID;
     selItemChop.value = getData.chop;
-    selItemTypeID.value = getData.type;
-    selItemTypeDOM.value.setValue(parseInt(getData.type));
     selItemModel.value = getData.model;
     selItemSN.value = getData.serial_number;
   } else {
@@ -736,33 +673,9 @@ function shownItemModal() {
     seletItemId.value = getData.id;
     refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
   });
-  refgetAllItem().then(result=>{
-    // 建立廠牌型號下拉式選單
-    let choplist = [];
-    let modellist = [];
-    choplist = result.data.getAllItem.map((x) => {
-      return x.chop;
-    }); //從物件陣列中取出成陣列
-    choplist = [...new Set(choplist)]; //ES6排除重複值語法
-    filterItemChopMU.value = choplist.sort().map((x) => {
-      return { text: x, value: x };
-    });
-    filterItemChopMU.value.unshift({ text: "", value: "" });
-
-    modellist = result.data.getAllItem.map((x) => {
-      return x.model;
-    }); //從物件陣列中取出成陣列
-    modellist = [...new Set(modellist)]; //ES6排除重複值語法
-    filterItemModelMU.value = modellist.sort().map((x) => {
-      return { text: x, value: x };
-    });
-    filterItemModelMU.value.unshift({ text: "", value: "" });
-  });
-  refgetAllItemType();
-  if (nowCaseItemID.value) {
-    seletItemId.value = nowCaseItemID.value;
-    refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
-  }
+  let where = {};
+  where.type = 1;
+  refgetAllItem(where);
 }
 
 // 儲存校正件資料
@@ -776,7 +689,6 @@ const {
     chop: selItemChop.value,
     model: selItemModel.value,
     serialNumber: selItemSN.value,
-    type: parseInt(selItemTypeID.value),
   },
 }));
 saveItemOnDone(() => {
@@ -790,32 +702,6 @@ saveItemError(e=>{errorHandle(e,infomsg,alert1)});
 // 更多編輯=>引導至校正件管理
 function gotoItemMG() {
   router.push("/cust");
-}
-
-// 清除校正件篩選條件
-function clearItemFilter() {
-  filterItemTypeID.value = "";
-  filterItemTypeDOM.value.setValue("");
-
-  filterItemChop.value = "";
-  filterItemChopDOM.value.setValue("");
-
-  filterItemModel.value = "";
-  filterItemModelDOM.value.setValue("");
-
-  filterItemSN.value = "";
-}
-
-// 執行校正件篩選
-function doItemFilter() {
-  let where = {};
-  if (filterItemTypeID.value !== "") where.type = filterItemTypeID.value;
-  if (filterItemChop.value !== "") where.chop = filterItemChop.value;
-  if (filterItemModel.value !== "") where.model = filterItemModel.value;
-  if (filterItemSN.value !== "") where.serialNumber = filterItemSN.value;
-
-  // varAllItem.value = where;
-  refgetAllItem(where);
 }
 
 // 案加入後回填校正件id
@@ -1889,9 +1775,7 @@ defineExpose({
                 <MDBBtn size="sm" color="primary" @click="gotoItemMG">校正件管理</MDBBtn>
               </div>
               <MDBRow>
-                <MDBSelect filter size="sm" class="my-3 col-6" label="儀器類型" v-model:options="selItemTypeMU"
-                  v-model:selected="selItemTypeID" ref="selItemTypeDOM" />
-                <MDBCol col="6" class="my-3 fs-6">
+                <MDBCol col="12" class="my-3 fs-6">
                   目前:{{ seletItemId }}
                 </MDBCol>
                 <!-- <div></div> -->

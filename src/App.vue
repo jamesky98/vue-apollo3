@@ -1,50 +1,198 @@
 <script setup>
-import { ref, provide, inject } from "vue";
+import { ref, provide, inject, onMounted, watch } from "vue";
+import { useQuery } from '@vue/apollo-composable';
+import CaseGQL from "./graphql/Cases";
+import EmpGQL from "./graphql/Employee";
 
-const publicPath = ref(import.meta.env.VITE_GRAPHQL_PUBLIC);
-provide("publicPath", publicPath);
+//#region 參數==========Start
+  // var upadateCaseStatusList;
+  // var upadateCaseCalTypeList;
 
-const ptStatusMU = JSON.stringify([
-  {text: "-未選取-", value: -1},
-  {text: "正常", value: "正常"},
-  {text: "遺失", value: "遺失"},
-  {text: "損毀", value: "損毀"},
-  {text: "不適用", value: "不適用"},
-  {text: "停用", value: "停用"},
-]);
-provide("ptStatusMU", ptStatusMU);
+  const myUserName = ref("");
+  provide("myUserName", myUserName);
+  const myUserRole = ref("");
+  provide("myUserRole", myUserRole);
+  // watch(myUserName,()=>{
+  //   console.log('myUserName change!!')
+  //   if(upadateCaseStatusList){
+  //     window.clearInterval(upadateCaseStatusList);
+  //   }
+  //   if(upadateCaseCalTypeList){
+  //     window.clearInterval(upadateCaseCalTypeList);
+  //   }
 
-function rGroupSetting(role,opt1){
-  let result=[];
-  // rGroup[0]最高權限
-  // rGroup[1]技術主管以上專用
-  // rGroup[2]技術人員專用(非己不可改)
-  // rGroup[3]最低權限
-  // rGroup[4]完全開放
-  switch (role){
-    case 0://訪客
-        result = [false,false,false,false,true];
+  //   upadateCaseStatusList = window.setInterval(refgetCaseStatus,5000);
+  //   upadateCaseCalTypeList = window.setInterval(refgetCaseCalType,5000);
+  // });
+
+  // 取得下載位置的公開路徑
+  const publicPath = ref(import.meta.env.VITE_GRAPHQL_PUBLIC);
+  provide("publicPath", publicPath);
+
+  //#region 點位現況請單
+  const ptStatusMU = JSON.stringify([
+    {text: "-未選取-", value: -1},
+    {text: "正常", value: "正常"},
+    {text: "遺失", value: "遺失"},
+    {text: "損毀", value: "損毀"},
+    {text: "不適用", value: "不適用"},
+    {text: "停用", value: "停用"},
+  ]);
+  provide("ptStatusMU", ptStatusMU);
+  //#endregion 點位現況請單
+
+  //#region 權限清單的讀取函式
+  function rGroupSetting(role,opt1){
+    let result=[];
+    // rGroup[0]最高權限
+    // rGroup[1]技術主管以上專用
+    // rGroup[2]技術人員專用(非己不可改)
+    // rGroup[3]最低權限
+    // rGroup[4]完全開放
+    switch (role){
+      case 0://訪客
+          result = [false,false,false,false,true];
+        break;
+      case 1://校正人員
+        if(opt1){
+          // 允許校正人員使用
+          result = [false, false, true, true, true];
+        }else{
+          // 不允許校正人員使用
+          result = [false,false,false,true,true];
+        }
+        break;
+      case 2://技術主管
+        result = [false,true,false,true,true];
+        break;
+      case 3://系統負責人
+        result = [true,true,true,true,true];
       break;
-    case 1://校正人員
-      if(opt1){
-        // 允許校正人員使用
-        result = [false, false, true, true, true];
-      }else{
-        // 不允許校正人員使用
-        result = [false,false,false,true,true];
-      }
-      break;
-    case 2://技術主管
-      result = [false,true,false,true,true];
-      break;
-    case 3://系統負責人
-      result = [true,true,true,true,true];
-    break;
+    }
+    return result;
   }
-  return result;
-}
-provide("rGroupSetting", rGroupSetting);
+  provide("rGroupSetting", rGroupSetting);
+  //#endregion 權限清單的讀取函式
 
+  //#region 查詢案件狀態列表
+    const caseStatusList = ref([]);
+    provide("caseStatusList", caseStatusList);
+    const { 
+      refetch: refgetCaseStatus, 
+      onResult: getCaseStatusonDone, 
+      onError: getCaseStatusonError,
+    } = useQuery(CaseGQL.GETCASESTATUS,null,{pollInterval:1000});
+    getCaseStatusonDone(result => {
+      // 加入案件狀態選單資料
+      if (!result.loading) {
+        let tempMU = result.data.getCaseStatus.map(x => {
+          return { text: x.status, value: parseInt(x.code)}
+        }); 
+        caseStatusList.value = tempMU;
+      }
+    });
+  //#endregion 查詢案件狀態列表
+
+  //#region 查詢校正項目列表
+    const caseCalTypeList = ref([]);
+    provide("caseCalTypeList", caseCalTypeList);
+    const { 
+      refetch: refgetCaseCalType, 
+      onResult: getCaseCalTypeonDone, 
+      onError: getCaseCalTypeonError 
+    } = useQuery(CaseGQL.GETCASECALTYPE);
+    getCaseCalTypeonDone(result => {
+      // 加入校正項目選單資料
+      if (!result.loading) {
+        let tempMU = result.data.getCaseCalType.map(x => {
+          return { text: x.name, value: parseInt(x.id) }
+        }); 
+        tempMU.unshift({ text: "", value: "" });
+        caseCalTypeList.value = tempMU;
+      }
+    });
+  //#endregion 查詢校正項目列表
+
+  //#region 查詢顧客列表 
+    const caseOrgList = ref([]);
+    provide("caseOrgList", caseOrgList);
+    const { 
+      refetch: refgetCaseAllOrg, 
+      onResult: getCaseAllOrgonDone, 
+      onError: getCaseAllOrgonError 
+    } = useQuery(CaseGQL.GETALLORG);
+    getCaseAllOrgonDone(result => {
+      // 加入顧客選單資料
+      if (!result.loading) {
+        let tempMU = result.data.getAllOrg.map(x => {
+          return { text: x.name, value: parseInt(x.id) }
+        }); 
+        tempMU.unshift({ text: "", value: "" });
+        caseOrgList.value = tempMU;
+      }
+    });
+    provide("refgetCaseAllOrg", refgetCaseAllOrg);
+
+  //#endregion 查詢顧客列表
+
+  //#region 查詢儀器廠牌及型號列表
+    const caseChopList = ref([]);
+    provide("caseChopList", caseChopList);
+    const caseModelList = ref([]);
+    provide("caseModelList", caseModelList);
+    // 廠牌
+    const { 
+      refetch: refgetChopList, 
+      onResult: getChopListonDone, 
+      onError: getChopListonError 
+    } = useQuery(CaseGQL.GETUNIITEMCHOP);
+    getChopListonDone(result=>{
+      // 加入廠牌選單資料
+      if (!result.loading) {
+        let tempMU = result.data.getUniItemChop.map(x => {
+          return { text: x, value: x }
+        }); 
+        tempMU.unshift({ text: "", value: "" });
+        caseChopList.value = tempMU;
+      }
+    });
+
+    // 型號
+    const { 
+      refetch: refgetModelList, 
+      onResult: getModelListonDone, 
+      onError: getModelListonError 
+    } = useQuery(CaseGQL.GETUNIITEMMODEL);
+    getModelListonDone(result=>{
+      // 加入型號選單資料
+      if (!result.loading) {
+        let tempMU = result.data.getUniItemModel.map(x => {
+          return { text: x, value: x }
+        }); 
+        tempMU.unshift({ text: "", value: "" });
+        caseModelList.value = tempMU;
+      }
+    });
+
+
+  //#endregion 查詢儀器廠牌及型號列表
+
+//#endregion 參數==========End
+var upadateCaseStatusList;
+var upadateCaseCalTypeList;
+var upadateAllOrgList;
+var upadateChopList;
+var upadateModelList;
+onMounted(()=>{
+  // 設定重新查詢計時器
+  // if(myUserName.value){
+    upadateCaseStatusList = window.setInterval(refgetCaseStatus,5000);
+    upadateCaseCalTypeList = window.setInterval(refgetCaseCalType,5000);
+    upadateAllOrgList = window.setInterval(refgetCaseAllOrg,5000);
+    upadateChopList = window.setInterval(refgetChopList,5000);
+    upadateModelList = window.setInterval(refgetModelList,5000);
+  // }
+})
 
 </script>
 

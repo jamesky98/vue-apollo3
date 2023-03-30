@@ -394,16 +394,20 @@ const columns_Item = [
     let maxCalDate = 0;
     for(let i=0 ; i < row.case_base.length ; i++){
       if(row.case_base[i].case_record_01){
-        // 航測
-        if(parseInt(row.case_base[i].cus.org_id)!==5){
-          let mydate = Date.parse(row.case_base[i].case_record_01.complete_date);
-          maxCalDate = (mydate > maxCalDate)?mydate:maxCalDate;
+        if(row.case_base[i].cus){
+          // 航測
+          if(parseInt(row.case_base[i].cus.org_id)!==5){
+            let mydate = Date.parse(row.case_base[i].case_record_01.complete_date);
+            maxCalDate = (mydate > maxCalDate)?mydate:maxCalDate;
+          }
         }
       }else if(row.case_base[i].case_record_02){
-        // 光達
-        if(parseInt(row.case_base[i].cus.org_id)!==5){
-          let mydate = Date.parse(row.case_base[i].case_record_02.complete_date);
-          maxCalDate = (mydate > maxCalDate)?mydate:maxCalDate;
+        if(row.case_base[i].cus){
+          // 光達
+          if(parseInt(row.case_base[i].cus.org_id)!==5){
+            let mydate = Date.parse(row.case_base[i].case_record_02.complete_date);
+            maxCalDate = (mydate > maxCalDate)?mydate:maxCalDate;
+          }
         }
       }
     }

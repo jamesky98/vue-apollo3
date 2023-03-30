@@ -7,12 +7,12 @@
     "preview": "vite preview --port 4173"
   },
   "dependencies": {
-    "@apollo/client": "^3.6.9",
+    "@apollo/client": "^3.7.10",
     "@apollo/link-context": "^2.0.0-beta.3",
     "@fortawesome/fontawesome-free": "^6.2.0",
-    "@vue/apollo-composable": "^4.0.0-alpha.18",
+    "@vue/apollo-composable": "^4.0.0-beta.4",
     "apollo-upload-client": "^17.0.0",
-    "bootstrap": "5.2.0-beta1",
+    "bootstrap": "^5.2.3",
     "browserify-fs": "^1.0.0",
     "chart.js": "^3.9.1",
     "chartjs-plugin-datalabels": "^2.1.0",
@@ -52,7 +52,8 @@
     "pinia": "^2.0.14",
     "proj4": "^2.8.0",
     "vue": "^3.2.37",
-    "vue-router": "^4.0.16"
+    "vue-router": "^4.0.16",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
