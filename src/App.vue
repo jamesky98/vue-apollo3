@@ -1,4 +1,5 @@
 <script setup>
+import { useStore } from 'vuex'
 import { ref, provide, inject, onMounted, watch } from "vue";
 import { useQuery } from '@vue/apollo-composable';
 import CaseGQL from "./graphql/Cases";
@@ -7,6 +8,11 @@ import EmpGQL from "./graphql/Employee";
 //#region 參數==========Start
   // var upadateCaseStatusList;
   // var upadateCaseCalTypeList;
+  const store = useStore();
+  const getStatusList = () => store.dispatch('getStatusList');
+
+
+
 
   const myUserName = ref("");
   provide("myUserName", myUserName);
@@ -26,19 +32,19 @@ import EmpGQL from "./graphql/Employee";
   // });
 
   // 取得下載位置的公開路徑
-  const publicPath = ref(import.meta.env.VITE_GRAPHQL_PUBLIC);
-  provide("publicPath", publicPath);
+  // const publicPath = ref(import.meta.env.VITE_GRAPHQL_PUBLIC);
+  // provide("publicPath", publicPath);
 
   //#region 點位現況請單
-  const ptStatusMU = JSON.stringify([
-    {text: "-未選取-", value: -1},
-    {text: "正常", value: "正常"},
-    {text: "遺失", value: "遺失"},
-    {text: "損毀", value: "損毀"},
-    {text: "不適用", value: "不適用"},
-    {text: "停用", value: "停用"},
-  ]);
-  provide("ptStatusMU", ptStatusMU);
+  // const ptStatusMU = JSON.stringify([
+  //   {text: "-未選取-", value: -1},
+  //   {text: "正常", value: "正常"},
+  //   {text: "遺失", value: "遺失"},
+  //   {text: "損毀", value: "損毀"},
+  //   {text: "不適用", value: "不適用"},
+  //   {text: "停用", value: "停用"},
+  // ]);
+  // provide("ptStatusMU", ptStatusMU);
   //#endregion 點位現況請單
 
   //#region 權限清單的讀取函式
@@ -74,43 +80,44 @@ import EmpGQL from "./graphql/Employee";
   provide("rGroupSetting", rGroupSetting);
   //#endregion 權限清單的讀取函式
 
+
   //#region 查詢案件狀態列表
-    const caseStatusList = ref([]);
-    provide("caseStatusList", caseStatusList);
-    const { 
-      refetch: refgetCaseStatus, 
-      onResult: getCaseStatusonDone, 
-      onError: getCaseStatusonError,
-    } = useQuery(CaseGQL.GETCASESTATUS,null,{pollInterval:1000});
-    getCaseStatusonDone(result => {
-      // 加入案件狀態選單資料
-      if (!result.loading) {
-        let tempMU = result.data.getCaseStatus.map(x => {
-          return { text: x.status, value: parseInt(x.code)}
-        }); 
-        caseStatusList.value = tempMU;
-      }
-    });
+    // const caseStatusList = ref([]);
+    // provide("caseStatusList", caseStatusList);
+    // const { 
+    //   refetch: refgetCaseStatus, 
+    //   onResult: getCaseStatusonDone, 
+    //   onError: getCaseStatusonError,
+    // } = useQuery(CaseGQL.GETCASESTATUS,null,{pollInterval:1000});
+    // getCaseStatusonDone(result => {
+    //   // 加入案件狀態選單資料
+    //   if (!result.loading) {
+    //     let tempMU = result.data.getCaseStatus.map(x => {
+    //       return { text: x.status, value: parseInt(x.code)}
+    //     }); 
+    //     caseStatusList.value = tempMU;
+    //   }
+    // });
   //#endregion 查詢案件狀態列表
 
   //#region 查詢校正項目列表
-    const caseCalTypeList = ref([]);
-    provide("caseCalTypeList", caseCalTypeList);
-    const { 
-      refetch: refgetCaseCalType, 
-      onResult: getCaseCalTypeonDone, 
-      onError: getCaseCalTypeonError 
-    } = useQuery(CaseGQL.GETCASECALTYPE);
-    getCaseCalTypeonDone(result => {
-      // 加入校正項目選單資料
-      if (!result.loading) {
-        let tempMU = result.data.getCaseCalType.map(x => {
-          return { text: x.name, value: parseInt(x.id) }
-        }); 
-        tempMU.unshift({ text: "", value: "" });
-        caseCalTypeList.value = tempMU;
-      }
-    });
+    // const caseCalTypeList = ref([]);
+    // provide("caseCalTypeList", caseCalTypeList);
+    // const { 
+    //   refetch: refgetCaseCalType, 
+    //   onResult: getCaseCalTypeonDone, 
+    //   onError: getCaseCalTypeonError 
+    // } = useQuery(CaseGQL.GETCASECALTYPE);
+    // getCaseCalTypeonDone(result => {
+    //   // 加入校正項目選單資料
+    //   if (!result.loading) {
+    //     let tempMU = result.data.getCaseCalType.map(x => {
+    //       return { text: x.name, value: parseInt(x.id) }
+    //     }); 
+    //     tempMU.unshift({ text: "", value: "" });
+    //     caseCalTypeList.value = tempMU;
+    //   }
+    // });
   //#endregion 查詢校正項目列表
 
   //#region 查詢顧客列表 
@@ -184,13 +191,14 @@ var upadateAllOrgList;
 var upadateChopList;
 var upadateModelList;
 onMounted(()=>{
+  
   // 設定重新查詢計時器
   // if(myUserName.value){
-    upadateCaseStatusList = window.setInterval(refgetCaseStatus,5000);
-    upadateCaseCalTypeList = window.setInterval(refgetCaseCalType,5000);
-    upadateAllOrgList = window.setInterval(refgetCaseAllOrg,5000);
-    upadateChopList = window.setInterval(refgetChopList,5000);
-    upadateModelList = window.setInterval(refgetModelList,5000);
+    upadateCaseStatusList = window.setInterval(getStatusList,5000);
+    // upadateCaseCalTypeList = window.setInterval(refgetCaseCalType,5000);
+    // upadateAllOrgList = window.setInterval(refgetCaseAllOrg,5000);
+    // upadateChopList = window.setInterval(refgetChopList,5000);
+    // upadateModelList = window.setInterval(refgetModelList,5000);
   // }
 })
 
