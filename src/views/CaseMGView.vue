@@ -40,6 +40,7 @@ import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
 import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 import { resolve } from "chart.js/helpers";
+import store from "../store";
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -87,7 +88,7 @@ provide("rGroup", rGroup);
     const alert1 = ref(false);
     const alertColor = ref("primary");
     const updateKey = ref(0);
-    const publicPath = inject('publicPath');
+    const publicPath = computed(() => store.state.selectlist.publicPath);
     let getNowCaseData;
     const varAllCust = ref({});
     const listOpened = ref(false);
@@ -116,7 +117,7 @@ provide("rGroup", rGroup);
   //#region 案件資訊
     //#region 案件狀態
       // 資料區
-      const caseStatusList = inject('caseStatusList');
+      const caseStatusList = computed(() => store.state.selectlist.caseStatusList);
       const nowCaseStatus = computed({
         get(){
           return (nowCase.data)?parseInt(nowCase.data.status_code):null
@@ -219,7 +220,7 @@ provide("rGroup", rGroup);
     // 申請日期
     const nowCaseAppDate = ref("");
     //#region 校正項目
-      const caseCalTypeList = inject('caseCalTypeList');
+      const caseCalTypeList = computed(() => store.state.selectlist.caseCalTypeList);
       // 資料區
       const nowCaseTypeName = ref("");
       const nowCaseTypeId = ref("");
@@ -1855,6 +1856,8 @@ watch(
 
 function ckCaseStatusList(chData){
   return new Promise((res,rej)=>{
+    console.log('caseStatusList',caseStatusList.value);
+    console.log('nowCaseStatusMU',nowCaseStatusMU.value);
     // 選單初始設定全部停用
     nowCaseStatusMU.value[0].disabled = false; // (無)
     for(let i=1; i<nowCaseStatusMU.value.length ; i++){

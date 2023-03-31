@@ -5,11 +5,11 @@ import { DefaultApolloClient } from "@vue/apollo-composable";
 import "mdb-vue-ui-kit/css/mdb.min.css";
 import App from './App.vue'
 import router from './router'
-import store from './store/index';
+import store from './store'
 
 const app = createApp({
   setup() {
-    provide(DefaultApolloClient, apolloClient);
+    provide(DefaultApolloClient ,apolloClient);
   },
   render: () => h(App),
 });

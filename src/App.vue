@@ -193,8 +193,10 @@ var upadateModelList;
 onMounted(()=>{
   
   // 設定重新查詢計時器
+  // store.dispatch('selectlist/getStatusList');
+  store.dispatch('selectlist/startCaseStatusListTimer');
   // if(myUserName.value){
-    upadateCaseStatusList = window.setInterval(getStatusList,5000);
+    // upadateCaseStatusList = window.setInterval(getStatusList,5000);
     // upadateCaseCalTypeList = window.setInterval(refgetCaseCalType,5000);
     // upadateAllOrgList = window.setInterval(refgetCaseAllOrg,5000);
     // upadateChopList = window.setInterval(refgetChopList,5000);
