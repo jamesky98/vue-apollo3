@@ -36,6 +36,7 @@ import {
     weekdaysShort,
     weekdaysNarrow
   } from "../methods/datePickerParams.js"
+import { useStore } from 'vuex'
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -51,7 +52,8 @@ const props = defineProps({
 // Information
 const infomsg = ref('');
 const alert1 =ref(false);
-const publicPath = inject('publicPath');
+const store = useStore();
+const publicPath = computed(() => store.state.selectlist.publicPath);
 
 // 案件之詳細資料
 const selectUcObj = ref();

@@ -94,7 +94,23 @@ provide("rGroup", rGroup);
     const varAllCust = ref({});
     const listOpened = ref(false);
     // 篩選條件
-    let filterVariables ={};
+    const filterVariables = computed(()=>{
+      return {
+        statusCode: (caseStatusSEL.value)?parseInt(caseStatusSEL.value):null,
+        getAllCaseId: (caseIDSEL.value)?caseIDSEL.value:null,
+        calType: (caseTypeSEL.value)?parseInt(caseTypeSEL.value):null,
+        operatorsId: (caseOptSEL.value)?parseInt(caseOptSEL.value):null,
+        orgId: (caseCustSEL.value)?parseInt(caseCustSEL.value):null,
+        itemChop: (caseChopSEL.value)?caseChopSEL.value:null,
+        itemModel: (caseModelSEL.value)?caseModelSEL.value:null,
+        itemSn: (caseSelnumSEL.value)?caseSelnumSEL.value:null,
+        appdateStart: (caseAppDateStartSEL.value.trim())?(caseAppDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
+        appdateEnd: (caseAppDateEndtSEL.value.trim())?(caseAppDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
+        paydateStart: (casePayDateStartSEL.value.trim())?(casePayDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
+        paydateEnd: (casePayDateEndtSEL.value.trim())?(casePayDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
+        notstatus: (showRejectCase.value)?null:9,
+      }
+    });
     // 新增案件指標
     const showCaseNew = ref(false);
   //#endregion Information
@@ -262,36 +278,28 @@ provide("rGroup", rGroup);
     //#endregion 校正項目
     
     // 校正件
-    const nowCaseItemID = computed({
-        get(){return (nowCase.data.item_id)?nowCase.data.item_id:null},
-        set(newValue){nowCase.data.item_id = newValue}
-      });
+    const nowCaseItemID = ref("");
     provide('nowCaseItemID', nowCaseItemID);
 
     //#region 顧客
       const caseOrgList = computed(() => store.state.selectlist.caseOrgList);
       const nowCaseCustId = ref("");
       const nowCaseCustOrgName = ref("");
+      // 統一編號
       const nowCaseCustTaxID = ref("");
+      // 聯絡人
       const nowCaseCustName = ref("");
+      // 顧客電話
       const nowCaseCustTel = ref("");
+      // 顧客傳真
       const nowCaseCustFax = ref("");
       // 聯絡地址
-      const nowCaseCustAddress = computed({
-        get(){return (nowCase.data.cus)?nowCase.data.cus.address:null},
-        set(newValue){ if(nowCase.data.cus){nowCase.data.cus.address = newValue }}
-      });
+      const nowCaseCustAddress = ref("");
       // 報告抬頭
-      const nowCaseTitle = computed({
-        get(){return (nowCase.data.title)?nowCase.data.title:null},
-        set(newValue){nowCase.data.title = newValue}
-      });
+      const nowCaseTitle = ref("");
       provide("nowCaseTitle", nowCaseTitle);
       // 報告地址
-      const nowCaseAddress = computed({
-        get(){return (nowCase.data.address)?nowCase.data.address:null},
-        set(newValue){nowCase.data.address = newValue}
-      });
+      const nowCaseAddress = ref("");
       provide("nowCaseAddress", nowCaseAddress);
 
       // 顧客公司
@@ -513,20 +521,20 @@ provide("rGroup", rGroup);
     const nowCasePayDate = ref(""); // 繳費日
     const nowCasePayDateDOM = ref();
     const nowCaseRecDate = ref(""); // 送校日期
-    // provide("nowCaseRecDate", nowCaseRecDate);
+    provide("nowCaseRecDate", nowCaseRecDate);
     const nowCaseStartDate = ref(""); //開始校正日
-    // provide("nowCaseStartDate", nowCaseStartDate);
+    provide("nowCaseStartDate", nowCaseStartDate);
     const nowCaseCompleteDate = ref(""); //報告(列印)日期
-    // provide("nowCaseCompleteDate", nowCaseCompleteDate);
+    provide("nowCaseCompleteDate", nowCaseCompleteDate);
     const nowCaseReportEdit = ref(""); //校正報告編輯檔
-    // provide("nowCaseReportEdit", nowCaseReportEdit);
+    provide("nowCaseReportEdit", nowCaseReportEdit);
 
     const nowCaseChkPersonID = ref(""); //數據檢核人
-    // provide("nowCaseChkPersonID_0", nowCaseChkPersonID);
+    provide("nowCaseChkPersonID_0", nowCaseChkPersonID);
     const nowCaseSignPersonID = ref(""); // 報告簽署人
-    // provide("nowCaseSignPersonID_0", nowCaseSignPersonID);
+    provide("nowCaseSignPersonID_0", nowCaseSignPersonID);
     const nowCaseReportScan = ref(""); //校正報告掃描檔
-    // provide("nowCaseReportScan", nowCaseReportScan);
+    provide("nowCaseReportScan", nowCaseReportScan);
 
   //#endregion 案件資訊
 
@@ -764,8 +772,7 @@ getselCustonDone(result => {
   if (!result.loading && result && result.data.getCustById) {
     // console.log('selCustID',seletCustId.value);
     let getData = result.data.getCustById
-    console.log('getData',getData);
-    
+    // console.log('getData',getData);
     selCustName.value = getData.name;
     selCustOrgName.value = getData.org_id;
     selCustOrgNameDOM.value.setValue(parseInt(selCustOrgName.value));
@@ -822,17 +829,10 @@ function gotoCustMG() {
 
 // 按加入後回填顧客id
 function setCustBtn() {
-  console.log('seletCustId',seletCustId.value);
   nowCaseCustId.value = seletCustId.value;
-  console.log('selCustOrgList',selCustOrgList.value);
-  console.log('selCustOrgName',selCustOrgName.value);
-  console.log('selCustTaxId',selCustTaxId.value);
-
   let getData = caseOrgList.value.filter((x) => {
     return parseInt(x.value) === selCustOrgName.value;
   })[0];
-
-  console.log('getData',getData);
   nowCaseCustOrgName.value = (getData) ? getData.text : "";
   nowCaseCustTaxID.value = selCustTaxId.value;
   nowCaseCustName.value = selCustName.value;
@@ -847,23 +847,8 @@ function setCustBtn() {
 // 執行篩選
 function caseDoFilter() {
   notProssing2.value = false;
-  // console.log('showRejectCase',showRejectCase.value)
-  filterVariables={
-    statusCode: (caseStatusSEL.value)?parseInt(caseStatusSEL.value):null,
-    getAllCaseId: (caseIDSEL.value)?caseIDSEL.value:null,
-    calType: (caseTypeSEL.value)?parseInt(caseTypeSEL.value):null,
-    operatorsId: (caseOptSEL.value)?parseInt(caseOptSEL.value):null,
-    orgId: (caseCustSEL.value)?parseInt(caseCustSEL.value):null,
-    itemChop: (caseChopSEL.value)?caseChopSEL.value:null,
-    itemModel: (caseModelSEL.value)?caseModelSEL.value:null,
-    itemSn: (caseSelnumSEL.value)?caseSelnumSEL.value:null,
-    appdateStart: (caseAppDateStartSEL.value.trim())?(caseAppDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
-    appdateEnd: (caseAppDateEndtSEL.value.trim())?(caseAppDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
-    paydateStart: (casePayDateStartSEL.value.trim())?(casePayDateStartSEL.value.trim() + "T00:00:00.000Z"):null,
-    paydateEnd: (casePayDateEndtSEL.value.trim())?(casePayDateEndtSEL.value.trim() + "T00:00:00.000Z"):null,
-    notstatus: (showRejectCase.value)?null:9,
-  }
-  refgetAllCase(filterVariables);
+  // refgetAllCase(filterVariables.value);
+  updateAllCaseList();
 }
 // 清除條件
 function caseClearFilter() {
@@ -912,11 +897,11 @@ const { mutate: refgetNowCaseS, onDone: getNowCaseSonDone, onError: getNowCaseSo
 getNowCaseSonDone(result => {
   if (!result.loading && result && result.data.getCasebyID) {
     // 填入簡單資料
-    nowCase.data = result.data.getCasebyID;
-    let getData = nowCase.data;
-    console.log('getData',getData);
-    console.log('nowCase',nowCase);
-    // nowCaseStatus.value = getData.status_code
+    // nowCase.data = result.data.getCasebyID;
+    let getData = result.data.getCasebyID;
+    // console.log('getData',getData);
+    // console.log('nowCase',nowCase);
+    nowCaseStatus.value = getData.status_code
     nowCaseStatusDOM.value.setValue(parseInt(nowCaseStatus.value));
     nowCaseItemID.value = (getData.item_id)?getData.item_id:"";
     nowCaseAppDate.value = (getData.app_date) ? getData.app_date.split("T")[0] : " ";
@@ -928,9 +913,9 @@ getNowCaseSonDone(result => {
     nowCaseCustName.value = (getData.cus) ? getData.cus.name : "";
     nowCaseCustTel.value = (getData.cus) ? getData.cus.tel : "";
     nowCaseCustFax.value = (getData.cus) ? getData.cus.fax : "";
-    // nowCaseCustAddress.value = (getData.cus) ? getData.cus.address : "";
-    // nowCaseTitle.value = getData.title;
-    // nowCaseAddress.value = getData.address;
+    nowCaseCustAddress.value = (getData.cus) ? getData.cus.address : "";
+    nowCaseTitle.value = getData.title;
+    nowCaseAddress.value = getData.address;
     nowCasePurpose.value = getData.purpose;
     nowCaseAgreement.value = getData.agreement;
     nowCaseCharge.value = getData.charge;
@@ -974,8 +959,6 @@ getNowCaseSonDone(result => {
       nowCaseSignPersonID.value = getData.case_record_03.sign_person_id;
       nowCaseReportScan.value = getData.case_record_03.report_scan;
     }
-    
-    
   }
 });
 getNowCaseSonError(e=>{errorHandle(e,infomsg,alert1)});
@@ -1913,43 +1896,31 @@ function ckCaseStatusList(chData){
 //#endregion  檢驗案件狀態==========End
 
 getchecktoken().then(res=>{
-    refgetAllCase({notstatus:9});
-
-    // writeCaseStatusList(caseStatusList.value);
-    // writeCaseCalTypeList(caseCalTypeList.value);
-    // writeOrgList(caseOrgList.value);
-    // writeChopList(caseChopList.value);
-    // writeModelList(caseModelList.value);
+    // refgetAllCase({notstatus:9});
+    updateAllCaseList();
     refgetCaseOperator();
     refgetCaseLeader();
   }).catch(e=>{
     errorHandle(e,infomsg,alert1);
   });
 
-
 function updateAllCaseList(){
   // console.log('5s update')
   if(listOpened.value){return}
-  refgetAllCase(filterVariables).then(res=>{
+  // console.log('filterVariables',filterVariables.value)
+  refgetAllCase(filterVariables.value).then(res=>{
     if (showCaseLeftDiv.value){
-      // let nowRow = dt1.rows(function ( idx, data, node ) {
-      //   return (data.id===nowCaseID.value)?true:false
-      // }).select();
-      let nowRow = dt1.rows(dtNowRowIndex);
-      if(nowRow.data()[0].id===nowCaseID.value){
-        nowRow.select();
-      }
+      dt1.rows(function(idx,data,node){
+        return data.id === nowCaseID.value? true:false
+      }).select();
     }
   });
 }
 // 加載表格選取事件
-let updateCaseTimer;
-let updateOperatorListTimer;
-let dtNowRowIndex;
 onMounted(function () {
   dt1 = table1.value.dt();
   dt1.on('user-select', function ( e, dt, type, cell, originalEvent ) {
-    dtNowRowIndex = cell.index(this).row;
+    let dtNowRowIndex = cell.index(this).row;
     nowCaseID.value = dt.rows(dtNowRowIndex).data()[0].id
     refgetNowCaseS({getCasebyIdId: nowCaseID.value});
   });
