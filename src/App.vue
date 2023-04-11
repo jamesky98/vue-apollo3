@@ -6,46 +6,12 @@ import CaseGQL from "./graphql/Cases";
 import EmpGQL from "./graphql/Employee";
 
 //#region 參數==========Start
-  // var upadateCaseStatusList;
-  // var upadateCaseCalTypeList;
   const store = useStore();
-  const getStatusList = () => store.dispatch('getStatusList');
-
-
-
 
   const myUserName = ref("");
   provide("myUserName", myUserName);
   const myUserRole = ref("");
   provide("myUserRole", myUserRole);
-  // watch(myUserName,()=>{
-  //   console.log('myUserName change!!')
-  //   if(upadateCaseStatusList){
-  //     window.clearInterval(upadateCaseStatusList);
-  //   }
-  //   if(upadateCaseCalTypeList){
-  //     window.clearInterval(upadateCaseCalTypeList);
-  //   }
-
-  //   upadateCaseStatusList = window.setInterval(refgetCaseStatus,5000);
-  //   upadateCaseCalTypeList = window.setInterval(refgetCaseCalType,5000);
-  // });
-
-  // 取得下載位置的公開路徑
-  // const publicPath = ref(import.meta.env.VITE_GRAPHQL_PUBLIC);
-  // provide("publicPath", publicPath);
-
-  //#region 點位現況請單
-  // const ptStatusMU = JSON.stringify([
-  //   {text: "-未選取-", value: -1},
-  //   {text: "正常", value: "正常"},
-  //   {text: "遺失", value: "遺失"},
-  //   {text: "損毀", value: "損毀"},
-  //   {text: "不適用", value: "不適用"},
-  //   {text: "停用", value: "停用"},
-  // ]);
-  // provide("ptStatusMU", ptStatusMU);
-  //#endregion 點位現況請單
 
   //#region 權限清單的讀取函式
   function rGroupSetting(role,opt1){
@@ -80,65 +46,25 @@ import EmpGQL from "./graphql/Employee";
   provide("rGroupSetting", rGroupSetting);
   //#endregion 權限清單的讀取函式
 
-
-  //#region 查詢案件狀態列表
-    // const caseStatusList = ref([]);
-    // provide("caseStatusList", caseStatusList);
+  //#region 查詢顧客列表 
+    // const caseOrgList = ref([]);
+    // provide("caseOrgList", caseOrgList);
     // const { 
-    //   refetch: refgetCaseStatus, 
-    //   onResult: getCaseStatusonDone, 
-    //   onError: getCaseStatusonError,
-    // } = useQuery(CaseGQL.GETCASESTATUS,null,{pollInterval:1000});
-    // getCaseStatusonDone(result => {
-    //   // 加入案件狀態選單資料
+    //   refetch: refgetCaseAllOrg, 
+    //   onResult: getCaseAllOrgonDone, 
+    //   onError: getCaseAllOrgonError 
+    // } = useQuery(CaseGQL.GETALLORG);
+    // getCaseAllOrgonDone(result => {
+    //   // 加入顧客選單資料
     //   if (!result.loading) {
-    //     let tempMU = result.data.getCaseStatus.map(x => {
-    //       return { text: x.status, value: parseInt(x.code)}
-    //     }); 
-    //     caseStatusList.value = tempMU;
-    //   }
-    // });
-  //#endregion 查詢案件狀態列表
-
-  //#region 查詢校正項目列表
-    // const caseCalTypeList = ref([]);
-    // provide("caseCalTypeList", caseCalTypeList);
-    // const { 
-    //   refetch: refgetCaseCalType, 
-    //   onResult: getCaseCalTypeonDone, 
-    //   onError: getCaseCalTypeonError 
-    // } = useQuery(CaseGQL.GETCASECALTYPE);
-    // getCaseCalTypeonDone(result => {
-    //   // 加入校正項目選單資料
-    //   if (!result.loading) {
-    //     let tempMU = result.data.getCaseCalType.map(x => {
+    //     let tempMU = result.data.getAllOrg.map(x => {
     //       return { text: x.name, value: parseInt(x.id) }
     //     }); 
     //     tempMU.unshift({ text: "", value: "" });
-    //     caseCalTypeList.value = tempMU;
+    //     caseOrgList.value = tempMU;
     //   }
     // });
-  //#endregion 查詢校正項目列表
-
-  //#region 查詢顧客列表 
-    const caseOrgList = ref([]);
-    provide("caseOrgList", caseOrgList);
-    const { 
-      refetch: refgetCaseAllOrg, 
-      onResult: getCaseAllOrgonDone, 
-      onError: getCaseAllOrgonError 
-    } = useQuery(CaseGQL.GETALLORG);
-    getCaseAllOrgonDone(result => {
-      // 加入顧客選單資料
-      if (!result.loading) {
-        let tempMU = result.data.getAllOrg.map(x => {
-          return { text: x.name, value: parseInt(x.id) }
-        }); 
-        tempMU.unshift({ text: "", value: "" });
-        caseOrgList.value = tempMU;
-      }
-    });
-    provide("refgetCaseAllOrg", refgetCaseAllOrg);
+    // provide("refgetCaseAllOrg", refgetCaseAllOrg);
 
   //#endregion 查詢顧客列表
 
@@ -185,16 +111,15 @@ import EmpGQL from "./graphql/Employee";
   //#endregion 查詢儀器廠牌及型號列表
 
 //#endregion 參數==========End
-var upadateCaseStatusList;
-var upadateCaseCalTypeList;
-var upadateAllOrgList;
-var upadateChopList;
-var upadateModelList;
+
 onMounted(()=>{
   
-  // 設定重新查詢計時器
-  // store.dispatch('selectlist/getStatusList');
-  store.dispatch('selectlist/startCaseStatusListTimer');
+  // 取得清單內容
+  console.log('do dispatch')
+  store.dispatch('selectlist/fetchStatusList');
+  store.dispatch('selectlist/fetchCalTypeList');
+  store.dispatch('selectlist/fetchOrgList');
+  // store.dispatch('selectlist/startCaseStatusListTimer');
   // if(myUserName.value){
     // upadateCaseStatusList = window.setInterval(getStatusList,5000);
     // upadateCaseCalTypeList = window.setInterval(refgetCaseCalType,5000);

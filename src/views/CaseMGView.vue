@@ -40,7 +40,7 @@ import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
 import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 import { resolve } from "chart.js/helpers";
-import store from "../store";
+import { useStore } from 'vuex'
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -88,8 +88,9 @@ provide("rGroup", rGroup);
     const alert1 = ref(false);
     const alertColor = ref("primary");
     const updateKey = ref(0);
+    const store = useStore();
     const publicPath = computed(() => store.state.selectlist.publicPath);
-    let getNowCaseData;
+
     const varAllCust = ref({});
     const listOpened = ref(false);
     // 篩選條件
@@ -99,13 +100,7 @@ provide("rGroup", rGroup);
   //#endregion Information
 
   //#region 查詢顧客之參數
-    const selCustTaxId = computed(() => {
-      let getData = selCustOrgList.value.filter((x) => {
-        return parseInt(x.id) === selCustOrgName.value;
-      })[0];
-      return (getData) ? getData.tax_id : "";
-    });
-
+    const selCustTaxId = ref("");
     const selCustTel = ref("");
     const selCustFax = ref("");
     const selCustAddress = ref("");
@@ -119,15 +114,10 @@ provide("rGroup", rGroup);
       // 資料區
       const caseStatusList = computed(() => store.state.selectlist.caseStatusList);
       const nowCaseStatus = computed({
-        get(){
-          return (nowCase.data)?parseInt(nowCase.data.status_code):null
-        },
-        set(newValue){
-          nowCase.data.status_code = newValue;
-        }
+        get(){return (nowCase.data)?parseInt(nowCase.data.status_code):null},
+        set(newValue){nowCase.data.status_code = newValue}
       });
       const nowCaseStatusMU = ref([]);
-      provide("nowCaseStatusMU", nowCaseStatusMU);
       const nowCaseStatusDOM = ref();
       // 篩選區
       const caseStatusMU = ref([]);
@@ -279,23 +269,29 @@ provide("rGroup", rGroup);
     provide('nowCaseItemID', nowCaseItemID);
 
     //#region 顧客
-      const caseOrgList = inject('caseOrgList');
-      const refgetCaseAllOrg = inject('refgetCaseAllOrg');
-
+      const caseOrgList = computed(() => store.state.selectlist.caseOrgList);
       const nowCaseCustId = ref("");
       const nowCaseCustOrgName = ref("");
       const nowCaseCustTaxID = ref("");
       const nowCaseCustName = ref("");
       const nowCaseCustTel = ref("");
       const nowCaseCustFax = ref("");
-      const nowCaseCustAddress = ref("");
+      // 聯絡地址
+      const nowCaseCustAddress = computed({
+        get(){return (nowCase.data.cus)?nowCase.data.cus.address:null},
+        set(newValue){ if(nowCase.data.cus){nowCase.data.cus.address = newValue }}
+      });
       // 報告抬頭
       const nowCaseTitle = computed({
         get(){return (nowCase.data.title)?nowCase.data.title:null},
         set(newValue){nowCase.data.title = newValue}
       });
       provide("nowCaseTitle", nowCaseTitle);
-      const nowCaseAddress = ref("");
+      // 報告地址
+      const nowCaseAddress = computed({
+        get(){return (nowCase.data.address)?nowCase.data.address:null},
+        set(newValue){nowCase.data.address = newValue}
+      });
       provide("nowCaseAddress", nowCaseAddress);
 
       // 顧客公司
@@ -305,7 +301,6 @@ provide("rGroup", rGroup);
 
       // 顧客列表
       const showCustFrom = ref(false);
-      const custTabId = ref("editor");
       const seletCustId = ref("");
       const selCustName = ref("");
       const selCustOrgName = ref("");
@@ -330,9 +325,6 @@ provide("rGroup", rGroup);
         }).then(res=>{
           selCustOrgNameMU.value = JSON.parse(JSON.stringify(tempList));
           return selCustOrgNameMU.value
-        }).then(res=>{
-          selCustOrgList.value = JSON.parse(JSON.stringify(tempList));
-          return selCustOrgList.value
         }).then(res=>{
           // 寫回保留值
           caseCustSEL.value = tempCaseCustSEL;
@@ -772,9 +764,12 @@ getselCustonDone(result => {
   if (!result.loading && result && result.data.getCustById) {
     // console.log('selCustID',seletCustId.value);
     let getData = result.data.getCustById
+    console.log('getData',getData);
+    
     selCustName.value = getData.name;
-    selCustOrgNameDOM.value.setValue(parseInt(getData.org_id));
-    // selCustTaxId.value = getData.cus_org.tax_id;
+    selCustOrgName.value = getData.org_id;
+    selCustOrgNameDOM.value.setValue(parseInt(selCustOrgName.value));
+    selCustTaxId.value = getData.cus_org.tax_id;
     selCustTel.value = getData.tel;
     selCustFax.value = getData.fax;
     selCustAddress.value = getData.address;
@@ -814,7 +809,7 @@ const { mutate: saveCust, onDone: saveCustOnDone, onError: saveCustError } = use
 saveCustOnDone(() => {
   refgetAllCust();
   refgetselCust({getCustByIdId: seletCustId.value});
-  refgetCaseAllOrg();
+  store.dispatch('selectlist/fetchOrgList');
   infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
   alert1.value = true;
 });
@@ -825,30 +820,20 @@ function gotoCustMG() {
   router.push('/cust');
 }
 
-// 清除顧客篩選條件
-function clearCustFilter() {
-  filterCustName.value = "";
-  filterCustOrgName.value = "";
-  filterCustTaxId.value = "";
-}
-
-// 執行顧客篩選
-function doCustFilter() {
-  let where = {};
-  if (filterCustOrgName.value !== "") where.orgName = filterCustOrgName.value;
-  if (filterCustName.value !== "") where.name = filterCustName.value;
-  if (filterCustTaxId.value !== "") where.orgTaxid = filterCustTaxId.value;
-
-  varAllCust.value = where;
-}
-
-// 案加入後回填顧客id
+// 按加入後回填顧客id
 function setCustBtn() {
+  console.log('seletCustId',seletCustId.value);
   nowCaseCustId.value = seletCustId.value;
-  let getData = selCustOrgList.value.filter((x) => {
-    return parseInt(x.id) === selCustOrgName.value;
+  console.log('selCustOrgList',selCustOrgList.value);
+  console.log('selCustOrgName',selCustOrgName.value);
+  console.log('selCustTaxId',selCustTaxId.value);
+
+  let getData = caseOrgList.value.filter((x) => {
+    return parseInt(x.value) === selCustOrgName.value;
   })[0];
-  nowCaseCustOrgName.value = (getData) ? getData.name : "";
+
+  console.log('getData',getData);
+  nowCaseCustOrgName.value = (getData) ? getData.text : "";
   nowCaseCustTaxID.value = selCustTaxId.value;
   nowCaseCustName.value = selCustName.value;
   nowCaseCustTel.value = selCustTel.value;
@@ -943,9 +928,9 @@ getNowCaseSonDone(result => {
     nowCaseCustName.value = (getData.cus) ? getData.cus.name : "";
     nowCaseCustTel.value = (getData.cus) ? getData.cus.tel : "";
     nowCaseCustFax.value = (getData.cus) ? getData.cus.fax : "";
-    nowCaseCustAddress.value = (getData.cus) ? getData.cus.address : "";
+    // nowCaseCustAddress.value = (getData.cus) ? getData.cus.address : "";
     // nowCaseTitle.value = getData.title;
-    nowCaseAddress.value = getData.address;
+    // nowCaseAddress.value = getData.address;
     nowCasePurpose.value = getData.purpose;
     nowCaseAgreement.value = getData.agreement;
     nowCaseCharge.value = getData.charge;
@@ -1856,8 +1841,6 @@ watch(
 
 function ckCaseStatusList(chData){
   return new Promise((res,rej)=>{
-    console.log('caseStatusList',caseStatusList.value);
-    console.log('nowCaseStatusMU',nowCaseStatusMU.value);
     // 選單初始設定全部停用
     nowCaseStatusMU.value[0].disabled = false; // (無)
     for(let i=1; i<nowCaseStatusMU.value.length ; i++){
@@ -1931,11 +1914,12 @@ function ckCaseStatusList(chData){
 
 getchecktoken().then(res=>{
     refgetAllCase({notstatus:9});
-    writeCaseStatusList(caseStatusList.value);
-    writeCaseCalTypeList(caseCalTypeList.value);
-    writeOrgList(caseOrgList.value);
-    writeChopList(caseChopList.value);
-    writeModelList(caseModelList.value);
+
+    // writeCaseStatusList(caseStatusList.value);
+    // writeCaseCalTypeList(caseCalTypeList.value);
+    // writeOrgList(caseOrgList.value);
+    // writeChopList(caseChopList.value);
+    // writeModelList(caseModelList.value);
     refgetCaseOperator();
     refgetCaseLeader();
   }).catch(e=>{
@@ -1969,8 +1953,13 @@ onMounted(function () {
     nowCaseID.value = dt.rows(dtNowRowIndex).data()[0].id
     refgetNowCaseS({getCasebyIdId: nowCaseID.value});
   });
-  updateCaseTimer = window.setInterval(updateAllCaseList,5000);
-  updateOperatorListTimer = window.setInterval(refgetCaseOperator,5000);
+
+  // 將清單填入DOM中
+  writeCaseStatusList(caseStatusList.value);
+  writeCaseCalTypeList(caseCalTypeList.value);
+  writeOrgList(caseOrgList.value);
+  // updateCaseTimer = window.setInterval(updateAllCaseList,5000);
+  // updateOperatorListTimer = window.setInterval(refgetCaseOperator,5000);
 });
 
 </script>

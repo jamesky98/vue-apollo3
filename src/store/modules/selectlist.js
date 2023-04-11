@@ -8,6 +8,7 @@ provideApolloClient(apolloClient);
 
 const { refetch: refgetCaseStatus } = useQuery(CaseGQL.GETCASESTATUS);
 const { refetch: refgetCaseCalType } = useQuery(CaseGQL.GETCASECALTYPE);
+const { refetch: refgetCaseAllOrg } = useQuery(CaseGQL.GETALLORG);
 
 const state = () => ({
   publicPath: import.meta.env.VITE_GRAPHQL_PUBLIC,
@@ -20,47 +21,41 @@ const state = () => ({
     {text: "停用", value: "停用"},
   ]),
   caseStatusList: [],
-  updateCaseStatusListTimer: null,
   caseCalTypeList: [],
-  updateCaseCalTypeListTimer: null,
+  caseOrgList: [],
+
 })
 
-const getters = {}
+const getters = {
+}
 
 const actions = {
-  getStatusList ({ commit, state }, payload) {
-    console.log('getStatusList!!!')
-    return refgetCaseStatus().then(result=>{
-      let tempMU = result.data.getCaseStatus.map(x => {
+  async fetchStatusList ({ commit, state }, payload) {
+    refgetCaseStatus().then(res=>{
+      let tempMU = res.data.getCaseStatus.map(x => {
         return { text: x.status, value: parseInt(x.code) }
       }); 
       commit('writeStatusList', tempMU);
-      return tempMU;
-  })},
-  // 啟動定時更新
-  startCaseStatusListTimer(context, payload){
-    console.log('do startCaseStatusListTimer!!!')
-
-    // let result = actions.getStatusList();
-    console.log('context',context);
-    let timeId = window.setInterval(this.getStatusList,5000);
-    console.log('timeId',timeId)
-    commit('writeStatusListTimer', timeId);
+    });
   },
-  getCalTypeList ({ commit, state }, payload) {
-    refgetCaseCalType().then(result=>{
-      let tempMU = result.data.getCaseCalType.map(x => {
+  async fetchCalTypeList ({ commit, state }, payload) {
+    refgetCaseCalType().then(res=>{
+      let tempMU = res.data.getCaseCalType.map(x => {
         return { text: x.name, value: parseInt(x.id) }
       }); 
       tempMU.unshift({ text: "", value: "" });
-      console.log('CalTypeList',tempMU);
       commit('writeCalTypeList', tempMU);
-  })},
-  // 啟動定時更新
-  startCalTypeListTimer({ commit, state }, payload){
-    let timeId = window.setInterval(this.getCalTypeList,5000);
-    commit('writeCalTypeListTimer', timeId);
+    });
   },
+  async fetchOrgList ({ commit, state }, payload) {
+    refgetCaseAllOrg().then(res=>{
+      let tempMU = res.data.getAllOrg.map(x => {
+        return { text: x.name, value: parseInt(x.id) }
+      }); 
+      tempMU.unshift({ text: "", value: "" });
+      commit('writeOrgList', tempMU);
+    })
+  }
 }
 
 const mutations = {
@@ -68,17 +63,14 @@ const mutations = {
   writeStatusList(state, statusList){
     state.caseStatusList = [...statusList];
   },
-  writeStatusListTimer(state, timeId){
-    state.updateCaseStatusListTimer = timeId;
-  },
   // 校正項目清單
   writeCalTypeList(state, calTypeList){
     state.caseCalTypeList = [...calTypeList];
   },
-  writeCalTypeListTimer(state, timeId){
-    state.updateCaseCalTypeListTimer = timeId;
+  // 顧客機關清單
+  writeOrgList(state, orgList){
+    state.caseOrgList = [...orgList];
   },
-
 }
 
 export default {
