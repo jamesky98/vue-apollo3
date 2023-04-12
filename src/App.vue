@@ -46,28 +46,6 @@ import EmpGQL from "./graphql/Employee";
   provide("rGroupSetting", rGroupSetting);
   //#endregion 權限清單的讀取函式
 
-  //#region 查詢顧客列表 
-    // const caseOrgList = ref([]);
-    // provide("caseOrgList", caseOrgList);
-    // const { 
-    //   refetch: refgetCaseAllOrg, 
-    //   onResult: getCaseAllOrgonDone, 
-    //   onError: getCaseAllOrgonError 
-    // } = useQuery(CaseGQL.GETALLORG);
-    // getCaseAllOrgonDone(result => {
-    //   // 加入顧客選單資料
-    //   if (!result.loading) {
-    //     let tempMU = result.data.getAllOrg.map(x => {
-    //       return { text: x.name, value: parseInt(x.id) }
-    //     }); 
-    //     tempMU.unshift({ text: "", value: "" });
-    //     caseOrgList.value = tempMU;
-    //   }
-    // });
-    // provide("refgetCaseAllOrg", refgetCaseAllOrg);
-
-  //#endregion 查詢顧客列表
-
   //#region 查詢儀器廠牌及型號列表
     const caseChopList = ref([]);
     provide("caseChopList", caseChopList);
@@ -114,11 +92,11 @@ import EmpGQL from "./graphql/Employee";
 
 onMounted(()=>{
   
-  // 取得清單內容
-  console.log('do dispatch')
-  store.dispatch('selectlist/fetchStatusList');
-  store.dispatch('selectlist/fetchCalTypeList');
-  store.dispatch('selectlist/fetchOrgList');
+  // 取得清單內容應在登入後取得
+  // console.log('do dispatch')
+  // store.dispatch('selectlist/fetchStatusList');
+  // store.dispatch('selectlist/fetchCalTypeList');
+  // store.dispatch('selectlist/fetchOrgList');
   // store.dispatch('selectlist/startCaseStatusListTimer');
   // if(myUserName.value){
     // upadateCaseStatusList = window.setInterval(getStatusList,5000);
@@ -136,14 +114,15 @@ onMounted(()=>{
 </template>
 
 <style>
-
-@import 'datatables.net-dt';
-@import 'datatables.net-bs5';
 @import "@fortawesome/fontawesome-free/css/all.min.css";
+@import 'datatables.net-dt';
+/* @import 'datatables.net-buttons-dt'; */
+@import 'datatables.net-buttons-bs5';
+@import 'datatables.net-select-dt';
+@import 'datatables.net-responsive-dt';
 /* @import "./assets/cwtexyen.css";
 @import "./assets/Roboto.css";
 @import "./assets/notosanstc.css"; */
-
 
 html, body, #app{
   height: 100%;
@@ -251,9 +230,9 @@ tr.selected>td>span.typeM {
   color: white;
 }
 
-div.dataTables_filter {
+/* div.dataTables_filter {
   padding-top: 0.85em;
-}
+} */
 .img-allfluid{
   height: auto;
   max-width: 100%;

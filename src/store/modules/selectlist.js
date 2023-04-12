@@ -1,6 +1,6 @@
 import apolloClient from '../../apolloclient'
 import { provideApolloClient } from "@vue/apollo-composable";
-import { useQuery } from '@vue/apollo-composable';
+import { useQuery, useLazyQuery } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
 import EmpGQL from "../../graphql/Employee";
 
@@ -31,6 +31,7 @@ const getters = {
 
 const actions = {
   async fetchStatusList ({ commit, state }, payload) {
+    console.log('fetchStatusList')
     refgetCaseStatus().then(res=>{
       let tempMU = res.data.getCaseStatus.map(x => {
         return { text: x.status, value: parseInt(x.code) }
@@ -39,6 +40,7 @@ const actions = {
     });
   },
   async fetchCalTypeList ({ commit, state }, payload) {
+    console.log('fetchCalTypeList')
     refgetCaseCalType().then(res=>{
       let tempMU = res.data.getCaseCalType.map(x => {
         return { text: x.name, value: parseInt(x.id) }
@@ -48,6 +50,7 @@ const actions = {
     });
   },
   async fetchOrgList ({ commit, state }, payload) {
+    console.log('fetchOrgList')
     refgetCaseAllOrg().then(res=>{
       let tempMU = res.data.getAllOrg.map(x => {
         return { text: x.name, value: parseInt(x.id) }

@@ -23,9 +23,6 @@ import CustGQL from "../graphql/Cust";
 import EmpGQL from "../graphql/Employee";
 import ItemGQL from "../graphql/Item";
 import router from "../router";
-import DataTable from 'datatables.net-vue3';
-import DataTableBs5 from 'datatables.net-bs5';
-import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
 import { 
     monthsFull, 
@@ -41,11 +38,25 @@ import UsersGQL from "../graphql/Users";
 import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 import { resolve } from "chart.js/helpers";
 import { useStore } from 'vuex'
+// dataTable
+import DataTable from 'datatables.net-vue3';
+import DataTablesCore from 'datatables.net';
+import Select from 'datatables.net-select';
+import ButtonsHtml5 from 'datatables.net-buttons/js/buttons.html5';
+import print from 'datatables.net-buttons/js/buttons.print'
+import colvis from 'datatables.net-buttons/js/buttons.colVis'
+import 'datatables.net-responsive';
+import ButtonsBs5 from 'datatables.net-buttons-bs5';
+// import 'datatables.net-select';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
-DataTable.use(DataTableBs5);
+DataTable.use(DataTablesCore);
 DataTable.use(Select);
+DataTable.use(ButtonsHtml5);
+DataTable.use(print);
+DataTable.use(colvis);
+DataTable.use(ButtonsBs5);
 
 //#region 取得權限==========Start
   // const myUserId = ref("");
@@ -129,10 +140,7 @@ provide("rGroup", rGroup);
     //#region 案件狀態
       // 資料區
       const caseStatusList = computed(() => store.state.selectlist.caseStatusList);
-      const nowCaseStatus = computed({
-        get(){return (nowCase.data)?parseInt(nowCase.data.status_code):null},
-        set(newValue){nowCase.data.status_code = newValue}
-      });
+      const nowCaseStatus = ref("");
       const nowCaseStatusMU = ref([]);
       const nowCaseStatusDOM = ref();
       // 篩選區
@@ -685,13 +693,34 @@ const columns1 = [
   { data: "agreement", title: "註明事項", defaultContent: "-", visible: true },
 ];
 const tboption1 = {
-  dom: 'tif',
+  dom: 'Bfti',
+  buttons: [
+    {
+      text: '重新整理',
+      action: function ( e, dt, node, config ) {
+        updateAllCaseList();
+      }
+    },
+    {
+      extend: 'copy',
+      text: '複製',
+      exportOptions: {
+        modifier: {
+          selected: null
+        }
+      }
+    },
+    {
+      extend: 'colvis',
+      text: '顯示欄位',
+    }
+  ],
   select: {
     style: 'single',
     info: false
   },
   order: [[1, 'desc']],
-  scrollY: 'calc(75vh - 12.5rem)',
+  scrollY: 'calc(75vh - 15rem)',
   scrollX: true,
   lengthChange: false,
   searching: true,
@@ -1824,6 +1853,7 @@ watch(
 
 function ckCaseStatusList(chData){
   return new Promise((res,rej)=>{
+    console.log(nowCaseStatusMU.value)
     // 選單初始設定全部停用
     nowCaseStatusMU.value[0].disabled = false; // (無)
     for(let i=1; i<nowCaseStatusMU.value.length ; i++){
@@ -1892,7 +1922,6 @@ function ckCaseStatusList(chData){
   
 }
 
-
 //#endregion  檢驗案件狀態==========End
 
 getchecktoken().then(res=>{
@@ -1925,12 +1954,11 @@ onMounted(function () {
     refgetNowCaseS({getCasebyIdId: nowCaseID.value});
   });
 
-  // 將清單填入DOM中
-  writeCaseStatusList(caseStatusList.value);
-  writeCaseCalTypeList(caseCalTypeList.value);
-  writeOrgList(caseOrgList.value);
-  // updateCaseTimer = window.setInterval(updateAllCaseList,5000);
-  // updateOperatorListTimer = window.setInterval(refgetCaseOperator,5000);
+  // 取得清單內容應在登入後取得
+  console.log('do dispatch')
+  store.dispatch('selectlist/fetchStatusList');
+  store.dispatch('selectlist/fetchCalTypeList');
+  store.dispatch('selectlist/fetchOrgList');
 });
 
 </script>
@@ -2109,7 +2137,7 @@ onMounted(function () {
                         <MDBSpinner size="md" color="primary" />Loading...
                       </div>
                       <DataTable :data=" data1" :columns="columns1" :options="tboption1" ref="table1"
-                        style="font-size: smaller" class="display w-100 compact" />
+                        style="font-size: smaller; padding-top: 1rem;" class="display w-100 compact" />
                     </MDBCol>
                     <!-- 下方篩選 -->
                     <MDBCol md="12" class="h-25 mb-2 border border-5 rounded-8 shadow-4">
