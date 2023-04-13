@@ -2,7 +2,7 @@
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import path from "path-browserify";
-import { ref, unref, onMounted, provide, inject } from "vue";
+import { ref, onMounted, provide, inject, watch, isProxy, toRaw } from "vue";
 import {
   MDBInput,
   MDBCol,
@@ -28,10 +28,6 @@ import {
 import ToolsGQL from "../graphql/Tools";
 import GcpGQL from "../graphql/Gcp";
 import PrjGQL from "../graphql/Prj";
-
-import DataTable from 'datatables.net-vue3';
-import DataTableBs5 from 'datatables.net-bs5';
-import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
 import { downloadGCP, downloadRef } from "../methods/share.js"
 import OpenMap from "../components/Map.vue";
@@ -42,6 +38,17 @@ import {
     weekdaysShort,
     weekdaysNarrow
   } from "../methods/datePickerParams.js"
+import { useStore } from 'vuex'
+
+// dataTable
+import DataTable from 'datatables.net-vue3';
+import DataTablesCore from 'datatables.net';
+import Select from 'datatables.net-select';
+import ButtonsHtml5 from 'datatables.net-buttons/js/buttons.html5';
+import print from 'datatables.net-buttons/js/buttons.print'
+import colvis from 'datatables.net-buttons/js/buttons.colVis'
+import 'datatables.net-responsive';
+import ButtonsBs5 from 'datatables.net-buttons-bs5';
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -50,8 +57,12 @@ import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
-DataTable.use(DataTableBs5);
+DataTable.use(DataTablesCore);
 DataTable.use(Select);
+DataTable.use(ButtonsHtml5);
+DataTable.use(print);
+DataTable.use(colvis);
+DataTable.use(ButtonsBs5);
 
 //#region 取得權限==========Start
 // const myUserId = ref("");
@@ -83,9 +94,10 @@ const rGroup =computed(()=>{
 
 //#region 參數==========Start
 // infomation
-const publicPath = inject('publicPath');
 const NavItem = ref("gcps");
 provide("NavItem",NavItem);
+const store = useStore();
+const publicPath = computed(() => store.state.selectlist.publicPath);
 
 const updateKey = ref(0);
 const updateKey2 = ref(0);
@@ -112,7 +124,7 @@ const selGcpEnableMU = ref([]);
 const selGcpEnableDOM = ref();
 
 const selGcpStatus = ref("");
-const selGcpStatusMU = ref(JSON.parse(inject('ptStatusMU')));
+const selGcpStatusMU = computed(() => JSON.parse(store.state.selectlist.ptStatusMU));
 const selGcpStatusDOM = ref();
 
 const selGcpContact = ref("");
@@ -220,7 +232,7 @@ const nowPRecordPersonMU = ref([]);
 const nowPRecordPersonDOM = ref();
 
 const nowPRecordPtStatus = ref("");
-const nowPRecordPtStatusMU = ref(JSON.parse(inject('ptStatusMU')));
+const nowPRecordPtStatusMU = computed(() => JSON.parse(store.state.selectlist.ptStatusMU));
 const nowPRecordPtStatusDOM = ref();
 
 const nowPRecordE = ref("");

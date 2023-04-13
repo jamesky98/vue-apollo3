@@ -1,7 +1,7 @@
 <script setup>
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
-import { ref, onMounted, provide, inject } from "vue";
+import { ref, onMounted, provide, inject, watch, isProxy, toRaw } from "vue";
 import path, { join } from "path-browserify";
 import {
   MDBInput,
@@ -164,9 +164,31 @@ const nowTrainComment = ref("");
 // 授權詳細編輯資料==========start
 const nowEmpowerID = ref("");
 const nowEmpowerPersonID = ref("");
+
+const listOpened = ref(false)
+const caseCalTypeList = computed(() => store.state.selectlist.caseCalTypeList);
 const nowEmpowerCalTypeID = ref("");
 const nowEmpowerCalTypeIdMU = ref([]);
 const nowEmpowerCalTypeIdDOM = ref();
+// 偵測清單是否更新
+watch(caseCalTypeList,(newList)=>{
+  writeEmpowerCalTypeList(newList);
+})
+// 將上層案件狀態資料寫入本組件之選單物件
+function writeEmpowerCalTypeList(newList){
+  if(listOpened.value){return}
+  let tempList = (isProxy(newList))?toRaw(newList):newList;
+  // 保留暫存值
+  let tempCalTypeID = nowEmpowerCalTypeID.value;
+  new Promise((res,rej)=>{
+    nowEmpowerCalTypeIdMU.value = JSON.parse(JSON.stringify(tempList));
+    res(nowEmpowerCalTypeIdMU.value)
+  }).then(res=>{
+    // 寫回保留值
+    nowEmpowerCalTypeID.value = tempCalTypeID;
+    nowEmpowerCalTypeIdDOM.value.setValue(tempCalTypeID);
+  })
+}
 
 const nowEmpowerRole = ref("");
 const nowEmpowerRoleMU = ref([]);
@@ -1250,17 +1272,6 @@ uploadFileonError(e=>{errorHandle(e,infomsg,alert1);});
 
 
 //#region 選單查詢==========Start
-// 查詢校正項目列表
-const { mutate: getCaseCalType, onDone: getCaseCalTypeonDone, onError: getCaseCalTypeonError } = useMutation(CaseGQL.GETCASECALTYPE);
-getCaseCalTypeonDone(result => {
-  // 加入校正項目選單資料
-  if (!result.loading && result.data.getCaseCalType) {
-    nowEmpowerCalTypeIdMU.value = result.data.getCaseCalType.map(x => {
-      return { text: x.name,secondaryText: x.code ,value: parseInt(x.id) }
-    }); nowEmpowerCalTypeIdMU.value.unshift({ text: "", value: "" });
-  }
-});
-getCaseCalTypeonError(e=>{errorHandle(e,infomsg,alert1);});
 
 // 查詢職務列表
 const { mutate: getEmpRole, onDone: getEmpRoleonDone, onError: getEmpRoleonError } = useMutation(EmpGQL.GETEMPROLE);
@@ -1287,7 +1298,8 @@ getAssListonDone(result => {
   // 加入評估人員選單資料
   if (!result.loading && result.data.getEmpowerbyRole) {
     let mylist = [];
-    mylist = result.data.getEmpowerbyRole.map(x => { return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
+    mylist = result.data.getEmpowerbyRole.map(x => { 
+      return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
     mylist = filterArrayforObj(mylist,"person_id");// 去除重複
     nowEmpowerAssMU.value = mylist.map(x => {
       return { text: x.name, value: x.person_id }
@@ -1299,7 +1311,7 @@ getAssListonError(e=>{errorHandle(e,infomsg,alert1)});
 // 查詢授權人員列表
 const { mutate: getSupList, onDone: getSupListonDone, onError: getSupListonError } = useMutation(
   EmpGQL.GETEMPOWERBYROLE,
-  ()=>({roleType:'實驗室主管'})
+  ()=>({variables:{roleType:'實驗室主管'}})
 );
 getSupListonDone(result => {
   // 加入評估人員選單資料
@@ -1357,8 +1369,6 @@ getchecktoken().then(res=>{
 }).then(res=>{
   return getAllEmp(); // 查詢人員列表
 }).then(res=>{
-  return getCaseCalType(); // 查詢校正項目列表
-}).then(res=>{
   return getEmpRole(); // 查詢職務列表
 }).then(res=>{
   return getAssList(); // 查詢評估人員列表
@@ -1395,6 +1405,8 @@ onMounted(function () {
     nowEmpowerID.value = dt.rows(indexes).data()[0].empower_id;
     getEmpowerById();
   });
+
+  store.dispatch('selectlist/fetchCalTypeList');
 });
 
 
@@ -1726,9 +1738,18 @@ onMounted(function () {
                                     <MDBInput disabled required size="sm" type="text" label="索引" v-model="nowEmpowerID" />
                                   </MDBCol>
                                   <div></div>
-                                  <MDBSelect size="sm" class="mt-3  col-6" label="校正項目" v-model:options="nowEmpowerCalTypeIdMU"
-                                    v-model:selected="nowEmpowerCalTypeID" ref="nowEmpowerCalTypeIdDOM" />
-                                  <MDBSelect size="sm" class="mt-3  col-6" label="職務" v-model:options="nowEmpowerRoleMU"
+                                  <MDBSelect 
+                                    size="sm" class="mt-3 col-6" 
+                                    label="校正項目" 
+                                    v-model:options="nowEmpowerCalTypeIdMU"
+                                    v-model:selected="nowEmpowerCalTypeID" 
+                                    ref="nowEmpowerCalTypeIdDOM" 
+                                    @open="listOpened=true"
+                                    @close="listOpened=false"/>
+                                  <MDBSelect 
+                                    size="sm" class="mt-3 col-6" 
+                                    label="職務" 
+                                    v-model:options="nowEmpowerRoleMU"
                                     v-model:selected="nowEmpowerRole" ref="nowEmpowerRoleDOM" />
                                   <div></div>
                                   <MDBCol md="12" class="mt-3">
@@ -1752,8 +1773,13 @@ onMounted(function () {
                                       removeCancelBtn removeOkBtn
                                       ref="nowEmpowerAssDateDOM" />
                                   </MDBCol>
-                                  <MDBSelect :disabled="!rGroup[2]" size="sm" class="mt-3 col-md-6" label="評估人員" v-model:options="nowEmpowerAssMU"
-                                    v-model:selected="nowEmpowerAssID" ref="nowEmpowerAssDOM" />
+                                  <MDBSelect 
+                                    :disabled="!rGroup[2]" 
+                                    size="sm" class="mt-3 col-md-6" 
+                                    label="評估人員" 
+                                    v-model:options="nowEmpowerAssMU"
+                                    v-model:selected="nowEmpowerAssID" 
+                                    ref="nowEmpowerAssDOM" />
                                   <div></div>
                                   <MDBCol md="6" class="mt-3">
                                     <MDBDatepicker 
@@ -1769,8 +1795,13 @@ onMounted(function () {
                                       removeCancelBtn removeOkBtn
                                       ref="nowEmpowerDateDOM" />
                                   </MDBCol>
-                                  <MDBSelect :disabled="!rGroup[2]" size="sm" class="mt-3 col-md-6" label="授權人員" v-model:options="nowEmpowerSupMU"
-                                    v-model:selected="nowEmpowerSupID" ref="nowEmpowerSupDOM" />
+                                  <MDBSelect 
+                                    :disabled="!rGroup[2]" 
+                                    size="sm" class="mt-3 col-md-6" 
+                                    label="授權人員" 
+                                    v-model:options="nowEmpowerSupMU"
+                                    v-model:selected="nowEmpowerSupID" 
+                                    ref="nowEmpowerSupDOM" />
 
                                   <MDBCol md="6" class="mt-3">
                                     <MDBDatepicker 

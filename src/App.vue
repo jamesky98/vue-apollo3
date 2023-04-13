@@ -46,48 +46,6 @@ import EmpGQL from "./graphql/Employee";
   provide("rGroupSetting", rGroupSetting);
   //#endregion 權限清單的讀取函式
 
-  //#region 查詢儀器廠牌及型號列表
-    // const caseChopList = ref([]);
-    // provide("caseChopList", caseChopList);
-    // const caseModelList = ref([]);
-    // provide("caseModelList", caseModelList);
-    // 廠牌
-    // const { 
-    //   refetch: refgetChopList, 
-    //   onResult: getChopListonDone, 
-    //   onError: getChopListonError 
-    // } = useQuery(CaseGQL.GETUNIITEMCHOP);
-    // getChopListonDone(result=>{
-    //   // 加入廠牌選單資料
-    //   if (!result.loading) {
-    //     let tempMU = result.data.getUniItemChop.map(x => {
-    //       return { text: x, value: x }
-    //     }); 
-    //     tempMU.unshift({ text: "", value: "" });
-    //     caseChopList.value = tempMU;
-    //   }
-    // });
-
-    // 型號
-    // const { 
-    //   refetch: refgetModelList, 
-    //   onResult: getModelListonDone, 
-    //   onError: getModelListonError 
-    // } = useQuery(CaseGQL.GETUNIITEMMODEL);
-    // getModelListonDone(result=>{
-    //   // 加入型號選單資料
-    //   if (!result.loading) {
-    //     let tempMU = result.data.getUniItemModel.map(x => {
-    //       return { text: x, value: x }
-    //     }); 
-    //     tempMU.unshift({ text: "", value: "" });
-    //     caseModelList.value = tempMU;
-    //   }
-    // });
-
-
-  //#endregion 查詢儀器廠牌及型號列表
-
 //#endregion 參數==========End
 
 </script>

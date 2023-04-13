@@ -223,15 +223,14 @@ provide("rGroup", rGroup);
         return classn
       })
     //#endregion 案件狀態
-    
-    const caseCalType = ref(); // 校正項目
-    
+
     // 案件編號
     const nowCaseID = ref("");
     
     // 申請日期
     const nowCaseAppDate = ref("");
     //#region 校正項目
+      const caseCalType = ref(); // 校正項目
       const caseCalTypeList = computed(() => store.state.selectlist.caseCalTypeList);
       // 資料區
       const nowCaseTypeName = ref("");
