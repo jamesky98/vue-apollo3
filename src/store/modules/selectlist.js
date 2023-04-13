@@ -9,6 +9,8 @@ provideApolloClient(apolloClient);
 const { refetch: refgetCaseStatus } = useQuery(CaseGQL.GETCASESTATUS);
 const { refetch: refgetCaseCalType } = useQuery(CaseGQL.GETCASECALTYPE);
 const { refetch: refgetCaseAllOrg } = useQuery(CaseGQL.GETALLORG);
+const { refetch: refgetChopList } = useQuery(CaseGQL.GETUNIITEMCHOP);
+const { refetch: refgetModelList } = useQuery(CaseGQL.GETUNIITEMMODEL);
 
 const state = () => ({
   publicPath: import.meta.env.VITE_GRAPHQL_PUBLIC,
@@ -23,7 +25,8 @@ const state = () => ({
   caseStatusList: [],
   caseCalTypeList: [],
   caseOrgList: [],
-
+  caseChopList: [],
+  caseModelList: [],
 })
 
 const getters = {
@@ -31,7 +34,7 @@ const getters = {
 
 const actions = {
   async fetchStatusList ({ commit, state }, payload) {
-    console.log('fetchStatusList')
+    // console.log('fetchStatusList')
     refgetCaseStatus().then(res=>{
       let tempMU = res.data.getCaseStatus.map(x => {
         return { text: x.status, value: parseInt(x.code) }
@@ -40,17 +43,17 @@ const actions = {
     });
   },
   async fetchCalTypeList ({ commit, state }, payload) {
-    console.log('fetchCalTypeList')
+    // console.log('fetchCalTypeList')
     refgetCaseCalType().then(res=>{
       let tempMU = res.data.getCaseCalType.map(x => {
-        return { text: x.name, value: parseInt(x.id) }
+        return { text: x.name, value: parseInt(x.id), code: x.code }
       }); 
-      tempMU.unshift({ text: "", value: "" });
+      tempMU.unshift({ text: "", value: "", code: "" });
       commit('writeCalTypeList', tempMU);
     });
   },
   async fetchOrgList ({ commit, state }, payload) {
-    console.log('fetchOrgList')
+    // console.log('fetchOrgList')
     refgetCaseAllOrg().then(res=>{
       let tempMU = res.data.getAllOrg.map(x => {
         return { text: x.name, value: parseInt(x.id) }
@@ -58,7 +61,27 @@ const actions = {
       tempMU.unshift({ text: "", value: "" });
       commit('writeOrgList', tempMU);
     })
-  }
+  },
+  async fetchChopList ({ commit, state }, payload) {
+    // console.log('fetchOrgList')
+    refgetChopList().then(res=>{
+      let tempMU = res.data.getUniItemChop.map(x => {
+        return { text: x, value: x }
+      }); 
+      tempMU.unshift({ text: "", value: "" });
+      commit('writeChopList', tempMU);
+    })
+  },
+  async fetchModelList ({ commit, state }, payload) {
+    // console.log('fetchOrgList')
+    refgetModelList().then(res=>{
+      let tempMU = res.data.getUniItemModel.map(x => {
+        return { text: x, value: x }
+      }); 
+      tempMU.unshift({ text: "", value: "" });
+      commit('writeModelList', tempMU);
+    })
+  },
 }
 
 const mutations = {
@@ -73,6 +96,14 @@ const mutations = {
   // 顧客機關清單
   writeOrgList(state, orgList){
     state.caseOrgList = [...orgList];
+  },
+  // 儀器廠牌
+  writeChopList(state, ChopList){
+    state.caseChopList = [...ChopList];
+  },
+  // 儀器型號
+  writeModelList(state, ModelList){
+    state.caseModelList = [...ModelList];
   },
 }
 

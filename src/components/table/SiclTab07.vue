@@ -5,6 +5,7 @@ import { computed } from "@vue/reactivity";
 import { useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
 import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
+import { useStore } from 'vuex'
 
 // 引入案件編號
 const props = defineProps({
@@ -12,7 +13,8 @@ const props = defineProps({
 });
 const infomsg = ref('');
 const alert1 =ref(false);
-const publicPath = inject('publicPath');
+const store = useStore();
+const publicPath = computed(() => store.state.selectlist.publicPath);
 
 const nowCaseCalTypeCode = ref(""); //校正項目代碼
 const tableID = computed(()=>{return props.caseID.slice(0,-2)}); //申請單編號

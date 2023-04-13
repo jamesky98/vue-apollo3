@@ -35,6 +35,7 @@ import {
     weekdaysNarrow
   } from "../methods/datePickerParams.js"
 import { useStore } from 'vuex'
+
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
 DataTable.use(DataTableBs5);
@@ -104,7 +105,7 @@ const nowCaseFOV = ref(""); // 最大掃描角FOV
 const nowCaseLrReport = ref(""); // LiDAR規格
 const nowCaseLrReportDL = computed(() => {
   if (nowCaseLrReport.value && nowCaseLrReport.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseLrReport.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseLrReport.value + '?t=' + new Date().getTime();
   } else {
     return undefined;
   }
@@ -113,7 +114,7 @@ const nowCaseLrReportDL = computed(() => {
 const nowCasePosReport = ref(""); // POS規格
 const nowCasePosReportDL = computed(() => {
   if (nowCasePosReport.value && nowCasePosReport.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePosReport.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePosReport.value + '?t=' + new Date().getTime();
   } else {
     return undefined;
   }
@@ -122,7 +123,7 @@ const nowCasePosReportDL = computed(() => {
 const nowCasePlanMap = ref(""); // 航線規劃圖
 const nowCasePlanMapDL = computed(() => {
   if (nowCasePlanMap.value && nowCasePlanMap.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePlanMap.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePlanMap.value + '?t=' + new Date().getTime();
   } else {
     return undefined;
   }
@@ -146,7 +147,7 @@ const nowCaseFOVac = ref(""); // 最大掃描角FOV
 const nowCaseFlyMapAc = ref(""); // 實際航線圖
 const nowCaseFlyMapAcDL = computed(() => {
   if (nowCaseFlyMapAc.value && nowCaseFlyMapAc.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseFlyMapAc.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseFlyMapAc.value + '?t=' + new Date().getTime();
   } else {
     return undefined;
   }
@@ -155,7 +156,7 @@ const nowCaseFlyMapAcDL = computed(() => {
 const nowCaseRecTable = ref(""); // 掃描紀錄表
 const nowCaseRecTableDL = computed(() => {
   if (nowCaseRecTable.value && nowCaseRecTable.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseRecTable.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseRecTable.value + '?t=' + new Date().getTime();
   } else {
     return undefined;
   }
@@ -165,7 +166,7 @@ const nowCaseLASNo = ref(""); // 點雲檔案數
 const nowCaseOther = ref(""); // 設備佐證照片
 const nowCaseOtherDL = computed(() => {
   if (nowCaseOther.value && nowCaseOther.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseOther.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseOther.value + '?t=' + new Date().getTime();
   } else {
     return undefined;
   }
@@ -224,7 +225,7 @@ provide("nowCaseReportTempMU", nowCaseReportTempMU);
 const nowCaseReportEdit = inject('nowCaseReportEdit'); //校正報告編輯檔
 const nowCaseReportEditDL = computed(() => {
   if (nowCaseReportEdit.value && nowCaseReportEdit.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseReportEdit.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseReportEdit.value + '?t=' + new Date().getTime();
   } else {
     return undefined;
   }
@@ -256,7 +257,7 @@ provide("nowCaseSignPersonMU", nowCaseSignPersonMU);
 const nowCaseReportScan = inject('nowCaseReportScan'); //校正報告掃描檔
 const nowCaseReportScanDL = computed(() => {
   if (nowCaseReportScan.value && nowCaseReportScan.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseReportScan.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseReportScan.value + '?t=' + new Date().getTime();
   } else {
     return undefined;
   }
@@ -268,7 +269,7 @@ const nowCasePDFPath = computed(() => {
     return "pdfjs-dist/web/viewer.html"
   } else {
     return "pdfjs-dist/web/viewer.html?file=" + publicPath.value + "06_Case/" +
-      props.caseID + "/" + nowCaseReportScan.value;
+      props.caseID + "/" + nowCaseReportScan.value + '?t=' + new Date().getTime();
   }
 });
 // 案件之詳細資料^^^
@@ -1674,9 +1675,14 @@ const {
 getRptListOnDone((result) => {
   // 填入rptlist選單
   if (!result.loading && result.data.getRptlist) {
-    nowCaseReportTempMU.value = result.data.getRptlist.map((x) => {
+    let tempMU = result.data.getRptlist.map((x) => {
       return { text: x, value: x };
-    });nowCaseReportTempMU.value.unshift({text: "-未選取-", value: '-1'})
+    });
+    let keyPara = (isFullPara.value)?'A':'B';
+    tempMU = tempMU.filter((x) => x.value.split('_')[1]===keyPara);
+    tempMU.unshift({text: "-未選取-", value: '-1'});
+
+    nowCaseReportTempMU.value = tempMU;
   }
 });
 getRptListError(e=>{errorHandle(e,infomsg,alert1)});
@@ -2344,7 +2350,10 @@ defineExpose({
                       </MDBCol>
 
                       <MDBCol col="12" class="mb-3">
-                        <MDBBtn :disabled="!rGroup[2] || !selectReportTemp || selectReportTemp==='-1' || !nowCaseCompleteDate" size="sm" color="secondary" @click.stop="buildReportBtn()">產生報告
+                        <MDBBtn 
+                          :disabled="!rGroup[2] || !selectReportTemp || selectReportTemp==='-1' || !nowCaseCompleteDate || nowCaseCompleteDate===' '" 
+                          size="sm" color="secondary" 
+                          @click.stop="buildReportBtn()">產生報告
                         </MDBBtn>
                       </MDBCol>
 

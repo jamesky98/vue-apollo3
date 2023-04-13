@@ -1,6 +1,6 @@
 <script setup>
 import { useStore } from 'vuex'
-import { ref, provide, inject, onMounted, watch } from "vue";
+import { ref, provide } from "vue";
 import { useQuery } from '@vue/apollo-composable';
 import CaseGQL from "./graphql/Cases";
 import EmpGQL from "./graphql/Employee";
@@ -47,65 +47,48 @@ import EmpGQL from "./graphql/Employee";
   //#endregion 權限清單的讀取函式
 
   //#region 查詢儀器廠牌及型號列表
-    const caseChopList = ref([]);
-    provide("caseChopList", caseChopList);
-    const caseModelList = ref([]);
-    provide("caseModelList", caseModelList);
+    // const caseChopList = ref([]);
+    // provide("caseChopList", caseChopList);
+    // const caseModelList = ref([]);
+    // provide("caseModelList", caseModelList);
     // 廠牌
-    const { 
-      refetch: refgetChopList, 
-      onResult: getChopListonDone, 
-      onError: getChopListonError 
-    } = useQuery(CaseGQL.GETUNIITEMCHOP);
-    getChopListonDone(result=>{
-      // 加入廠牌選單資料
-      if (!result.loading) {
-        let tempMU = result.data.getUniItemChop.map(x => {
-          return { text: x, value: x }
-        }); 
-        tempMU.unshift({ text: "", value: "" });
-        caseChopList.value = tempMU;
-      }
-    });
+    // const { 
+    //   refetch: refgetChopList, 
+    //   onResult: getChopListonDone, 
+    //   onError: getChopListonError 
+    // } = useQuery(CaseGQL.GETUNIITEMCHOP);
+    // getChopListonDone(result=>{
+    //   // 加入廠牌選單資料
+    //   if (!result.loading) {
+    //     let tempMU = result.data.getUniItemChop.map(x => {
+    //       return { text: x, value: x }
+    //     }); 
+    //     tempMU.unshift({ text: "", value: "" });
+    //     caseChopList.value = tempMU;
+    //   }
+    // });
 
     // 型號
-    const { 
-      refetch: refgetModelList, 
-      onResult: getModelListonDone, 
-      onError: getModelListonError 
-    } = useQuery(CaseGQL.GETUNIITEMMODEL);
-    getModelListonDone(result=>{
-      // 加入型號選單資料
-      if (!result.loading) {
-        let tempMU = result.data.getUniItemModel.map(x => {
-          return { text: x, value: x }
-        }); 
-        tempMU.unshift({ text: "", value: "" });
-        caseModelList.value = tempMU;
-      }
-    });
+    // const { 
+    //   refetch: refgetModelList, 
+    //   onResult: getModelListonDone, 
+    //   onError: getModelListonError 
+    // } = useQuery(CaseGQL.GETUNIITEMMODEL);
+    // getModelListonDone(result=>{
+    //   // 加入型號選單資料
+    //   if (!result.loading) {
+    //     let tempMU = result.data.getUniItemModel.map(x => {
+    //       return { text: x, value: x }
+    //     }); 
+    //     tempMU.unshift({ text: "", value: "" });
+    //     caseModelList.value = tempMU;
+    //   }
+    // });
 
 
   //#endregion 查詢儀器廠牌及型號列表
 
 //#endregion 參數==========End
-
-onMounted(()=>{
-  
-  // 取得清單內容應在登入後取得
-  // console.log('do dispatch')
-  // store.dispatch('selectlist/fetchStatusList');
-  // store.dispatch('selectlist/fetchCalTypeList');
-  // store.dispatch('selectlist/fetchOrgList');
-  // store.dispatch('selectlist/startCaseStatusListTimer');
-  // if(myUserName.value){
-    // upadateCaseStatusList = window.setInterval(getStatusList,5000);
-    // upadateCaseCalTypeList = window.setInterval(refgetCaseCalType,5000);
-    // upadateAllOrgList = window.setInterval(refgetCaseAllOrg,5000);
-    // upadateChopList = window.setInterval(refgetChopList,5000);
-    // upadateModelList = window.setInterval(refgetModelList,5000);
-  // }
-})
 
 </script>
 

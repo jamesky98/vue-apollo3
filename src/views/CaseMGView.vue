@@ -38,6 +38,7 @@ import UsersGQL from "../graphql/Users";
 import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 import { resolve } from "chart.js/helpers";
 import { useStore } from 'vuex'
+
 // dataTable
 import DataTable from 'datatables.net-vue3';
 import DataTablesCore from 'datatables.net';
@@ -131,9 +132,6 @@ provide("rGroup", rGroup);
     const selCustTel = ref("");
     const selCustFax = ref("");
     const selCustAddress = ref("");
-    const filterCustName = ref("");
-    const filterCustOrgName = ref("");
-    const filterCustTaxId = ref("");
   //#endregion 查詢顧客之參數
 
   //#region 案件資訊
@@ -322,7 +320,6 @@ provide("rGroup", rGroup);
       const selCustOrgName = ref("");
       const selCustOrgNameMU = ref([]);
       const selCustOrgNameDOM = ref();
-      const selCustOrgList = ref([]);
 
       // 偵測清單是否更新
       watch(caseOrgList,(newList)=>{
@@ -354,8 +351,8 @@ provide("rGroup", rGroup);
     //#endregion 顧客
 
     //#region 廠牌型號
-      const caseChopList = inject('caseChopList');
-      const caseModelList = inject('caseModelList');
+      const caseChopList = computed(() => store.state.selectlist.caseChopList);
+      const caseModelList = computed(() => store.state.selectlist.caseModelList);
       // 廠牌
       const caseChopMU = ref([]);
       const caseChopSEL = ref("");
@@ -873,12 +870,6 @@ function setCustBtn() {
 //#endregion 顧客列表=========end
 
 //#region 篩選=========start
-// 執行篩選
-function caseDoFilter() {
-  notProssing2.value = false;
-  // refgetAllCase(filterVariables.value);
-  updateAllCaseList();
-}
 // 清除條件
 function caseClearFilter() {
   caseStatusDOM.value.setValue("");
@@ -1010,7 +1001,7 @@ const { mutate: delCase, onDone: delCaseOnDone, onError: delCaseError } = useMut
 delCaseOnDone(() => {
   nowCaseID.value = "";
   // 更新列表==重新查詢案件
-  caseDoFilter();
+  updateAllCaseList();
 });
 delCaseError(e=>{errorHandle(e,infomsg,alert1)});
 
@@ -1229,7 +1220,8 @@ function AddCaseOK() {
       // // 填入基本資料
       // nowCaseID.value = getResultData.id;
       // 更新列表==重新查詢案件
-      caseDoFilter();
+      updateAllCaseList();
+      refgetNowCaseS({getCasebyIdId: nowCaseID.value});
       showCaseNew.value = false;
       // 更新狀態訊息
       infomsg.value = "ID:" + nowCaseID.value + "完成新增";
@@ -1348,7 +1340,10 @@ function getCaseByAPI() {
 
   let body = {};
   if (apiCaseID.value || apiCaseID.value !== '') { body.id = apiCaseID.value }
-  if (apiCalTypeID.value || apiCalTypeID.value !== '') { body.code = apiCalTypeID.value }
+  if (apiCalTypeID.value || apiCalTypeID.value !== '') { 
+    let a=caseCalTypeList.value;
+    body.code = a[a.findIndex(x=>parseInt(x.value)===parseInt(apiCalTypeID.value))].code
+  }
   if (apiStartDate.value || apiStartDate.value.trim() !== '') {
     body.startDate = (apiStartDate.value).replaceAll("-", "/");
   }
@@ -1853,7 +1848,7 @@ watch(
 
 function ckCaseStatusList(chData){
   return new Promise((res,rej)=>{
-    console.log(nowCaseStatusMU.value)
+    // console.log(nowCaseStatusMU.value)
     // 選單初始設定全部停用
     nowCaseStatusMU.value[0].disabled = false; // (無)
     for(let i=1; i<nowCaseStatusMU.value.length ; i++){
@@ -1884,7 +1879,7 @@ function ckCaseStatusList(chData){
     }
 
     // 報告陳核
-    if (chData.complete_date.trim() && chData.report_edit.trim() && 
+    if (chData.complete_date.trim() && chData.report_edit && 
       !nowCaseStatusMU.value[3].disabled) {
       nowCaseStatusMU.value[4].disabled = false;
     }else{
@@ -1936,6 +1931,7 @@ getchecktoken().then(res=>{
 function updateAllCaseList(){
   // console.log('5s update')
   if(listOpened.value){return}
+  notProssing2.value = false;
   // console.log('filterVariables',filterVariables.value)
   refgetAllCase(filterVariables.value).then(res=>{
     if (showCaseLeftDiv.value){
@@ -1959,6 +1955,8 @@ onMounted(function () {
   store.dispatch('selectlist/fetchStatusList');
   store.dispatch('selectlist/fetchCalTypeList');
   store.dispatch('selectlist/fetchOrgList');
+  store.dispatch('selectlist/fetchChopList');
+  store.dispatch('selectlist/fetchModelList');
 });
 
 </script>
@@ -2145,11 +2143,11 @@ onMounted(function () {
                         <MDBCol col="12" class="py-2 d-flex border-1 border-bottom">
                           <div class="">條件篩選</div>
                           <div class="ms-2 flex-grow-1">
-                            <MDBSwitch label="顯示退件" v-model="showRejectCase" @change="caseDoFilter" />
+                            <MDBSwitch label="顯示退件" v-model="showRejectCase" @change="updateAllCaseList" />
                           </div>
                           <div>
                             <MDBBtn size="sm" color="primary" @click="caseClearFilter()">清除</MDBBtn>
-                            <MDBBtn size="sm" color="primary" @click="caseDoFilter()">篩選</MDBBtn>
+                            <MDBBtn size="sm" color="primary" @click="updateAllCaseList()">篩選</MDBBtn>
                           </div>
                         </MDBCol>
                         <MDBCol col="12" style="height: calc(100% - 3rem);" class="overflow-auto">

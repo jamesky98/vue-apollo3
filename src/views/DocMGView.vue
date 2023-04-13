@@ -13,10 +13,6 @@ import {
 } from "mdb-vue-ui-kit";
 import { computed } from "@vue/reactivity";
 import DocsGQL from "../graphql/Docs";
-
-import DataTable from 'datatables.net-vue3';
-import DataTableBs5 from 'datatables.net-bs5';
-import Select from 'datatables.net-select';
 import { 
     monthsFull, 
     monthsShort, 
@@ -24,6 +20,17 @@ import {
     weekdaysShort,
     weekdaysNarrow
   } from "../methods/datePickerParams.js"
+import { useStore } from 'vuex'
+
+// dataTable
+import DataTable from 'datatables.net-vue3';
+import DataTablesCore from 'datatables.net';
+import Select from 'datatables.net-select';
+import ButtonsHtml5 from 'datatables.net-buttons/js/buttons.html5';
+import print from 'datatables.net-buttons/js/buttons.print'
+import colvis from 'datatables.net-buttons/js/buttons.colVis'
+import 'datatables.net-responsive';
+import ButtonsBs5 from 'datatables.net-buttons-bs5';
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -32,8 +39,13 @@ import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
-DataTable.use(DataTableBs5);
+DataTable.use(DataTablesCore);
 DataTable.use(Select);
+DataTable.use(ButtonsHtml5);
+DataTable.use(print);
+DataTable.use(colvis);
+DataTable.use(ButtonsBs5);
+
 //#region 取得權限==========Start
 // const myUserId = ref("");
 const myUserName = ref("");
@@ -67,7 +79,8 @@ const NavItem = ref("docs");
 provide("NavItem",NavItem);
 const infomsg = ref("");
 const alert1 = ref(false);
-const publicPath = inject('publicPath');
+const store = useStore();
+const publicPath = computed(() => store.state.selectlist.publicPath);
 
 const activeTabId1 = ref('filter');
 const activeTabId2 = ref('histroy');
@@ -102,13 +115,13 @@ const itemRelDate = ref();
 const nowParents = ref("");
 const nowUpload = ref("");
 const nowDownLoad = computed(()=>{
-  return publicPath.value + "02_DOC/" + nowDocLevel.value + "/" + nowUpload.value
+  return publicPath.value + "02_DOC/" + nowDocLevel.value + "/" + nowUpload.value + '?t=' + new Date().getTime()
 });
 // PDF Viewer ?file=../../../test.pdf
 const pdfPath = ref("pdfjs-dist/web/viewer.html");
 const nowEdUpload = ref("");
 const nowEdDownLoad = computed(() => {
-  return publicPath.value + "02_DOC/" + nowDocLevel.value + "/" + nowEdUpload.value
+  return publicPath.value + "02_DOC/" + nowDocLevel.value + "/" + nowEdUpload.value + '?t=' + new Date().getTime()
 });
 
 const nowExpDate = ref("");
@@ -313,13 +326,35 @@ const columns1 = [
   { data: "comment", title: "備註", defaultContent: "-" }
 ];
 const tboption1 = {
-  dom: 'tif',
+  dom: 'Bfti',
+  buttons: [
+    {
+      text: '重新整理',
+      action: function ( e, dt, node, config ) {
+        filterAllDocLatest();
+        refgetAllDocLatest2();
+      }
+    },
+    {
+      extend: 'copy',
+      text: '複製',
+      exportOptions: {
+        modifier: {
+          selected: null
+        }
+      }
+    },
+    {
+      extend: 'colvis',
+      text: '顯示欄位',
+    }
+  ],
   select: {
     style: 'single',
     info: false
   },
   order: [[1, 'asc']],
-  scrollY: 'calc(50vh - 11rem)',
+  scrollY: 'calc(50vh - 13rem)',
   scrollX: true,
   lengthChange: false,
   searching: true,
@@ -617,7 +652,7 @@ function saveDocBtn() {
         updateDocId: parseInt(nowIDed.value),
         upload: nowUpload.value,
       });
-      pdfPath.value = "pdfjs-dist/web/viewer.html?file="+ publicPath.value + "02_DOC/" + nowDocLevel.value + "/" + nowUpload.value;
+      pdfPath.value = "pdfjs-dist/web/viewer.html?file="+ publicPath.value + "02_DOC/" + nowDocLevel.value + "/" + nowUpload.value + '?t=' + new Date().getTime();
       
       // console.log(pdfPath.value);
     }else{
@@ -732,7 +767,12 @@ onMounted(function () {
             <!-- 上方列表 -->
             <MDBCol md="12" style="height: calc(50% - 1.5rem) ;"
               class="mt-2 overflow-auto border border-5 rounded-8 shadow-4">
-              <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1" style="font-size: smaller"
+              <DataTable 
+                :data="data1" 
+                :columns="columns1" 
+                :options="tboption1" 
+                ref="table1" 
+                style="font-size: smaller; padding-top: 1rem;"
                 class="display w-100 compact" />
             </MDBCol>
             <!-- 下方子列表 -->
@@ -940,9 +980,7 @@ onMounted(function () {
   border-bottom: rgba(0,0,0,0);
   height: auto;
 }
-/* div.dataTables_filter {
-  padding-top: 0.85em;
-} */
+
 .colnowarp {
   white-space: nowrap;
 }

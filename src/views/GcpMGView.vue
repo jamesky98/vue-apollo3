@@ -176,7 +176,7 @@ const nowGcpStyleDOM = ref();
 const nowGcpSimage = ref("");
 const nowGcpSimageDL = computed(()=>{
   if(nowGcpSimage.value){
-    return publicPath.value + "04_GCP/Pt/" + nowGcpSimage.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/Pt/" + nowGcpSimage.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -187,7 +187,7 @@ const nowGcpComment = ref("");
 const nowGcpDespImg = ref("");
 const nowGcpDespImgDL = computed(()=>{
   if(nowGcpDespImg.value){
-    return publicPath.value + "04_GCP/Pt/" + nowGcpDespImg.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/Pt/" + nowGcpDespImg.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -239,7 +239,7 @@ const nowPRecordCom = ref("");
 const nowPRecordImg0 = ref("");
 const nowPRecordImg0DL = computed(()=>{
   if(nowPRecordImg0.value){
-    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -248,7 +248,7 @@ const nowPRecordImg0DL = computed(()=>{
 const nowPRecordImg1 = ref("");
 const nowPRecordImg1DL = computed(()=>{
   if(nowPRecordImg1.value){
-    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -257,7 +257,7 @@ const nowPRecordImg1DL = computed(()=>{
 const nowPRecordImg2 = ref("");
 const nowPRecordImg2DL = computed(()=>{
   if(nowPRecordImg2.value){
-    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -266,7 +266,7 @@ const nowPRecordImg2DL = computed(()=>{
 const nowPRecordImg3 = ref("");
 const nowPRecordImg3DL = computed(()=>{
   if(nowPRecordImg3.value){
-    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -275,7 +275,7 @@ const nowPRecordImg3DL = computed(()=>{
 const nowPRecordObs = ref("");
 const nowPRecordObsDL = computed(()=>{
   if(nowPRecordObs.value){
-    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordObs.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordObs.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }

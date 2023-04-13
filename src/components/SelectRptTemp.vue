@@ -29,6 +29,10 @@ defineExpose({
 
 </script>
 <template>
-  <MDBSelect :disabled="!rGroup[2]" size="sm" class="mb-3 col-12" label="選用報告範本" v-model:options="nowCaseReportTempMU"
+  <MDBSelect 
+    :disabled="!rGroup[2]" 
+    size="sm" class="mb-3 col-12" 
+    label="選用報告範本" 
+    v-model:options="nowCaseReportTempMU"
     v-model:selected="selectReportTemp" ref="nowCaseReportTempDOM" />
 </template>
