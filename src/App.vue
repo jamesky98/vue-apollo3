@@ -275,4 +275,12 @@ tr.selected>td>span.typeM {
   border-bottom-right-radius: 1rem !important;
   border-bottom-left-radius: 1rem !important;
 }
+
+.dt-button-collection{
+  height: 16rem;
+  overflow: auto;
+}
+.dropdown-menu{
+  top:0
+}
 </style>

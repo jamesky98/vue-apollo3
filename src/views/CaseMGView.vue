@@ -694,6 +694,7 @@ const tboption1 = {
   buttons: [
     {
       text: '重新整理',
+      className: 'btn-sm',
       action: function ( e, dt, node, config ) {
         updateAllCaseList();
       }
@@ -701,6 +702,7 @@ const tboption1 = {
     {
       extend: 'copy',
       text: '複製',
+      className: 'btn-sm',
       exportOptions: {
         modifier: {
           selected: null
@@ -709,6 +711,7 @@ const tboption1 = {
     },
     {
       extend: 'colvis',
+      className: 'btn-sm',
       text: '顯示欄位',
     }
   ],

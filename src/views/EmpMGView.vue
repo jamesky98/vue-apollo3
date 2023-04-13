@@ -13,10 +13,6 @@ import {
 import ToolsGQL from "../graphql/Tools";
 import CaseGQL from "../graphql/Cases";
 import EmpGQL from "../graphql/Employee";
-
-import DataTable from 'datatables.net-vue3';
-import DataTableBs5 from 'datatables.net-bs5';
-import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
 import { 
     monthsFull, 
@@ -25,6 +21,17 @@ import {
     weekdaysShort,
     weekdaysNarrow
   } from "../methods/datePickerParams.js"
+import { useStore } from 'vuex'
+
+// dataTable
+import DataTable from 'datatables.net-vue3';
+import DataTablesCore from 'datatables.net';
+import Select from 'datatables.net-select';
+import ButtonsHtml5 from 'datatables.net-buttons/js/buttons.html5';
+import print from 'datatables.net-buttons/js/buttons.print'
+import colvis from 'datatables.net-buttons/js/buttons.colVis'
+import 'datatables.net-responsive';
+import ButtonsBs5 from 'datatables.net-buttons-bs5';
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -33,8 +40,12 @@ import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
-DataTable.use(DataTableBs5);
+DataTable.use(DataTablesCore);
 DataTable.use(Select);
+DataTable.use(ButtonsHtml5);
+DataTable.use(print);
+DataTable.use(colvis);
+DataTable.use(ButtonsBs5);
 
 //#region 取得權限==========Start
 // const myUserId = ref("");
@@ -69,7 +80,6 @@ const rGroup = computed(() => {
 
 //#region 參數==========Start
 // Information
-const publicPath = inject('publicPath');
 const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
@@ -77,6 +87,8 @@ const NavItem = ref("employee");
 provide("NavItem", NavItem);
 const updateKey = ref(0);
 const activeTabId1 = ref('train');
+const store = useStore();
+const publicPath = computed(() => store.state.selectlist.publicPath);
 
 // 人員詳細編輯資料==========start
 const showEmpRes = ref(false);
@@ -108,7 +120,7 @@ const nowEmpResDateDOM = ref();
 const nowEmpResUpload = ref("");
 const nowEmpResUploadDL = computed(() => {
   if (nowEmpResUpload.value && nowEmpResUpload.value !== "") {
-    return publicPath.value + "05_Person/" + nowEmpID.value + "/resignation/" + nowEmpResUpload.value;
+    return publicPath.value + "05_Person/" + nowEmpID.value + "/resignation/" + nowEmpResUpload.value + '?t=' + new Date().getTime();
   } else {
     return undefined;
   }
@@ -141,7 +153,7 @@ const nowTrainCertiNo = ref("");
 const nowTrainUpload = ref("");
 const nowTrainUploadDL = computed(() => {
   if (nowTrainUpload.value && nowTrainUpload.value !== "") {
-    return publicPath.value + "05_Person/" + nowEmpID.value + "/Train/" + nowTrainUpload.value;
+    return publicPath.value + "05_Person/" + nowEmpID.value + "/Train/" + nowTrainUpload.value + '?t=' + new Date().getTime();
   } else {
     return undefined;
   }
@@ -181,7 +193,7 @@ const nowEmpowerSusDateDOM = ref();
 const nowEmpowerTabUpload = ref("");
 const nowEmpowerTabUploadDL = computed(() => {
   if (nowEmpowerTabUpload.value && nowEmpowerTabUpload.value !== "") {
-    return publicPath.value + "05_Person/" + nowEmpID.value + "/Empower/" + nowEmpowerTabUpload.value;
+    return publicPath.value + "05_Person/" + nowEmpID.value + "/Empower/" + nowEmpowerTabUpload.value + '?t=' + new Date().getTime();
   } else {
     return undefined;
   }
@@ -189,7 +201,7 @@ const nowEmpowerTabUploadDL = computed(() => {
 const nowEmpowerAprvUpload = ref("");
 const nowEmpowerAprvUploadDL = computed(() => {
   if (nowEmpowerAprvUpload.value && nowEmpowerAprvUpload.value !== "") {
-    return publicPath.value + "05_Person/" + nowEmpID.value + "/Empower/" + nowEmpowerAprvUpload.value;
+    return publicPath.value + "05_Person/" + nowEmpID.value + "/Empower/" + nowEmpowerAprvUpload.value + '?t=' + new Date().getTime();
   } else {
     return undefined;
   }
@@ -422,7 +434,26 @@ const columns_train = [
   { title: "備註", data: "comment", defaultContent: "-" },
 ];
 const tboption_train = {
-  dom: 'fti',
+  dom: 'Bfti',
+  buttons: [
+    {
+      text: '重新整理',
+      className: 'btn-sm',
+      action: function ( e, dt, node, config ) {
+        getTrain();
+      }
+    },
+    {
+      extend: 'copy',
+      text: '複製',
+      className: 'btn-sm',
+      exportOptions: {
+        modifier: {
+          selected: null
+        }
+      }
+    },
+  ],
   select: {
     style: 'single',
     info: false
@@ -647,7 +678,26 @@ const columns_empower = [
   { title: "備註", data: "comment", defaultContent: "-" },
 ];
 const tboption_empower = {
-  dom: 'fti',
+  dom: 'Bfti',
+  buttons: [
+    {
+      text: '重新整理',
+      className: 'btn-sm',
+      action: function ( e, dt, node, config ) {
+        getEmpower();
+      }
+    },
+    {
+      extend: 'copy',
+      text: '複製',
+      className: 'btn-sm',
+      exportOptions: {
+        modifier: {
+          selected: null
+        }
+      }
+    },
+  ],
   select: {
     style: 'single',
     info: false
@@ -891,7 +941,31 @@ const columns_optcase = [
   { data: "agreement", title: "協議事項", defaultContent: "-" },
 ];
 const tboption_optcase = {
-  dom: 'fti',
+  dom: 'Bfti',
+  buttons: [
+    {
+      text: '重新整理',
+      className: 'btn-sm',
+      action: function ( e, dt, node, config ) {
+        getOptCase();
+      }
+    },
+    {
+      extend: 'copy',
+      text: '複製',
+      className: 'btn-sm',
+      exportOptions: {
+        modifier: {
+          selected: null
+        }
+      }
+    },
+    {
+      extend: 'colvis',
+      className: 'btn-sm',
+      text: '顯示欄位',
+    }
+  ],
   select: {
     style: 'single',
     info: false
@@ -1042,7 +1116,31 @@ const columns_signcase = [
   { data: "agreement", title: "協議事項", defaultContent: "-", visible: true },
 ];
 const tboption_signcase = {
-  dom: 'fti',
+  dom: 'Bfti',
+  buttons: [
+    {
+      text: '重新整理',
+      className: 'btn-sm',
+      action: function ( e, dt, node, config ) {
+        getSignCase();
+      }
+    },
+    {
+      extend: 'copy',
+      text: '複製',
+      className: 'btn-sm',
+      exportOptions: {
+        modifier: {
+          selected: null
+        }
+      }
+    },
+    {
+      extend: 'colvis',
+      className: 'btn-sm',
+      text: '顯示欄位',
+    }
+  ],
   select: {
     style: 'single',
     info: false
@@ -1318,10 +1416,15 @@ onMounted(function () {
           <MDBRow class="h-100 overflow-auto">
             <MDBCol md="5" class="h-100 overflow-auto" style="position: relative ;">
               <!-- 人員列表 -->
-              <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1" style="font-size: smaller"
+              <DataTable 
+                :data="data1" 
+                :columns="columns1" 
+                :options="tboption1" 
+                ref="table1" 
+                style="font-size: smaller; padding-top: 0.5rem;"
                 class="display w-100 compact" />
 
-              <div class="mt-2" style="position:absolute; top: 0; left: 1rem;">
+              <div class="mt-2" style="position:absolute; top: 0.2rem; left: 1rem;">
                 <MDBSwitch :label="doSwitchShowEmpRes" v-model="showEmpRes"/>
               </div>
             </MDBCol>
@@ -1482,7 +1585,12 @@ onMounted(function () {
                   <MDBTabPane tabId="train" class="h-100">
                     <MDBRow class="h-100 overflow-auto">
                       <MDBCol md="6" class="h-100 border-1 border-top border-bottom overflow-auto">
-                        <DataTable :data="data_train" :columns="columns_train" :options="tboption_train" ref="table_train" style="font-size: smaller"
+                        <DataTable 
+                          :data="data_train" 
+                          :columns="columns_train" 
+                          :options="tboption_train" 
+                          ref="table_train" 
+                          style="font-size: smaller; padding-top: 1rem;"
                           class="display w-100 compact" />
                       </MDBCol>
                       <!-- 分割 -->
@@ -1582,7 +1690,12 @@ onMounted(function () {
                   <MDBTabPane tabId="empower" class="h-100">
                     <MDBRow class="h-100 overflow-auto">
                       <MDBCol md="6" class="h-100 border-1 border-top border-bottom overflow-auto">
-                        <DataTable :data="data_empower" :columns="columns_empower" :options="tboption_empower" ref="table_empower" style="font-size: smaller"
+                        <DataTable 
+                          :data="data_empower" 
+                          :columns="columns_empower" 
+                          :options="tboption_empower" 
+                          ref="table_empower" 
+                          style="font-size: smaller; padding-top: 1rem;"
                           class="display w-100 compact" />
                       </MDBCol>
                       <!-- 分割 -->
@@ -1721,7 +1834,12 @@ onMounted(function () {
                   <MDBTabPane tabId="optcase" class="h-100">
                     <MDBRow class="h-100 overflow-auto">
                       <MDBCol md="12" class="h-100">
-                        <DataTable :data="data_optcase" :columns="columns_optcase" :options="tboption_optcase" ref="table_optcase" style="font-size: smaller"
+                        <DataTable 
+                          :data="data_optcase" 
+                          :columns="columns_optcase" 
+                          :options="tboption_optcase" 
+                          ref="table_optcase" 
+                          style="font-size: smaller; padding-top: 1rem;"
                           class="display w-100 compact" />
                       </MDBCol>
                     </MDBRow>
@@ -1730,7 +1848,12 @@ onMounted(function () {
                   <MDBTabPane tabId="signcase" class="h-100">
                     <MDBRow class="h-100 overflow-auto">
                       <MDBCol md="12" class="h-100">
-                        <DataTable :data="data_signcase" :columns="columns_signcase" :options="tboption_signcase" ref="table_signcase" style="font-size: smaller"
+                        <DataTable 
+                          :data="data_signcase" 
+                          :columns="columns_signcase" 
+                          :options="tboption_signcase" 
+                          ref="table_signcase" 
+                          style="font-size: smaller; padding-top: 1rem;"
                           class="display w-100 compact" />
                       </MDBCol>
                     </MDBRow>

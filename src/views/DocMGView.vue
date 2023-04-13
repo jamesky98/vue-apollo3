@@ -330,6 +330,7 @@ const tboption1 = {
   buttons: [
     {
       text: '重新整理',
+      className: 'btn-sm',
       action: function ( e, dt, node, config ) {
         filterAllDocLatest();
         refgetAllDocLatest2();
@@ -338,6 +339,7 @@ const tboption1 = {
     {
       extend: 'copy',
       text: '複製',
+      className: 'btn-sm',
       exportOptions: {
         modifier: {
           selected: null
@@ -346,6 +348,7 @@ const tboption1 = {
     },
     {
       extend: 'colvis',
+      className: 'btn-sm',
       text: '顯示欄位',
     }
   ],
