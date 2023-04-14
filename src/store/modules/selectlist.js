@@ -1,8 +1,9 @@
 import apolloClient from '../../apolloclient'
 import { provideApolloClient } from "@vue/apollo-composable";
-import { useQuery, useLazyQuery } from '@vue/apollo-composable';
+import { useQuery, useLazyQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
 import EmpGQL from "../../graphql/Employee";
+import GcpGQL from "../../graphql/Gcp";
 
 provideApolloClient(apolloClient);
 
@@ -11,17 +12,47 @@ const { refetch: refgetCaseCalType } = useQuery(CaseGQL.GETCASECALTYPE);
 const { refetch: refgetCaseAllOrg } = useQuery(CaseGQL.GETALLORG);
 const { refetch: refgetChopList } = useQuery(CaseGQL.GETUNIITEMCHOP);
 const { refetch: refgetModelList } = useQuery(CaseGQL.GETUNIITEMMODEL);
+const { mutate: refgetGcpType } = useMutation(GcpGQL.GETGCPTYPE);
+const { mutate: getGcpStyle } = useMutation(GcpGQL.GETALLGCPSTYLELIST);
+
 
 const state = () => ({
   publicPath: import.meta.env.VITE_GRAPHQL_PUBLIC,
-  ptStatusMU: JSON.stringify([
+  ptStatusMU: [
     {text: "-未選取-", value: -1},
     {text: "正常", value: "正常"},
     {text: "遺失", value: "遺失"},
     {text: "損毀", value: "損毀"},
     {text: "不適用", value: "不適用"},
     {text: "停用", value: "停用"},
-  ]),
+  ],
+  gcpEnableMU: [
+    {text: "-未選取-", value: -1},
+    {text: "啟用", value: 1},
+    {text: "未啟用", value: 0},
+  ],
+  gcpTypeList: [],
+  gcpOwnerShipList: [
+    {text: "-未選取-", value: "-1"},
+    {text: "公有地", value: "公有地"},
+    {text: "私有地", value: "私有地"},
+  ],
+  gcpPavementList: [
+    {text: "-未選取-", value: "-1"},
+    {text: "道路面", value: "道路面"},
+    {text: "建物頂樓", value: "建物頂樓"},
+    {text: "人行道", value: "人行道"},
+    {text: "空地地面", value: "空地地面"},
+    {text: "泥土面", value: "泥土面"},
+    {text: "水泥面", value: "水泥面"},
+  ],
+  gcpStyleList: [],
+  prjMethodList: [
+    {text: "-未選取-", value: "-1"},
+    {text: "量測", value: "量測"},
+    {text: "巡查", value: "巡查"},
+    {text: "中間查核", value: "中間查核"},
+  ],
   caseStatusList: [],
   caseCalTypeList: [],
   caseOrgList: [],
@@ -82,6 +113,27 @@ const actions = {
       commit('writeModelList', tempMU);
     })
   },
+  async fetchGcpTypeList ({ commit, state }, payload) {
+    // console.log('fetchOrgList')
+    refgetGcpType().then(res=>{
+      let tempMU = res.data.getGcpType.map(x => {
+        return { text: x.type_name, value: parseInt(x.code) }
+      }); 
+      tempMU.unshift({ text: "-未選取-", value: -1 });
+      commit('writeGcpTypeList', tempMU);
+    })
+  },
+  async fetchGcpStyleList ({ commit, state }, payload) {
+    // console.log('fetchOrgList')
+    getGcpStyle().then(res=>{
+      let tempMU = res.data.getAllGcpStyleList.map(x => {
+        return { text: x, value: x }
+      }); 
+      tempMU.unshift({ text: "-未選取-", value: -1 });
+      commit('writeGcpStyleList', tempMU);
+    })
+  },
+
 }
 
 const mutations = {
@@ -104,6 +156,15 @@ const mutations = {
   // 儀器型號
   writeModelList(state, ModelList){
     state.caseModelList = [...ModelList];
+  },
+  writeGcpTypeList(state, GcpTypeList){
+    state.gcpTypeList = [...GcpTypeList];
+  },
+  writeGcpStyleList(state, GcpStyleList){
+    state.gcpStyleList = [...GcpStyleList];
+  },
+  addGcpStyleList(state, newItem){
+    state.gcpStyleList.push({text: newItem, value: newItem});
   },
 }
 

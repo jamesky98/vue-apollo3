@@ -118,13 +118,13 @@ const selPrjCodeMU = ref([]);
 const selPrjCodeDOM = ref();
 
 const selGcpId = ref("");
-
+// 啟用狀態清單
 const selGcpEnable = ref("");
-const selGcpEnableMU = ref([]);
+const selGcpEnableMU = computed(() => store.state.selectlist.gcpEnableMU);
 const selGcpEnableDOM = ref();
 
 const selGcpStatus = ref("");
-const selGcpStatusMU = computed(() => JSON.parse(store.state.selectlist.ptStatusMU));
+const selGcpStatusMU = computed(() => store.state.selectlist.ptStatusMU);
 const selGcpStatusDOM = ref();
 
 const selGcpContact = ref("");
@@ -149,40 +149,26 @@ const nowGcpId = ref("");
 const nowGcpRecordId = ref("");
 const nowGcpEnable = ref(true);
 
-
+// 點位類別
 const nowGcpTypeCode = ref("");
-const nowGcpTypeCodeMU = ref([]);
+const nowGcpTypeCodeMU = computed(() => store.state.selectlist.gcpTypeList);
 const nowGcpTypeCodeDOM = ref();
 
+// 土地產權
 const nowGcpOwnerShip = ref("");
-const nowGcpOwnerShipMU = ref([
-  {text: "-未選取-", value: "-1"},
-  {text: "公有地", value: "公有地"},
-  {text: "私有地", value: "私有地"},
-]);
+const nowGcpOwnerShipMU = computed(() => store.state.selectlist.gcpOwnerShipList);
 const nowGcpOwnerShipDOM = ref();
 
 const nowGcpEstablishment = ref("");
 const nowGcpEstDate = ref("");
 
+// 周圍鋪面
 const nowGcpPavement = ref("");
-const nowGcpPavementMU = ref([
-  {text: "-未選取-", value: "-1"},
-  {text: "道路面", value: "道路面"},
-  {text: "建物頂樓", value: "建物頂樓"},
-  {text: "人行道", value: "人行道"},
-  {text: "空地地面", value: "空地地面"},
-  {text: "泥土面", value: "泥土面"},
-  {text: "水泥面", value: "水泥面"},
-]);
+const nowGcpPavementMU = computed(() => store.state.selectlist.gcpPavementList);
 const nowGcpPavementDOM = ref();
 
 const nowGcpStyle = ref("");
-const nowGcpStyleMU = ref([
-  {text: "-未選取-", value: "-1"},
-  {text: "鋼釘", value: "鋼釘"},
-  {text: "鋼片", value: "鋼片"},
-]);
+const nowGcpStyleMU = computed(() => store.state.selectlist.gcpStyleList);
 const nowGcpStyleDOM = ref();
 
 const nowGcpSimage = ref("");
@@ -232,7 +218,7 @@ const nowPRecordPersonMU = ref([]);
 const nowPRecordPersonDOM = ref();
 
 const nowPRecordPtStatus = ref("");
-const nowPRecordPtStatusMU = computed(() => JSON.parse(store.state.selectlist.ptStatusMU));
+const nowPRecordPtStatusMU = computed(() => store.state.selectlist.ptStatusMU);
 const nowPRecordPtStatusDOM = ref();
 
 const nowPRecordE = ref("");
@@ -320,12 +306,6 @@ getAllPrjonDone(result=>{
 });
 getAllPrjonError(e=>{errorHandle(e,infomsg,alert1)});
 
-// 啟用狀態清單
-selGcpEnableMU.value = [
-  {text: "-未選取-", value: -1},
-  {text: "啟用", value: 1},
-  {text: "未啟用", value: 0},
-];
 // 聯絡機關清單
 const { onDone: getAllContactonDone, mutate: refgetAllContact, onError: getAllContactonError } = useMutation(GcpGQL.GETALLCONTACT);
 getAllContactonDone(result=>{
@@ -373,17 +353,6 @@ function dofilter(){
   notProssing.value = false;
   getAllGcp();
 }
-
-// nowGcpTypeCodeMU
-const { onDone: getGcpTypeonDone, mutate: refgetGcpType, onError: getGcpTypeonError } = useMutation(GcpGQL.GETGCPTYPE);
-getGcpTypeonDone(result=>{
-  if(!result.loading && result.data.getGcpType){
-    nowGcpTypeCodeMU.value = result.data.getGcpType.map(x => {
-      return { text: x.type_name, value: parseInt(x.code) }
-    });nowGcpTypeCodeMU.value.unshift({ text: "-未選取-", value: -1 });
-  }
-});
-getGcpTypeonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 清查人員清單
 const { mutate: getRecPerson, onDone: getRecPersonOnDone, onError: getRecPersonError } = useMutation(GcpGQL.GETRECPERSON);
@@ -1010,7 +979,6 @@ onMounted(function () {
     selectNowGCP();
   });
   
-
   dt_hist.value = table_hist.value.dt();
   dt_hist.value.on('select', function (e, dt, type, indexes) {
     // console.log("dt_hist select")
@@ -1025,6 +993,9 @@ onMounted(function () {
     e.preventDefault();
     e.stopPropagation();
   });
+
+  store.dispatch('selectlist/fetchGcpTypeList');
+  store.dispatch('selectlist/fetchGcpStyleList');
 });
 
 function selectNowGCP(){
@@ -1092,8 +1063,13 @@ function selectNowGCPRecord(){
                         <MDBSpinner size="md" color="primary" />Loading...
                       </div>
                       <div class="mt-2" style="position:absolute;">目前點號：<span class="text-info">{{nowGcpId}} - {{nowGcpRecordId}}</span></div>
-                      <DataTable :data="data_gcp" :columns="columns_gcp" :options="tboption_gcp" ref="table_gcp"
-                        style="font-size: smaller;" class="display w-100 compact" />
+                      <DataTable 
+                        :data="data_gcp" 
+                        :columns="columns_gcp" 
+                        :options="tboption_gcp" 
+                        ref="table_gcp"
+                        style="font-size: smaller; padding-top: 0.5rem;" 
+                        class="display w-100 compact" />
                       
                       <div id="gcpbtn" class="gcptools d-flex">
                         <!-- 點位資料下載 -->
@@ -1171,8 +1147,12 @@ function selectNowGCPRecord(){
                                 <MDBInput size="sm" type="text" label="點號" v-model="selGcpId" />
                               </MDBCol>
                               <div></div>
-                              <MDBSelect size="sm" class="mt-2 col-xl-6" label="啟用狀態" v-model:options="selGcpEnableMU"
-                                v-model:selected="selGcpEnable" ref="selGcpEnableDOM" />
+                              <MDBSelect 
+                                size="sm" class="mt-2 col-xl-6" 
+                                label="啟用狀態" 
+                                v-model:options="selGcpEnableMU"
+                                v-model:selected="selGcpEnable" 
+                                ref="selGcpEnableDOM" />
                               <div></div>
                               <MDBSelect size="sm" class="mt-2 col-xl-6" label="點位狀態" v-model:options="selGcpStatusMU"
                                 v-model:selected="selGcpStatus" ref="selGcpStatusDOM" />
@@ -1193,8 +1173,12 @@ function selectNowGCPRecord(){
                                   <MDBCol xl="6" class="mt-2">
                                     <MDBInput size="sm" type="text" label="點號" v-model="nowGcpId" />
                                   </MDBCol>
-                                  <MDBSelect size="sm" class="mt-2 col-12" label="類別" v-model:options="nowGcpTypeCodeMU"
-                                    v-model:selected="nowGcpTypeCode" ref="nowGcpTypeCodeDOM" />
+                                  <MDBSelect 
+                                    size="sm" class="mt-2 col-12" 
+                                    label="類別" 
+                                    v-model:options="nowGcpTypeCodeMU"
+                                    v-model:selected="nowGcpTypeCode" 
+                                    ref="nowGcpTypeCodeDOM" />
                                   <MDBSelect size="sm" class="mt-2 col-12" label="周圍舖面" v-model:options="nowGcpPavementMU"
                                     v-model:selected="nowGcpPavement" ref="nowGcpPavementDOM" />
                                   <MDBSelect size="sm" class="mt-2 col-xl-6" label="土地產權" v-model:options="nowGcpOwnerShipMU"

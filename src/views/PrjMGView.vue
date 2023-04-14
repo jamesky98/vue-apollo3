@@ -3,7 +3,7 @@ import Chart from 'chart.js/auto';
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import path from "path-browserify";
-import { ref, reactive, onMounted, provide, inject } from "vue";
+import { ref, onMounted, provide, inject } from "vue";
 import {
   MDBInput,  MDBSelect,  MDBDatepicker,
   MDBCol,  MDBRow,  MDBContainer,
@@ -16,10 +16,6 @@ import {
 import ToolsGQL from "../graphql/Tools";
 import GcpGQL from "../graphql/Gcp";
 import PrjGQL from "../graphql/Prj";
-
-import DataTable from 'datatables.net-vue3';
-import DataTableBs5 from 'datatables.net-bs5';
-import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
 import { downloadGCP, downloadRef } from "../methods/share.js"
 import { 
@@ -29,6 +25,17 @@ import {
     weekdaysShort,
     weekdaysNarrow
   } from "../methods/datePickerParams.js"
+import { useStore } from 'vuex'
+
+// dataTable 
+import DataTable from 'datatables.net-vue3';
+import DataTablesCore from 'datatables.net';
+import Select from 'datatables.net-select';
+import ButtonsHtml5 from 'datatables.net-buttons/js/buttons.html5';
+import print from 'datatables.net-buttons/js/buttons.print'
+import colvis from 'datatables.net-buttons/js/buttons.colVis'
+import 'datatables.net-responsive';
+import ButtonsBs5 from 'datatables.net-buttons-bs5';
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -37,8 +44,12 @@ import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
-DataTable.use(DataTableBs5);
+DataTable.use(DataTablesCore);
 DataTable.use(Select);
+DataTable.use(ButtonsHtml5);
+DataTable.use(print);
+DataTable.use(colvis);
+DataTable.use(ButtonsBs5);
 
 //#region 取得權限==========Start
 // const myUserId = ref("");
@@ -70,7 +81,6 @@ const rGroup =computed(()=>{
 
 //#region 參數==========Start
 // infomation
-const publicPath = inject('publicPath');
 const NavItem = ref("prjs");
 provide("NavItem",NavItem);
 const infomsg = ref("");
@@ -85,20 +95,17 @@ const updateKey2 = ref(0);
 const updateKey3 = ref(0);
 const dlGCPdropdown1 = ref(false);
 const showRefReport = ref(false);
+const store = useStore();
+const publicPath = computed(() => store.state.selectlist.publicPath);
 
 const nowPrjId = ref("");
 const nowPrjCode = ref("");
 const nowPrjCalTypeId = ref("");
-const nowPrjCalTypeMU = ref([]);
+const nowPrjCalTypeMU = computed(() => store.state.selectlist.caseCalTypeList);
 const nowPrjCalTypeDOM = ref();
 
 const nowPrjMethod = ref("");
-const nowPrjMethodMU = ref([
-  {text: "-未選取-", value: "-1"},
-  {text: "量測", value: "量測"},
-  {text: "巡查", value: "巡查"},
-  {text: "中間查核", value: "中間查核"},
-]);
+const nowPrjMethodMU = computed(() => store.state.selectlist.prjMethodList);
 const nowPrjMethodDOM = ref();
 
 const nowPrjYear = ref("");
@@ -122,40 +129,28 @@ const nowPRecordPtId = ref("");
 const nowGcpEnable = ref(true);
 
 const nowGcpTypeCode = ref("");
-const nowGcpTypeCodeMU = ref([]);
+const nowGcpTypeCodeMU = computed(() => store.state.selectlist.gcpTypeList);
 const nowGcpTypeCodeDOM = ref();
 
 const nowGcpOwnerShip = ref("");
-const nowGcpOwnerShipMU = ref([
-  {text: "-未選取-", value: "-1"},
-  {text: "公有地", value: "公有地"},
-  {text: "私有地", value: "私有地"},
-]);
+const nowGcpOwnerShipMU = computed(() => store.state.selectlist.gcpOwnerShipList);
 const nowGcpOwnerShipDOM = ref();
 
 const nowGcpEstablishment = ref("");
 const nowGcpEstDate = ref("");
 
 const nowGcpPavement = ref("");
-const nowGcpPavementMU = ref([
-  {text: "-未選取-", value: "-1"},
-  {text: "道路面", value: "道路面"},
-  {text: "建物頂樓", value: "建物頂樓"},
-  {text: "人行道", value: "人行道"},
-  {text: "空地地面", value: "空地地面"},
-  {text: "泥土面", value: "泥土面"},
-  {text: "水泥面", value: "水泥面"},
-]);
+const nowGcpPavementMU = computed(() => store.state.selectlist.gcpPavementList);
 const nowGcpPavementDOM = ref();
 
 const nowGcpStyle = ref("");
-const nowGcpStyleMU = ref([]);
+const nowGcpStyleMU = computed(() => store.state.selectlist.gcpStyleList);
 const nowGcpStyleDOM = ref();
 
 const nowGcpSimage = ref("");
 const nowGcpSimageDL = computed(()=>{
   if(nowGcpSimage.value){
-    return publicPath.value + "04_GCP/Pt/" + nowGcpSimage.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/Pt/" + nowGcpSimage.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -166,7 +161,7 @@ const nowGcpComment = ref("");
 const nowGcpDespImg = ref("");
 const nowGcpDespImgDL = computed(()=>{
   if(nowGcpDespImg.value){
-    return publicPath.value + "04_GCP/Pt/" + nowGcpDespImg.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/Pt/" + nowGcpDespImg.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -200,7 +195,7 @@ const nowPRecordPersonMU = ref([]);
 const nowPRecordPersonDOM = ref();
 
 const nowPRecordPtStatus = ref("");
-const nowPRecordPtStatusMU = ref(JSON.parse(inject('ptStatusMU')));
+const nowPRecordPtStatusMU = computed(() => store.state.selectlist.ptStatusMU);
 const nowPRecordPtStatusDOM = ref();
 
 const nowPRecordE = ref("");
@@ -218,8 +213,7 @@ const nowPRecordCom = ref("");
 const nowPRecordImg0 = ref("");
 const nowPRecordImg0DL = computed(()=>{
   if(nowPRecordImg0.value){
-    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value + "?t=" + Math.random()
-  }else{
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value + '?t=' + new Date().getTime()
     return ""
   }
 });
@@ -227,7 +221,7 @@ const nowPRecordImg0DL = computed(()=>{
 const nowPRecordImg1 = ref("");
 const nowPRecordImg1DL = computed(()=>{
   if(nowPRecordImg1.value){
-    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg1.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -236,7 +230,7 @@ const nowPRecordImg1DL = computed(()=>{
 const nowPRecordImg2 = ref("");
 const nowPRecordImg2DL = computed(()=>{
   if(nowPRecordImg2.value){
-    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg2.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -245,7 +239,7 @@ const nowPRecordImg2DL = computed(()=>{
 const nowPRecordImg3 = ref("");
 const nowPRecordImg3DL = computed(()=>{
   if(nowPRecordImg3.value){
-    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg3.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -254,7 +248,7 @@ const nowPRecordImg3DL = computed(()=>{
 const nowPRecordObs = ref("");
 const nowPRecordObsDL = computed(()=>{
   if(nowPRecordObs.value){
-    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordObs.value + "?t=" + Math.random()
+    return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordObs.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -280,7 +274,7 @@ const nowChkCalPass = ref(false);
 const nowChkCalResult = ref(""); //報告檔案
 const nowChkCalResultDL = computed(()=>{
   if(nowChkCalResult.value){
-    return publicPath.value + "01_Equipment/" + nowEqptId.value + "/" + nowChkCalResult.value
+    return publicPath.value + "01_Equipment/" + nowEqptId.value + "/" + nowChkCalResult.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -373,10 +367,34 @@ const columns_prj = [
       return toTWDate(data);}},
 ];
 const tboption_prj = {
-  dom: 'fti',
+  dom: 'Bfti',
+  buttons: [
+    {
+      text: '重新整理',
+      className: 'btn-sm',
+      action: function ( e, dt, node, config ) {
+        updateAllCaseList();
+      }
+    },
+    {
+      extend: 'copy',
+      text: '複製',
+      className: 'btn-sm',
+      exportOptions: {
+        modifier: {
+          selected: null
+        }
+      }
+    },
+    {
+      extend: 'colvis',
+      className: 'btn-sm',
+      text: '顯示欄位',
+    }
+  ],
   select: {style: 'single',info: false},
   order: [[1, 'desc']],
-  scrollY: 'calc(50vh - 12.5rem)',
+  scrollY: 'calc(50vh - 12rem)',
   scrollX: true,
   lengthChange: false,
   searching: true,
@@ -436,17 +454,6 @@ getPrjByIdonDone(result=>{
   }
 });
 getPrjByIdonError(e=>{errorHandle(e,infomsg,alert1)});
-
-// 查詢校正項目列表
-const { onDone: getCaseCalTypeonDone, mutate: refgetCaseCalType, onError: getCaseCalTypeonError } = useMutation(PrjGQL.GETCASECALTYPE);
-getCaseCalTypeonDone(result=>{
-  if(!result.loading && result.data.getCaseCalType){
-    nowPrjCalTypeMU.value = result.data.getCaseCalType.map(x => {
-      return { text: x.name, value: parseInt(x.id) }
-    }); nowPrjCalTypeMU.value.unshift({ text:"-未選取-", value: -1 });
-  }
-});
-getCaseCalTypeonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 執行單位列表
 function updatePrjOrganizer(){
@@ -854,33 +861,12 @@ function delGcpRecordBtn(){
   });
 }
 
-// 類別清單
-const { onDone: getGcpTypeonDone, mutate: refgetGcpType, onError: getGcpTypeonError } = useMutation(GcpGQL.GETGCPTYPE);
-getGcpTypeonDone(result=>{
-  if(!result.loading && result.data.getGcpType){
-    nowGcpTypeCodeMU.value = result.data.getGcpType.map(x => {
-      return { text: x.type_name, value: parseInt(x.code) }
-    });nowGcpTypeCodeMU.value.unshift({ text: "-未選取-", value: -1 });
-  }
-});
-getGcpTypeonError(e=>{errorHandle(e,infomsg,alert1)});
-
-// 標心樣式清單
-const { mutate: getGcpStyle, onDone: getGcpStyleOnDone, onError: getGcpStyleError } = useMutation(GcpGQL.GETALLGCPSTYLELIST);
-getGcpStyleOnDone(result=>{
-  let getData = result.data.getAllGcpStyleList;
-  // console.log(getData);
-  nowGcpStyleMU.value = getData.map(x => {
-      return { text: x, value: x }
-    });nowGcpStyleMU.value.unshift({ text: "-未選取-", value: -1 });
-});
-getGcpStyleError(e=>{errorHandle(e,infomsg,alert1)});
-
 function updateGcpStyle(){
   let newoption = (nowGcpStyle.value)?nowGcpStyle.value:'';
   let findid = nowGcpStyleMU.value.findIndex(x => x.value===newoption);
   if(findid===-1){
-    nowGcpStyleMU.value.push({text: newoption, value: newoption})
+    // nowGcpStyleMU.value.push({text: newoption, value: newoption})
+    store.commit('selectlist/addGcpStyleList',newoption);
     nowGcpStyleDOM.value.setValue(newoption);
   }
 }
@@ -1136,7 +1122,7 @@ getChkByIdOnDone(result=>{
   if (!getData.result){
     chkResultPDF.value = "pdfjs-dist/web/viewer.html";  
   }else{
-    chkResultPDF.value = "pdfjs-dist/web/viewer.html?file=" + publicPath.value + "01_Equipment/" + nowEqptId.value + "/" + nowChkCalResult.value;
+    chkResultPDF.value = "pdfjs-dist/web/viewer.html?file=" + publicPath.value + "01_Equipment/" + nowEqptId.value + "/" + nowChkCalResult.value + '?t=' + new Date().getTime();
     // console.log(pdfPath.value)
   }
 
@@ -1884,10 +1870,8 @@ function dropFile(e){
 getchecktoken().then(res=>{
   refgetAllPrj();
   refgetPrjById();
-  refgetCaseCalType();
   refgetAllPrjlist();
-  refgetGcpType();
-  getGcpStyle();
+  // getGcpStyle();
   getRecPerson();
   refgetAllContact();
   refgetAllEqpt({type: (nowEqptType.value && nowEqptType.value!==-1)?nowEqptType.value:null});
@@ -1977,6 +1961,9 @@ onMounted(function () {
     selectNowChk(nowChkId.value, 'eq_ck_id', dt_chk.value);
   });
 
+  store.dispatch('selectlist/fetchCalTypeList');
+  store.dispatch('selectlist/fetchGcpTypeList');
+  store.dispatch('selectlist/fetchGcpStyleList');
 });
 
 // 一定要由onMounted裡面的draw觸發，否則dt還未渲染，會找不到物件
@@ -2013,9 +2000,14 @@ function selectNowChk(nowId, col, dt){
                   <div :class="{ 'hiddenSpinner': notProssing}" style="position: absolute; left: 50%; top: 10rem;">
                     <MDBSpinner size="md" color="primary" />Loading...
                   </div>
-                  <div class="mt-2" style="position:absolute;">目前作業：<span class="text-info">{{nowPrjCode}} - {{nowPrjId}}</span></div>
-                  <DataTable :data="data_prj" :columns="columns_prj" :options="tboption_prj" ref="table_prj"
-                    style="font-size: smaller;" class="display w-100 compact" />
+                  <!-- <div class="mt-2" style="position:absolute;">目前作業：<span class="text-info">{{nowPrjCode}} - {{nowPrjId}}</span></div> -->
+                  <DataTable 
+                    :data="data_prj" 
+                    :columns="columns_prj" 
+                    :options="tboption_prj" 
+                    ref="table_prj"
+                    style="font-size: smaller; padding-top: 1rem;" 
+                    class="display w-100 compact" />
                 </MDBCol>
                 <!-- 左下資料 -->
                 <MDBCol col="12" style="height: 50%;" class="">
@@ -2044,8 +2036,12 @@ function selectNowChk(nowId, col, dt){
                     </MDBCol>
                     <MDBSelect size="sm" class="mt-2 col-xl-6" label="校正項目" v-model:options="nowPrjCalTypeMU"
                       v-model:selected="nowPrjCalTypeId" ref="nowPrjCalTypeDOM" />
-                    <MDBSelect size="sm" class="mt-2 col-xl-6" label="作業類型" v-model:options="nowPrjMethodMU"
-                      v-model:selected="nowPrjMethod" ref="nowPrjMethodDOM" />
+                    <MDBSelect 
+                      size="sm" class="mt-2 col-xl-6" 
+                      label="作業類型" 
+                      v-model:options="nowPrjMethodMU"
+                      v-model:selected="nowPrjMethod" 
+                      ref="nowPrjMethodDOM" />
                     <MDBCol xl="6" class="mt-2">
                       <MDBInput size="sm" type="text" label="作業年份" v-model="nowPrjYear" />
                     </MDBCol>
@@ -2147,9 +2143,6 @@ function selectNowChk(nowId, col, dt){
                                   <MDBDropdownItem href="#" @click.stop="downloadRef(data_gcp)">參考值檔</MDBDropdownItem>
                                 </MDBDropdownMenu>
                               </MDBDropdown>
-
-
-                              
                             </MDBCol>
                           </MDBRow>
                           <!-- 參考值表單 -->
@@ -2188,12 +2181,24 @@ function selectNowChk(nowId, col, dt){
                                 <MDBCol md="6" xl="4" class="mt-2">
                                   <MDBInput size="sm" type="text" label="點號" v-model="nowPRecordPtId" />
                                 </MDBCol>
-                                <MDBSelect size="sm" class="mt-2 col-md-6 col-xl-4" label="類別" v-model:options="nowGcpTypeCodeMU"
-                                  v-model:selected="nowGcpTypeCode" ref="nowGcpTypeCodeDOM" />
-                                <MDBSelect size="sm" class="mt-2 col-md-6 col-xl-4" label="周圍舖面" v-model:options="nowGcpPavementMU"
-                                  v-model:selected="nowGcpPavement" ref="nowGcpPavementDOM" />
-                                <MDBSelect size="sm" class="mt-2 col-md-6 col-xl-4" label="土地產權" v-model:options="nowGcpOwnerShipMU"
-                                  v-model:selected="nowGcpOwnerShip" ref="nowGcpOwnerShipDOM" />
+                                <MDBSelect 
+                                  size="sm" class="mt-2 col-md-6 col-xl-4" 
+                                  label="類別" 
+                                  v-model:options="nowGcpTypeCodeMU"
+                                  v-model:selected="nowGcpTypeCode" 
+                                  ref="nowGcpTypeCodeDOM" />
+                                <MDBSelect 
+                                  size="sm" class="mt-2 col-md-6 col-xl-4" 
+                                  label="周圍舖面" 
+                                  v-model:options="nowGcpPavementMU"
+                                  v-model:selected="nowGcpPavement" 
+                                  ref="nowGcpPavementDOM" />
+                                <MDBSelect 
+                                  size="sm" class="mt-2 col-md-6 col-xl-4" 
+                                  label="土地產權" 
+                                  v-model:options="nowGcpOwnerShipMU"
+                                  v-model:selected="nowGcpOwnerShip" 
+                                  ref="nowGcpOwnerShipDOM" />
                                 <MDBSelect size="sm" class="mt-2 col-md-6 col-xl-4" 
                                   label="標心樣式" 
                                   v-model:options="nowGcpStyleMU"
