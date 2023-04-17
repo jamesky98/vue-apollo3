@@ -4,17 +4,22 @@ import { useQuery, useLazyQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
 import EmpGQL from "../../graphql/Employee";
 import GcpGQL from "../../graphql/Gcp";
+import PrjGQL from "../../graphql/Prj";
+import ItemGQL from "../../graphql/Item";
 
 provideApolloClient(apolloClient);
 
 const { refetch: refgetCaseStatus } = useQuery(CaseGQL.GETCASESTATUS);
 const { refetch: refgetCaseCalType } = useQuery(CaseGQL.GETCASECALTYPE);
 const { refetch: refgetCaseAllOrg } = useQuery(CaseGQL.GETALLORG);
+const { mutate: refgetAllItemType } = useMutation(ItemGQL.GETALLITEMTYPE);
 const { refetch: refgetChopList } = useQuery(CaseGQL.GETUNIITEMCHOP);
 const { refetch: refgetModelList } = useQuery(CaseGQL.GETUNIITEMMODEL);
 const { mutate: refgetGcpType } = useMutation(GcpGQL.GETGCPTYPE);
 const { mutate: getGcpStyle } = useMutation(GcpGQL.GETALLGCPSTYLELIST);
-
+const { mutate: refgetEqptType } = useMutation(PrjGQL.GETEQPTTYPE);
+const { mutate: getEqptChopList } = useMutation(PrjGQL.GETCHOPLIST);
+const { mutate: getEqptModelList } = useMutation(PrjGQL.GETMODELLIST);
 
 const state = () => ({
   publicPath: import.meta.env.VITE_GRAPHQL_PUBLIC,
@@ -55,9 +60,14 @@ const state = () => ({
   ],
   caseStatusList: [],
   caseCalTypeList: [],
+  caseOrgDate: [],
   caseOrgList: [],
+  caseItemTypeList: [],
   caseChopList: [],
   caseModelList: [],
+  eqptChopList: [],
+  eqptModelList: [],
+  eqptTypeList: [],
 })
 
 const getters = {
@@ -86,11 +96,23 @@ const actions = {
   async fetchOrgList ({ commit, state }, payload) {
     // console.log('fetchOrgList')
     refgetCaseAllOrg().then(res=>{
+      let tempData = res.data.getAllOrg;
       let tempMU = res.data.getAllOrg.map(x => {
         return { text: x.name, value: parseInt(x.id) }
       }); 
       tempMU.unshift({ text: "", value: "" });
+      commit('writeOrgData', tempData);
       commit('writeOrgList', tempMU);
+    })
+  },
+  async fetchItemTypeList ({ commit, state }, payload) {
+    // console.log('fetchOrgList')
+    refgetAllItemType().then(res=>{
+      let tempMU = res.data.getAllItemType.map(x => {
+        return { text: x.type, value: parseInt(x.id) }
+      }); 
+      tempMU.unshift({ text: "-未選擇-", value: -1 });
+      commit('writeItemTypeList', tempMU);
     })
   },
   async fetchChopList ({ commit, state }, payload) {
@@ -133,7 +155,36 @@ const actions = {
       commit('writeGcpStyleList', tempMU);
     })
   },
-
+  async fetchEqptTypeList ({ commit, state }, payload) {
+    // console.log('fetchOrgList')
+    refgetEqptType().then(res=>{
+      let tempMU = res.data.getEqptType.map(x => {
+        return { text: x.type, value: parseInt(x.eqpt_type_id) }
+      }); 
+      tempMU.unshift({ text: "-未選取-", value: -1 });
+      commit('writeEqptTypeList', tempMU);
+    })
+  },
+  async fetchEqptChopList ({ commit, state }, payload) {
+    // console.log('fetchOrgList')
+    getEqptChopList().then(res=>{
+      let tempMU = res.data.getEqptChopList.map(x => {
+        return { text: x, value: x }
+      }); 
+      tempMU.unshift({ text: "-未選取-", value: -1 });
+      commit('writeEqptChopList', tempMU);
+    })
+  },
+  async fetchEqptModelList ({ commit, state }, payload) {
+    // console.log('fetchOrgList')
+    getEqptModelList().then(res=>{
+      let tempMU = res.data.getEqptModelList.map(x => {
+        return { text: x, value: x }
+      }); 
+      tempMU.unshift({ text: "-未選取-", value: -1 });
+      commit('writeEqptModelList', tempMU);
+    })
+  },
 }
 
 const mutations = {
@@ -146,16 +197,29 @@ const mutations = {
     state.caseCalTypeList = [...calTypeList];
   },
   // 顧客機關清單
+  writeOrgData(state, orgData){
+    state.caseOrgDate = [...orgData];
+  },
   writeOrgList(state, orgList){
     state.caseOrgList = [...orgList];
+  },
+  // 校正件類型
+  writeItemTypeList(state, ItemTypeList){
+    state.caseItemTypeList = [...ItemTypeList];
   },
   // 儀器廠牌
   writeChopList(state, ChopList){
     state.caseChopList = [...ChopList];
   },
+  addChopList(state, newItem){
+    state.caseChopList.push({text: newItem, value: newItem});
+  },
   // 儀器型號
   writeModelList(state, ModelList){
     state.caseModelList = [...ModelList];
+  },
+  addModelList(state, newItem){
+    state.caseModelList.push({text: newItem, value: newItem});
   },
   writeGcpTypeList(state, GcpTypeList){
     state.gcpTypeList = [...GcpTypeList];
@@ -165,6 +229,23 @@ const mutations = {
   },
   addGcpStyleList(state, newItem){
     state.gcpStyleList.push({text: newItem, value: newItem});
+  },
+  writeEqptTypeList(state, EqptTypeList){
+    state.eqptTypeList = [...EqptTypeList];
+  },
+  // 標準件廠牌
+  writeEqptChopList(state, EqptChopList){
+    state.eqptChopList = [...EqptChopList];
+  },
+  addEqptChopList(state, newItem){
+    state.eqptChopList.push({text: newItem, value: newItem});
+  },
+  // 標準件型號
+  writeEqptModelList(state, EqptModelList){
+    state.eqptModelList = [...EqptModelList];
+  },
+  addEqptModelList(state, newItem){
+    state.eqptModelList.push({text: newItem, value: newItem});
   },
 }
 

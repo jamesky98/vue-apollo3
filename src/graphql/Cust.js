@@ -62,16 +62,6 @@ mutation GetCustByName($name: String) {
 }
 `;
 
-const GETALLORG = gql`
-  mutation GetAllOrg {
-    getAllOrg {
-      id
-      name
-      tax_id
-    }
-  }
-`;
-
 const UPDATEORG = gql`
 mutation UpdateOrg($updateOrgId: Int!, $name: String, $taxId: String) {
   updateOrg(id: $updateOrgId, name: $name, tax_id: $taxId) {
@@ -101,7 +91,6 @@ export default {
   GETCUSTBYID,
   UPDATECUST,
   GETCUSTBYNAME,
-  GETALLORG,
   UPDATEORG,
   DELORG,
   DELCUST,

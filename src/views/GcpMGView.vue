@@ -949,8 +949,10 @@ getchecktoken().then(res=>{
     getAllGcp();
   });
   refgetAllContact();
-  refgetGcpType();
   getRecPerson();
+  
+  store.dispatch('selectlist/fetchGcpTypeList');
+  store.dispatch('selectlist/fetchGcpStyleList');
 
   return 
 }).catch(e=>{
@@ -993,9 +995,6 @@ onMounted(function () {
     e.preventDefault();
     e.stopPropagation();
   });
-
-  store.dispatch('selectlist/fetchGcpTypeList');
-  store.dispatch('selectlist/fetchGcpStyleList');
 });
 
 function selectNowGCP(){

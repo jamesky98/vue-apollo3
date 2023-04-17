@@ -19,10 +19,6 @@ import {
 } from 'mdb-vue-ui-kit';
 import ToolsGQL from "../graphql/Tools";
 import PrjGQL from "../graphql/Prj";
-
-import DataTable from 'datatables.net-vue3';
-import DataTableBs5 from 'datatables.net-bs5';
-import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
 import { 
     monthsFull, 
@@ -31,6 +27,17 @@ import {
     weekdaysShort,
     weekdaysNarrow
   } from "../methods/datePickerParams.js"
+import { useStore } from 'vuex'
+
+// dataTable
+import DataTable from 'datatables.net-vue3';
+import DataTablesCore from 'datatables.net';
+import Select from 'datatables.net-select';
+import ButtonsHtml5 from 'datatables.net-buttons/js/buttons.html5';
+import print from 'datatables.net-buttons/js/buttons.print'
+import colvis from 'datatables.net-buttons/js/buttons.colVis'
+import 'datatables.net-responsive';
+import ButtonsBs5 from 'datatables.net-buttons-bs5';
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -39,8 +46,12 @@ import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
-DataTable.use(DataTableBs5);
+DataTable.use(DataTablesCore);
 DataTable.use(Select);
+DataTable.use(ButtonsHtml5);
+DataTable.use(print);
+DataTable.use(colvis);
+DataTable.use(ButtonsBs5);
 
 //#region 取得權限==========Start
 // const myUserId = ref("");
@@ -72,32 +83,33 @@ const rGroup =computed(()=>{
 
 //#region 參數==========Start
 // infomation
-const publicPath = inject('publicPath');
 const NavItem = ref("items");
 provide("NavItem",NavItem);
 const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
+const store = useStore();
+const publicPath = computed(() => store.state.selectlist.publicPath);
 
 const notProssing = ref(false);
 const updateKey = ref(0);
 
 // 標準件
 const selEqptType = ref("");
-const selEqptTypeMU = ref([]);
+const selEqptTypeMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.eqptTypeList)));
 const selEqptTypeDOM = ref();
 
 const nowEqptId = ref("");
 const nowEqptType = ref("");
-const nowEqptTypeMU = ref([]);
+const nowEqptTypeMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.eqptTypeList)));
 const nowEqptTypeDOM = ref();
 
 const nowEqptChop = ref("");
-const nowEqptChopMU = ref([]);
+const nowEqptChopMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.eqptChopList)));
 const nowEqptChopDOM = ref();
 
 const nowEqptModel = ref("");
-const nowEqptModelMU = ref([]);
+const nowEqptModelMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.eqptModelList)));
 const nowEqptModelDOM = ref();
 
 const nowEqptSN = ref("");
@@ -118,7 +130,7 @@ const nowChkCalPass = ref(false);
 const nowChkCalResult = ref(""); //報告檔案
 const nowChkCalResultDL = computed(()=>{
   if(nowChkCalResult.value){
-    return publicPath.value + "01_Equipment/" + nowEqptId.value + "/" + nowChkCalResult.value
+    return publicPath.value + "01_Equipment/" + nowEqptId.value + "/" + nowChkCalResult.value + '?t=' + new Date().getTime()
   }else{
     return ""
   }
@@ -156,7 +168,32 @@ const columns_eqpt2 = [
   {title:"備註", data:"comment", defaultContent: "-"},
 ];
 const tboption_eqpt2 = {
-  dom: 'fti',
+  dom: 'Bfti',
+  buttons: [
+    {
+      text: '重新整理',
+      className: 'btn-sm',
+      action: function ( e, dt, node, config ) {
+        // updateAllCaseList();
+        refgetAllEqpt({type: (selEqptType.value && selEqptType.value!==-1)?selEqptType.value:null});
+      }
+    },
+    {
+      extend: 'copy',
+      text: '複製',
+      className: 'btn-sm',
+      exportOptions: {
+        modifier: {
+          selected: null
+        }
+      }
+    },
+    {
+      extend: 'colvis',
+      className: 'btn-sm',
+      text: '顯示欄位',
+    }
+  ],
   select: {style: 'single',info: false},
   order: [[1, 'asc']],
   scrollY: 'calc(45vh - 11.5rem)',
@@ -197,62 +234,36 @@ getEqptByIdOnDone(result=>{
 });
 getEqptByIdError(e=>{errorHandle(e,infomsg,alert1)});
 
-// 查詢標準件類型下拉式清單
-const { onDone: getEqptTypeonDone, mutate: refgetEqptType, onError: getEqptTypeonError } = useMutation(PrjGQL.GETEQPTTYPE);
-getEqptTypeonDone(result=>{
-  if(!result.loading){
-    // 篩選區
-    selEqptTypeMU.value = result.data.getEqptType.map(x => {
-      return { text: x.type, value: parseInt(x.eqpt_type_id) }
-    }); selEqptTypeMU.value.unshift({ text: "-未選取-", value: -1 });
-    // 資料區
-    nowEqptTypeMU.value = result.data.getEqptType.map(x => {
-      return { text: x.type, value: parseInt(x.eqpt_type_id) }
-    }); nowEqptTypeMU.value.unshift({ text: "-未選取-", value: -1 });
-  }
-});
-getEqptTypeonError(e=>{errorHandle(e,infomsg,alert1)});
-
 // 切換標準件類型
 function changeEqptType(){
   refgetAllEqpt({type: (selEqptType.value && selEqptType.value!==-1)?selEqptType.value:null});
 }
 
 // 廠牌清單
-const { mutate: getChopList, onDone: getChopListOnDone, onError: getChopListError } = useMutation(PrjGQL.GETCHOPLIST);
-getChopListOnDone(result=>{
-  let getData = result.data.getEqptChopList;
-  nowEqptChopMU.value = getData.map(x => {
-      return { text: x, value: x }
-    });nowEqptChopMU.value.unshift({ text: "-未選取-", value: -1 });
-});
-getChopListError(e=>{errorHandle(e,infomsg,alert1)});
-
 function updateChop(){
   let newoption = nowEqptChop.value;
   let findid = nowEqptChopMU.value.findIndex(x => x.value===newoption);
   if(findid===-1){
-    nowEqptChopMU.value.push({text: newoption, value: newoption})
-    nowEqptChopDOM.value.setValue(newoption);
+    // nowEqptChopMU.value.push({text: newoption, value: newoption})
+    new Promise((res,rej)=>{
+      res(store.commit('selectlist/addEqptChopList',newoption))
+    }).then(res=>{
+      nowEqptChopDOM.value.setValue(newoption);
+    });
   }
 }
 
 // 型號清單
-const { mutate: getEqptModelList, onDone: getEqptModelListOnDone, onError: getEqptModelListError } = useMutation(PrjGQL.GETMODELLIST);
-getEqptModelListOnDone(result=>{
-  let getData = result.data.getEqptModelList;
-  nowEqptModelMU.value = getData.map(x => {
-      return { text: x, value: x }
-    });nowEqptModelMU.value.unshift({ text: "-未選取-", value: -1 });
-});
-getEqptModelListError(e=>{errorHandle(e,infomsg,alert1)});
-
 function updateModeel(){
   let newoption = nowEqptModel.value;
   let findid = nowEqptModelMU.value.findIndex(x => x.value===newoption);
   if(findid===-1){
-    nowEqptModelMU.value.push({text: newoption, value: newoption})
-    nowEqptModelDOM.value.setValue(newoption);
+    // nowEqptModelMU.value.push({text: newoption, value: newoption})
+    new Promise((res,rej)=>{
+      res(store.commit('selectlist/addEqptModelList',newoption))
+    }).then(res=>{
+      nowEqptModelDOM.value.setValue(newoption);
+    });
   }
 }
 
@@ -373,7 +384,7 @@ getChkByIdOnDone(result=>{
   if (!getData.result){
     pdfPath.value = "pdfjs-dist/web/viewer.html";  
   }else{
-    pdfPath.value = "pdfjs-dist/web/viewer.html?file=" + publicPath.value + "01_Equipment/" + nowEqptId.value + "/" + nowChkCalResult.value;
+    pdfPath.value = "pdfjs-dist/web/viewer.html?file=" + publicPath.value + "01_Equipment/" + nowEqptId.value + "/" + nowChkCalResult.value + '?t=' + new Date().getTime();
     // console.log(pdfPath.value)
   }
   nowChkCalComment.value = getData.comment;
@@ -539,9 +550,9 @@ function dropFile(e){
 // 確認登入狀況
 getchecktoken().then(res=>{
   refgetAllEqpt();
-  refgetEqptType();
-  getChopList();
-  getEqptModelList();
+  store.dispatch('selectlist/fetchEqptTypeList');
+  store.dispatch('selectlist/fetchEqptChopList');
+  store.dispatch('selectlist/fetchEqptModelList');
   getChkOrgList();
   
   return
@@ -627,8 +638,13 @@ function selectNowId(nowId, col, dt){
                       v-model:selected="selEqptType" 
                       ref="selEqptTypeDOM"
                       @change="changeEqptType" />
-                    <DataTable :data="data_eqpt2" :columns="columns_eqpt2" :options="tboption_eqpt2" ref="table_eqpt2"
-                      style="font-size: smaller;" class="display w-100 compact" />
+                    <DataTable 
+                      :data="data_eqpt2" 
+                      :columns="columns_eqpt2" 
+                      :options="tboption_eqpt2" 
+                      ref="table_eqpt2"
+                      style="font-size: smaller; padding-top: 1rem;" 
+                      class="display w-100 compact" />
                   </MDBRow>
                 </MDBCol>
                 <!-- 左下資料 -->

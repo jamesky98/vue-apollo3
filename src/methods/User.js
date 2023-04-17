@@ -1,7 +1,7 @@
 import router from "../router";
 
 function errorHandle(e,infomsg,alert1){
-  console.log('errorHandle',e.message);
+  console.log('errorHandle',e ,e.message);
   switch (e.message) {
     case "No such user found":
       infomsg.value = "查無此帳號";

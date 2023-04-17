@@ -1923,6 +1923,13 @@ function ckCaseStatusList(chData){
 
 getchecktoken().then(res=>{
     // refgetAllCase({notstatus:9});
+    // 取得清單內容應在登入後取得
+    console.log('do dispatch')
+    store.dispatch('selectlist/fetchStatusList');
+    store.dispatch('selectlist/fetchCalTypeList');
+    store.dispatch('selectlist/fetchOrgList');
+    store.dispatch('selectlist/fetchChopList');
+    store.dispatch('selectlist/fetchModelList');
     updateAllCaseList();
     refgetCaseOperator();
     refgetCaseLeader();
@@ -1951,14 +1958,6 @@ onMounted(function () {
     nowCaseID.value = dt.rows(dtNowRowIndex).data()[0].id
     refgetNowCaseS({getCasebyIdId: nowCaseID.value});
   });
-
-  // 取得清單內容應在登入後取得
-  console.log('do dispatch')
-  store.dispatch('selectlist/fetchStatusList');
-  store.dispatch('selectlist/fetchCalTypeList');
-  store.dispatch('selectlist/fetchOrgList');
-  store.dispatch('selectlist/fetchChopList');
-  store.dispatch('selectlist/fetchModelList');
 });
 
 </script>
@@ -2136,8 +2135,13 @@ onMounted(function () {
                       <div :class="{ 'hiddenSpinner': notProssing2}" style="position: absolute; left: 50%; top: 10rem;">
                         <MDBSpinner size="md" color="primary" />Loading...
                       </div>
-                      <DataTable :data=" data1" :columns="columns1" :options="tboption1" ref="table1"
-                        style="font-size: smaller; padding-top: 1rem;" class="display w-100 compact" />
+                      <DataTable 
+                        :data=" data1" 
+                        :columns="columns1" 
+                        :options="tboption1" 
+                        ref="table1"
+                        style="font-size: smaller; padding-top: 1rem;" 
+                        class="display w-100 compact" />
                     </MDBCol>
                     <!-- 下方篩選 -->
                     <MDBCol md="12" class="h-25 mb-2 border border-5 rounded-8 shadow-4">

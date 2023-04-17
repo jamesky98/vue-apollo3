@@ -1365,6 +1365,7 @@ function filterArrayforObj(arr,key){
 
 // 確認登入狀況
 getchecktoken().then(res=>{
+  store.dispatch('selectlist/fetchCalTypeList');
   return getSupList(); // 查詢授權人員列表
 }).then(res=>{
   return getAllEmp(); // 查詢人員列表
@@ -1405,8 +1406,6 @@ onMounted(function () {
     nowEmpowerID.value = dt.rows(indexes).data()[0].empower_id;
     getEmpowerById();
   });
-
-  store.dispatch('selectlist/fetchCalTypeList');
 });
 
 

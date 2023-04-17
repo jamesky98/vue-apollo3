@@ -15,11 +15,18 @@ import {
 import CaseGQL from "../graphql/Cases";
 import CustGQL from "../graphql/Cust";
 import ItemGQL from "../graphql/Item";
-
-import DataTable from 'datatables.net-vue3';
-import DataTableBs5 from 'datatables.net-bs5';
-import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
+import { useStore } from 'vuex'
+
+// dataTable
+import DataTable from 'datatables.net-vue3';
+import DataTablesCore from 'datatables.net';
+import Select from 'datatables.net-select';
+import ButtonsHtml5 from 'datatables.net-buttons/js/buttons.html5';
+import print from 'datatables.net-buttons/js/buttons.print'
+import colvis from 'datatables.net-buttons/js/buttons.colVis'
+import 'datatables.net-responsive';
+import ButtonsBs5 from 'datatables.net-buttons-bs5';
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -28,8 +35,13 @@ import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
-DataTable.use(DataTableBs5);
+DataTable.use(DataTablesCore);
 DataTable.use(Select);
+DataTable.use(ButtonsHtml5);
+DataTable.use(print);
+DataTable.use(colvis);
+DataTable.use(ButtonsBs5);
+
 //#region 取得權限==========Start
 // const myUserId = ref("");
 const myUserName = ref("");
@@ -65,7 +77,7 @@ provide("NavItem",NavItem);
 const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
-
+const store = useStore();
 
 const joinCust = ref(true);
 const joinCustIcon = ref("fas fa-link");
@@ -83,27 +95,52 @@ const nowCustName = ref("");
 const nowCustTel = ref("");
 const nowCustFax = ref("");
 const nowCustAddress = ref("");
+
 const nowCustSelOrgId = ref("");
-const nowCustSelOrgIdMU = ref([]);
+const nowCustSelOrgIdMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.caseOrgList)));
 const nowCustSelOrgIdDOM = ref();
 
 const nowItemId = ref("");
 const nowItemType = ref("");
-const nowItemTypeMU = ref([]);
+const nowItemTypeMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.caseItemTypeList)));
 const nowItemTypeDOM = ref();
 
 const nowItemChop = ref("");
-const nowItemChopMU = ref([]);
+const nowItemChopMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.caseChopList)));
 const nowItemChopDOM = ref();
+function updateItemChop(){
+  let newoption = nowItemChop.value;
+  let findid = nowItemChopMU.value.findIndex(x => x.value===newoption);
+  if(findid===-1){
+    // nowEqptChopMU.value.push({text: newoption, value: newoption})
+    new Promise((res,rej)=>{
+      res(store.commit('selectlist/addChopList',newoption))
+    }).then(res=>{
+      nowItemChopDOM.value.setValue(newoption);
+    });
+  }
+}
 
 const nowItemModel = ref("");
-const nowItemModelMU = ref([]);
+const nowItemModelMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.caseModelList)));
 const nowItemModelDOM = ref();
+function updateItemModel(){
+  let newoption = nowItemModel.value;
+  let findid = nowItemModelMU.value.findIndex(x => x.value===newoption);
+  if(findid===-1){
+    // nowEqptChopMU.value.push({text: newoption, value: newoption})
+    new Promise((res,rej)=>{
+      res(store.commit('selectlist/addModelList',newoption))
+    }).then(res=>{
+      nowItemModelDOM.value.setValue(newoption);
+    });
+  }
+}
 
 const nowItemSN = ref("");
 
 const selItemType = ref("");
-const selItemTypeMU = ref([]);
+const selItemTypeMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.caseItemTypeList)));
 const selItemTypeDOM = ref();
 
 //#endregion 參數==========End
@@ -142,21 +179,9 @@ function setJoinItem(){
   }
 }
 //#region 公司表格==========Start
-const { onDone: getAllOrgonDone, mutate: refgetAllOrg, onError: getAllOrgonError } = useMutation(CustGQL.GETALLORG);
-getAllOrgonDone(result=>{
-  if (!result.loading && result.data.getAllOrg) {
-    data_org.value = result.data.getAllOrg;
-    // 填入機關下拉式清單
-    nowCustSelOrgIdMU.value = result.data.getAllOrg.map(x => {
-      return { text: x.name, value: parseInt(x.id) }
-    }); nowCustSelOrgIdMU.value.unshift({ text: "", value: "" });
-  }
-});
-getAllOrgonError(e=>{errorHandle(e,infomsg,alert1)});
-
 let dt_org;
 const table_org = ref(); 
-const data_org = ref([]);
+const data_org = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.caseOrgDate)));
 const columns_org = [
   {title:"索引", data:"id",width:"2rem"},
   {title:"機關名稱", data:"name"},
@@ -196,8 +221,8 @@ const { mutate: saveOrg, onDone: saveOrgOnDone, onError: saveOrgError } = useMut
   })
 );
 saveOrgOnDone(result=>{
+  store.dispatch('selectlist/fetchOrgList');
   infomsg.value = "機關 " + result.data.updateOrg.id + " 儲存完畢";
-  refgetAllOrg();
 });
 saveOrgError(e=>{errorHandle(e,infomsg,alert1)});
 
@@ -211,8 +236,8 @@ const { mutate: delOrg, onDone: delOrgOnDone, onError: delOrgError } = useMutati
   })
 );
 delOrgOnDone(result=>{
+  store.dispatch('selectlist/fetchOrgList');
   infomsg.value = "機關 " + result.data.delOrg.id + " 刪除完成";
-  refgetAllOrg();
 });
 delOrgError(e=>{errorHandle(e,infomsg,alert1)});
 
@@ -277,8 +302,8 @@ function newCust(){
     nowCustSelOrgId.value = nowCustOrgID.value;
     nowCustSelOrgIdDOM.value.setValue(parseInt(nowCustOrgID.value));
   }else{
-    nowCustSelOrgId.value = "";
-    nowCustSelOrgIdDOM.value.setValue("");
+    nowCustSelOrgId.value = -1;
+    nowCustSelOrgIdDOM.value.setValue(-1);
   }
 }
 
@@ -346,39 +371,17 @@ getAllItemonDone(result=>{
 });
 getAllItemonError(e=>{errorHandle(e,infomsg,alert1)});
 
-const { onDone: getItemListonDone, mutate: refgetItemList, onError: getItemListonError } = useMutation(ItemGQL.GETALLITEM);
-getItemListonDone(result=>{
-  if(!result.loading && result.data.getAllItem){
-    // 校正件清單
-    let choplist = [];
-    let modellist = [];
-    choplist = result.data.getAllItem.map(x => { return x.chop });//從物件陣列中取出成陣列
-    choplist = [...new Set(choplist)]; //ES6排除重複值語法
-    nowItemChopMU.value = choplist.sort().map(x => {
-      return { text: x, value: x }
-    }); nowItemChopMU.value.unshift({ text: "-未選擇-", value: "" });
-
-    modellist = result.data.getAllItem.map(x => { return x.model });//從物件陣列中取出成陣列
-    modellist = [...new Set(modellist)]; //ES6排除重複值語法
-    nowItemModelMU.value = modellist.sort().map(x => {
-      return { text: x, value: x }
-    }); nowItemModelMU.value.unshift({ text: "-未選擇-", value: "" });
-
-  }
-});
-getItemListonError(e=>{errorHandle(e,infomsg,alert1)});
-
 const { onDone: getItemByIdonDone, mutate: refgetItemById, onError: getItemByIdonError } = useMutation(ItemGQL.GETITEMBYID);
 getItemByIdonDone(result=>{
   if(!result.loading && result.data.getItemByID){
     let getData = result.data.getItemByID;
     nowItemId.value = getData.id;
-    nowItemType.value = getData.type;
+    nowItemType.value = (getData.type && getData.type!=='')?getData.type:-1;
     nowItemTypeDOM.value.setValue(parseInt(nowItemType.value));
-    nowItemChop.value = getData.chop;
-    nowItemChopDOM.value.setValue(parseInt(nowItemChop.value));
-    nowItemModel.value = getData.model;
-    nowItemModelDOM.value.setValue(parseInt(nowItemModel.value));
+    nowItemChop.value = (getData.chop)?getData.chop:'';
+    nowItemChopDOM.value.setValue(nowItemChop.value);
+    nowItemModel.value = (getData.model)?getData.model:'';
+    nowItemModelDOM.value.setValue(nowItemModel.value);
     nowItemSN.value = getData.serial_number;
   }
 });
@@ -431,7 +434,31 @@ const columns_Item = [
   {title:"序號", data:"serial_number"},
 ];
 const tboption_Item = {
-  dom: 'fti',
+  dom: 'Bfti',
+  buttons: [
+    {
+      text: '重新整理',
+      className: 'btn-sm',
+      action: function ( e, dt, node, config ) {
+        selItemTypeChange();
+      }
+    },
+    {
+      extend: 'copy',
+      text: '複製',
+      className: 'btn-sm',
+      exportOptions: {
+        modifier: {
+          selected: null
+        }
+      }
+    },
+    {
+      extend: 'colvis',
+      className: 'btn-sm',
+      text: '顯示欄位',
+    }
+  ],
   select: {style: 'single',info: false},
   order: [[2, 'desc']],
   scrollY: 'calc(60vh - 15rem)',
@@ -444,25 +471,6 @@ const tboption_Item = {
     info: '共 _TOTAL_ 筆資料',
   }
 };
-
-// 查詢儀器類型
-const { onDone: getAllItemTypeonDone, mutate: refgetAllItemType, onError: getAllItemTypeonError } = useMutation(ItemGQL.GETALLITEMTYPE);
-getAllItemTypeonDone((result) => {
-  // 加入儀器類型選單資料
-  if (!result.loading && result.data.getAllItemType) {
-    // 資料區
-    nowItemTypeMU.value = result.data.getAllItemType.map((x) => {
-      return { text: x.type, value: parseInt(x.id) };
-    });nowItemTypeMU.value.unshift({ text: "", value: "" });
-    // 篩選區
-    selItemTypeMU.value = result.data.getAllItemType.map((x) => {
-      return { text: x.type, value: parseInt(x.id) };
-    });selItemTypeMU.value.unshift({ text: "-未選擇-", value: -1 });
-    selItemTypeDOM.value.setValue(-1);
-    // selItemTypeDOM.value.toggle();
-  }
-});
-getAllItemTypeonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function selItemTypeChange(e){
   if(joinItem.value){
@@ -502,7 +510,8 @@ const { mutate: saveItem, onDone: saveItemOnDone, onError: saveItemError } = use
 }));
 saveItemOnDone(result=>{
   infomsg.value = "校正件 " + result.data.updateItem.id + " 儲存完畢";
-  refgetItemList();
+  store.dispatch('selectlist/fetchChopList');
+  store.dispatch('selectlist/fetchModelList');
   if(joinItem.value){
     if(nowCustOrgID.value && nowCustOrgID.value!==""){
       // console.log("nowCustOrgID",nowCustOrgID.value);
@@ -645,7 +654,39 @@ const columns_Case = [
   },
 ];
 const tboption_Case = {
-  dom: 'fti',
+  dom: 'Bfti',
+  buttons: [
+    {
+      text: '重新整理',
+      className: 'btn-sm',
+      action: function ( e, dt, node, config ) {
+        let itemId = (nowItemId.value)?nowItemId.value:-1
+        if(joinItem.value){
+          refgetItemCase({
+            itemId: parseInt(itemId),
+            orgId: parseInt(nowCustOrgID.value)
+          });
+        }else{ 
+          refgetItemCase({itemId: parseInt(itemId)});
+        }
+      }
+    },
+    {
+      extend: 'copy',
+      text: '複製',
+      className: 'btn-sm',
+      exportOptions: {
+        modifier: {
+          selected: null
+        }
+      }
+    },
+    {
+      extend: 'colvis',
+      className: 'btn-sm',
+      text: '顯示欄位',
+    }
+  ],
   select: {style: 'single',info: false},
   order: [[1, 'desc']],
   scrollY: 'calc(40vh - 13rem)',
@@ -662,11 +703,13 @@ const tboption_Case = {
 
 // 確認登入狀況
 getchecktoken().then(res=>{
-  refgetAllOrg();
+  store.dispatch('selectlist/fetchOrgList');
+  store.dispatch('selectlist/fetchItemTypeList');
+  store.dispatch('selectlist/fetchChopList');
+  store.dispatch('selectlist/fetchModelList');
   refgetAllCust();
   refgetAllItem();
-  refgetItemList();
-  refgetAllItemType();
+  // refgetItemList();
 
   return
 }).catch(e=>{
@@ -728,8 +771,6 @@ onMounted(function () {
       refgetItemCase({itemId: parseInt(nowItemId.value)});
     }
   });
-
-  
 });
 
 
@@ -827,8 +868,12 @@ onMounted(function () {
                           <MDBCol lg="12" class="mt-3">
                             <MDBInput size="sm" type="text" label="地址" v-model="nowCustAddress"/>
                           </MDBCol>
-                          <MDBSelect filter size="sm" class="mt-3  col-12" label="機關名稱" v-model:options="nowCustSelOrgIdMU"
-                            v-model:selected="nowCustSelOrgId" ref="nowCustSelOrgIdDOM" />
+                          <MDBSelect 
+                            filter size="sm" class="mt-3 col-12" 
+                            label="機關名稱" 
+                            v-model:options="nowCustSelOrgIdMU"
+                            v-model:selected="nowCustSelOrgId" 
+                            ref="nowCustSelOrgIdDOM" />
                         </MDBRow>
                       </MDBCol>
                     </MDBCol>
@@ -855,8 +900,13 @@ onMounted(function () {
                             <MDBBtn size="sm" color="primary" @click="setJoinItem"><span :class="joinItemTextColor"><i :class="joinItemIcon"></i>連結顧客</span></MDBBtn>
                           </MDBCol>
                           <MDBCol col="12">
-                            <DataTable :data="data_Item" :columns="columns_Item" :options="tboption_Item" ref="table_Item"
-                              style="font-size: smaller;" class="display w-100 compact" />
+                            <DataTable 
+                              :data="data_Item" 
+                              :columns="columns_Item" 
+                              :options="tboption_Item" 
+                              ref="table_Item"
+                              style="font-size: smaller; padding-top: 1rem;" 
+                              class="display w-100 compact" />
                           </MDBCol>
                         </MDBCol>
                         <!-- 右資料 -->
@@ -887,24 +937,30 @@ onMounted(function () {
                                 <MDBCol col="12" class="mt-2">
                                   <MDBInput readonly size="sm" type="text" label="索引" v-model="nowItemId" />
                                 </MDBCol>
-                                <MDBSelect size="sm" class="mt-2 col-lg-12" label="儀器類型" v-model:options="nowItemTypeMU"
-                                  v-model:selected="nowItemType" ref="nowItemTypeDOM" />
+                                <MDBSelect 
+                                  size="sm" class="mt-2 col-lg-12" 
+                                  label="儀器類型" 
+                                  v-model:options="nowItemTypeMU"
+                                  v-model:selected="nowItemType" 
+                                  ref="nowItemTypeDOM" />
                                 
-                                <MDBSelect filter size="sm" class="mt-2 col-12 notext noborder" v-model:options="nowItemChopMU"
-                                  v-model:selected="nowItemChop" ref="nowItemChopDOM"/>
-                                <MDBCol col="12" class="" style="position: relative ;">
-                                  <div style="position:absolute;top: -1.85rem;z-index=10;width: calc(100% - 3.25rem);">
-                                    <MDBInput class="noborder" size="sm" type="text" label="廠牌" v-model="nowItemChop"/>
-                                  </div>
-                                </MDBCol>
+                                <MDBSelect size="sm" class="mt-2 col-12" 
+                                  label="廠牌" 
+                                  v-model:options="nowItemChopMU"
+                                  v-model:selected="nowItemChop" 
+                                  ref="nowItemChopDOM"
+                                  @close="updateItemChop()">
+                                  <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowItemChop" />
+                                </MDBSelect>
 
-                                <MDBSelect filter size="sm" class="mt-2 col-12 notext" v-model:options="nowItemModelMU"
-                                    v-model:selected="nowItemModel" ref="nowItemModelDOM"/>
-                                <MDBCol col="12" class="" style="position: relative ;">
-                                  <div style="position:absolute;top: -1.85rem;z-index=10;width: calc(100% - 3.25rem);">
-                                    <MDBInput class="noborder" size="sm" type="text" label="型號" v-model="nowItemModel"/>
-                                  </div>
-                                </MDBCol>
+                                <MDBSelect size="sm" class="mt-2 col-12" 
+                                  label="型號" 
+                                  v-model:options="nowItemModelMU"
+                                  v-model:selected="nowItemModel" 
+                                  ref="nowItemModelDOM"
+                                  @close="updateItemModel()">
+                                  <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowItemModel" />
+                                </MDBSelect>
 
                                 <MDBCol col="12" class="mt-2">
                                   <MDBInput size="sm" type="text" label="序號" v-model="nowItemSN" />
@@ -928,8 +984,13 @@ onMounted(function () {
                       校正紀錄
                     </MDBCol>
                     <MDBCol col="12">
-                      <DataTable :data="data_Case" :columns="columns_Case" :options="tboption_Case" ref="table_Case"
-                        style="font-size: smaller;" class="display w-100 compact" />
+                      <DataTable 
+                        :data="data_Case" 
+                        :columns="columns_Case" 
+                        :options="tboption_Case" 
+                        ref="table_Case"
+                        style="font-size: smaller;" 
+                        class="display w-100 compact" />
                     </MDBCol>
                     
                   </MDBRow>

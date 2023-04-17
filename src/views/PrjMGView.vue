@@ -256,7 +256,7 @@ const nowPRecordObsDL = computed(()=>{
 
 // 標準件
 const nowEqptType = ref("");
-const nowEqptTypeMU = ref([]);
+const nowEqptTypeMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.eqptTypeList)));
 const nowEqptTypeDOM = ref();
 const nowEqptId = ref("");
 
@@ -866,8 +866,11 @@ function updateGcpStyle(){
   let findid = nowGcpStyleMU.value.findIndex(x => x.value===newoption);
   if(findid===-1){
     // nowGcpStyleMU.value.push({text: newoption, value: newoption})
-    store.commit('selectlist/addGcpStyleList',newoption);
-    nowGcpStyleDOM.value.setValue(newoption);
+    new Promise((res,rej)=>{
+      res(store.commit('selectlist/addGcpStyleList',newoption))
+    }).then(res=>{
+      nowGcpStyleDOM.value.setValue(newoption);
+    })
   }
 }
 
@@ -1040,17 +1043,6 @@ getAllEqptonDone(result=>{
   }
 });
 getAllEqptonError(e=>{errorHandle(e,infomsg,alert1)});
-
-// 查詢標準件類型下拉式清單
-const { onDone: getEqptTypeonDone, mutate: refgetEqptType, onError: getEqptTypeonError } = useMutation(PrjGQL.GETEQPTTYPE);
-getEqptTypeonDone(result=>{
-  if(!result.loading){
-    nowEqptTypeMU.value = result.data.getEqptType.map(x => {
-      return { text: x.type, value: parseInt(x.eqpt_type_id) }
-    }); nowEqptTypeMU.value.unshift({ text: "-未選取-", value: -1 });
-  }
-});
-getEqptTypeonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 切換標準件類型
 function changeEqptType(){
@@ -1871,12 +1863,14 @@ getchecktoken().then(res=>{
   refgetAllPrj();
   refgetPrjById();
   refgetAllPrjlist();
-  // getGcpStyle();
   getRecPerson();
   refgetAllContact();
   refgetAllEqpt({type: (nowEqptType.value && nowEqptType.value!==-1)?nowEqptType.value:null});
-  refgetEqptType();
   getChkOrgList();
+  store.dispatch('selectlist/fetchEqptTypeList');
+  store.dispatch('selectlist/fetchCalTypeList');
+  store.dispatch('selectlist/fetchGcpTypeList');
+  store.dispatch('selectlist/fetchGcpStyleList');
 
   return
 }).catch(e=>{
@@ -1960,10 +1954,6 @@ onMounted(function () {
     // console.log("dt_gcp draw")
     selectNowChk(nowChkId.value, 'eq_ck_id', dt_chk.value);
   });
-
-  store.dispatch('selectlist/fetchCalTypeList');
-  store.dispatch('selectlist/fetchGcpTypeList');
-  store.dispatch('selectlist/fetchGcpStyleList');
 });
 
 // 一定要由onMounted裡面的draw觸發，否則dt還未渲染，會找不到物件
@@ -2520,13 +2510,18 @@ function selectNowChk(nowId, col, dt){
                           <MDBRow style="height: 45%;" class="border-1 border-bottom overflow-auto align-content-start">
                             <MDBCol col="6"><span>查詢標準件</span></MDBCol>
                             <MDBSelect filter size="sm" class="mt-2 col-6" 
-                              label="儀器類型" 
+                              label="標準件類型" 
                               v-model:options="nowEqptTypeMU"
                               v-model:selected="nowEqptType" 
                               ref="nowEqptTypeDOM"
                               @change="changeEqptType" />
-                            <DataTable :data="data_eqpt2" :columns="columns_eqpt2" :options="tboption_eqpt2" ref="table_eqpt2"
-                              style="font-size: smaller;" class="display w-100 compact" />
+                            <DataTable 
+                              :data="data_eqpt2" 
+                              :columns="columns_eqpt2" 
+                              :options="tboption_eqpt2" 
+                              ref="table_eqpt2"
+                              style="font-size: smaller; padding-top: 1rem;"
+                              class="display w-100 compact" />
                           </MDBRow>
                           <!-- 左下 -->
                           <MDBRow style="height: 55%;">

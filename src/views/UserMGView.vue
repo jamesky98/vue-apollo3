@@ -13,10 +13,17 @@ import {
   MDBAlert,
   MDBSwitch,
 } from 'mdb-vue-ui-kit';
-import DataTable from 'datatables.net-vue3';
-import DataTableBs5 from 'datatables.net-bs5';
-import Select from 'datatables.net-select';
 import { computed } from "@vue/reactivity";
+
+// dataTable
+import DataTable from 'datatables.net-vue3';
+import DataTablesCore from 'datatables.net';
+import Select from 'datatables.net-select';
+import ButtonsHtml5 from 'datatables.net-buttons/js/buttons.html5';
+import print from 'datatables.net-buttons/js/buttons.print'
+import colvis from 'datatables.net-buttons/js/buttons.colVis'
+import 'datatables.net-responsive';
+import ButtonsBs5 from 'datatables.net-buttons-bs5';
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -25,8 +32,12 @@ import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
-DataTable.use(DataTableBs5);
+DataTable.use(DataTablesCore);
 DataTable.use(Select);
+DataTable.use(ButtonsHtml5);
+DataTable.use(print);
+DataTable.use(colvis);
+DataTable.use(ButtonsBs5);
 //#region 取得權限==========Start
 // const myUserId = ref("");
 const myUserName = ref("");
@@ -124,7 +135,31 @@ const columns1 = [
   {title:"更新日期", data:"user_updated_time"},
 ];
 const tboption1 = {
-  dom: 'fti',
+  dom: 'Bfti',
+  buttons: [
+    {
+      text: '重新整理',
+      className: 'btn-sm',
+      action: function ( e, dt, node, config ) {
+        refgetAllUser();
+      }
+    },
+    {
+      extend: 'copy',
+      text: '複製',
+      className: 'btn-sm',
+      exportOptions: {
+        modifier: {
+          selected: null
+        }
+      }
+    },
+    {
+      extend: 'colvis',
+      className: 'btn-sm',
+      text: '顯示欄位',
+    }
+  ],
   select: {style: 'single',info: false},
   order: [[0, 'asc']],
   scrollY: '63vh',
@@ -336,8 +371,13 @@ onMounted(function () {
               <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <MDBCol v-show="rGroup[0]" md="12" class="my-3">
-                    <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1"
-                      style="font-size: smaller" class="display w-100 compact" />
+                    <DataTable 
+                      :data="data1" 
+                      :columns="columns1" 
+                      :options="tboption1" 
+                      ref="table1"
+                      style="font-size: smaller" 
+                      class="display w-100 compact" />
                   </MDBCol>
                 </MDBRow>
               </MDBCol>

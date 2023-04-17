@@ -8,7 +8,7 @@ import {
   MDBCol,  MDBRow,  MDBContainer,
   MDBBtn,  MDBSwitch,  MDBSelect,
   MDBTabs,  MDBTabNav,  MDBTabContent,  MDBTabItem,  MDBTabPane,
-  MDBDatepicker,  MDBTextarea,
+  MDBDatepicker,  MDBTextarea, MDBSpinner,
   MDBAlert,   MDBBtnClose,  MDBPopconfirm,
 } from "mdb-vue-ui-kit";
 import { computed } from "@vue/reactivity";
@@ -81,6 +81,7 @@ const infomsg = ref("");
 const alert1 = ref(false);
 const store = useStore();
 const publicPath = computed(() => store.state.selectlist.publicPath);
+const notProssing2 = ref(false)
 
 const activeTabId1 = ref('filter');
 const activeTabId2 = ref('histroy');
@@ -179,6 +180,7 @@ getAllDocLatestonDone(result => {
   // 加入table1資料
   if (!result.loading) {
     data1.value = result.data.getAllDocLatest;
+    notProssing2.value = true;
   }
 });
 getAllDocLatestonError(e=>{errorHandle(e,infomsg,alert1)});
@@ -472,6 +474,7 @@ function filterAllDocLatest() {
   where.stauts = docStautsel.value;
 
   // varAllDocLatest.value = where;
+  notProssing2.value = false;
   refgetAllDocLatest(where)
   // console.log("filte data!!")
 }
@@ -768,8 +771,11 @@ onMounted(function () {
         <MDBCol v-show="showLeftData" id="left-data" md="8" class="h-100">
           <MDBRow class="h-100 align-content-between">
             <!-- 上方列表 -->
-            <MDBCol md="12" style="height: calc(50% - 1.5rem) ;"
+            <MDBCol md="12" style="height: calc(50% - 1.5rem); position: relative;"
               class="mt-2 overflow-auto border border-5 rounded-8 shadow-4">
+              <div :class="{ 'hiddenSpinner': notProssing2}" style="position: absolute; left: 50%; top: 10rem;">
+                <MDBSpinner size="md" color="primary" />Loading...
+              </div>
               <DataTable 
                 :data="data1" 
                 :columns="columns1" 
