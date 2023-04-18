@@ -2287,14 +2287,14 @@ onMounted(function () {
                   <MDBCol col="12" class="py-2 border-1 border-bottom">
                     <div>案件資料</div>
                     <div class="d-flex mt-2">
-                      <MDBPopconfirm :disabled="!rGroup[2]" class="btn-sm btn-light btn-outline-danger me-auto" position="top"
+                      <MDBPopconfirm :disabled="!rGroup[2]" class="btn-sm btn-light btn-outline-danger me-auto text-nowrap" position="top"
                         message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delCase">
                         刪除案件
                       </MDBPopconfirm>
-                      <MDBBtn size="sm" :disabled="addBtnDisabled || !rGroup[4]" color="primary" @click="openAddCaseForm()">新增
+                      <MDBBtn size="sm" :disabled="addBtnDisabled || !rGroup[4]" color="primary" class="text-nowrap" @click="openAddCaseForm()">新增
                       </MDBBtn>
-                      <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveNowCaseData()">儲存</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click.prevent="showCaseEdit()" v-html="caseBtnText">
+                      <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" class="text-nowrap" @click="saveNowCaseData()">儲存</MDBBtn>
+                      <MDBBtn size="sm" color="primary" class="text-nowrap" @click.prevent="showCaseEdit()" v-html="caseBtnText">
                       </MDBBtn>
                     </div>
                   </MDBCol>
