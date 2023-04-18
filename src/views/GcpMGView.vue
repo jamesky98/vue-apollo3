@@ -124,7 +124,7 @@ const selGcpEnableMU = computed(() => store.state.selectlist.gcpEnableMU);
 const selGcpEnableDOM = ref();
 
 const selGcpStatus = ref("");
-const selGcpStatusMU = computed(() => store.state.selectlist.ptStatusMU);
+const selGcpStatusMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.ptStatusMU)));
 const selGcpStatusDOM = ref();
 
 const selGcpContact = ref("");
@@ -218,7 +218,7 @@ const nowPRecordPersonMU = ref([]);
 const nowPRecordPersonDOM = ref();
 
 const nowPRecordPtStatus = ref("");
-const nowPRecordPtStatusMU = computed(() => store.state.selectlist.ptStatusMU);
+const nowPRecordPtStatusMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.ptStatusMU)));
 const nowPRecordPtStatusDOM = ref();
 
 const nowPRecordE = ref("");
