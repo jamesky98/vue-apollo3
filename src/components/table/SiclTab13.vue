@@ -5,13 +5,15 @@ import { computed } from "@vue/reactivity";
 import { useMutation } from '@vue/apollo-composable';
 import GcpGQL from "../../graphql/Gcp";
 import { errorHandle, logIn, logOut, toTWDate } from '../../methods/User';
+import { useStore } from 'vuex'
 
 // 引入點號
 const props = defineProps({
 	recordID: String,
   selParams: String
-});
-const publicPath = inject('publicPath');
+});    
+const store = useStore();
+const publicPath = computed(() => store.state.selectlist.publicPath);
 const infomsg = ref('');
 const alert1 =ref(false);
 

@@ -399,6 +399,19 @@ const UPDATEGCPCONTACT = gql`
   }
 `;
 
+const GETCONTACTBYID = gql`
+  mutation GetContactById($getContactByIdId: Int!) {
+    getContactById(id: $getContactByIdId) {
+      id
+      name
+      person
+      address
+      tel
+      comment
+    }
+  }
+`;
+
 export default {
   GETRECORDBYPID,
   GETALLGCP,
@@ -413,4 +426,5 @@ export default {
   UPDATEGCPRECORD,
   DELGCPRECORD,
   UPDATEGCPCONTACT,
+  GETCONTACTBYID,
 };

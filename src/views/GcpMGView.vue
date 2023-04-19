@@ -322,15 +322,48 @@ getAllContactonDone(result=>{
 });
 getAllContactonError(e=>{errorHandle(e,infomsg,alert1)});
 
+const { mutate: refgetContactById, onError: refgetContactByIdonError } = useMutation(GcpGQL.GETCONTACTBYID);
+refgetContactByIdonError(e=>{errorHandle(e,infomsg,alert1)});
+
 function updateContact(){
-  // let newoption = nowGcpContactId.value;
-  // let findid = nowGcpContactMU.value.findIndex(x => x.value===newoption);
-  if(nowGcpContactName.value!==""){
+  let newoption = nowGcpContactName.value;
+  let findid = nowGcpContactMU.value.findIndex(x => x.text===newoption);
+  let findTempid = nowGcpContactMU.value.findIndex(x => x.value===-2);
+  if(nowGcpContactName.value!=='' && nowGcpContactName.value!=='-未選取-' && findid===-1 ){
+    // 確認是新選項
+    if(findTempid>-1){
+      // 檢查有無有暫存選項，先刪除暫存選項
+      nowGcpContactMU.value.splice(findTempid,1);
+    }
     nowGcpContactMU.value.push({text: nowGcpContactName.value, value: -2})
-    nowGcpContactDOM.value.setValue(-2);
+    nowGcpContactId.value = -2;
+    nowGcpContactDOM.value.setValue(nowGcpContactId.value);
     nowGcpContactName.value = "";
   }
 }
+
+watch(nowGcpContactId,(newvalue)=>{
+  if(newvalue===-1){
+    // 清空
+    nowGcpContactAds.value = '';
+    nowGcpContactPrs.value = '';
+    nowGcpContactTel.value = '';
+    nowGcpContactCom.value = '';
+  }else{
+    refgetContactById(
+      {getContactByIdId: newvalue}
+    ).then(res=>{
+      // 填入聯絡廠商欄位
+      let getData = res.data.getContactById;
+      if(getData){
+        nowGcpContactAds.value = getData.address;
+        nowGcpContactPrs.value = getData.person;
+        nowGcpContactTel.value = getData.tel;
+        nowGcpContactCom.value = getData.comment;
+      }
+    });
+  }
+})
 
 // 清除篩選
 function clearfilter(){
@@ -538,22 +571,27 @@ function saveGcpBtn(){
     tel: nowGcpContactTel.value,
     comment: nowGcpContactCom.value,
   }).then(res=>{
-    return saveGcp({
-      updateGcpId: (nowGcpId.value)?nowGcpId.value:'-1',
-      enable: (nowGcpEnable.value)?1:0,
-      typeCode: (nowGcpTypeCode.value && nowGcpTypeCode.value!==-1)?parseInt(nowGcpTypeCode.value):null,
-      ownership: nowGcpOwnerShip.value,
-      establishment: nowGcpEstablishment.value,
-      estDate: parseInt(nowGcpEstDate.value),
-      pavement: (nowGcpPavement.value && nowGcpPavement.value!=='-1')?nowGcpPavement.value:null,
-      style: (nowGcpStyle.value && nowGcpStyle.value!=='-1')?nowGcpStyle.value:null,
-      ptDesc: nowGcpDespStr.value,
-      ptMap: nowGcpDespImg.value,
-      aerialImg: nowGcpSimage.value,
-      needContact: (nowGcpNeedContact.value)?1:0,
-      contactId: (nowGcpContactId.value && nowGcpContactId.value!==-1)?parseInt(nowGcpContactId.value):null,
-      comment: nowGcpComment.value,
-    })
+    // 更新contact menu
+    refgetAllContact();
+    // 取得儲存contact的新ID
+    return nowGcpContactId.value = parseInt(res.data.updateGcpContact.id);
+  }).then(res=>{
+      return saveGcp({
+        updateGcpId: (nowGcpId.value)?nowGcpId.value:'-1',
+        enable: (nowGcpEnable.value)?1:0,
+        typeCode: (nowGcpTypeCode.value && nowGcpTypeCode.value!==-1)?parseInt(nowGcpTypeCode.value):null,
+        ownership: nowGcpOwnerShip.value,
+        establishment: nowGcpEstablishment.value,
+        estDate: parseInt(nowGcpEstDate.value),
+        pavement: (nowGcpPavement.value && nowGcpPavement.value!=='-1')?nowGcpPavement.value:null,
+        style: (nowGcpStyle.value && nowGcpStyle.value!=='-1')?nowGcpStyle.value:null,
+        ptDesc: nowGcpDespStr.value,
+        ptMap: nowGcpDespImg.value,
+        aerialImg: nowGcpSimage.value,
+        needContact: (nowGcpNeedContact.value)?1:0,
+        contactId: (res && res>-1)?res:null,
+        comment: nowGcpComment.value,
+      })
   }).then(res=>{getAllGcp()});
 }
 
