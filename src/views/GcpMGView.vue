@@ -343,6 +343,7 @@ function updateContact(){
 }
 
 watch(nowGcpContactId,(newvalue)=>{
+  // console.log('newvalue',newvalue)
   if(newvalue===-1){
     // 清空
     nowGcpContactAds.value = '';
@@ -534,7 +535,7 @@ getGcpByIdOnDone(result=>{
   nowGcpDespImg.value = getData.pt_map;
   nowGcpDespStr.value = getData.pt_desc;
   nowGcpNeedContact.value = (getData.need_contact===1)?true:false;
-  nowGcpContactId.value = getData.contact_id;
+  nowGcpContactId.value = (getData.contact_id)?getData.contact_id:-1;
   nowGcpContactDOM.value.setValue(nowGcpContactId.value);
 
   if(getData.gcp_contact){
@@ -563,18 +564,26 @@ const { mutate: saveGcpContact, onDone: saveGcpContactOnDone, onError: saveGcpCo
 saveGcpContactError(e=>{errorHandle(e,infomsg,alert1)});
 
 function saveGcpBtn(){
-  saveGcpContact({
-    updateGcpContactId: nowGcpContactId.value,
-    name: document.querySelector('#contactSelectDOM div input').value,
-    address: nowGcpContactAds.value,
-    person: nowGcpContactPrs.value,
-    tel: nowGcpContactTel.value,
-    comment: nowGcpContactCom.value,
+  new Promise((resovle,rej)=>{
+    let result;
+    if(nowGcpContactId.value>-1){
+      result=saveGcpContact({
+        updateGcpContactId: nowGcpContactId.value,
+        name: document.querySelector('#contactSelectDOM div input').value,
+        address: nowGcpContactAds.value,
+        person: nowGcpContactPrs.value,
+        tel: nowGcpContactTel.value,
+        comment: nowGcpContactCom.value,
+      })
+    }else{
+      result=null
+    }
+    resovle(result);
   }).then(res=>{
     // 更新contact menu
     refgetAllContact();
     // 取得儲存contact的新ID
-    return nowGcpContactId.value = parseInt(res.data.updateGcpContact.id);
+    return nowGcpContactId.value = (res)?parseInt(res.data.updateGcpContact.id):-1;
   }).then(res=>{
       return saveGcp({
         updateGcpId: (nowGcpId.value)?nowGcpId.value:'-1',
