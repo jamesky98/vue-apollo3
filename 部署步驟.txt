@@ -1,7 +1,7 @@
 
 latest:
 
-vue32.tar
+vue33.tar
 apollotest18.tar
 
 ================
@@ -14,7 +14,7 @@ npm run build
 docker compose up
 
 3>>
-docker save -o vue32.tar vue-apollo3-vue3
+docker save -o vue33.tar vue-apollo3-vue3
 
 4>>
 copu vue**.tar to P:\

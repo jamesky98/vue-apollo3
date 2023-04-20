@@ -1461,7 +1461,7 @@ function inputAPICase() {
         // 判斷校正項目是否為系統內項目
         if (nowData.Code === 'F' || nowData.Code === 'I' || nowData.Code === 'J' || nowData.Code === 'M') {
           // 新增案件
-          let calTypeID = (caseCalType.value.getCaseCalType.find(x => x.code === nowData.Code)).id;
+          let calTypeID = (caseCalTypeList.value.find(x => x.code === nowData.Code)).value;
           addCase({
             creatCaseId: nowData.caseid,
             calType: parseInt(calTypeID),
