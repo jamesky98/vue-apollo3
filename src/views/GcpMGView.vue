@@ -128,7 +128,7 @@ const selGcpStatusMU = computed(() => JSON.parse(JSON.stringify(store.state.sele
 const selGcpStatusDOM = ref();
 
 const selGcpContact = ref("");
-const selGcpContactMU = ref([]);
+const selGcpContactMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.gcpContactList)));
 const selGcpContactDOM = ref();
 
 const nowSelParams = computed(()=>{
@@ -194,7 +194,7 @@ const nowGcpDespImgDL = computed(()=>{
 const nowGcpDespStr = ref("");
 const nowGcpNeedContact = ref(false);
 const nowGcpContactId = ref("");
-const nowGcpContactMU = ref([]);
+const nowGcpContactMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.gcpContactList)));
 const nowGcpContactDOM = ref();
 const nowGcpContactName = ref("");
 
@@ -307,21 +307,6 @@ getAllPrjonDone(result=>{
 getAllPrjonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 聯絡機關清單
-const { onDone: getAllContactonDone, mutate: refgetAllContact, onError: getAllContactonError } = useMutation(GcpGQL.GETALLCONTACT);
-getAllContactonDone(result=>{
-  if(!result.loading && result.data.getAllContact){
-    // 篩選區
-    selGcpContactMU.value = result.data.getAllContact.map(x => {
-      return { text: x.name, value: parseInt(x.id) }
-    });selGcpContactMU.value.unshift({ text: "-未選取-", value: -1 });
-    // 資料區
-    nowGcpContactMU.value = result.data.getAllContact.map(x => {
-      return { text: x.name, value: parseInt(x.id) }
-    });nowGcpContactMU.value.unshift({ text: "-未選取-", value: -1 });
-  }
-});
-getAllContactonError(e=>{errorHandle(e,infomsg,alert1)});
-
 const { mutate: refgetContactById, onError: refgetContactByIdonError } = useMutation(GcpGQL.GETCONTACTBYID);
 refgetContactByIdonError(e=>{errorHandle(e,infomsg,alert1)});
 
@@ -333,12 +318,20 @@ function updateContact(){
     // 確認是新選項
     if(findTempid>-1){
       // 檢查有無有暫存選項，先刪除暫存選項
-      nowGcpContactMU.value.splice(findTempid,1);
+      store.commit('selectlist/delGcpContactList', findTempid);
     }
-    nowGcpContactMU.value.push({text: nowGcpContactName.value, value: -2})
-    nowGcpContactId.value = -2;
-    nowGcpContactDOM.value.setValue(nowGcpContactId.value);
-    nowGcpContactName.value = "";
+    let newItem = {
+      id: -2,
+      name: nowGcpContactName.value,
+    }
+    
+    new Promise((res,rej)=>{
+      res(store.commit('selectlist/addGcpContactList', newItem));
+    }).then(res=>{
+      nowGcpContactId.value = -2;
+      nowGcpContactDOM.value.setValue(nowGcpContactId.value);
+      nowGcpContactName.value = "";
+    })
   }
 }
 
@@ -581,7 +574,8 @@ function saveGcpBtn(){
     resovle(result);
   }).then(res=>{
     // 更新contact menu
-    refgetAllContact();
+    // refgetAllContact();
+    store.dispatch('selectlist/fetchGcpContactList');
     // 取得儲存contact的新ID
     return nowGcpContactId.value = (res)?parseInt(res.data.updateGcpContact.id):-1;
   }).then(res=>{
@@ -995,11 +989,12 @@ getchecktoken().then(res=>{
     selPrjCodeDOM.value.setValue(selPrjCode.value);
     getAllGcp();
   });
-  refgetAllContact();
+  // refgetAllContact();
   getRecPerson();
   
   store.dispatch('selectlist/fetchGcpTypeList');
   store.dispatch('selectlist/fetchGcpStyleList');
+  store.dispatch('selectlist/fetchGcpContactList');
 
   return 
 }).catch(e=>{
@@ -1314,7 +1309,9 @@ function selectNowGCPRecord(){
                               <MDBCol xl="6" class="mt-2">
                                 <MDBSwitch label="需聯絡" labelClass="fs-7" v-model="nowGcpNeedContact" />
                               </MDBCol>
-                              <MDBSelect id="contactSelectDOM" size="sm" class="mt-2 col-12" 
+                              <MDBSelect 
+                                :disabled="!nowGcpNeedContact"
+                                id="contactSelectDOM" size="sm" class="mt-2 col-12" 
                                 label="機關名稱" 
                                 v-model:options="nowGcpContactMU"
                                 v-model:selected="nowGcpContactId" 
@@ -1324,16 +1321,16 @@ function selectNowGCPRecord(){
                               </MDBSelect>
 
                               <MDBCol xl="12" class="mt-2">
-                                <MDBInput size="sm" type="text" label="地址" v-model="nowGcpContactAds" />
+                                <MDBInput :disabled="!nowGcpNeedContact" size="sm" type="text" label="地址" v-model="nowGcpContactAds" />
                               </MDBCol>
                               <MDBCol xl="8" class="mt-2">
-                                <MDBInput size="sm" type="text" label="聯絡對象" v-model="nowGcpContactPrs" />
+                                <MDBInput :disabled="!nowGcpNeedContact" size="sm" type="text" label="聯絡對象" v-model="nowGcpContactPrs" />
                               </MDBCol>
                               <MDBCol xl="8" class="mt-2">
-                                <MDBInput size="sm" type="text" label="聯絡電話" v-model="nowGcpContactTel" />
+                                <MDBInput :disabled="!nowGcpNeedContact" size="sm" type="text" label="聯絡電話" v-model="nowGcpContactTel" />
                               </MDBCol>
                               <MDBCol col="12" class="mt-2">
-                                <MDBTextarea size="sm" label="備註" rows="2" v-model="nowGcpContactCom" />
+                                <MDBTextarea :disabled="!nowGcpNeedContact" size="sm" label="備註" rows="2" v-model="nowGcpContactCom" />
                               </MDBCol>
                             </MDBRow>
                           </MDBTabPane>

@@ -95,7 +95,7 @@ const GETALLCASE = gql`
 `;
 
 const GETCASESTATUS = gql`
-  query GetCaseStatus {
+  mutation GetCaseStatus {
     getCaseStatus {
       code
       status
@@ -104,7 +104,7 @@ const GETCASESTATUS = gql`
 `;
 
 const GETCASECALTYPE = gql`
-  query GetCaseCalType {
+  mutation GetCaseCalType {
     getCaseCalType {
       id
       name
@@ -123,7 +123,7 @@ const GETOPERATOR = gql`
 `;
 
 const GETALLORG = gql`
-  query GetAllOrg {
+  mutation GetAllOrg {
     getAllOrg {
       id
       name
@@ -144,13 +144,13 @@ const GETALLITEM = gql`
 `;
 
 const GETUNIITEMCHOP = gql`
-  query GetUniItemChop {
+  mutation GetUniItemChop {
     getUniItemChop
   }
 `;
 
 const GETUNIITEMMODEL = gql`
-  query GetUniItemModel {
+  mutation GetUniItemModel {
     getUniItemModel
   }
 `;

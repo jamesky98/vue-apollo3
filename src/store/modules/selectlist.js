@@ -1,6 +1,6 @@
 import apolloClient from '../../apolloclient'
 import { provideApolloClient } from "@vue/apollo-composable";
-import { useQuery, useLazyQuery, useMutation } from '@vue/apollo-composable';
+import { useQuery, useMutation } from '@vue/apollo-composable';
 import CaseGQL from "../../graphql/Cases";
 import EmpGQL from "../../graphql/Employee";
 import GcpGQL from "../../graphql/Gcp";
@@ -8,18 +8,30 @@ import PrjGQL from "../../graphql/Prj";
 import ItemGQL from "../../graphql/Item";
 
 provideApolloClient(apolloClient);
-
-const { refetch: refgetCaseStatus } = useQuery(CaseGQL.GETCASESTATUS);
-const { refetch: refgetCaseCalType } = useQuery(CaseGQL.GETCASECALTYPE);
-const { refetch: refgetCaseAllOrg } = useQuery(CaseGQL.GETALLORG);
+// 案件狀態
+const { mutate: refgetCaseStatus } = useMutation(CaseGQL.GETCASESTATUS);
+// 校正項目
+const { mutate: refgetCaseCalType } = useMutation(CaseGQL.GETCASECALTYPE);
+// 顧客機關名稱
+const { mutate: refgetCaseAllOrg } = useMutation(CaseGQL.GETALLORG);
+// 校正件類型
 const { mutate: refgetAllItemType } = useMutation(ItemGQL.GETALLITEMTYPE);
-const { refetch: refgetChopList } = useQuery(CaseGQL.GETUNIITEMCHOP);
-const { refetch: refgetModelList } = useQuery(CaseGQL.GETUNIITEMMODEL);
+// 校正件廠牌
+const { mutate: refgetChopList } = useMutation(CaseGQL.GETUNIITEMCHOP);
+// 校正件型號
+const { mutate: refgetModelList } = useMutation(CaseGQL.GETUNIITEMMODEL);
+// 校正標類別
 const { mutate: refgetGcpType } = useMutation(GcpGQL.GETGCPTYPE);
+// 標心類型
 const { mutate: getGcpStyle } = useMutation(GcpGQL.GETALLGCPSTYLELIST);
+// 標準件類型
 const { mutate: refgetEqptType } = useMutation(PrjGQL.GETEQPTTYPE);
+// 標準件廠牌
 const { mutate: getEqptChopList } = useMutation(PrjGQL.GETCHOPLIST);
+// 標準件型號
 const { mutate: getEqptModelList } = useMutation(PrjGQL.GETMODELLIST);
+// 聯絡機關
+const { mutate: refgetAllContact } = useMutation(GcpGQL.GETALLCONTACT);
 
 const state = () => ({
   publicPath: import.meta.env.VITE_GRAPHQL_PUBLIC,
@@ -68,6 +80,7 @@ const state = () => ({
   eqptChopList: [],
   eqptModelList: [],
   eqptTypeList: [],
+  gcpContactList: [],
 })
 
 const getters = {
@@ -185,6 +198,15 @@ const actions = {
       commit('writeEqptModelList', tempMU);
     })
   },
+  async fetchGcpContactList ({ commit, state }, payload) {
+    refgetAllContact().then(res=>{
+      let tempMU = res.data.getAllContact.map(x => {
+        return { text: x.name, value: parseInt(x.id) }
+      }); 
+      tempMU.unshift({ text: "-未選取-", value: -1 });
+      commit('writeGcpContactList', tempMU);
+    })
+  },
 }
 
 const mutations = {
@@ -247,6 +269,16 @@ const mutations = {
   addEqptModelList(state, newItem){
     state.eqptModelList.push({text: newItem, value: newItem});
   },
+  // 聯絡機關
+  writeGcpContactList(state, GcpContactList){
+    state.gcpContactList = [...GcpContactList];
+  },
+  addGcpContactList(state, newItem){
+    state.gcpContactList.push({text: newItem.name, value: parseInt(newItem.id)});
+  },
+  delGcpContactList(state, delId){
+    state.gcpContactList.splice(delId,1);;
+  }
 }
 
 export default {

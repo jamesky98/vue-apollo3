@@ -1924,7 +1924,7 @@ function ckCaseStatusList(chData){
 getchecktoken().then(res=>{
     // refgetAllCase({notstatus:9});
     // 取得清單內容應在登入後取得
-    console.log('do dispatch')
+    // console.log('do dispatch')
     store.dispatch('selectlist/fetchStatusList');
     store.dispatch('selectlist/fetchCalTypeList');
     store.dispatch('selectlist/fetchOrgList');
