@@ -116,6 +116,8 @@ function updateItemChop(){
     new Promise((res,rej)=>{
       res(store.commit('selectlist/addChopList',newoption))
     }).then(res=>{
+      console.log('nowEqptChopMU',nowEqptChopMU.value)
+      console.log('newoption',newoption)
       nowItemChopDOM.value.setValue(newoption);
     });
   }
@@ -498,16 +500,19 @@ function newItem(){
   nowItemSN.value = "";
 }
 // 儲存校正件
-const { mutate: saveItem, onDone: saveItemOnDone, onError: saveItemError } = useMutation(
-  ItemGQL.SAVEITEM, () => ({
-  variables: {
+function saveItemBtn(){
+  saveItem({
     updateItemId: (parseInt(nowItemId.value))?parseInt(nowItemId.value):-1,
     chop: nowItemChop.value,
     model: nowItemModel.value,
     serialNumber: nowItemSN.value,
     type: parseInt(nowItemType.value),
-  },
-}));
+  }).then(res=>{
+    let itemId = parseInt(res.data.updateItem.id);
+    refgetItemById({getItemByIdId: parseInt(itemId)});
+  })
+}
+const { mutate: saveItem, onDone: saveItemOnDone, onError: saveItemError } = useMutation(ItemGQL.SAVEITEM);
 saveItemOnDone(result=>{
   infomsg.value = "校正件 " + result.data.updateItem.id + " 儲存完畢";
   store.dispatch('selectlist/fetchChopList');
@@ -925,7 +930,7 @@ onMounted(function () {
                             <!-- 操作按鈕 -->
                             <MDBCol col="12" class="py-2 w-100 overflow-auto" style="white-space: nowrap">
                               <MDBBtn :disabled="!rGroup[2] || nowItemId===''" size="sm" color="primary" @click="newItem">新增</MDBBtn>
-                              <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveItem">儲存</MDBBtn>
+                              <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveItemBtn">儲存</MDBBtn>
                               <!-- <MDBBtn size="sm" color="primary" @click="delItem">刪除</MDBBtn> -->
                               <MDBPopconfirm v-if="rGroup[0]" :disabled="!rGroup[0] || nowItemId===''" class="btn-sm btn-light btn-outline-danger me-auto"
                                 message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delItem">
