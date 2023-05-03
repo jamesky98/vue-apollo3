@@ -2,6 +2,7 @@
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import { ref, reactive, onMounted, provide,inject } from "vue";
+import { computed } from "@vue/reactivity";
 import path, { join } from "path-browserify";
 import {
   MDBInput,
@@ -19,12 +20,10 @@ import jStat from "jstat";
 import vueDataTable from 'datatables.net-vue3';
 import DataTableBs5 from 'datatables.net-bs5';
 import Select from 'datatables.net-select';
-import { computed } from "@vue/reactivity";
+
 import jQuery from "jquery";
 
-import * as DataTable from "datatables.net-dt";
-import "datatables.net-dt/css/jquery.dataTables.min.css";
-import "datatables.net-select-dt";
+import DataTables from "datatables.net";
 
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
@@ -32,11 +31,15 @@ import UsersGQL from "../graphql/Users";
 import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
-// ======
+// ==註冊元件===
 Object.assign(window, { $: jQuery, jQuery });
+DataTables(window,$);
+Select(window,$);
+// ==註冊元件===
 
 vueDataTable.use(DataTableBs5);
 vueDataTable.use(Select);
+
 //#region 取得權限==========Start
 // const myUserId = ref("");
 const myUserName = ref("");
