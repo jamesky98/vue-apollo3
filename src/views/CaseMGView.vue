@@ -1938,7 +1938,6 @@ getchecktoken().then(res=>{
   });
 
 function updateAllCaseList(){
-  // console.log('5s update')
   if(listOpened.value){return}
   notProssing2.value = false;
   // console.log('filterVariables',filterVariables.value)
@@ -1950,6 +1949,10 @@ function updateAllCaseList(){
     }
   });
 }
+
+watch(showRejectCase,(newValue)=>{
+  updateAllCaseList();
+})
 // 加載表格選取事件
 onMounted(function () {
   dt1 = table1.value.dt();
@@ -2149,7 +2152,7 @@ onMounted(function () {
                         <MDBCol col="12" class="py-2 d-flex border-1 border-bottom">
                           <div class="">條件篩選</div>
                           <div class="ms-2 flex-grow-1">
-                            <MDBSwitch label="顯示退件" v-model="showRejectCase" @change="updateAllCaseList" />
+                            <MDBSwitch label="顯示退件" v-model="showRejectCase" />
                           </div>
                           <div>
                             <MDBBtn size="sm" color="primary" @click="caseClearFilter()">清除</MDBBtn>
