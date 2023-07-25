@@ -1580,81 +1580,82 @@ function saveAPIRecord(nowData) {
     let result;
     let preresult;
       // 下載附件
-      switch (nowData.Code) {
-        case "F":
-        case "J":
-          // 下載camReport
-          result = dlFromAPI({
-            fromUrl: nowData.COL24,
-            toSubPath: "06_Case/" + nowData.caseid,
-            toFileName: "01_CamReport" + path.extname(nowData.COL24),
-          }).then(res=>{ 
-            // 下載planMap
-            return dlFromAPI({
-            fromUrl: nowData.COL25,
-            // toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
-            toSubPath: "06_Case/" + nowData.caseid,
-            toFileName: "02_PlanDwg" + path.extname(nowData.COL25),
-            })
-          }).then(res=>{ 
-            return ["01_CamReport" + path.extname(nowData.COL24) , "02_PlanDwg" + path.extname(nowData.COL25) ];
-          })
-          break;
-        case "I":
-          // 下載camReport
-          preresult = res;
-          result = dlFromAPI({
-            fromUrl: nowData.COL28,
-            toSubPath: "06_Case/" + nowData.caseid,
-            toFileName: "01_LrReport" + path.extname(nowData.COL28),
-          }).then(res=>{  
-            // 下載planMap
-            return dlFromAPI({
-            fromUrl: nowData.COL29,
-            toSubPath: "06_Case/" + nowData.caseid,
-            toFileName: "02_POSReport" + path.extname(nowData.COL29),
-            })
-          }).then(res=>{  
-            // 下載planMap
-            dlFromAPI({
-            fromUrl: nowData.COL30,
-            toSubPath: "06_Case/" + nowData.caseid,
-            toFileName: "03_LrPlan" + path.extname(nowData.COL30),
-            })
-          }).then(res=>{
-            return [
-              "01_LrReport" + path.extname(nowData.COL28) , 
-              "02_POSReport" + path.extname(nowData.COL29), 
-              "03_LrPlan" + path.extname(nowData.COL30),
-              (preresult.gnss_id)?preresult.gnss_id:null,
-              (preresult.imu_id)?preresult.imu_id:null];
-          })
-          break;
-        case "M":
-          // 下載camReport
-          preresult = res;
-          result = dlFromAPI({
-            fromUrl: nowData.COL28,
-            toSubPath: "06_Case/" + nowData.caseid,
-            toFileName: "01_LrReport" + path.extname(nowData.COL28),
-          }).then(res=>{  
-            // 下載planMap
-            dlFromAPI({
-            fromUrl: nowData.COL29,
-            toSubPath: "06_Case/" + nowData.caseid,
-            toFileName: "02_POSReport" + path.extname(nowData.COL29),
-            })
-          }).then(res=>{
-            return [
-              "01_LrReport" + path.extname(nowData.COL28) , 
-              "02_POSReport" + path.extname(nowData.COL29), 
-              (preresult.gnss_id)?preresult.gnss_id:null,
-              (preresult.imu_id)?preresult.imu_id:null];
-          })
-          break;
-      }
-      // console.log("download_result",result);
-      return result;
+      // switch (nowData.Code) {
+      //   case "F":
+      //   case "J":
+      //     // 下載camReport
+      //     result = dlFromAPI({
+      //       fromUrl: nowData.COL24,
+      //       toSubPath: "06_Case/" + nowData.caseid,
+      //       toFileName: "01_CamReport" + path.extname(nowData.COL24),
+      //     }).then(res=>{ 
+      //       // 下載planMap
+      //       return dlFromAPI({
+      //       fromUrl: nowData.COL25,
+      //       // toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+      //       toSubPath: "06_Case/" + nowData.caseid,
+      //       toFileName: "02_PlanDwg" + path.extname(nowData.COL25),
+      //       })
+      //     }).then(res=>{ 
+      //       return ["01_CamReport" + path.extname(nowData.COL24) , "02_PlanDwg" + path.extname(nowData.COL25) ];
+      //     })
+      //     break;
+      //   case "I":
+      //     // 下載camReport
+      //     preresult = res;
+      //     result = dlFromAPI({
+      //       fromUrl: nowData.COL28,
+      //       toSubPath: "06_Case/" + nowData.caseid,
+      //       toFileName: "01_LrReport" + path.extname(nowData.COL28),
+      //     }).then(res=>{  
+      //       // 下載planMap
+      //       return dlFromAPI({
+      //       fromUrl: nowData.COL29,
+      //       toSubPath: "06_Case/" + nowData.caseid,
+      //       toFileName: "02_POSReport" + path.extname(nowData.COL29),
+      //       })
+      //     }).then(res=>{  
+      //       // 下載planMap
+      //       dlFromAPI({
+      //       fromUrl: nowData.COL30,
+      //       toSubPath: "06_Case/" + nowData.caseid,
+      //       toFileName: "03_LrPlan" + path.extname(nowData.COL30),
+      //       })
+      //     }).then(res=>{
+      //       return [
+      //         "01_LrReport" + path.extname(nowData.COL28) , 
+      //         "02_POSReport" + path.extname(nowData.COL29), 
+      //         "03_LrPlan" + path.extname(nowData.COL30),
+      //         (preresult.gnss_id)?preresult.gnss_id:null,
+      //         (preresult.imu_id)?preresult.imu_id:null];
+      //     })
+      //     break;
+      //   case "M":
+      //     // 下載camReport
+      //     preresult = res;
+      //     result = dlFromAPI({
+      //       fromUrl: nowData.COL28,
+      //       toSubPath: "06_Case/" + nowData.caseid,
+      //       toFileName: "01_LrReport" + path.extname(nowData.COL28),
+      //     }).then(res=>{  
+      //       // 下載planMap
+      //       dlFromAPI({
+      //       fromUrl: nowData.COL29,
+      //       toSubPath: "06_Case/" + nowData.caseid,
+      //       toFileName: "02_POSReport" + path.extname(nowData.COL29),
+      //       })
+      //     }).then(res=>{
+      //       return [
+      //         "01_LrReport" + path.extname(nowData.COL28) , 
+      //         "02_POSReport" + path.extname(nowData.COL29), 
+      //         (preresult.gnss_id)?preresult.gnss_id:null,
+      //         (preresult.imu_id)?preresult.imu_id:null];
+      //     })
+      //     break;
+      // }
+      // // console.log("download_result",result);
+      // return result;
+      return null;
     }).then(res => {
       // 填入其他資料
       switch (nowData.Code) {
@@ -1680,8 +1681,8 @@ function saveAPIRecord(nowData) {
             sideLap: parseFloat(nowData.COL20),
             ellHeight: parseFloat(nowData.COL21),
             agl: parseFloat(nowData.COL22),
-            camReport: res[0],
-            planMap: res[1],
+            // camReport: res[0],
+            // planMap: res[1],
             signPersonId: parseInt(nowData.Signatory),
           });
           break;
@@ -1709,8 +1710,8 @@ function saveAPIRecord(nowData) {
             sideLap: parseFloat(nowData.COL21),
             ellHeight: parseFloat(nowData.COL22),
             agl: parseFloat(nowData.COL23),
-            camReport: res[0],
-            planMap: res[1],
+            // camReport: res[0],
+            // planMap: res[1],
             signPersonId: parseInt(nowData.Signatory),
           });
           break;
@@ -1736,9 +1737,9 @@ function saveAPIRecord(nowData) {
             agl: parseFloat(nowData.COL25),
             cloudDensity: parseFloat(nowData.COL26),
             fov: parseFloat(nowData.COL27),
-            lidarReport: res[0],
-            posReport: res[1],
-            planMap: res[2],
+            // lidarReport: res[0],
+            // posReport: res[1],
+            // planMap: res[2],
             signPersonId: parseInt(nowData.Signatory),
           });
           break;
