@@ -1,5 +1,5 @@
 <script setup>
-	// 作業紀錄表(適用航空測量攝影機)
+	// 校正標點位調查表
 import {ref,inject} from 'vue';
 import { computed } from "@vue/reactivity";
 import { useMutation } from '@vue/apollo-composable';

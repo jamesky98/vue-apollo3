@@ -153,7 +153,7 @@ const ucModuleTemp = {
 
 const nowUcModuleDL = computed(() => {
   if (nowUcModuleName.value && nowUcModuleName.value !== "" && nowUcModuleName.value !== ".json") {
-    return "06_Case/uncertainty/" + nowUcModuleName.value;
+    return "08_Template/uncertainty/" + nowUcModuleName.value;
   } else {
     return undefined;
   }

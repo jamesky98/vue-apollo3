@@ -116,8 +116,8 @@ function updateItemChop(){
     new Promise((res,rej)=>{
       res(store.commit('selectlist/addChopList',newoption))
     }).then(res=>{
-      console.log('nowEqptChopMU',nowEqptChopMU.value)
-      console.log('newoption',newoption)
+      // console.log('nowEqptChopMU',nowEqptChopMU.value)
+      // console.log('newoption',newoption)
       nowItemChopDOM.value.setValue(newoption);
     });
   }
@@ -492,11 +492,13 @@ function selItemTypeChange(e){
 // 新增校正件
 function newItem(){
   nowItemId.value = "";
-  nowItemType.value = ""
-  nowItemTypeDOM.value.setValue("");
+  nowItemType.value = -1
+  nowItemTypeDOM.value.setValue(-1);
 
-  nowItemChop.value = "";
-  nowItemModel.value = "";
+  nowItemChop.value = -1;
+  nowItemChopDOM.value.setValue(-1);
+  nowItemModel.value = -1;
+  nowItemModelDOM.value.setValue(-1);
   nowItemSN.value = "";
 }
 // 儲存校正件

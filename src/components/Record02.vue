@@ -1,4 +1,5 @@
 <script setup>
+// 空載光達校正表單
 import { ref, provide, inject } from "vue";
 import path from "path-browserify";
 import {
@@ -1423,7 +1424,7 @@ function data1ToCalResult(){
   if(pt_Used > 0){
     rmseE = (rmseE/pt_Used)**0.5;
     rmseN = (rmseN/pt_Used)**0.5;
-    myCalResult.rmseH = ((rmseE**2 + rmseE**2)**0.5)*1000;
+    myCalResult.rmseH = ((rmseE**2 + rmseN**2)**0.5)*1000;
     myCalResult.rmseV = ((rmseV/pt_Used)**0.5)*1000;
     myCalResult.minCloudPt = minPt;
     myCalResult.maxCloudPt = maxPt;
@@ -1925,7 +1926,7 @@ defineExpose({
                         <MDBRow>
                           <MDBCol col="4">IMU規格</MDBCol>
                           <MDBCol col="8">
-                            <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="showItemFromBtn(4)">查詢GNSS
+                            <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="showItemFromBtn(4)">查詢IMU
                             </MDBBtn>
                           </MDBCol>
                         </MDBRow>
@@ -2262,22 +2263,7 @@ defineExpose({
                     <MDBBtn :disabled="!rGroup[2] || !isCalResult || !selectUcModel || selectUcModel==='-1'" size="sm" color="primary" @click.stop="computeUcBtn">
                       計算不確定度
                     </MDBBtn>
-                    <MDBBtn :disabled="!rGroup[2] || !isCalResult" size="sm" color="primary">
-                      <RouterLink target="_blank" :to="{
-                        path: '/sicltab09',
-                        query: { caseID: props.caseID },
-                      }">
-                        <span class="btn-primary text-white">列印計算成果</span>
-                      </RouterLink>
-                    </MDBBtn>
-                    <MDBBtn :disabled="!rGroup[2] || !nowCaseUcResult" size="sm" color="primary">
-                      <RouterLink target="_blank" :to="{
-                        path: '/sicltab06',
-                        query: { caseID: props.caseID },
-                      }">
-                        <span class="btn-primary text-white">列印不確定度計算表</span>
-                      </RouterLink>
-                    </MDBBtn>
+                    
                   </MDBCol>
                   <div></div>
 
@@ -2300,6 +2286,22 @@ defineExpose({
                   </MDBCol>
                   <!-- 產生作業紀錄表 -->
                   <MDBCol col="12" class="mb-3">
+                    <MDBBtn :disabled="!rGroup[2] || !isCalResult" size="sm" color="primary">
+                      <RouterLink target="_blank" :to="{
+                        path: '/sicltab09',
+                        query: { caseID: props.caseID },
+                      }">
+                        <span class="btn-primary text-white">列印計算成果</span>
+                      </RouterLink>
+                    </MDBBtn>
+                    <MDBBtn :disabled="!rGroup[2] || !nowCaseUcResult" size="sm" color="primary">
+                      <RouterLink target="_blank" :to="{
+                        path: '/sicltab06',
+                        query: { caseID: props.caseID },
+                      }">
+                        <span class="btn-primary text-white">列印不確定度計算表</span>
+                      </RouterLink>
+                    </MDBBtn>
                     <MDBBtn size="sm" color="primary">
                       <RouterLink target="_blank" :to="{
                         path: '/sicltab10',

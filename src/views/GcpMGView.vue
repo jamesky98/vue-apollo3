@@ -559,7 +559,8 @@ saveGcpContactError(e=>{errorHandle(e,infomsg,alert1)});
 function saveGcpBtn(){
   new Promise((resovle,rej)=>{
     let result;
-    if(nowGcpContactId.value>-1){
+    // console.log('nowGcpContactId',nowGcpContactId.value);
+    if(nowGcpContactId.value>-1 || nowGcpContactId.value===-2){
       result=saveGcpContact({
         updateGcpContactId: nowGcpContactId.value,
         name: document.querySelector('#contactSelectDOM div input').value,
@@ -577,8 +578,10 @@ function saveGcpBtn(){
     // refgetAllContact();
     store.dispatch('selectlist/fetchGcpContactList');
     // 取得儲存contact的新ID
+    // console.log('updateGcpContact_id',res.data.updateGcpContact.id);
     return nowGcpContactId.value = (res)?parseInt(res.data.updateGcpContact.id):-1;
   }).then(res=>{
+      // console.log('res',res);
       return saveGcp({
         updateGcpId: (nowGcpId.value)?nowGcpId.value:'-1',
         enable: (nowGcpEnable.value)?1:0,

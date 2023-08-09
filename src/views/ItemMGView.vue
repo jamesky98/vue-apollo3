@@ -676,7 +676,8 @@ function selectNowId(nowId, col, dt){
                       v-model:selected="nowEqptType" 
                       ref="nowEqptTypeDOM"/>
                     
-                    <MDBSelect size="sm" class="mt-2 col-xl-8" 
+                    <MDBSelect size="sm" class="mt-2 col-xl-8"
+                      filter 
                       label="廠牌" 
                       v-model:options="nowEqptChopMU"
                       v-model:selected="nowEqptChop" 
@@ -686,6 +687,7 @@ function selectNowId(nowId, col, dt){
                     </MDBSelect>
                     
                     <MDBSelect size="sm" class="mt-2 col-xl-8" 
+                      filter
                       label="型號" 
                       v-model:options="nowEqptModelMU"
                       v-model:selected="nowEqptModel" 

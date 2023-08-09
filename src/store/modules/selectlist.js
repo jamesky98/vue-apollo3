@@ -134,7 +134,7 @@ const actions = {
       let tempMU = res.data.getUniItemChop.map(x => {
         return { text: x, value: x }
       }); 
-      tempMU.unshift({ text: "", value: "" });
+      tempMU.unshift({ text: "-未選擇-", value: -1 });
       commit('writeChopList', tempMU);
     })
   },
@@ -144,7 +144,7 @@ const actions = {
       let tempMU = res.data.getUniItemModel.map(x => {
         return { text: x, value: x }
       }); 
-      tempMU.unshift({ text: "", value: "" });
+      tempMU.unshift({ text: "-未選擇-", value: -1 });
       commit('writeModelList', tempMU);
     })
   },

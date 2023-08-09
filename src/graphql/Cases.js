@@ -412,6 +412,112 @@ const GETFULLCASEBYID = gql`
         uccal_table
         uc_model
       }
+      case_record_03 {
+        id
+        type
+        gnss_id
+        item_base_case_record_03_gnss_idToitem_base {
+          chop
+          model
+          serial_number
+        }
+        imu_id
+        item_base_case_record_03_imu_idToitem_base {
+          chop
+          model
+          serial_number
+        }
+        dis_presision
+        ang_resolution
+        beam
+        prec_h
+        prec_v
+        omega
+        phi
+        kappa
+        prec_ori
+        plan_date
+        cloud_density
+        lidar_report
+        pos_report
+        receive_date
+        scan_date
+        strips_no_ac
+        cloud_density_ac
+        scan_map
+        files_no
+        others
+        err_data
+        err_cloud
+        start_Date
+        ref_id
+        ref_project {
+          id
+          project_code
+          method
+          year
+          month
+          organizer
+          start_date
+          end_date
+          publish_date
+          ref_use_eqpt {
+            id
+            eqpt_check_id
+            ref_eqpt_check {
+              eq_ck_id
+              ref_eqpt_id
+              check_date
+              report_id
+              cal_org
+              cal_org_id
+              ref_eqpt {
+                serial_number
+                chop
+                model
+                type
+                ref_eqpt_type {
+                  type
+                }
+                cal_cycle
+              }
+              pass
+            }
+          }
+          cal_type_id
+          cal_type {
+            name
+            code
+          }
+        }
+        gcp_file
+        meas_file
+        result_file
+        std_h
+        std_v
+        k_h
+        k_v
+        std_file
+        report_edit
+        chk_date
+        chk_person_id
+        employee_case_record_03_chk_person_idToemployee {
+          name
+        }
+        complete_date
+        sign_date
+        sign_person_id
+        employee_case_record_03_sign_person_idToemployee {
+          name
+        }
+        report_scan
+        has_logo
+        report_template
+        record_tamplate
+        recal_table
+        uccal_table
+        uc_model
+      }
       status_code
       case_status {
         status

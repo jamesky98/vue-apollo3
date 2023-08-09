@@ -34,6 +34,7 @@ import {
     weekdaysShort,
     weekdaysNarrow
   } from "../methods/datePickerParams.js"
+import { useStore } from 'vuex'
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -49,7 +50,8 @@ const props = defineProps({
 // Information
 const infomsg = ref('');
 const alert1 =ref(false);
-const publicPath = inject('publicPath');
+const store = useStore();
+const publicPath = computed(() => store.state.selectlist.publicPath);
 // 案件之詳細資料
 const selectUcObj = ref();
 const selectReportObj = ref();
@@ -93,7 +95,6 @@ const nowCaseImuPrcO = ref("");  // IMU設備姿態角解析度
 
 const nowCasePlanDate = ref(""); // 預定拍攝日期
 const nowCasePlanDateDOM= ref("");
-
 const nowCasePtDensity = ref(""); // 單航帶點雲密度
 
 const nowCaseLrReport = ref(""); // LiDAR規格
@@ -120,9 +121,7 @@ const nowCaseRecDateDOM = ref();
 
 const nowCaseScanDate = ref(""); // 掃描日期
 const nowCaseScanDateDOM = ref();
-
 const nowCaseStripsAc = ref(""); // 實際航帶總數
-const nowCasePtDensityac = ref(""); // 單航帶點雲密度
 
 const nowCaseScanMapAc = ref(""); // 實際航線圖
 const nowCaseScanMapAcDL = computed(() => {
@@ -157,6 +156,28 @@ const nowCaseRefPrjID = ref(""); // 量測作業索引
 const nowCaseRefPrjCode = ref(""); // 量測作業編號編號
 const nowCaseRefPrjPublishDate = ref(""); // 參考值發布日期
 const nowCaseRefEqpt = ref(); // 使用標準件
+
+const nowCaseCloudDate = ref([
+  {id:1,sno:"2",filename:"",PtDensity:null,memo:""},
+  {id:2,sno:"7",filename:"",PtDensity:null,memo:""},
+  {id:3,sno:"10",filename:"",PtDensity:null,memo:""},
+  {id:4,sno:"14",filename:"",PtDensity:null,memo:""},
+  {id:5,sno:"16",filename:"",PtDensity:null,memo:""},
+  {id:6,sno:"21",filename:"",PtDensity:null,memo:""},
+]);
+let nowCaseStripID;
+const nowCaseCloudAvg = computed(() => {
+  let sumV = 0;
+  let total = 0;
+  nowCaseCloudDate.value.forEach(x=>{
+    if(parseFloat(x.PtDensity)){
+      sumV = sumV + parseFloat(x.PtDensity);
+      total = total + 1;
+    }
+  });
+  // console.log(nowCaseCloudDate.value);
+  return (total==0)?'':(sumV / total).toFixed(2);
+});
 
 // 作業紀錄
 const nowCaseSTDh = ref(""); //水平不確定度(自動計算)
@@ -302,7 +323,7 @@ const {
 }));
 getNowCaseFonDone(result => {
   if (!result.loading && result && result.data.getCasebyID.case_record_03) {
-    // console.log(result.data.getCasebyID);
+    // console.log('R03',result.data.getCasebyID);
     // 填入資料
     let getData = result.data.getCasebyID.case_record_03;
     let getItem = result.data.getCasebyID.item_base;
@@ -317,6 +338,7 @@ getNowCaseFonDone(result => {
     nowCaseItemChop.value = (getItem) ? getItem.chop : "";
     nowCaseItemModel.value = (getItem) ? getItem.model : "";
     nowCaseItemSN.value = (getItem) ? getItem.serial_number : "";
+
     // 參數型態
     // nowCaseParaType.value = getData.type;
     (getData.type === 1) ? isFullPara.value = true : isFullPara.value = false;
@@ -325,6 +347,7 @@ getNowCaseFonDone(result => {
     nowCaseLrDisPrs.value = getData.dis_presision;
     nowCaseLrAngResol.value = getData.ang_resolution;
     nowCaseLrBeam.value = getData.beam;
+
     // GNSS規格
     nowCaseGnssID.value = getData.gnss_id;
     nowCaseGnssChop.value = (getGNSS) ? getGNSS.chop : "";
@@ -347,12 +370,12 @@ getNowCaseFonDone(result => {
     // 檢附資料
     nowCaseLrReport.value = getData.lidar_report;
     nowCasePosReport.value = getData.pos_report;
+
     // 送件
     nowCaseRecDate.value = (getData.receive_date)?getData.receive_date.split("T")[0]:" ";
     nowCaseScanDate.value = (getData.scan_date)?getData.scan_date.split("T")[0]:" ";
     
     nowCaseStripsAc.value = getData.strips_no_ac;
-    nowCasePtDensityac.value = getData.cloud_density_ac;
 
     nowCaseScanMapAc.value = getData.scan_map;
     nowCaseLASNo.value = getData.files_no;
@@ -368,17 +391,24 @@ getNowCaseFonDone(result => {
     nowCaseRefPrjCode.value = getData.ref_project
       ? getData.ref_project.project_code
       : " ";
-    nowCaseRefPrjPublishDate.value = getData.ref_project
-      ? getData.ref_project.publish_date.split("T")[0]
-      : " ";
+    if(getData.ref_project){
+      if(getData.ref_project.publish_date){
+        nowCaseRefPrjPublishDate.value = getData.ref_project.publish_date.split("T")[0];
+      }else{
+        nowCaseRefPrjPublishDate.value = " ";
+      }
+    }else{
+      nowCaseRefPrjPublishDate.value = " ";
+    }
+    
     nowCaseRefEqpt.value = (getData.ref_project) ? getData.ref_project.ref_use_eqpt : null;
-
     nowCaseSTDh.value = getData.std_h;
     nowCaseSTDv.value = getData.std_v;
     nowCaseKh.value = getData.k_h;
     nowCaseKv.value = getData.k_v;
     nowCaseCalResult.value = getData.recal_table ? getData.recal_table : null;
     data1.value = calResultToData1();
+    nowCaseCloudDate.value = nowCaseCalResult.value.stripdata;
     nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table : null;
 
     // 出具報告
@@ -593,7 +623,9 @@ function shownItemModal() {
     seletItemId.value = getData.id;
     refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
   });
-  refgetAllItem().then(result=>{
+  let where = {};
+  where.type = iType.value;
+  refgetAllItem(where).then(result=>{
     // 建立廠牌型號下拉式選單
     let choplist = [];
     let modellist = [];
@@ -618,7 +650,7 @@ function shownItemModal() {
   refgetAllItemType();
 
   switch (iType.value) {
-    case 2:
+    case 6:
       if (nowCaseItemID.value) {
         seletItemId.value = nowCaseItemID.value;
         refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
@@ -688,14 +720,14 @@ function doItemFilter() {
   if (filterItemModel.value !== "") where.model = filterItemModel.value;
   if (filterItemSN.value !== "") where.serialNumber = filterItemSN.value;
 
-  // varAllItem.value = where;
+  varAllItem.value = where;
   refgetAllItem(where);
 }
 
 // 案加入後回填校正件id
 function setItemBtn() {
   switch (iType.value) {
-    case 2:
+    case 6:
       nowCaseItemID.value = seletItemId.value;
       nowCaseItemChop.value = selItemChop.value;
       nowCaseItemModel.value = selItemModel.value;
@@ -719,10 +751,10 @@ function setItemBtn() {
 }
 
 function showItemFromBtn(x) {
-  let where = {};
+  // let where = {};
   iType.value = x;
-  where.type = iType.value;
-  varAllItem.value = where;
+  // where.type = iType.value;
+  // varAllItem.value = where;
   showItemFrom.value = true;
 }
 
@@ -832,28 +864,25 @@ function setPrjBtn() {
   nowCaseRefPrjCode.value = seletPrjCode.value;
   nowCaseRefPrjPublishDate.value = seletPrjPublishDate.value;
   calRefGcp().then(res=>{
-    // console.log("calRefGcp");
     return saveRecord03();  
   }).then(res=>{
-    // console.log("saveRecord03");
     return refgetNowCaseF();
   }).then(res=>{
-    // console.log("refgetNowCaseF");
     return getUcList();
   }).then(res=>{
-    // console.log("getUcList");
     showPrjFrom.value = false;
   })
 }
 
 // 查詢參考值並填入data1
+// calTypeId【1:大像幅;2:中像幅;3:小像幅;4:光達;5:車載】
 const { mutate: calRefGcp, onDone: calRefGcpOnDone, onError: calRefGcponError } = useMutation(
   PrjGQL.CALREFGCP,
   () => ({
     variables: {
       projectId: parseInt(nowCaseRefPrjID.value),
       status: "正常",
-      calTypeId: 4,
+      calTypeId: 5,
     },
   })
 );
@@ -890,77 +919,10 @@ calRefGcponError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 儲存Record03
 const {
-  mutate: saveRecord03,
+  mutate: saveRecord03fn,
   onDone: saveRecord03OnDone,
   onError: saveRecord03Error,
-} = useMutation(CaseGQL.SAVECASERECORD03, () => ({
-  variables: {
-    updateRecord03Id: props.caseID,
-    type: (isFullPara.value) ? 1 : 2,
-    gnssId: parseInt(nowCaseGnssID.value),
-    imuId: parseInt(nowCaseImuID.value),
-    disPresision: parseFloat(nowCaseLrDisPrs.value),
-    angResolution: parseFloat(nowCaseLrAngResol.value),
-    beam: parseFloat(nowCaseLrBeam.value),
-    precH: parseFloat(nowCaseGnssPrcH.value),
-    precV: parseFloat(nowCaseGnssPrcV.value),
-    omega: parseFloat(nowCaseImuOmg.value),
-    phi: parseFloat(nowCaseImuPhi.value),
-    kappa: parseFloat(nowCaseImuKap.value),
-    precOri: parseFloat(nowCaseImuPrcO.value),
-    planDate: parseInt(nowCasePlanDate.value),
-    cloudDensity: parseFloat(nowCasePtDensity.value),
-    lidarReport: nowCaseLrReport.value,
-    posReport: nowCasePosReport.value,
-    receiveDate: nowCaseRecDate.value.trim() === ""
-      ? null
-      : nowCaseRecDate.value.trim() + "T00:00:00.000Z",
-    scanDate: nowCaseScanDate.value.trim() === ""
-      ? null
-      : nowCaseScanDate.value.trim() + "T00:00:00.000Z",
-    stripsNoAc: parseInt(nowCaseStripsAc.value),
-    cloudDensityAc: parseFloat(nowCasePtDensityac.value),
-    scanMap: nowCaseScanMapAc.value,
-    filesNo: parseInt(nowCaseLASNo.value),
-    others: nowCaseOther.value,
-    errData: nowCaseErrData.value,
-    errCloud: nowCaseErrLAS.value,
-    startDate: nowCaseStartDate.value.trim() === ""
-      ? null
-      : nowCaseStartDate.value.trim() + "T00:00:00.000Z",
-    completeDate: nowCaseCompleteDate.value.trim() === ""
-      ? null
-      : nowCaseCompleteDate.value.trim() + "T00:00:00.000Z",
-    refId: parseInt(nowCaseRefPrjID.value),
-    gcpFile: "",
-    measFile: "",
-    resultFile: "",
-    stdH: parseFloat(nowCaseSTDh.value),
-    stdV: parseFloat(nowCaseSTDv.value),
-    kH: parseFloat(nowCaseKh.value),
-    kV: parseFloat(nowCaseKv.value),
-    stdFile: "",
-    reportEdit: nowCaseReportEdit.value,
-    chkDate: nowCaseChkDate.value.trim() === ""
-      ? null
-      : nowCaseChkDate.value.trim() + "T00:00:00.000Z",
-    chkPersonId: selectChkPersonID.value === "" ? null : parseInt(selectChkPersonID.value),
-    signDate: nowCaseSignDate.value.trim() === ""
-      ? null
-      : nowCaseSignDate.value.trim() + "T00:00:00.000Z",
-    signPersonId:
-      selectSignPersonID.value === ""
-        ? null
-        : parseInt(selectSignPersonID.value),
-    reportScan: nowCaseReportScan.value,
-    hasLogo: nowCaseHasLOGO.value,
-    reportTemplate: selectReportTemp.value,
-    recordTamplate: "",
-    recalTable: (nowCaseCalResult.value)?nowCaseCalResult.value:undefined,
-    uccalTable: (nowCaseUcResult.value)?nowCaseUcResult.value:undefined,
-    ucModel: selectUcModel.value,
-  },
-}));
+} = useMutation(CaseGQL.SAVECASERECORD03);
 saveRecord03OnDone(() => {
   refgetNowCaseF();
   // console.log(nowCaseCalResult.value)
@@ -970,6 +932,87 @@ saveRecord03OnDone(() => {
   // alert1.value = true;
 });
 saveRecord03Error(e=>{errorHandle(e,infomsg,alert1)});
+
+function saveRecord03(){
+  new Promise((res,rej)=>{
+    res(data1ToCalResult());
+  }).then(res=>{
+    // console.log(nowCaseCalResult.value);
+    saveRecord03fn({
+      updateRecord03Id: props.caseID,
+      type: (isFullPara.value) ? 1 : 2,
+      gnssId: parseInt(nowCaseGnssID.value),
+      imuId: parseInt(nowCaseImuID.value),
+      disPresision: parseFloat(nowCaseLrDisPrs.value),
+      angResolution: parseFloat(nowCaseLrAngResol.value),
+      beam: parseFloat(nowCaseLrBeam.value),
+      precH: parseFloat(nowCaseGnssPrcH.value),
+      precV: parseFloat(nowCaseGnssPrcV.value),
+      omega: parseFloat(nowCaseImuOmg.value),
+      phi: parseFloat(nowCaseImuPhi.value),
+      kappa: parseFloat(nowCaseImuKap.value),
+      precOri: parseFloat(nowCaseImuPrcO.value),
+      planDate: nowCasePlanDate.value.trim() === ""
+          ? null
+          : nowCasePlanDate.value.trim() + "T00:00:00.000Z",
+      cloudDensity: parseFloat(nowCasePtDensity.value),
+      lidarReport: nowCaseLrReport.value,
+      posReport: nowCasePosReport.value,
+      receiveDate: nowCaseRecDate.value.trim() === ""
+        ? null
+        : nowCaseRecDate.value.trim() + "T00:00:00.000Z",
+      scanDate: nowCaseScanDate.value.trim() === ""
+        ? null
+        : nowCaseScanDate.value.trim() + "T00:00:00.000Z",
+      stripsNoAc: parseInt(nowCaseStripsAc.value),
+      scanMap: nowCaseScanMapAc.value,
+      filesNo: parseInt(nowCaseLASNo.value),
+      others: nowCaseOther.value,
+      errData: nowCaseErrData.value,
+      errCloud: nowCaseErrLAS.value,
+      startDate: nowCaseStartDate.value.trim() === ""
+        ? null
+        : nowCaseStartDate.value.trim() + "T00:00:00.000Z",
+      completeDate: nowCaseCompleteDate.value.trim() === ""
+        ? null
+        : nowCaseCompleteDate.value.trim() + "T00:00:00.000Z",
+      refId: parseInt(nowCaseRefPrjID.value),
+      gcpFile: "",
+      measFile: "",
+      resultFile: "",
+      stdH: parseFloat(nowCaseSTDh.value),
+      stdV: parseFloat(nowCaseSTDv.value),
+      kH: parseFloat(nowCaseKh.value),
+      kV: parseFloat(nowCaseKv.value),
+      stdFile: "",
+      reportEdit: nowCaseReportEdit.value,
+      chkDate: nowCaseChkDate.value.trim() === ""
+        ? null
+        : nowCaseChkDate.value.trim() + "T00:00:00.000Z",
+      chkPersonId: selectChkPersonID.value === "" ? null : parseInt(selectChkPersonID.value),
+      signDate: nowCaseSignDate.value.trim() === ""
+        ? null
+        : nowCaseSignDate.value.trim() + "T00:00:00.000Z",
+      signPersonId:
+        selectSignPersonID.value === ""
+          ? null
+          : parseInt(selectSignPersonID.value),
+      reportScan: nowCaseReportScan.value,
+      hasLogo: nowCaseHasLOGO.value,
+      reportTemplate: selectReportTemp.value,
+      recordTamplate: "",
+      recalTable: (nowCaseCalResult.value)?nowCaseCalResult.value:undefined,
+      uccalTable: (nowCaseUcResult.value)?nowCaseUcResult.value:undefined,
+      ucModel: selectUcModel.value,
+    });
+  });
+}
+
+function getStripFile(stipID){
+  if(!rGroup.value[2]){return}
+  nowCaseStripID = stipID;
+  uploadBtn('stripUpload')
+}
 
 //#region 檔案上傳==========Start
 const uploadType = ref("");
@@ -997,10 +1040,12 @@ function uploadBtn(inputId) {
     case "OtherUpload":
       inputDOM.setAttribute("accept","");
       break;
-    case "ptCloudUpload":
-      inputDOM.setAttribute("accept",".xyz");
+    case "stripUpload":
+      inputDOM.setAttribute("accept","");
       break;
-
+    case "ptCloudUpload":
+      inputDOM.setAttribute("accept","");
+      break;
     case "ReportEditUpload":
       inputDOM.setAttribute("accept",".docx");
       break;
@@ -1041,10 +1086,13 @@ async function uploadChenge(e) {
     case "OtherUpload":
       newName = "06_Other" + path.extname(e.target.value);
       break;
+    case "stripUpload":
+      nowCaseCloudDate.value[nowCaseStripID-1].filename = upFile.value.name;
+      return; 
     case "ptCloudUpload":
-      subpath = subpath + "/CloudPt"
-      newName = data1.value[upPtIndex.value].gcp_id + path.extname(e.target.value);
-      await ptCloudAvg(upFile.value,upPtIndex.value);
+      subpath = subpath + "/surveyPt"
+      newName = 'surveyPt' + path.extname(e.target.value);
+      await ptCloudAvg(upFile.value);
       break;
     case "ReportEditUpload":
       newName = props.caseID + path.extname(e.target.value)
@@ -1079,16 +1127,8 @@ uploadFileOnDone((result) => {
       nowCasePosReport.value = result.data.uploadFile.filename;
       saveRecord03();
       break;
-    case "itemLrPlanUpload":
-      nowCasePlanMap.value = result.data.uploadFile.filename;
-      saveRecord03();
-      break;
     case "FlyMapAcUpload":
-      nowCaseFlyMapAc.value = result.data.uploadFile.filename;
-      saveRecord03();
-      break;
-    case "RecTableUpload":
-      nowCaseRecTable.value = result.data.uploadFile.filename;
+      nowCaseScanMapAc.value = result.data.uploadFile.filename;
       saveRecord03();
       break;
     case "OtherUpload":
@@ -1154,7 +1194,8 @@ function reloadUcMU(){
 const pramJsonStr = ref("");
 
 function computeUcBtn(){
-  let calResult = nowCaseCalResult.value;
+  // let calResult = nowCaseCalResult.value;
+  // console.log('calResult',calResult);
   let pramJson = {
     lrdis: nowCaseLrDisPrs.value, // LiDAR規格測距精度(mm)
     lrbeam: nowCaseLrBeam.value, // LiDAR規格雷射擴散角(秒)
@@ -1165,11 +1206,12 @@ function computeUcBtn(){
     posPhi: nowCaseImuPhi.value, // POS規格Phi精度(秒)
     posKap: nowCaseImuKap.value, // POS規格Kappa精度(秒)
     posOri: nowCaseImuPrcO.value, // POS測角解析度(秒)
-    agl: nowCaseAGLac.value, // 飛行離地高(m)
-    fov: nowCaseFOVac.value, // 最大掃描角(度)FOV
-    minpt: calResult.minCloudPt, // 最少點雲數
-    maxpt: calResult.maxCloudPt, // 最多點雲數
+    // agl: nowCaseAGLac.value, // 飛行離地高(m)
+    // fov: nowCaseFOVac.value, // 最大掃描角(度)FOV
+    // minpt: calResult.minCloudPt, // 最少點雲數
+    // maxpt: calResult.maxCloudPt, // 最多點雲數
   };
+  // console.log('pramJson',pramJson);
   pramJsonStr.value = JSON.stringify(pramJson);
   computeUc();
 }
@@ -1206,15 +1248,15 @@ const table1 = ref();
 const data1 = ref([]);
 const columns1 = [
   { title: "序號", render: (data, type, row, meta) => { return meta.row; },width:"1rem" },
-  { title: "量測資料", render: (data, type, row, meta) => { 
-      if (row.type==='T'){
-        return '<span class="btn btn-primary btn-sm ripple-surface uploadCP">上傳</span>' 
-      }else if(row.type==='F'){
-        return '<span class="btn btn-primary btn-sm ripple-surface btnDisabled">上傳</span>' 
-      }
+  // { title: "量測資料", render: (data, type, row, meta) => { 
+  //     if (row.type==='T'){
+  //       return '<span class="btn btn-primary btn-sm ripple-surface uploadCP">上傳</span>' 
+  //     }else if(row.type==='F'){
+  //       return '<span class="btn btn-primary btn-sm ripple-surface btnDisabled">上傳</span>' 
+  //     }
       
-    },width:"1rem" 
-  },
+  //   },width:"1rem" 
+  // },
   { title: "剔除", data: "type", render: (data, type, row, meta) => {
       if(data==='T'){
         return '<span style="cursor: pointer;" class="deltype text-success"><i class="fas fa-lg fa-check-circle"></i>使用</span>'
@@ -1234,7 +1276,7 @@ const columns1 = [
   { title: "E_mes", data: "meas_E", className: 'dt-right' },
   { title: "N_mes", data: "meas_N", className: 'dt-right' },
   { title: "h_mes", data: "meas_h", className: 'dt-right' },
-  { title: "點雲個數", data: "count", className: 'dt-right' },
+  // { title: "點雲個數", data: "count", className: 'dt-right' },
   { title: "E_ref", data: "coor_E", className: 'dt-right' },
   { title: "N_ref", data: "coor_N", className: 'dt-right' },
   { title: "h_ref", data: "coor_h", className: 'dt-right' },
@@ -1264,14 +1306,14 @@ const upPtIndex = ref("");
 function loadtable(index){
   if(index===3 && setpFlag.value!==index){
     dt1 = table1.value.dt();
-    dt1.off('click', '.uploadCP');
-    dt1.on('click', '.uploadCP', function (e) {
-      upPtIndex.value = parseInt(e.target.parentElement.previousSibling.innerText);
-      uploadBtn("ptCloudUpload");
-      e.stopPropagation()
-    });
+    // dt1.off('click', '.uploadCP');
+    // dt1.on('click', '.uploadCP', function (e) {
+    //   upPtIndex.value = parseInt(e.target.parentElement.previousSibling.innerText);
+    //   uploadBtn("ptCloudUpload");
+    //   e.stopPropagation()
+    // });
     dt1.on('click', '.deltype', function (e) {
-      upPtIndex.value = parseInt(e.currentTarget.parentElement.previousSibling.previousSibling.innerText);
+      upPtIndex.value = parseInt(e.currentTarget.parentElement.previousSibling.innerText);
       if(data1.value[upPtIndex.value].type==='T'){
         // 剔除點位
         data1.value[upPtIndex.value].type='F';
@@ -1331,11 +1373,14 @@ function calResultToData1(){
   myArray.sort((a,b)=>{
     return (a.gcp_id > b.gcp_id)?1:-1;
   })
+
   return myArray;
 }
 
 function data1ToCalResult(){
-  let myCalResult={};
+  let myCalResult={
+    stripdata: nowCaseCloudDate.value,
+  };
   let pt_Data = {};
   let rmseE = 0.0;
   let rmseN = 0.0;
@@ -1354,7 +1399,7 @@ function data1ToCalResult(){
       x: data1.value[i].meas_E,
       y: data1.value[i].meas_N,
       z: data1.value[i].meas_h,
-      count: data1.value[i].count,
+      // count: data1.value[i].count,
       dx: data1.value[i].d_E,
       dy: data1.value[i].d_N,
       dz: data1.value[i].d_h,
@@ -1365,25 +1410,25 @@ function data1ToCalResult(){
       rmseE = rmseE + parseFloat(data1.value[i].d_E)**2;
       rmseN = rmseN + parseFloat(data1.value[i].d_N)**2;
       rmseV = rmseV + parseFloat(data1.value[i].d_h)**2;
-      if(pt_Used===0){
-        minPt = data1.value[i].count;
-        maxPt = data1.value[i].count;
-      }else{
-        (data1.value[i].count < minPt)?minPt = data1.value[i].count:minPt = minPt;
-        (data1.value[i].count > maxPt)?maxPt = data1.value[i].count:maxPt = maxPt;
-      }
+      // if(pt_Used===0){
+      //   minPt = data1.value[i].count;
+      //   maxPt = data1.value[i].count;
+      // }else{
+      //   (data1.value[i].count < minPt)?minPt = data1.value[i].count:minPt = minPt;
+      //   (data1.value[i].count > maxPt)?maxPt = data1.value[i].count:maxPt = maxPt;
+      // }
       pt_Used = pt_Used + 1;
     }
   }
   if(pt_Used > 0){
     rmseE = (rmseE/pt_Used)**0.5;
     rmseN = (rmseN/pt_Used)**0.5;
-    myCalResult.rmseH = ((rmseE**2 + rmseE**2)**0.5)*1000;
+    myCalResult.rmseH = ((rmseE**2 + rmseN**2)**0.5)*1000;
     myCalResult.rmseV = ((rmseV/pt_Used)**0.5)*1000;
-    myCalResult.minCloudPt = minPt;
-    myCalResult.maxCloudPt = maxPt;
+    // myCalResult.minCloudPt = minPt;
+    // myCalResult.maxCloudPt = maxPt;
   }
-  myCalResult.ptUsed = pt_Used;
+  // myCalResult.ptUsed = pt_Used;
   myCalResult.ptUsed = pt_Used;
   myCalResult.ptTotal = pt_Total;
   myCalResult.ptDel = pt_Total - pt_Used;
@@ -1393,12 +1438,9 @@ function data1ToCalResult(){
   nowCaseCalResult.value = myCalResult;
 }
 
-async function ptCloudAvg(POfile, ptIndex) {
+async function ptCloudAvg(POfile) {
+  // 上傳量測點座標計算器差
   if (POfile) {
-    let pt_x = 0.0;
-    let pt_y = 0.0;
-    let pt_z = 0.0;
-    let pt_count = 0;
     //確認有檔案存在
     //建立檔案讀取器
     const fReader = new FileReader();
@@ -1412,32 +1454,25 @@ async function ptCloudAvg(POfile, ptIndex) {
         let ptData = [];
         let lineString = "";
         do {
-          // 計算平均
+          // 計算器差
           lineString = allTextLines[i].trim();
-          if (lineString !== "") {
-            // 有效資料
-            pt_count = pt_count + 1;
-            ptData = lineString.split(" ");
-            pt_x = pt_x + parseFloat(ptData[0]);
-            pt_y = pt_y + parseFloat(ptData[1]);
-            pt_z = pt_z + parseFloat(ptData[2]);
+          ptData = lineString.split("\t");
+          // console.log(ptData);
+          let ptName = ptData[0].trim();
+          let pt_E = parseFloat(ptData[2]);
+          let pt_N = parseFloat(ptData[1]);
+          let pt_h = parseFloat(ptData[3]);
+          // 找尋data1對應點號
+          let ptIndex = data1.value.findIndex(x=>x.gcp_id===ptName);
+          if(ptIndex > -1){
+            data1.value[ptIndex].meas_E = parseFloat(pt_E.toFixed(3));
+            data1.value[ptIndex].meas_N = parseFloat(pt_N.toFixed(3));
+            data1.value[ptIndex].meas_h = parseFloat(pt_h.toFixed(3));
+            // console.log(data1.value);
+            data1.value[ptIndex].d_E = parseFloat((pt_E - parseFloat(data1.value[ptIndex].coor_E)).toFixed(3));
+            data1.value[ptIndex].d_N = parseFloat((pt_N - parseFloat(data1.value[ptIndex].coor_N)).toFixed(3));
+            data1.value[ptIndex].d_h = parseFloat((pt_h - parseFloat(data1.value[ptIndex].coor_h)).toFixed(3));  
           }
-          i = i + 1;
-        } while (i < allTextLines.length);
-        if(pt_count > 0){
-          let x_avg = pt_x / pt_count;
-          let y_avg = pt_y / pt_count;
-          let z_avg = pt_z / pt_count;
-          data1.value[ptIndex].meas_E = parseFloat(x_avg.toFixed(3));
-          data1.value[ptIndex].meas_N = parseFloat(y_avg.toFixed(3));
-          data1.value[ptIndex].meas_h = parseFloat(z_avg.toFixed(3));
-          data1.value[ptIndex].count = pt_count;
-          // console.log(data1.value);
-          data1.value[ptIndex].d_E = parseFloat((x_avg - parseFloat(data1.value[ptIndex].coor_E)).toFixed(3));
-          data1.value[ptIndex].d_N = parseFloat((y_avg - parseFloat(data1.value[ptIndex].coor_N)).toFixed(3));
-          data1.value[ptIndex].d_h = parseFloat((z_avg - parseFloat(data1.value[ptIndex].coor_h)).toFixed(3));
-
-          data1ToCalResult();
           
           nowCaseSTDh.value="";
           nowCaseSTDv.value="";
@@ -1445,7 +1480,10 @@ async function ptCloudAvg(POfile, ptIndex) {
           nowCaseKv.value="";
           nowCaseUcResult.value=null;
 
-        }
+          i = i + 1;
+        } while (i < allTextLines.length);
+
+        data1ToCalResult();
       }
     }
     //真正執行以文字方式載入檔案
@@ -1480,7 +1518,7 @@ function buildReportBtn() {
   parms.nowCaseRecDateM = nowCaseRecDateAy[1];
   parms.nowCaseRecDateD = nowCaseRecDateAy[2];
 
-  let nowCaseFlyDateAy = nowCaseFlyDate.value.split("-");
+  let nowCaseFlyDateAy = nowCaseScanDate.value.split("-");
   parms.nowCaseFlyDateY = (parseInt(nowCaseFlyDateAy[0]) - 1911).toString();
   parms.nowCaseFlyDateM = nowCaseFlyDateAy[1];
   parms.nowCaseFlyDateD = nowCaseFlyDateAy[2];
@@ -1553,11 +1591,11 @@ function buildReportBtn() {
   parms.nowCaseImuKap =  nowCaseImuKap.value;
   parms.nowCaseImuPrcO =  nowCaseImuPrcO.value;
 
-  parms.nowCaseEllHac = nowCaseEllHac.value;
-  parms.nowCaseAGLac = nowCaseAGLac.value;
+  // parms.nowCaseEllHac = nowCaseEllHac.value;
+  // parms.nowCaseAGLac = nowCaseAGLac.value;
   parms.nowCaseStripsAc = nowCaseStripsAc.value;
   parms.nowCasePtDensity = nowCasePtDensity.value;
-  parms.nowCaseFOV =  nowCaseFOV.value;
+  // parms.nowCaseFOV =  nowCaseFOV.value;
 
   parms.nowCaseKh = nowCaseKh.value;
   parms.nowCaseKv = nowCaseKv.value;
@@ -1795,13 +1833,13 @@ defineExpose({
               <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
                   <MDBCol col="12" class="my-3">
-                    <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="showItemFromBtn(2)">查詢校正件</MDBBtn>
+                    <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="showItemFromBtn(6)">查詢校正件</MDBBtn>
                     <RouterLink target="_blank" :to="{ path: '/sicltab01' ,query:{ caseID: props.caseID }}">
                       <MDBBtn size="sm" color="primary">
                         列印管理表
                       </MDBBtn>
                     </RouterLink>
-                    <RouterLink target="_blank" :to="{ path: '/sicltab04' ,query:{ caseID: props.caseID }}">
+                    <RouterLink target="_blank" :to="{ path: '/sicltab15' ,query:{ caseID: props.caseID }}">
                       <MDBBtn size="sm" color="primary">列印申請單</MDBBtn>
                     </RouterLink>
                   </MDBCol>
@@ -1875,7 +1913,7 @@ defineExpose({
                         <MDBRow>
                           <MDBCol col="4">IMU規格</MDBCol>
                           <MDBCol col="8">
-                            <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="showItemFromBtn(4)">查詢GNSS
+                            <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="showItemFromBtn(4)">查詢IMU
                             </MDBBtn>
                           </MDBCol>
                         </MDBRow>
@@ -1930,7 +1968,7 @@ defineExpose({
                 </MDBRow>
               </MDBCol>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
-                飛航規劃
+                掃描規劃
               </MDBCol>
               <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
@@ -1938,7 +1976,7 @@ defineExpose({
                     <MDBDatepicker 
                       required size="sm" 
                       v-model="nowCasePlanDate" 
-                      format="YYYY-MM-DD " label="預定拍攝日期"
+                      format="YYYY-MM-DD " label="預定掃描日期"
                       :monthsFull = "monthsFull"
                       :monthsShort = "monthsShort"
                       :weekdaysFull = "weekdaysFull"
@@ -1952,7 +1990,7 @@ defineExpose({
                   <div></div>
 
                   <MDBCol col="4" class="mb-3">
-                    <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="點雲密度" v-model="nowCasePtDensity" />
+                    <MDBInput :disabled="!rGroup[2]" size="sm" type="text" label="預估平均點雲密度" v-model="nowCasePtDensity" />
                   </MDBCol>
 
                 </MDBRow>
@@ -2026,7 +2064,7 @@ defineExpose({
                   <MDBCol col="4" class="my-3">
                     <MDBDatepicker 
                       required size="sm" 
-                      v-model="nowCaseFlyDate" 
+                      v-model="nowCaseScanDate" 
                       format="YYYY-MM-DD " label="掃描日"
                       :monthsFull = "monthsFull"
                       :monthsShort = "monthsShort"
@@ -2036,16 +2074,11 @@ defineExpose({
                       confirmDateOnSelect
                       removeCancelBtn
                       removeOkBtn
-                      ref="nowCaseFlyDateDOM" />
+                      ref="nowCaseScanDateDOM" />
                   </MDBCol>
                   <MDBCol col="4" class="my-3">
-                    <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="航帶總數(條)"
+                    <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="掃描軌跡總數(條)"
                       v-model="nowCaseStripsAc" />
-                  </MDBCol>
-                  <div></div>
-                  <MDBCol col="4" class="mb-3">
-                    <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="單航帶點雲密度(pt/m2)"
-                      v-model="nowCasePtDensityac" />
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -2056,14 +2089,21 @@ defineExpose({
                 <MDBRow>
                   <!-- 航線圖 -->
                   <MDBCol col="9" class="my-3">
-                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                      label="實際軌跡圖" v-model="nowCaseScanMapAc">
-                      <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowCaseScanMapAc = ''"
+                    <MDBInput 
+                      tooltipFeedback required readonly 
+                      style="padding-right: 2.2em" size="sm" type="text"
+                      label="實際掃描軌跡圖" 
+                      v-model="nowCaseScanMapAc">
+                      <MDBBtnClose :disabled="!rGroup[2]" 
+                        @click.prevent="nowCaseScanMapAc = ''"
                         class="btn-upload-close" />
                     </MDBInput>
                   </MDBCol>
                   <MDBCol col="3" class="px-0 my-3">
-                    <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('FlyMapAcUpload')">上傳
+                    <MDBBtn :disabled="!rGroup[2]" 
+                      size="sm" 
+                      color="primary" 
+                      @click="uploadBtn('FlyMapAcUpload')">上傳
                     </MDBBtn>
                     <MDBBtn tag="a" target=_blank :href="nowCaseScanMapAcDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
@@ -2146,10 +2186,47 @@ defineExpose({
                 </MDBRow>
               </MDBCol>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
+                掃描成果檢核
+              </MDBCol>
+              <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
+                <MDBRow style="font-size: smaller" class="border-bottom">
+                  <MDBCol col="1" class="">序號</MDBCol>
+                  <MDBCol col="1" class="">軌跡編號</MDBCol>
+                  <MDBCol col="5" class="">檔案名稱</MDBCol>
+                  <MDBCol col="2" class="">點雲密度(點/m<sup>2</sup>)</MDBCol>
+                  <MDBCol col="3" class="">備註(異常敘述)</MDBCol>
+                </MDBRow>
+                <MDBRow v-for="strip in nowCaseCloudDate" :key="strip.id" style="font-size: smaller" class="border-bottom">
+                  <MDBCol col="1" class="d-flex align-items-center"><div>{{ strip.id }}</div></MDBCol>
+                  <MDBCol col="1" class="d-flex align-items-center">
+                    <MDBInput size="sm" type="text" v-model="strip.sno" />
+                  </MDBCol>
+                  <MDBCol col="5" class="d-flex">
+                      <div style="cursor: pointer" class="flex-fill" @click="getStripFile(strip.id)">
+                        <span v-if="strip.filename===''" class="nofile">請選擇檔案</span>
+                        <span v-else>{{ strip.filename }}</span>
+                      </div>
+                  </MDBCol>
+                  <MDBCol col="2" class="d-flex align-items-center">
+                    <MDBInput size="sm" type="text" v-model="strip.PtDensity" />
+                  </MDBCol>
+                  <MDBCol col="3" class="d-flex align-items-center">
+                    <MDBInput size="sm" type="text" v-model="strip.memo" />
+                  </MDBCol>
+                </MDBRow>
+                <MDBRow style="font-size: smaller" class="border-top">
+                  <MDBCol col="12" class="my-2">點雲密度平均值：{{ nowCaseCloudAvg }} (點/m<sup>2</sup>)</MDBCol>
+                </MDBRow>
+
+              </MDBCol>
+              <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 量測紀錄
               </MDBCol>
               <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
+                  <MDBCol col="12" class="my-3">
+                    <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click.stop="uploadBtn('ptCloudUpload')">上傳量測檔</MDBBtn>
+                  </MDBCol>
                   <MDBCol col="12" class="mb-3">
                     <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1"
                       style="font-size: smaller" class="display w-100 compact"/>
@@ -2165,22 +2242,7 @@ defineExpose({
                     <MDBBtn :disabled="!rGroup[2] || !isCalResult || !selectUcModel || selectUcModel==='-1'" size="sm" color="primary" @click.stop="computeUcBtn">
                       計算不確定度
                     </MDBBtn>
-                    <MDBBtn :disabled="!rGroup[2] || !isCalResult" size="sm" color="primary">
-                      <RouterLink target="_blank" :to="{
-                        path: '/sicltab09',
-                        query: { caseID: props.caseID },
-                      }">
-                        <span class="btn-primary text-white">列印計算成果</span>
-                      </RouterLink>
-                    </MDBBtn>
-                    <MDBBtn :disabled="!rGroup[2] || !nowCaseUcResult" size="sm" color="primary">
-                      <RouterLink target="_blank" :to="{
-                        path: '/sicltab06',
-                        query: { caseID: props.caseID },
-                      }">
-                        <span class="btn-primary text-white">列印不確定度計算表</span>
-                      </RouterLink>
-                    </MDBBtn>
+                    
                   </MDBCol>
                   <div></div>
 
@@ -2203,9 +2265,25 @@ defineExpose({
                   </MDBCol>
                   <!-- 產生作業紀錄表 -->
                   <MDBCol col="12" class="mb-3">
+                    <MDBBtn :disabled="!rGroup[2] || !isCalResult" size="sm" color="primary">
+                      <RouterLink target="_blank" :to="{
+                        path: '/sicltab16',
+                        query: { caseID: props.caseID },
+                      }">
+                        <span class="btn-primary text-white">列印計算成果</span>
+                      </RouterLink>
+                    </MDBBtn>
+                    <MDBBtn :disabled="!rGroup[2] || !nowCaseUcResult" size="sm" color="primary">
+                      <RouterLink target="_blank" :to="{
+                        path: '/sicltab06',
+                        query: { caseID: props.caseID },
+                      }">
+                        <span class="btn-primary text-white">列印不確定度計算表</span>
+                      </RouterLink>
+                    </MDBBtn>
                     <MDBBtn size="sm" color="primary">
                       <RouterLink target="_blank" :to="{
-                        path: '/sicltab10',
+                        path: '/sicltab17',
                         query: { caseID: props.caseID },
                       }">
                         <span class="btn-primary text-white">列印作業紀錄表</span>
@@ -2278,7 +2356,7 @@ defineExpose({
                   <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                     檢核與簽署
                   </MDBCol>
-                  <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
+                  <MDBCol col="12" class="pb-3 border border-1 rounded-bottom-5">
                     <MDBRow>
                       <SelectPs />
                       <!-- 校正報告掃描檔 -->
@@ -2295,7 +2373,6 @@ defineExpose({
                           上傳</MDBBtn>
                         <MDBBtn tag="a" target=_blank :href="nowCaseReportScanDL" download size="sm" color="secondary">下載</MDBBtn>
                       </MDBCol>
-
                     </MDBRow>
                   </MDBCol>
                 </MDBRow>
@@ -2382,5 +2459,9 @@ defineExpose({
   pointer-events: none;
   opacity: .65;
   border: 0;
+}
+
+.nofile{
+  color:rgb(200,200,200);
 }
 </style>

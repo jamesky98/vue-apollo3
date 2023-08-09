@@ -1,4 +1,5 @@
 <script setup>
+// 航測像機、小像幅像機校正表單
 import { ref, reactive, provide, inject } from "vue";
 import path from "path-browserify";
 import {

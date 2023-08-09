@@ -205,6 +205,33 @@ const router = createRouter({
         title: "點位調查表",
       },
     },
+    {
+      path: "/sicltab15",
+      name: "sicltab15",
+      component: () => import("../components/table/SiclTab15.vue"),
+      props: (route) => route.query,
+      meta: {
+        title: "校正申請表",
+      },
+    },
+    {
+      path: "/sicltab16",
+      name: "sicltab16",
+      component: () => import("../components/table/SiclTab16.vue"),
+      props: (route) => route.query,
+      meta: {
+        title: "計算成果表",
+      },
+    },
+    {
+      path: "/sicltab17",
+      name: "sicltab17",
+      component: () => import("../components/table/SiclTab17.vue"),
+      props: (route) => route.query,
+      meta: {
+        title: "作業紀錄表",
+      },
+    },
   ],
 });
 

@@ -214,6 +214,7 @@ const nowPRecordImg0 = ref("");
 const nowPRecordImg0DL = computed(()=>{
   if(nowPRecordImg0.value){
     return publicPath.value + "04_GCP/" + nowPRecordPrjCode.value + "/pic/" + nowPRecordPtId.value + "/" + nowPRecordImg0.value + '?t=' + new Date().getTime()
+  }else{
     return ""
   }
 });
@@ -415,9 +416,12 @@ getAllPrjonDone(result=>{
     let orglist = [];
     orglist = result.data.getAllPrj.map(x => { return x.organizer });//從物件陣列中取出成陣列
     orglist = [...new Set(orglist)]; //ES6排除重複值語法
-    nowPrjOrganizerMU.value = orglist.sort().map(x => {
+    let temp = orglist.sort().map(x => {
       return { text: x, value: x }
-    }); nowPrjOrganizerMU.value.unshift({text: "-未選取-", value: "-1"});
+    }); temp.unshift({text: "-未選取-", value: -1});
+
+    nowPrjOrganizerMU.value = temp;
+    // console.log('OrgMU',nowPrjOrganizerMU.value);
   }
 });
 getAllPrjonError(e=>{errorHandle(e,infomsg,alert1)});
@@ -476,11 +480,13 @@ function createPrj(){
   nowPrjMethodDOM.value.setValue(-1);
   nowPrjYear.value = "";
   nowPrjMonth.value = "";
-  nowPrjOrganizer.value = "";
+  nowPrjOrganizer.value = -1;
   nowPrjOrganizerDOM.value.setValue(-1);
   nowPrjStartDate.value = " ";
   nowPrjEndDate.value = " ";
   nowPrjPublishDate.value = " ";
+  // console.log('Org',nowPrjOrganizer.value);
+  // console.log('OrgMU',nowPrjOrganizerMU.value);
 }
 // 儲存
 const { mutate: savePrj, onDone: savePrjOnDone, onError: savePrjError } = useMutation(PrjGQL.SAVEPRJ);
@@ -526,6 +532,7 @@ inputGcpRdOnDone(result=>{
 inputGcpRdError(e=>{errorHandle(e,infomsg,alert1)});
 function inputRecord(POfile){
   if (POfile) {
+    notProssing2.value = false;
     let inputArray = [];
     const fReader = new FileReader();
     fReader.onloadend = function (evt) {
@@ -565,7 +572,8 @@ function inputRecord(POfile){
           records: inputArray
         }).then(res=>{
           // 更新gcp table
-          notProssing2.value = false;
+          // console.log(res)
+          infomsg.value = '共匯入' + res.data.inputGCPRecords + '筆紀錄';
           getRcordByPrj({projectId: parseInt(nowPrjId.value)});
         });
       }
@@ -707,7 +715,7 @@ getRecordByIdOnDone(result=>{
       nowGcpContactTel.value = "";
       nowGcpContactCom.value = "";
     }
-
+    console.log('getRecordById')
     updateKey2.value=updateKey2.value+1;
   }
 });
@@ -746,9 +754,9 @@ function newPRecordBtn(){
   nowPRecordPrjIdDOM.value.setValue(nowPRecordPrjId.value);
   nowPRecordPrjCode.value = "";
   nowPRecordDate.value = " ";
-  nowPRecordPerson.value = "";
+  nowPRecordPerson.value = -1;
   nowPRecordPersonDOM.value.setValue(-1);
-  nowPRecordPtStatus.value = "";
+  nowPRecordPtStatus.value = -1;
   nowPRecordPtStatusDOM.value.setValue(-1);
   nowPRecordE.value = "";
   nowPRecordN.value = "";
@@ -789,13 +797,15 @@ function saveGcpRecordBtn(){
     alert1.value = true;
     return
   }
-
+  let nowID = nowPRecordId.value;
+  let nowPtID = nowPRecordPtId.value;
+  // console.log('nowID',nowID);
   alert1.value = false;
   
     // 1-儲存聯繫資料
     let result = new Promise((resovle,rej)=>{
       let res;
-      if(nowGcpContactId.value>-1){
+      if(nowGcpContactId.value>-1 || nowGcpContactId.value===-2){
         res=saveGcpContact({
           updateGcpContactId: nowGcpContactId.value,
           name: document.querySelector('#contactSelectDOM div input').value,
@@ -812,6 +822,7 @@ function saveGcpRecordBtn(){
       // 更新contact menu
       // refgetAllContact();
       store.dispatch('selectlist/fetchGcpContactList');
+      
       // 取得儲存contact的新ID
       return nowGcpContactId.value = (res)?parseInt(res.data.updateGcpContact.id):-1;
     }).then(res=>{
@@ -856,6 +867,12 @@ function saveGcpRecordBtn(){
       infomsg.value = "點位 " + res.data.updateGcpRecord.gcp_id + "紀錄儲存完畢"
       notProssing2.value = false;
       return getRcordByPrj({projectId: parseInt(nowPrjId.value)});
+    }).then(res=>{
+      // 選擇目前點位
+      dt_gcp.value.rows(function(idx,data,node){
+        return data.id === nowPtID? true:false;
+      }).select();
+      return getRecordById({getGcpRecordByIdId: parseInt(nowID)});
     });
 }
 
@@ -895,6 +912,7 @@ getRecPersonOnDone(result=>{
   nowPRecordPersonMU.value = getData.map(x => {
       return { text: x, value: x }
     });nowPRecordPersonMU.value.unshift({ text: "-未選取-", value: -1 });
+  // console.log('PersonMU',nowPRecordPersonMU.value);
 });
 getRecPersonError(e=>{errorHandle(e,infomsg,alert1)});
 
@@ -1942,13 +1960,19 @@ onMounted(function () {
   });
 
   dt_gcp.value = table_gcp.value.dt();
-  dt_gcp.value.on('select', function (e, dt, type, indexes) {
-    // console.log("dt_gcp select")
+  dt_gcp.value.on('user-select', function ( e, dt, type, cell, originalEvent ) {
+    let indexes = cell.index(this).row;
     nowPRecordId.value = dt.rows(indexes).data()[0].gcp_record[0].id;
+    console.log(nowPRecordId.value)
     getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
-    e.preventDefault();
-    e.stopPropagation();
   });
+  // dt_gcp.value.on('select', function (e, dt, type, indexes) {
+  //   // console.log("dt_gcp select")
+  //   nowPRecordId.value = dt.rows(indexes).data()[0].gcp_record[0].id;
+  //   getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  // });
 
   dt_eqpt.value = table_eqpt.value.dt();
   dt_eqpt.value.on('select', function (e, dt, type, indexes) {
@@ -2083,8 +2107,12 @@ function selectNowChk(nowId, col, dt){
                     <MDBCol xl="6" class="mt-2">
                       <MDBInput size="sm" type="text" label="作業年月" v-model="nowPrjMonth" />
                     </MDBCol>
-                    <MDBSelect size="sm" class="mt-2 col-xl-12" label="執行單位" v-model:options="nowPrjOrganizerMU"
-                      v-model:selected="nowPrjOrganizer" ref="nowPrjOrganizerDOM" @close="updatePrjOrganizer()">
+                    <MDBSelect size="sm" class="mt-2 col-xl-12" 
+                      label="執行單位" 
+                      v-model:options="nowPrjOrganizerMU"
+                      v-model:selected="nowPrjOrganizer" 
+                      ref="nowPrjOrganizerDOM" 
+                      @close="updatePrjOrganizer()">
                       <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowPrjOrganizer" />
                     </MDBSelect>
                     <MDBCol xl="6" class="mt-2">
@@ -2324,6 +2352,7 @@ function selectNowChk(nowId, col, dt){
                                   v-model:options="nowGcpContactMU"
                                   v-model:selected="nowGcpContactId" 
                                   ref="nowGcpContactDOM" 
+                                  @change="updateContact()"
                                   @close="updateContact()">
                                   <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowGcpContactName" />
                                 </MDBSelect>

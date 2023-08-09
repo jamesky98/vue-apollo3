@@ -52,6 +52,8 @@ getNowCaseF(result => {
     let nowUcResult = getRecord.uccal_table;	
     }else if(result.data.getCasebyID.case_record_02){
       getRecord = result.data.getCasebyID.case_record_02;
+    }else if(result.data.getCasebyID.case_record_03){
+      getRecord = result.data.getCasebyID.case_record_03;
     }
     // 填入資料
     // console.log(getRecord.uccal_table);

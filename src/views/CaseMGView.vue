@@ -8,7 +8,6 @@ import {
   ref, reactive, onMounted, 
   provide, inject, watch,
   isProxy, toRaw } from "vue";
-import path from "path-browserify";
 import {
   MDBInput,  MDBTextarea,
   MDBCol,  MDBRow,  MDBContainer,
@@ -921,7 +920,7 @@ getNowCaseSonDone(result => {
     // 填入簡單資料
     // nowCase.data = result.data.getCasebyID;
     let getData = result.data.getCasebyID;
-    // console.log('getData',getData);
+    console.log('getData',getData);
     // console.log('nowCase',nowCase);
     nowCaseStatus.value = getData.status_code
     nowCaseStatusDOM.value.setValue(parseInt(nowCaseStatus.value));
