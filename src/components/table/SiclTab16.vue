@@ -19,6 +19,12 @@ const nowCaseDelPt = ref("");
 
 const nowCaseSTDh = ref("");
 const nowCaseSTDv = ref("");
+const nowCaseSTDs = ref("");
+
+const nowCaseMAXh = ref("");
+const nowCaseMAXv = ref("");
+const nowCaseMAXs = ref("");
+
 const nowCaseCalResult = ref(); //計算成果表
 const nowCaseCalArray = computed(()=>{
 	let myarray=[];
@@ -69,6 +75,10 @@ getNowCaseF(result => {
 		nowCaseDelPt.value = calTable.ptDel;
 		nowCaseSTDh.value = calTable.rmseH.toFixed(3);
     nowCaseSTDv.value = calTable.rmseV.toFixed(3);
+		nowCaseSTDs.value = calTable.rmseS.toFixed(3);
+		nowCaseMAXh.value = calTable.maxH.toFixed(3);
+    nowCaseMAXv.value = calTable.maxV.toFixed(3);
+		nowCaseMAXs.value = calTable.maxS.toFixed(3);
 		nowCaseCalResult.value = calTable.data;
   }
 });
@@ -87,6 +97,11 @@ refgetNowCaseF();
 			<br/>
 			<div>器差RMS_H：{{nowCaseSTDh}} mm</div>
 			<div>器差RMS_V：{{nowCaseSTDv}} mm</div>
+			<div>器差RMS_S：{{nowCaseSTDs}} mm</div>
+			<br/>
+			<div>最大器差_H：{{nowCaseMAXh}} mm</div>
+			<div>最大器差_V：{{nowCaseMAXv}} mm</div>
+			<div>最大器差_S：{{nowCaseMAXs}} mm</div>
 		</div>
 		
 		<table cellspacing=0 cellpadding=0 width="100%">
@@ -102,6 +117,7 @@ refgetNowCaseF();
 				<th>dE(mm)</th>
 				<th>dN(mm)</th>
 				<th>dh(mm)</th>
+				<th>dS(mm)</th>
 			</tr>
 			<tr v-for="(item, index) in nowCaseCalArray" :key="index" class="fstyle02">
 				<td>{{ item.type }}</td>
@@ -115,6 +131,7 @@ refgetNowCaseF();
 				<td class="fstyle02right">{{ (item.dx || item.dx===0)?(item.dx * 1000).toFixed(1):item.dx }}</td>
 				<td class="fstyle02right">{{ (item.dy || item.dy===0)?(item.dy * 1000).toFixed(1):item.dy }}</td>
 				<td class="fstyle02right">{{ (item.dz || item.dz===0)?(item.dz * 1000).toFixed(1):item.dz }}</td>
+				<td class="fstyle02right">{{ (item.dS || item.dS===0)?(item.dS * 1000).toFixed(1):item.dS }}</td>
 			</tr>
 			<tbody></tbody>
 		</table>

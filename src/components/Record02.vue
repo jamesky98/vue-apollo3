@@ -53,7 +53,6 @@ const infomsg = ref('');
 const alert1 =ref(false);
 const store = useStore();
 const publicPath = computed(() => store.state.selectlist.publicPath);
-
 // 案件之詳細資料
 const selectUcObj = ref();
 const selectReportObj = ref();
@@ -186,13 +185,36 @@ const nowCaseRefPrjCode = ref(""); // 量測作業編號編號
 const nowCaseRefPrjPublishDate = ref(""); // 參考值發布日期
 const nowCaseRefEqpt = ref(); // 使用標準件
 
+// const nowCaseCloudDate = ref([
+//   {id:1,sno:"2",filename:"",PtDensity:null,memo:""},
+//   {id:2,sno:"7",filename:"",PtDensity:null,memo:""},
+//   {id:3,sno:"10",filename:"",PtDensity:null,memo:""},
+//   {id:4,sno:"14",filename:"",PtDensity:null,memo:""},
+//   {id:5,sno:"16",filename:"",PtDensity:null,memo:""},
+//   {id:6,sno:"21",filename:"",PtDensity:null,memo:""},
+// ]);
+// let nowCaseStripID;
+// const nowCaseCloudAvg = computed(() => {
+//   let sumV = 0;
+//   let total = 0;
+//   nowCaseCloudDate.value.forEach(x=>{
+//     if(parseFloat(x.PtDensity)){
+//       sumV = sumV + parseFloat(x.PtDensity);
+//       total = total + 1;
+//     }
+//   });
+//   // console.log(nowCaseCloudDate.value);
+//   return (total==0)?'':(sumV / total).toFixed(2);
+// });
 
 // 作業紀錄
 const nowCaseSTDh = ref(""); //水平不確定度(自動計算)
 const nowCaseSTDv = ref(""); //高程不確定度(自動計算)
+//三維不確定度(自動計算)
 
 const nowCaseKh = ref(""); //水平涵蓋因子(自動計算)
 const nowCaseKv = ref(""); //高程涵蓋因子(自動計算)
+//三維涵蓋因子(自動計算)
 
 const nowCaseCalResult = ref(); //計算成果表
 const isCalResult = computed(()=>{ //計算表是否有成果
@@ -212,7 +234,6 @@ const selectUcModel = ref("");
 provide("selectUcModel", selectUcModel);
 const nowCaseUcModelMU = ref([]);
 provide("nowCaseUcModelMU", nowCaseUcModelMU);
-
 
 // 出具報告
 const nowCaseHasLOGO = ref(true); //列印TAF LOGO
@@ -386,7 +407,6 @@ getNowCaseFonDone(result => {
     nowCasePosReport.value = getData.pos_report;
     nowCasePlanMap.value = getData.plan_map;
     // 送件
-    
     nowCaseRecDate.value = (getData.receive_date)?getData.receive_date.split("T")[0]:" ";
     nowCaseFlyDate.value = (getData.fly_date)?getData.fly_date.split("T")[0]:" ";
     
@@ -405,30 +425,37 @@ getNowCaseFonDone(result => {
 
     // 校正
     nowCaseStartDate.value = (getData.start_Date)?getData.start_Date.split("T")[0]:" ";
+    nowCaseCompleteDate.value = (getData.complete_date)?getData.complete_date.split("T")[0]:" ";
     
     nowCaseRefPrjID.value = getData.ref_id;
     nowCaseRefPrjCode.value = getData.ref_project
       ? getData.ref_project.project_code
       : " ";
-    nowCaseRefPrjPublishDate.value = getData.ref_project
-      ? getData.ref_project.publish_date.split("T")[0]
-      : " ";
-    nowCaseRefEqpt.value = (getData.ref_project) ? getData.ref_project.ref_use_eqpt : null;
+    if(getData.ref_project){
+      if(getData.ref_project.publish_date){
+        nowCaseRefPrjPublishDate.value = getData.ref_project.publish_date.split("T")[0];
+      }else{
+        nowCaseRefPrjPublishDate.value = " ";
+      }
+    }else{
+      nowCaseRefPrjPublishDate.value = " ";
+    }
 
+    nowCaseRefEqpt.value = (getData.ref_project) ? getData.ref_project.ref_use_eqpt : null;
     nowCaseSTDh.value = getData.std_h;
     nowCaseSTDv.value = getData.std_v;
+    // std_s
     nowCaseKh.value = getData.k_h;
     nowCaseKv.value = getData.k_v;
+    // k_s
     nowCaseCalResult.value = getData.recal_table ? getData.recal_table :null;
     data1.value = calResultToData1();
+    // nowCaseCloudDate
     nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table :null;
 
     // 出具報告
     nowCaseHasLOGO.value = getData.has_logo;
-
     nowCaseReportEdit.value = getData.report_edit;
-    nowCaseCompleteDate.value = (getData.complete_date)?getData.complete_date.split("T")[0]:" ";
-    
     nowCaseChkDate.value = getData.chk_date
       ? getData.chk_date.split("T")[0]
       : " ";
@@ -882,6 +909,7 @@ function setPrjBtn() {
 }
 
 // 查詢參考值並填入data1
+// calTypeId【1:大像幅;2:中像幅;3:小像幅;4:光達;5:車載】
 const { mutate: calRefGcp, onDone: calRefGcpOnDone, onError: calRefGcponError } = useMutation(
   PrjGQL.CALREFGCP,
   () => ({
@@ -910,6 +938,7 @@ calRefGcpOnDone(result=>{
       d_E: "",
       d_N: "",
       d_h: "",
+      // d_S: "",
       memo: "",
     });
   })
@@ -1016,6 +1045,11 @@ saveRecord02OnDone(() => {
   // alert1.value = true;
 });
 saveRecord02Error(e=>{errorHandle(e,infomsg,alert1)});
+
+
+
+
+
 
 //#region 檔案上傳==========Start
 const uploadType = ref("");
@@ -1201,6 +1235,7 @@ const pramJsonStr = ref("");
 
 function computeUcBtn(){
   let calResult = nowCaseCalResult.value;
+  // console.log('calResult',calResult);
   let pramJson = {
     lrdis: nowCaseLrDisPrs.value, // LiDAR規格測距精度(mm)
     lrbeam: nowCaseLrBeam.value, // LiDAR規格雷射擴散角(秒)
@@ -1216,6 +1251,7 @@ function computeUcBtn(){
     minpt: calResult.minCloudPt, // 最少點雲數
     maxpt: calResult.maxCloudPt, // 最多點雲數
   };
+  // console.log('pramJson',pramJson);
   pramJsonStr.value = JSON.stringify(pramJson);
   computeUc();
 }
@@ -1236,8 +1272,10 @@ computeUcOnDone((result) => {
     nowCaseUcResult.value = result.data.computeUc;
     nowCaseSTDh.value = result.data.computeUc.fixUcH;
     nowCaseSTDv.value = result.data.computeUc.fixUcV;
+    // nowCaseSTDs
     nowCaseKh.value = result.data.computeUc.tinvH.toFixed(2);
     nowCaseKv.value = result.data.computeUc.tinvV.toFixed(2);
+    // nowCaseKs
     // console.log(nowCaseUcResult.value);
     saveRecord02();
   }
@@ -1287,6 +1325,7 @@ const columns1 = [
   { title: "dE", data: "d_E", className: 'dt-right' },
   { title: "dN", data: "d_N", className: 'dt-right' },
   { title: "dh", data: "d_h", className: 'dt-right' },
+  // d_S
 ];
 
 const tboption1 = {
@@ -1330,8 +1369,10 @@ function loadtable(index){
 
       nowCaseSTDh.value="";
       nowCaseSTDv.value="";
+      // nowCaseSTDs
       nowCaseKh.value="";
       nowCaseKv.value="";
+      // nowCaseKs
       nowCaseUcResult.value=null;
 
       e.stopPropagation()
@@ -1369,6 +1410,7 @@ function calResultToData1(){
         d_E: calTable.data[key].dx,
         d_N: calTable.data[key].dy,
         d_h: calTable.data[key].dz,
+        // d_S
         memo: calTable.data[key].memo,
       })
     // }
@@ -1385,7 +1427,12 @@ function data1ToCalResult(){
   let pt_Data = {};
   let rmseE = 0.0;
   let rmseN = 0.0;
+   // rmseH
   let rmseV = 0.0;
+  // rmseS
+  // let maxH = 0;
+  // let maxV = 0;
+  // let maxS = 0;
   let minPt = 0;
   let maxPt = 0;
   let pt_Used = 0;
@@ -1404,13 +1451,24 @@ function data1ToCalResult(){
       dx: data1.value[i].d_E,
       dy: data1.value[i].d_N,
       dz: data1.value[i].d_h,
+      // dS
       memo: data1.value[i].memo,
     }
 
     if(data1.value[i].type==="T"){
       rmseE = rmseE + parseFloat(data1.value[i].d_E)**2;
       rmseN = rmseN + parseFloat(data1.value[i].d_N)**2;
+      // let dH2 = parseFloat(data1.value[i].d_E)**2 + parseFloat(data1.value[i].d_N)**2;
+      // let dS2 = parseFloat(data1.value[i].d_S)**2;
+      
+      // rmseH = rmseH + dH2
+      // maxH = ( Math.sqrt(dH2) > maxH)?Math.sqrt(dH2):maxH;
+      
       rmseV = rmseV + parseFloat(data1.value[i].d_h)**2;
+      // maxV
+
+      // rmseS
+      // maxS
       if(pt_Used===0){
         minPt = data1.value[i].count;
         maxPt = data1.value[i].count;
@@ -1426,15 +1484,20 @@ function data1ToCalResult(){
     rmseN = (rmseN/pt_Used)**0.5;
     myCalResult.rmseH = ((rmseE**2 + rmseN**2)**0.5)*1000;
     myCalResult.rmseV = ((rmseV/pt_Used)**0.5)*1000;
+    // rmseS
+
+    // maxH
+    // maxV
+    // maxS
     myCalResult.minCloudPt = minPt;
     myCalResult.maxCloudPt = maxPt;
   }
-  myCalResult.ptUsed = pt_Used;
+  // myCalResult.ptUsed = pt_Used;
   myCalResult.ptUsed = pt_Used;
   myCalResult.ptTotal = pt_Total;
   myCalResult.ptDel = pt_Total - pt_Used;
   myCalResult.data = pt_Data;
-  // console.log(myCalResult);
+  // console.log('myCalResult',myCalResult);
   // console.log(selectUcModel.value);
   nowCaseCalResult.value = myCalResult;
 }

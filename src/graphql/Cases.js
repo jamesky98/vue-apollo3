@@ -235,8 +235,16 @@ const GETFULLCASEBYID = gql`
                   type
                 }
                 cal_cycle
+                comment
               }
+              chek_type
+              check_date
+              report_id
+              cal_org
+              cal_org_id
               pass
+              result
+              comment
             }
           }
           cal_type_id
@@ -373,8 +381,16 @@ const GETFULLCASEBYID = gql`
                   type
                 }
                 cal_cycle
+                comment
               }
+              chek_type
+              check_date
+              report_id
+              cal_org
+              cal_org_id
               pass
+              result
+              comment
             }
           }
           cal_type_id
@@ -480,8 +496,16 @@ const GETFULLCASEBYID = gql`
                   type
                 }
                 cal_cycle
+                comment
               }
+              chek_type
+              check_date
+              report_id
+              cal_org
+              cal_org_id
               pass
+              result
+              comment
             }
           }
           cal_type_id
@@ -495,8 +519,10 @@ const GETFULLCASEBYID = gql`
         result_file
         std_h
         std_v
+        std_s
         k_h
         k_v
+        k_s
         std_file
         report_edit
         chk_date
@@ -1028,8 +1054,10 @@ const SAVECASERECORD03 = gql`
     $resultFile: String
     $stdH: Float
     $stdV: Float
+    $stdS: Float
     $kH: Float
     $kV: Float
+    $kS: Float
     $stdFile: String
     $reportEdit: String
     $chkDate: Date
@@ -1079,8 +1107,10 @@ const SAVECASERECORD03 = gql`
       result_file: $resultFile
       std_h: $stdH
       std_v: $stdV
+      std_s: $stdS
       k_h: $kH
       k_v: $kV
+      k_s: $kS
       std_file: $stdFile
       report_edit: $reportEdit
       chk_date: $chkDate
@@ -1113,17 +1143,25 @@ const COMPUTEUC = gql`
       ucV_o
       freeV
       tinvV
+      ucS
+      ucS_s
+      ucS_o
+      freeS
+      tinvS
       calType
       prjcode
       ver
       minUcH
       minUcV
+      minUcS
       confLevel
       uom
       digPosH
       digPosV
+      digPosS
       fixUcH
       fixUcV
+      fixUcS
       data {
         section
         type
@@ -1190,17 +1228,25 @@ const GETUCRESULTFORMJSON = gql`
       ucV_o
       freeV
       tinvV
+      ucS
+      ucS_s
+      ucS_o
+      freeS
+      tinvS
       calType
       prjcode
       ver
       minUcH
       minUcV
+      minUcS
       confLevel
       uom
       digPosH
       digPosV
+      digPosS
       fixUcH
       fixUcV
+      fixUcS
       data {
         section
         type

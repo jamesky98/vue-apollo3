@@ -69,6 +69,7 @@ const state = () => ({
     {text: "量測", value: "量測"},
     {text: "巡查", value: "巡查"},
     {text: "中間查核", value: "中間查核"},
+    {text: "基準量測", value: "基準量測"},
   ],
   caseStatusList: [],
   caseCalTypeList: [],

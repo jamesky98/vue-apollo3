@@ -16,17 +16,29 @@ const alert1 =ref(false);
 const viewDig = 2;
 const viewDigsub = 3;
 const nowUcVer = ref("");
+const nowUcCalType = ref("");
 const nowUcPrjCode = ref("");
+// 自由度
 const nowUcfreeH = ref("");
 const nowUcfreeV = ref("");
+const nowUcfreeS = ref("");
+// 涵蓋因子
 const nowUctinvH = ref("");
 const nowUctinvV = ref("");
+const nowUctinvS = ref("");
+// 擴充不確定度
 const nowUcH = ref("");
 const nowUcV = ref("");
+const nowUcS = ref("");
+// 最小不確定度
 const nowUcminUcH = ref("");
 const nowUcminUcV = ref("");
+const nowUcminUcS = ref("");
+// 組合不確定度
 const nowUcCombUxH = ref("");
 const nowUcCombUxV = ref("");
+const nowUcCombUxS = ref("");
+// 信賴水準
 const nowUcConfLevel = ref("");
 const nowUcData = ref([]);
 
@@ -44,19 +56,30 @@ testUcOnDone(result => {
   if (!result.loading && result && result.data.getUcResultformJson) {
     // 填入資料
 		let nowUcResult = result.data.getUcResultformJson;
-		console.log(nowUcResult);
+		// console.log(nowUcResult);
 		nowUcVer.value = nowUcResult.ver;
+		nowUcCalType.value = nowUcResult.calType;
 		nowUcPrjCode.value = nowUcResult.prjcode;
-		nowUcfreeH.value = nowUcResult.freeH.toFixed(viewDig);
-		nowUcfreeV.value = nowUcResult.freeV.toFixed(viewDig);
-		nowUctinvH.value = nowUcResult.tinvH.toFixed(viewDigsub);
-		nowUctinvV.value = nowUcResult.tinvV.toFixed(viewDigsub);
-		nowUcH.value = nowUcResult.ucH_o.toFixed(viewDig);
-		nowUcV.value = nowUcResult.ucV_o.toFixed(viewDig);
-		nowUcminUcH.value = nowUcResult.minUcH.toFixed(viewDig);
-		nowUcminUcV.value = nowUcResult.minUcV.toFixed(viewDig);
-		nowUcCombUxH.value = nowUcResult.ucH_s.toFixed(viewDigsub);
-		nowUcCombUxV.value = nowUcResult.ucV_s.toFixed(viewDigsub);
+		nowUcfreeH.value = (nowUcResult.freeH)?nowUcResult.freeH.toFixed(viewDig):'';
+		nowUcfreeV.value = (nowUcResult.freeV)?nowUcResult.freeV.toFixed(viewDig):'';
+		nowUcfreeS.value = (nowUcResult.freeS)?nowUcResult.freeS.toFixed(viewDig):'';
+
+		nowUctinvH.value = (nowUcResult.tinvH)?nowUcResult.tinvH.toFixed(viewDigsub):'';
+		nowUctinvV.value = (nowUcResult.tinvV)?nowUcResult.tinvV.toFixed(viewDigsub):'';
+		nowUctinvS.value = (nowUcResult.tinvS)?nowUcResult.tinvS.toFixed(viewDigsub):'';
+
+		nowUcH.value = (nowUcResult.ucH_o)?nowUcResult.ucH_o.toFixed(viewDig):'';
+		nowUcV.value = (nowUcResult.ucV_o)?nowUcResult.ucV_o.toFixed(viewDig):'';
+		nowUcS.value = (nowUcResult.ucS_o)?nowUcResult.ucS_o.toFixed(viewDig):'';
+
+		nowUcminUcH.value = (nowUcResult.minUcH)?nowUcResult.minUcH.toFixed(viewDig):'';
+		nowUcminUcV.value = (nowUcResult.minUcV)?nowUcResult.minUcV.toFixed(viewDig):'';
+		nowUcminUcS.value = (nowUcResult.minUcS)?nowUcResult.minUcS.toFixed(viewDig):'';
+		
+		nowUcCombUxH.value = (nowUcResult.ucH_s)?nowUcResult.ucH_s.toFixed(viewDigsub):'';
+		nowUcCombUxV.value = (nowUcResult.ucV_s)?nowUcResult.ucV_s.toFixed(viewDigsub):'';
+		nowUcCombUxS.value = (nowUcResult.ucS_s)?nowUcResult.ucS_s.toFixed(viewDigsub):'';
+
 		nowUcConfLevel.value = nowUcResult.confLevel.toFixed(viewDig);
 		nowUcData.value = nowUcResult.data;
   }
@@ -78,42 +101,55 @@ testUc();
 			<tr class="fstyle02mid">
 				<td colspan="2" class="bglightGreen">平面</td>
 				<td colspan="2" class="bglightBlue">高程</td>
+				<td v-if="nowUcCalType==='M'" colspan="2" class="bglightYello">三維</td>
 			</tr>
 			<tr class="fstyle02">
 				<td class="bglightGreen">組合不確定度</td>
 				<td class="fstyle02right bglightGreen">{{nowUcCombUxH}}</td>
 				<td class="bglightBlue">組合不確定度</td>
 				<td class="fstyle02right bglightBlue">{{nowUcCombUxV}}</td>
+				<td v-if="nowUcCalType==='M'" class="bglightYello">組合不確定度</td>
+				<td v-if="nowUcCalType==='M'" class="fstyle02right bglightYello">{{nowUcCombUxS}}</td>
 			</tr>
 			<tr class="fstyle02">
 				<td class="bglightGreen">有效自由度</td>
 				<td class="fstyle02right bglightGreen">{{nowUcfreeH}}</td>
 				<td class="bglightBlue">有效自由度</td>
 				<td class="fstyle02right bglightBlue">{{nowUcfreeV}}</td>
+				<td v-if="nowUcCalType==='M'" class="bglightYello">有效自由度</td>
+				<td v-if="nowUcCalType==='M'" class="fstyle02right bglightYello">{{nowUcfreeS}}</td>
 			</tr>
 			<tr class="fstyle02">
 				<td class="bglightGreen">信賴水準</td>
 				<td class="fstyle02right bglightGreen">{{nowUcConfLevel*100}} %</td>
 				<td class="bglightBlue">信賴水準</td>
 				<td class="fstyle02right bglightBlue">{{nowUcConfLevel*100}} %</td>
+				<td v-if="nowUcCalType==='M'" class="bglightYello">信賴水準</td>
+				<td v-if="nowUcCalType==='M'" class="fstyle02right bglightYello">{{nowUcConfLevel*100}} %</td>
 			</tr>
 			<tr class="fstyle02">
 				<td class="bglightGreen">涵蓋因子</td>
 				<td class="fstyle02right bglightGreen">{{nowUctinvH}}</td>
 				<td class="bglightBlue">涵蓋因子</td>
 				<td class="fstyle02right bglightBlue">{{nowUctinvV}}</td>
+				<td v-if="nowUcCalType==='M'" class="bglightYello">涵蓋因子</td>
+				<td v-if="nowUcCalType==='M'" class="fstyle02right bglightYello">{{nowUctinvS}}</td>
 			</tr>
 			<tr class="fstyle02">
 				<td class="bglightGreen">擴充不確定度</td>
 				<td class="fstyle02right bgGreen1">{{nowUcH}}</td>
 				<td class="bglightBlue">擴充不確定度</td>
-				<td class="fstyle02right bgBlue1">{{nowUcV}}</td>
+				<td class="fstyle02right bgBlue1 fontYellow">{{nowUcV}}</td>
+				<td v-if="nowUcCalType==='M'" class="bglightYello">擴充不確定度</td>
+				<td v-if="nowUcCalType==='M'" class="fstyle02right bgYello1 fontYellow">{{nowUcS}}</td>
 			</tr>
 			<tr class="fstyle02">
 				<td class="bgGreen2 fontYellow">最小不確定度</td>
 				<td class="fstyle02right bgGreen2 fontYellow">{{nowUcminUcH}}</td>
 				<td class="bgBlue2 fontYellow">最小不確定度</td>
 				<td class="fstyle02right bgBlue2 fontYellow">{{nowUcminUcV}}</td>
+				<td v-if="nowUcCalType==='M'" class="bgYello2 fontYellow">最小不確定度</td>
+				<td v-if="nowUcCalType==='M'" class="fstyle02right bgYello2 fontYellow">{{nowUcminUcS}}</td>
 			</tr>
 		</table>
 		<div v-for="(UcItem, index) in nowUcData" :key="index" style="width: 100%;">
@@ -328,6 +364,18 @@ td[frequency="每次校正"]{
 
 .bgBlue2{
 	background-color: #3366ff;
+}
+
+.bglightYello{
+	background-color: hsl(320, 100%, 90%);
+}
+
+.bgYello1{
+	background-color: hsl(320, 100%, 40%);
+}
+
+.bgYello2{
+	background-color: hsl(320, 50%, 40%);
 }
 
 .sicltab01 {

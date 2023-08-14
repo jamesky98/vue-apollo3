@@ -834,7 +834,7 @@ function changeSectionUpdatItem(sectoin, item){
                     </MDBBtn>
                   </div>
                 </MDBCol>
-                <MDBCol style="height: 8rem;" col="12" class="mb-3 border border-1 rounded-bottom-5 overflow-auto">
+                <MDBCol style="height: 10rem;" col="12" class="mb-3 border border-1 rounded-bottom-5 overflow-auto">
                   <MDBRow class="pt-2">
                     <MDBCol md="6" class="mb-2">
                       <MDBInput size="sm" type="text" label="模組名稱" v-model="nowUcModuleName"/>
@@ -861,6 +861,9 @@ function changeSectionUpdatItem(sectoin, item){
                     <MDBCol md="4" class="mb-2">
                       <MDBInput size="sm" type="text" label="長度單位" v-model="nowUcModule.uc.uom"/>
                     </MDBCol>
+                    <MDBCol md="4" class="mb-2">
+                      <MDBInput size="sm" type="text" label="最小不確定度S" v-model="nowUcModule.uc.minUcS"/>
+                    </MDBCol>
                   </MDBRow>
                 </MDBCol>
                 <!-- Section列表 -->
@@ -873,7 +876,7 @@ function changeSectionUpdatItem(sectoin, item){
                   </div>
                 </MDBCol>
               
-                <MDBCol style="height: calc(100% - 18rem);" col="12" class="border border-1 rounded-bottom-5 overflow-auto">
+                <MDBCol style="height: calc(100% - 20rem);" col="12" class="border border-1 rounded-bottom-5 overflow-auto">
                   <MDBRow>
                     <MDBCol md="12" class="mb-3 overflow-auto">
                       <vueDataTable :data="nowUcModule.uc.data" :columns="columns1" :options="tboption1" ref="table1"

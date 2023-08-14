@@ -426,7 +426,7 @@ provide("rGroup", rGroup);
         })
       );
       getCaseOperatoronDone(result => {
-        // 加入評估人員選單資料
+        // 加入校正人員選單資料
         if (!result.loading && result.data.getEmpowerbyRole) {
           let mylist = [];
           mylist = result.data.getEmpowerbyRole.map(
@@ -920,7 +920,7 @@ getNowCaseSonDone(result => {
     // 填入簡單資料
     // nowCase.data = result.data.getCasebyID;
     let getData = result.data.getCasebyID;
-    console.log('getData',getData);
+    // console.log('getData',getData);
     // console.log('nowCase',nowCase);
     nowCaseStatus.value = getData.status_code
     nowCaseStatusDOM.value.setValue(parseInt(nowCaseStatus.value));

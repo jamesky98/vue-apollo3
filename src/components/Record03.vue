@@ -1,4 +1,5 @@
 <script setup>
+// 車載光達校正表單
 import { ref, provide, inject } from "vue";
 import path from "path-browserify";
 import {
@@ -95,7 +96,11 @@ const nowCaseImuPrcO = ref("");  // IMU設備姿態角解析度
 
 const nowCasePlanDate = ref(""); // 預定拍攝日期
 const nowCasePlanDateDOM= ref("");
+// 航帶總數
+// 飛航橢球高
+// 飛航離地高
 const nowCasePtDensity = ref(""); // 單航帶點雲密度
+// 最大掃描角FOV
 
 const nowCaseLrReport = ref(""); // LiDAR規格
 const nowCaseLrReportDL = computed(() => {
@@ -115,13 +120,29 @@ const nowCasePosReportDL = computed(() => {
   }
 });
 
+// 航線規劃圖
+
+
+
+
+
+
+
+
+
 // 送校
 const nowCaseRecDate = ref(""); // 送校日期
 const nowCaseRecDateDOM = ref();
 
 const nowCaseScanDate = ref(""); // 掃描日期
 const nowCaseScanDateDOM = ref();
+
 const nowCaseStripsAc = ref(""); // 實際航帶總數
+// 實際橢球高
+// 實際離地高AGL
+
+// 單航帶點雲密度
+// 最大掃描角FOV
 
 const nowCaseScanMapAc = ref(""); // 實際航線圖
 const nowCaseScanMapAcDL = computed(() => {
@@ -131,6 +152,15 @@ const nowCaseScanMapAcDL = computed(() => {
     return undefined;
   }
 });
+
+// 掃描紀錄表
+
+
+
+
+
+
+
 
 const nowCaseLASNo = ref(""); // 點雲檔案數
 const nowCaseOther = ref(""); // 設備佐證照片
@@ -149,8 +179,6 @@ const nowCaseErrLAS = ref(""); // 點雲異常註記
 // 校正
 const nowCaseStartDate = ref(""); //開始校正日
 const nowCaseStartDateDOM = ref();
-const nowCaseCompleteDate = ref(""); //報告(列印)日期
-const nowCaseCompleteDateDOM = ref();
 
 const nowCaseRefPrjID = ref(""); // 量測作業索引
 const nowCaseRefPrjCode = ref(""); // 量測作業編號編號
@@ -169,6 +197,7 @@ let nowCaseStripID;
 const nowCaseCloudAvg = computed(() => {
   let sumV = 0;
   let total = 0;
+  if(!nowCaseCloudDate.value){return ''};
   nowCaseCloudDate.value.forEach(x=>{
     if(parseFloat(x.PtDensity)){
       sumV = sumV + parseFloat(x.PtDensity);
@@ -182,9 +211,11 @@ const nowCaseCloudAvg = computed(() => {
 // 作業紀錄
 const nowCaseSTDh = ref(""); //水平不確定度(自動計算)
 const nowCaseSTDv = ref(""); //高程不確定度(自動計算)
+const nowCaseSTDs = ref(""); //三維不確定度(自動計算)
 
 const nowCaseKh = ref(""); //水平涵蓋因子(自動計算)
 const nowCaseKv = ref(""); //高程涵蓋因子(自動計算)
+const nowCaseKs = ref(""); //三維涵蓋因子(自動計算)
 
 const nowCaseCalResult = ref(); //計算成果表
 const isCalResult = computed(()=>{ //計算表是否有成果
@@ -205,7 +236,6 @@ provide("selectUcModel", selectUcModel);
 const nowCaseUcModelMU = ref([]);
 provide("nowCaseUcModelMU", nowCaseUcModelMU);
 
-
 // 出具報告
 const nowCaseHasLOGO = ref(true); //列印TAF LOGO
 const nowCaseReportTemp = ref(""); //校正報告範本
@@ -224,10 +254,13 @@ const nowCaseReportEditDL = computed(() => {
   }
 });
 
+const nowCaseCompleteDate = ref(""); //報告(列印)日期
+const nowCaseCompleteDateDOM = ref();
+
 const nowCaseChkDate = ref(""); // 數據檢核日
 provide("nowCaseChkDate", nowCaseChkDate);
 
-const nowCaseChkPersonID = ref(""); //數據檢核人
+const nowCaseChkPersonID = inject('nowCaseChkPersonID_0'); //數據檢核人
 provide("nowCaseChkPersonID", nowCaseChkPersonID);
 const selectChkPersonID = ref("");
 provide("selectChkPersonID", selectChkPersonID);
@@ -237,17 +270,17 @@ provide("nowCaseChkPersonMU", nowCaseChkPersonMU);
 const nowCaseSignDate = ref(""); // 報告簽署日
 provide("nowCaseSignDate", nowCaseSignDate);
 
-const nowCaseSignPersonID = ref(""); // 報告簽署人
+const nowCaseSignPersonID = inject('nowCaseSignPersonID_0'); // 報告簽署人
 provide("nowCaseSignPersonID", nowCaseSignPersonID);
 const selectSignPersonID = ref("");
 provide("selectSignPersonID", selectSignPersonID);
 const nowCaseSignPersonMU = ref([]);
 provide("nowCaseSignPersonMU", nowCaseSignPersonMU);
 
-const nowCaseReportScan = ref(""); //校正報告掃描檔
+const nowCaseReportScan = inject('nowCaseReportScan'); //校正報告掃描檔
 const nowCaseReportScanDL = computed(() => {
   if (nowCaseReportScan.value && nowCaseReportScan.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseReportScan.value;
+    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseReportScan.value + '?t=' + new Date().getTime();
   } else {
     return undefined;
   }
@@ -259,7 +292,7 @@ const nowCasePDFPath = computed(() => {
     return "pdfjs-dist/web/viewer.html"
   } else {
     return "pdfjs-dist/web/viewer.html?file=" + publicPath.value + "06_Case/" +
-      props.caseID + "/" + nowCaseReportScan.value;
+      props.caseID + "/" + nowCaseReportScan.value + '?t=' + new Date().getTime();
   }
 });
 // 案件之詳細資料^^^
@@ -338,7 +371,6 @@ getNowCaseFonDone(result => {
     nowCaseItemChop.value = (getItem) ? getItem.chop : "";
     nowCaseItemModel.value = (getItem) ? getItem.model : "";
     nowCaseItemSN.value = (getItem) ? getItem.serial_number : "";
-
     // 參數型態
     // nowCaseParaType.value = getData.type;
     (getData.type === 1) ? isFullPara.value = true : isFullPara.value = false;
@@ -347,7 +379,6 @@ getNowCaseFonDone(result => {
     nowCaseLrDisPrs.value = getData.dis_presision;
     nowCaseLrAngResol.value = getData.ang_resolution;
     nowCaseLrBeam.value = getData.beam;
-
     // GNSS規格
     nowCaseGnssID.value = getData.gnss_id;
     nowCaseGnssChop.value = (getGNSS) ? getGNSS.chop : "";
@@ -366,18 +397,28 @@ getNowCaseFonDone(result => {
     nowCaseImuPrcO.value = getData.prec_ori;
     // 掃描規劃
     nowCasePlanDate.value = (getData.plan_date)?getData.plan_date.split("T")[0]:" ";
+    // nowCasePlanM.value = getData.plan_month;
+    // nowCaseStrips.value = getData.strips_no
+    // nowCaseEllH.value = getData.ell_height;
+    // nowCaseAGL.value = getData.agl;
     nowCasePtDensity.value = getData.cloud_density;
+    // nowCaseFOV.value = getData.fov;
     // 檢附資料
     nowCaseLrReport.value = getData.lidar_report;
     nowCasePosReport.value = getData.pos_report;
-
+    // nowCasePlanMap.value = getData.plan_map;
     // 送件
-    nowCaseRecDate.value = (getData.receive_date)?getData.receive_date.split("T")[0]:" ";
-    nowCaseScanDate.value = (getData.scan_date)?getData.scan_date.split("T")[0]:" ";
+    nowCaseRecDate.value = (getData.receive_date)?getData.receive_date.split("T")[0]:" "; // 收件日期
+    nowCaseScanDate.value = (getData.scan_date)?getData.scan_date.split("T")[0]:" "; // 掃描日期
     
     nowCaseStripsAc.value = getData.strips_no_ac;
+    // nowCaseEllHac.value = getData.ell_height_ac;
+    // nowCaseAGLac.value = getData.agl_ac;
+    // nowCasePtDensityac.value = getData.cloud_density_ac;
+    // nowCaseFOVac.value = getData.fov_ac;
 
     nowCaseScanMapAc.value = getData.scan_map;
+    // nowCaseRecTable.value = getData.rec_table;
     nowCaseLASNo.value = getData.files_no;
     nowCaseOther.value = getData.others;
     nowCaseErrData.value = getData.err_data;
@@ -393,7 +434,7 @@ getNowCaseFonDone(result => {
       : " ";
     if(getData.ref_project){
       if(getData.ref_project.publish_date){
-        nowCaseRefPrjPublishDate.value = getData.ref_project.publish_date.split("T")[0];
+        nowCaseRefPrjPublishDate.value = getData.ref_project.publish_date.split("T")[0]; // 參考值發布日期
       }else{
         nowCaseRefPrjPublishDate.value = " ";
       }
@@ -404,11 +445,13 @@ getNowCaseFonDone(result => {
     nowCaseRefEqpt.value = (getData.ref_project) ? getData.ref_project.ref_use_eqpt : null;
     nowCaseSTDh.value = getData.std_h;
     nowCaseSTDv.value = getData.std_v;
+    nowCaseSTDs.value = getData.std_s;
     nowCaseKh.value = getData.k_h;
     nowCaseKv.value = getData.k_v;
+    nowCaseKs.value = getData.k_s;
     nowCaseCalResult.value = getData.recal_table ? getData.recal_table : null;
     data1.value = calResultToData1();
-    nowCaseCloudDate.value = nowCaseCalResult.value.stripdata;
+    nowCaseCloudDate.value = getData.recal_table ? nowCaseCalResult.value.stripdata: null;
     nowCaseUcResult.value = getData.uccal_table ? getData.uccal_table : null;
 
     // 出具報告
@@ -471,14 +514,15 @@ const { mutate: refgetAllSignPson, onDone: getAllSignPsononDone, onError: getAll
   })
 );
 getAllSignPsononDone(result => {
-  // 加入評估人員選單資料
+  // 加入簽署人員選單資料
   if (!result.loading && result.data.getEmpowerbyRole) {
     let mylist = [];
     mylist = result.data.getEmpowerbyRole.map(x => { return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
     mylist = filterArrayforObj(mylist,"person_id");// 去除重複
     nowCaseSignPersonMU.value = mylist.map(x => {
       return { text: x.name, value: x.person_id }
-    }); nowCaseSignPersonMU.value.unshift({ text: "", value: "" });
+    }); nowCaseSignPersonMU.value.unshift({ text: "-未選取-", value: "-1" });
+    // console.log('nowCaseSignPersonMU',nowCaseSignPersonMU.value);
   }
 });
 getAllSignPsononError(e=>{errorHandle(e,infomsg,alert1)});
@@ -494,14 +538,15 @@ const { mutate: refgetAllChkPson, onDone: getAllChkPsononDone, onError: getAllCh
   })
 );
 getAllChkPsononDone(result => {
-  // 加入評估人員選單資料
+  // 加入數據檢核人員選單資料
   if (!result.loading && result.data.getEmpowerbyRole) {
     let mylist = [];
     mylist = result.data.getEmpowerbyRole.map(x => { return {person_id:x.person_id,name: x.employee.name} });//從物件陣列中取出成陣列
     mylist = filterArrayforObj(mylist,"person_id");// 去除重複
     nowCaseChkPersonMU.value = mylist.map(x => {
       return { text: x.name, value: x.person_id }
-    }); nowCaseChkPersonMU.value.unshift({ text: "", value: "" });
+    }); nowCaseChkPersonMU.value.unshift({ text: "-未選取-", value: "-1" });
+    // console.log('nowCaseChkPersonMU',nowCaseChkPersonMU.value);
   }
 });
 getAllChkPsononError(e=>{errorHandle(e,infomsg,alert1)});
@@ -712,18 +757,6 @@ function clearItemFilter() {
   filterItemSN.value = "";
 }
 
-// 執行校正件篩選
-function doItemFilter() {
-  let where = {};
-  if (filterItemTypeID.value !== "") where.type = filterItemTypeID.value;
-  if (filterItemChop.value !== "") where.chop = filterItemChop.value;
-  if (filterItemModel.value !== "") where.model = filterItemModel.value;
-  if (filterItemSN.value !== "") where.serialNumber = filterItemSN.value;
-
-  varAllItem.value = where;
-  refgetAllItem(where);
-}
-
 // 案加入後回填校正件id
 function setItemBtn() {
   switch (iType.value) {
@@ -864,12 +897,16 @@ function setPrjBtn() {
   nowCaseRefPrjCode.value = seletPrjCode.value;
   nowCaseRefPrjPublishDate.value = seletPrjPublishDate.value;
   calRefGcp().then(res=>{
+    // console.log("calRefGcp");
     return saveRecord03();  
   }).then(res=>{
+    // console.log("saveRecord03");
     return refgetNowCaseF();
   }).then(res=>{
+    // console.log("refgetNowCaseF");
     return getUcList();
   }).then(res=>{
+    // console.log("getUcList");
     showPrjFrom.value = false;
   })
 }
@@ -904,6 +941,7 @@ calRefGcpOnDone(result=>{
       d_E: "",
       d_N: "",
       d_h: "",
+      d_S: "",
       memo: "",
     });
   })
@@ -934,7 +972,7 @@ saveRecord03OnDone(() => {
 saveRecord03Error(e=>{errorHandle(e,infomsg,alert1)});
 
 function saveRecord03(){
-  new Promise((res,rej)=>{
+  return new Promise((res,rej)=>{
     res(data1ToCalResult());
   }).then(res=>{
     // console.log(nowCaseCalResult.value);
@@ -982,8 +1020,10 @@ function saveRecord03(){
       resultFile: "",
       stdH: parseFloat(nowCaseSTDh.value),
       stdV: parseFloat(nowCaseSTDv.value),
+      stdS: parseFloat(nowCaseSTDs.value),
       kH: parseFloat(nowCaseKh.value),
       kV: parseFloat(nowCaseKv.value),
+      kS: parseFloat(nowCaseKs.value),
       stdFile: "",
       reportEdit: nowCaseReportEdit.value,
       chkDate: nowCaseChkDate.value.trim() === ""
@@ -1154,6 +1194,9 @@ uploadFileOnDone((result) => {
 uploadFileonError(e=>{errorHandle(e,infomsg,alert1)});
 //#endregion 檔案上傳==========End
 
+
+
+
 //#region 呼叫計算不確定度=======Start
 // 取得不確定度列表
 const {
@@ -1232,8 +1275,10 @@ computeUcOnDone((result) => {
     nowCaseUcResult.value = result.data.computeUc;
     nowCaseSTDh.value = result.data.computeUc.fixUcH;
     nowCaseSTDv.value = result.data.computeUc.fixUcV;
+    nowCaseSTDs.value = result.data.computeUc.fixUcS;
     nowCaseKh.value = result.data.computeUc.tinvH.toFixed(2);
     nowCaseKv.value = result.data.computeUc.tinvV.toFixed(2);
+    nowCaseKs.value = result.data.computeUc.tinvS.toFixed(2);
     // console.log(nowCaseUcResult.value);
     saveRecord03();
   }
@@ -1283,6 +1328,7 @@ const columns1 = [
   { title: "dE", data: "d_E", className: 'dt-right' },
   { title: "dN", data: "d_N", className: 'dt-right' },
   { title: "dh", data: "d_h", className: 'dt-right' },
+  { title: "dS", data: "d_S", className: 'dt-right' },
 ];
 
 const tboption1 = {
@@ -1326,8 +1372,10 @@ function loadtable(index){
 
       nowCaseSTDh.value="";
       nowCaseSTDv.value="";
+      nowCaseSTDs.value="";
       nowCaseKh.value="";
       nowCaseKv.value="";
+      nowCaseKs.value="";
       nowCaseUcResult.value=null;
 
       e.stopPropagation()
@@ -1361,10 +1409,11 @@ function calResultToData1(){
         meas_E: calTable.data[key].x,
         meas_N: calTable.data[key].y,
         meas_h: calTable.data[key].z,
-        count: calTable.data[key].count,
+        // count: calTable.data[key].count,
         d_E: calTable.data[key].dx,
         d_N: calTable.data[key].dy,
         d_h: calTable.data[key].dz,
+        d_S: calTable.data[key].dS,
         memo: calTable.data[key].memo,
       })
     // }
@@ -1373,20 +1422,22 @@ function calResultToData1(){
   myArray.sort((a,b)=>{
     return (a.gcp_id > b.gcp_id)?1:-1;
   })
-
   return myArray;
 }
 
 function data1ToCalResult(){
-  let myCalResult={
-    stripdata: nowCaseCloudDate.value,
-  };
+  let myCalResult={stripdata: nowCaseCloudDate.value};
   let pt_Data = {};
   let rmseE = 0.0;
   let rmseN = 0.0;
+  let rmseH = 0.0;
   let rmseV = 0.0;
-  let minPt = 0;
-  let maxPt = 0;
+  let rmseS = 0.0;
+  let maxH = 0;
+  let maxV = 0;
+  let maxS = 0;
+  // let minPt = 0;
+  // let maxPt = 0;
   let pt_Used = 0;
   let pt_Total = data1.value.length;
   for(let i=0; i < pt_Total ; i++){
@@ -1403,13 +1454,24 @@ function data1ToCalResult(){
       dx: data1.value[i].d_E,
       dy: data1.value[i].d_N,
       dz: data1.value[i].d_h,
+      dS: data1.value[i].d_S,
       memo: data1.value[i].memo,
     }
 
     if(data1.value[i].type==="T"){
       rmseE = rmseE + parseFloat(data1.value[i].d_E)**2;
       rmseN = rmseN + parseFloat(data1.value[i].d_N)**2;
+      let dH2 = parseFloat(data1.value[i].d_E)**2 + parseFloat(data1.value[i].d_N)**2;
+      let dS2 = parseFloat(data1.value[i].d_S)**2;
+      
+      rmseH = rmseH + dH2
+      maxH = ( Math.sqrt(dH2) > maxH)?Math.sqrt(dH2):maxH;
+      
       rmseV = rmseV + parseFloat(data1.value[i].d_h)**2;
+      maxV = (Math.abs(parseFloat(data1.value[i].d_h)) > Math.abs(maxV))?data1.value[i].d_h:maxV;
+      
+      rmseS = rmseS + dS2
+      maxS = ( Math.sqrt(dS2) > maxS)?Math.sqrt(dS2):maxS;
       // if(pt_Used===0){
       //   minPt = data1.value[i].count;
       //   maxPt = data1.value[i].count;
@@ -1423,8 +1485,13 @@ function data1ToCalResult(){
   if(pt_Used > 0){
     rmseE = (rmseE/pt_Used)**0.5;
     rmseN = (rmseN/pt_Used)**0.5;
-    myCalResult.rmseH = ((rmseE**2 + rmseN**2)**0.5)*1000;
+    myCalResult.rmseH = ((rmseH/pt_Used)**0.5)*1000;
     myCalResult.rmseV = ((rmseV/pt_Used)**0.5)*1000;
+    myCalResult.rmseS = ((rmseE**2 + rmseN**2 + (rmseV/pt_Used))**0.5)*1000;
+
+    myCalResult.maxH = maxH*1000;
+    myCalResult.maxV = maxV*1000;
+    myCalResult.maxS = maxS*1000;
     // myCalResult.minCloudPt = minPt;
     // myCalResult.maxCloudPt = maxPt;
   }
@@ -1433,7 +1500,7 @@ function data1ToCalResult(){
   myCalResult.ptTotal = pt_Total;
   myCalResult.ptDel = pt_Total - pt_Used;
   myCalResult.data = pt_Data;
-  // console.log(myCalResult);
+  // console.log('myCalResult',myCalResult);
   // console.log(selectUcModel.value);
   nowCaseCalResult.value = myCalResult;
 }
@@ -1472,12 +1539,18 @@ async function ptCloudAvg(POfile) {
             data1.value[ptIndex].d_E = parseFloat((pt_E - parseFloat(data1.value[ptIndex].coor_E)).toFixed(3));
             data1.value[ptIndex].d_N = parseFloat((pt_N - parseFloat(data1.value[ptIndex].coor_N)).toFixed(3));
             data1.value[ptIndex].d_h = parseFloat((pt_h - parseFloat(data1.value[ptIndex].coor_h)).toFixed(3));  
+            data1.value[ptIndex].d_S = parseFloat(
+              ((pt_E - parseFloat(data1.value[ptIndex].coor_E))**2+
+              (pt_N - parseFloat(data1.value[ptIndex].coor_N))**2+
+              (pt_h - parseFloat(data1.value[ptIndex].coor_h))**2)**0.5).toFixed(5);  
           }
           
           nowCaseSTDh.value="";
           nowCaseSTDv.value="";
+          nowCaseSTDs.value="";
           nowCaseKh.value="";
           nowCaseKv.value="";
+          nowCaseKs.value="";
           nowCaseUcResult.value=null;
 
           i = i + 1;
@@ -1493,6 +1566,7 @@ async function ptCloudAvg(POfile) {
 
 //#endregion 量測作業表格==========End
 
+
 //#region 產生報告==========Start
 const pramRptStr = ref("");
 // 按鈕觸發動作
@@ -1502,42 +1576,44 @@ function buildReportBtn() {
   let parms = {};
 
   let CompleteDateAy = nowCaseCompleteDate.value.split("-");
-  parms.nowCaseCompleteDateY = (parseInt(CompleteDateAy[0]) - 1911).toString();
-  parms.nowCaseCompleteDateM = CompleteDateAy[1];
-  parms.nowCaseCompleteDateD = CompleteDateAy[2];
+  parms.nowCaseCompleteDateY = (parseInt(CompleteDateAy[0]) - 1911).toString(); // 報告日期_年
+  parms.nowCaseCompleteDateM = CompleteDateAy[1]; // 報告日期_月
+  parms.nowCaseCompleteDateD = CompleteDateAy[2]; // 報告日期_日
   parms.nowCaseID = props.caseID;
-  parms.nowCaseFullID = nowCaseCalTypeCode.value + props.caseID;
-  parms.nowCaseItemChop = nowCaseItemChop.value;
-  parms.nowCaseItemModel = nowCaseItemModel.value;
-  parms.nowCaseItemSN = nowCaseItemSN.value;
-  parms.nowCaseTitle = nowCaseTitle.value;
-  parms.nowCaseAddress = nowCaseAddress.value;
+  parms.nowCaseFullID = nowCaseCalTypeCode.value + props.caseID; // 報告編號
+  parms.nowCaseItemChop = nowCaseItemChop.value; // 廠牌
+  parms.nowCaseItemModel = nowCaseItemModel.value; // 型號
+  parms.nowCaseItemSN = nowCaseItemSN.value; // 序號
+  parms.nowCaseTitle = nowCaseTitle.value; // 送校單位
+  parms.nowCaseAddress = nowCaseAddress.value; // 地址
 
   let nowCaseRecDateAy = nowCaseRecDate.value.split("-");
-  parms.nowCaseRecDateY = (parseInt(nowCaseRecDateAy[0]) - 1911).toString();
-  parms.nowCaseRecDateM = nowCaseRecDateAy[1];
-  parms.nowCaseRecDateD = nowCaseRecDateAy[2];
+  parms.nowCaseRecDateY = (parseInt(nowCaseRecDateAy[0]) - 1911).toString(); // 收件日期_年
+  parms.nowCaseRecDateM = nowCaseRecDateAy[1]; // 收件日期_月
+  parms.nowCaseRecDateD = nowCaseRecDateAy[2]; // 收件日期_日
 
   let nowCaseFlyDateAy = nowCaseScanDate.value.split("-");
-  parms.nowCaseFlyDateY = (parseInt(nowCaseFlyDateAy[0]) - 1911).toString();
-  parms.nowCaseFlyDateM = nowCaseFlyDateAy[1];
-  parms.nowCaseFlyDateD = nowCaseFlyDateAy[2];
+  parms.nowCaseFlyDateY = (parseInt(nowCaseFlyDateAy[0]) - 1911).toString(); // 掃描日期_年
+  parms.nowCaseFlyDateM = nowCaseFlyDateAy[1]; // 掃描日期_月
+  parms.nowCaseFlyDateD = nowCaseFlyDateAy[2]; // 掃描日期_日
 
   parms.nowCaseRefPrjCode = nowCaseRefPrjCode.value;
   let prjPubDateAy = nowCaseRefPrjPublishDate.value.split("-");
-  parms.nowCaseRefPrjPublishDateY = (parseInt(prjPubDateAy[0]) - 1911).toString();
-  parms.nowCaseRefPrjPublishDateM = prjPubDateAy[1];
-  parms.nowCaseRefPrjPublishDateD = prjPubDateAy[2];
+  parms.nowCaseRefPrjPublishDateY = (parseInt(prjPubDateAy[0]) - 1911).toString(); // 參考值發布日期_年
+  parms.nowCaseRefPrjPublishDateM = prjPubDateAy[1]; // 參考值發布日期_月
+  parms.nowCaseRefPrjPublishDateD = prjPubDateAy[2]; // 參考值發布日期_日
 
   let calTable = nowCaseCalResult.value;
   // console.log("calTable",calTable);
   let ucTable = nowCaseUcResult.value;
   // console.log("ucTable",ucTable);
 
-  let defVerH = [];
-  let defVerV = [];
-  let fixDigPosH = parseInt(ucTable.digPosH);
-  let fixDigPosV = parseInt(ucTable.digPosV);
+  let defVerH = []; // 平面數據
+  let defVerV = []; // 高程數據
+  let defVerS = []; // 三維數據
+  let fixDigPosH = parseInt(ucTable.digPosH); // 平面有效位數
+  let fixDigPosV = parseInt(ucTable.digPosV); // 高程有效位數
+  let fixDigPosS = parseInt(ucTable.digPosS); // 三維有效位數
 
   for (let key in calTable.data) {
     if (calTable.data[key].type === 'T') {
@@ -1554,42 +1630,56 @@ function buildReportBtn() {
         dz: fixDataDigPos(calTable.data[key].dz * 1000, fixDigPosV),
         fixUcV: ucTable.fixUcV
       });
+
+      defVerS.push({
+        ptName: key,
+        dS: fixDataDigPos(calTable.data[key].dS * 1000, fixDigPosS),
+        fixUcS: ucTable.fixUcS
+      });
     }
   }
 
   defVerH.sort((a, b) => { (a.pt_name > b.pt_name) ? 1 : -1 });
   defVerV.sort((a, b) => { (a.pt_name > b.pt_name) ? 1 : -1 });
+  defVerS.sort((a, b) => { (a.pt_name > b.pt_name) ? 1 : -1 });
 
   for (let i = 0; i < defVerH.length; i++) {
     defVerH[i].index = i + 1;
     defVerV[i].index = i + 1;
+    defVerS[i].index = i + 1;
   }
 
   parms.defVerH = defVerH;
   parms.defVerV = defVerV;
+  parms.defVerS = defVerS;
 
-  parms.nowCaseChkNo = calTable.ptUsed;
+  parms.nowCaseChkNo = calTable.ptUsed; // 使用點數
 
-  parms.nowCaseRmseH = fixDataDigPos(parseFloat(calTable.rmseH), parseInt(ucTable.digPosH));
-  parms.nowCaseRmseV = fixDataDigPos(parseFloat(calTable.rmseV), parseInt(ucTable.digPosH));
+  parms.nowCaseRmseH = fixDataDigPos(parseFloat(calTable.rmseH), parseInt(ucTable.digPosH)); // RMSE_平面
+  parms.nowCaseRmseV = fixDataDigPos(parseFloat(calTable.rmseV), parseInt(ucTable.digPosV)); // RMSE_高程
+  parms.nowCaseRmseS = fixDataDigPos(parseFloat(calTable.rmseS), parseInt(ucTable.digPosS)); // RMSE_三維
 
-  parms.nowCaseLrDisPrs = nowCaseLrDisPrs.value;
-  parms.nowCaseLrAngResol = nowCaseLrAngResol.value;
-  parms.nowCaseLrBeam = nowCaseLrBeam.value;
+  parms.nowCaseMaxH = fixDataDigPos(parseFloat(calTable.maxH), parseInt(ucTable.digPosH)); // RMSE_平面
+  parms.nowCaseMaxV = fixDataDigPos(parseFloat(calTable.maxV), parseInt(ucTable.digPosV)); // RMSE_高程
+  parms.nowCaseMaxS = fixDataDigPos(parseFloat(calTable.maxS), parseInt(ucTable.digPosS)); // RMSE_三維
 
-  parms.nowCaseGnssChop =  nowCaseGnssChop.value;
-  parms.nowCaseGnssModel =  nowCaseGnssModel.value;
-  parms.nowCaseGnssSN =  nowCaseGnssSN.value;
-  parms.nowCaseGnssPrcH =  nowCaseGnssPrcH.value;
-  parms.nowCaseGnssPrcV =  nowCaseGnssPrcV.value;
+  parms.nowCaseLrDisPrs = nowCaseLrDisPrs.value; // 雷射測距精度
+  parms.nowCaseLrAngResol = nowCaseLrAngResol.value; // 雷射掃描角解析度
+  parms.nowCaseLrBeam = nowCaseLrBeam.value; // 雷射掃描發散角
 
-  parms.nowCaseImuChop =  nowCaseImuChop.value;
-  parms.nowCaseImuModel =  nowCaseImuModel.value;
-  parms.nowCaseImuSN =  nowCaseImuSN.value;
-  parms.nowCaseImuOmg =  nowCaseImuOmg.value;
-  parms.nowCaseImuPhi =  nowCaseImuPhi.value;
-  parms.nowCaseImuKap =  nowCaseImuKap.value;
-  parms.nowCaseImuPrcO =  nowCaseImuPrcO.value;
+  parms.nowCaseGnssChop =  nowCaseGnssChop.value; // GNSS廠牌
+  parms.nowCaseGnssModel =  nowCaseGnssModel.value; // GNSS型號
+  parms.nowCaseGnssSN =  nowCaseGnssSN.value; // GNSS序號
+  parms.nowCaseGnssPrcH =  nowCaseGnssPrcH.value; // GNSS平面定位精度
+  parms.nowCaseGnssPrcV =  nowCaseGnssPrcV.value; // GNSS高程定位精度
+
+  parms.nowCaseImuChop =  nowCaseImuChop.value; // IMU廠牌
+  parms.nowCaseImuModel =  nowCaseImuModel.value; // IMU型號
+  parms.nowCaseImuSN =  nowCaseImuSN.value; // IMU序號
+  parms.nowCaseImuOmg =  nowCaseImuOmg.value; // IMU_ω方向定向精度
+  parms.nowCaseImuPhi =  nowCaseImuPhi.value; // IMU_φ方向定向精度
+  parms.nowCaseImuKap =  nowCaseImuKap.value; // IMU_κ方向定向精度
+  parms.nowCaseImuPrcO =  nowCaseImuPrcO.value; // IMU_姿態角解析度
 
   // parms.nowCaseEllHac = nowCaseEllHac.value;
   // parms.nowCaseAGLac = nowCaseAGLac.value;
@@ -1597,24 +1687,25 @@ function buildReportBtn() {
   parms.nowCasePtDensity = nowCasePtDensity.value;
   // parms.nowCaseFOV =  nowCaseFOV.value;
 
-  parms.nowCaseKh = nowCaseKh.value;
-  parms.nowCaseKv = nowCaseKv.value;
-  parms.confLevel = (ucTable.confLevel * 100).toFixed(0);
+  parms.nowCaseKh = nowCaseKh.value; // 平面涵蓋因子
+  parms.nowCaseKv = nowCaseKv.value; // 高程涵蓋因子
+  parms.nowCaseKs = nowCaseKs.value; // 高程涵蓋因子
+  parms.confLevel = (ucTable.confLevel * 100).toFixed(0); // 信賴水準
 
-  let eqData = [];
+  let eqData = []; // 工作標準件資料
   let eqptCount = 0;
   nowCaseRefEqpt.value.forEach((x, i) => {
     let chkDateArray = (x.ref_eqpt_check.check_date.split("T")[0]).split("-");
     eqptCount = eqptCount + 1;
     eqData.push({
-      index: eqptCount,
-      itemChop: x.ref_eqpt_check.ref_eqpt.chop,
-      itemModel: x.ref_eqpt_check.ref_eqpt.model,
-      itemSN: x.ref_eqpt_check.ref_eqpt.serial_number,
-      rptID: x.ref_eqpt_check.report_id,
-      chkDate: (chkDateArray[0] - 1911) + "/" + chkDateArray[1] + "/" + chkDateArray[2],
-      ferq: x.ref_eqpt_check.ref_eqpt.cal_cycle,
-      org: x.ref_eqpt_check.cal_org + "(" + x.ref_eqpt_check.cal_org_id + ")"
+      index: eqptCount, // 編號
+      itemChop: x.ref_eqpt_check.ref_eqpt.chop, // 廠牌
+      itemModel: x.ref_eqpt_check.ref_eqpt.model, // 型號
+      itemSN: x.ref_eqpt_check.ref_eqpt.serial_number, // 序號
+      rptID: x.ref_eqpt_check.report_id, // 校正報告編號
+      chkDate: (chkDateArray[0] - 1911) + "/" + chkDateArray[1] + "/" + chkDateArray[2], // 最近校正日期
+      ferq: x.ref_eqpt_check.ref_eqpt.cal_cycle, // 校正週期
+      org: x.ref_eqpt_check.cal_org + "(" + x.ref_eqpt_check.cal_org_id + ")" // 校正單位及實驗室編號
     })
   });
 
@@ -1668,9 +1759,14 @@ const {
 getRptListOnDone((result) => {
   // 填入rptlist選單
   if (!result.loading && result.data.getRptlist) {
-    nowCaseReportTempMU.value = result.data.getRptlist.map((x) => {
+    let tempMU = result.data.getRptlist.map((x) => {
       return { text: x, value: x };
-    });nowCaseReportTempMU.value.unshift({text: "-未選取-", value: '-1'})
+    });
+    let keyPara = (isFullPara.value)?'A':'B';
+    tempMU = tempMU.filter((x) => x.value.split('_')[1]===keyPara);
+    tempMU.unshift({text: "-未選取-", value: '-1'});
+
+    nowCaseReportTempMU.value = tempMU;
   }
 });
 getRptListError(e=>{errorHandle(e,infomsg,alert1)});
@@ -1678,10 +1774,11 @@ getRptListError(e=>{errorHandle(e,infomsg,alert1)});
 //#endregion 產生報告==========End
 
 getchecktoken().then(res=>{
-  refgetNowCaseF();
-  refgetAllSignPson();
-  refgetAllChkPson();
-
+  refgetNowCaseF().then(res=>{
+    refgetAllSignPson();
+  }).then(res=>{
+    refgetAllChkPson();
+  });
 }).catch(e=>{
   errorHandle(e,infomsg,alert1);
 });
@@ -2231,6 +2328,11 @@ defineExpose({
                     <DataTable :data="data1" :columns="columns1" :options="tboption1" ref="table1"
                       style="font-size: smaller" class="display w-100 compact"/>
                   </MDBCol>
+                  <MDBCol v-if="isCalResult" col="12" class="mb-3">
+                    <div>平面方向器差均方根值：{{ nowCaseCalResult.rmseH.toFixed(2) }} mm；最大器差:{{ nowCaseCalResult.maxH.toFixed(2) }} mm</div>
+                    <div>高程方向器差均方根值：{{ nowCaseCalResult.rmseV.toFixed(2) }} mm；最大器差:{{ nowCaseCalResult.maxV.toFixed(2) }} mm</div>
+                    <div>三維方向器差均方根值：{{ nowCaseCalResult.rmseS.toFixed(2) }} mm；最大器差:{{ nowCaseCalResult.maxS.toFixed(2) }} mm</div>
+                  </MDBCol>
                 </MDBRow>
               </MDBCol>
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
@@ -2242,7 +2344,6 @@ defineExpose({
                     <MDBBtn :disabled="!rGroup[2] || !isCalResult || !selectUcModel || selectUcModel==='-1'" size="sm" color="primary" @click.stop="computeUcBtn">
                       計算不確定度
                     </MDBBtn>
-                    
                   </MDBCol>
                   <div></div>
 
@@ -2254,6 +2355,10 @@ defineExpose({
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="高程不確定度(mm)"
                       v-model="nowCaseSTDv" />
                   </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="三維不確定度(mm)"
+                      v-model="nowCaseSTDs" />
+                  </MDBCol>
                   <div></div>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="水平涵蓋因子"
@@ -2262,6 +2367,10 @@ defineExpose({
                   <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="高程涵蓋因子"
                       v-model="nowCaseKv" />
+                  </MDBCol>
+                  <MDBCol col="4" class="mb-3">
+                    <MDBInput tooltipFeedback required readonly size="sm" type="text" label="三維涵蓋因子"
+                      v-model="nowCaseKs" />
                   </MDBCol>
                   <!-- 產生作業紀錄表 -->
                   <MDBCol col="12" class="mb-3">

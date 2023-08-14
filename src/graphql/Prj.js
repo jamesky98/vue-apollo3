@@ -192,11 +192,16 @@ const GETEQPTBYRRJID = gql`
       project_id
       eqpt_check_id
       ref_eqpt_check {
+        eq_ck_id
         ref_eqpt_id
+        check_date
+        report_id
+        cal_org
+        cal_org_id
         ref_eqpt {
+          serial_number
           chop
           model
-          serial_number
           type
           ref_eqpt_type {
             type
