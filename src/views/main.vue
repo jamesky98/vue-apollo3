@@ -189,7 +189,7 @@ const selDmethodDOM = ref();
 
 //#endregion 參數==========End
 
-// 統計資料查詢==========Start
+//#region 統計資料查詢==========Start
   // 查詢完成日期年份，並填入清單
   const { mutate: getCaseYears, onDone: getCaseYearsOnDone } = useMutation(ToolsGQL.STATCASEMINMAXYEAR);
   getCaseYearsOnDone(result=>{
@@ -231,7 +231,7 @@ const selDmethodDOM = ref();
     monlist.unshift({ text: "-未選取-", value: -1 });
     selMounthMU6.value=monlist;
   })
-
+//#endregion 統計資料查詢==========End
 
   //#region Chart1==========Start
   const ctx1 = ref();
@@ -242,7 +242,7 @@ const selDmethodDOM = ref();
   getCasebyOprOnDone(result=>{
     // console.log('2-getCasebyOprOnDone')
     chartData1.value = result.data.statCaseByOpr;
-    // console.log(chartData1.value);
+    console.log(chartData1.value);
     // console.log('3-OnDone res:',chartData1.value);
     // 清除Chart1圖表
     if(myChart1.value) myChart1.value.destroy();
@@ -480,7 +480,7 @@ const chartData2 = ref([]);
 const { mutate: getCasebyMounth, onDone: getCasebyMounthOnDone, onError: getCasebyMounthonError } = useMutation(ToolsGQL.STATCASEBYMOUNTH);
 getCasebyMounthOnDone(result=>{
   chartData2.value = result.data.statCaseByMounth;
-  console.log(chartData2.value);
+  // console.log(chartData2.value);
   if(myChart2.value) myChart2.value.destroy();
   ctx2.value = document.getElementById('myChart2').getContext('2d');
   myChart2.value = new Chart(ctx2.value, {
