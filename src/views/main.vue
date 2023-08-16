@@ -29,52 +29,54 @@ const alert1 = ref(false);
 const NavItem = ref("main");
 provide("NavItem", NavItem);
 
-const chartShow = ref([true,true,true,true,true,true]);
-const chartShowCol = ref(["4","4","4","4","4","4"]);
-const chartClass = ref(["h-50","h-50","h-50","h-50","h-50","h-50"]);
+const chartShow = ref([true,true,true,true,true,true]); // 圖表顯示(縮放時隱藏用)
+const chartShowCol = ref(["4","4","4","4","4","4"]); // 排版寬度
+const chartClass = ref(["h-50","h-50","h-50","h-50","h-50","h-50"]); // 排版高度
 
-const selYear = ref("");
-const selYearMU = ref([]);
-const selYearDOM = ref();
+const selYear = ref(""); // chart1_選擇年度
+const selYearMU = ref([]); // chart1_選擇年度_列表
+const selYearDOM = ref(); // chart1_選擇年度_元件
 
-const selYear2 = ref("");
-const selYearMU2 = ref([]);
-const selYearDOM2 = ref();
+const selYear2 = ref(""); // chart2_選擇年度
+const selYearMU2 = ref([]); // chart2_選擇年度_列表
+const selYearDOM2 = ref(); // chart2_選擇年度_元件
 
-const selYear3 = ref("");
-const selYearMU3 = ref([]);
-const selYearDOM3 = ref();
+const selYear3 = ref(""); // chart3_選擇年度
+const selYearMU3 = ref([]); // chart3_選擇年度_列表
+const selYearDOM3 = ref(); // chart3_選擇年度_元件
 
-const selYear4 = ref("");
-const selYearMU4 = ref([]);
-const selYearDOM4 = ref();
+const selYear4 = ref(""); // chart4_選擇年度
+const selYearMU4 = ref([]); // chart4_選擇年度_列表
+const selYearDOM4 = ref(); // chart4_選擇年度_元件
 
-const selYear5 = ref("");
-const selYearMU5 = ref([]);
-const selYearDOM5 = ref();
+const selYear5 = ref(""); // chart5_選擇年度
+const selYearMU5 = ref([]); // chart5_選擇年度_列表
+const selYearDOM5 = ref(); // chart5_選擇年度_元件
 
-const selYear6 = ref("");
-const selYearMU6 = ref([]);
-const selYearDOM6 = ref();
+const selYear6 = ref(""); // chart6_選擇年度
+const selYearMU6 = ref([]); // chart6_選擇年度_列表
+const selYearDOM6 = ref(); // chart6_選擇年度_元件
+const selMounth6 = ref(""); // chart6_選擇月份
+const selMounthMU6 = ref([]); // chart6_選擇月份_列表
+const selMounthDOM6 = ref(); // chart6_選擇月份_元件
 
-const selMounth6 = ref("");
-const selMounthMU6 = ref([]);
-const selMounthDOM6 = ref();
-
-const fl_total = ref(""); 
+const fl_total = ref("");
 const fl_per = ref("");
 const fl_now = ref("");
-const fl_total_i = ref(""); 
+const fl_total_i = ref("");
 const fl_per_i = ref("");
 const fl_now_i = ref("");
+// 航測像機(大)總數
 const fl_total_str = computed(()=>{
   let temp = (fl_total_i.value)?'('+fl_total_i.value+')':''
   return fl_total.value + temp
 });
+// 航測像機(大)前次總數
 const fl_per_str = computed(()=>{
   let temp = (fl_per_i.value)?'('+fl_per_i.value+')':''
   return fl_per.value + temp
 });
+// 航測像機(大)本月增加
 const fl_now_str = computed(()=>{
   let temp = (fl_now_i.value)?'('+fl_now_i.value+')':''
   return fl_now.value + temp
@@ -86,14 +88,17 @@ const fm_now = ref("");
 const fm_total_i = ref(""); 
 const fm_per_i = ref("");
 const fm_now_i = ref("");
+// 航測像機(中)總數
 const fm_total_str = computed(()=>{
   let temp = (fm_total_i.value)?'('+fm_total_i.value+')':''
   return fm_total.value + temp
 });
+// 航測像機(中)前次總數
 const fm_per_str = computed(()=>{
   let temp = (fm_per_i.value)?'('+fm_per_i.value+')':''
   return fm_per.value + temp
 });
+// 航測像機(中)本月增加
 const fm_now_str = computed(()=>{
   let temp = (fm_now_i.value)?'('+fm_now_i.value+')':''
   return fm_now.value + temp
@@ -106,14 +111,17 @@ const ic_now = ref("");
 const ic_total_i = ref(""); 
 const ic_per_i = ref("");
 const ic_now_i = ref("");
+// 空載光達總數
 const ic_total_str = computed(()=>{
   let temp = (ic_total_i.value)?'('+ic_total_i.value+')':''
   return ic_total.value + temp
 });
+// 空載光達前次總數
 const ic_per_str = computed(()=>{
   let temp = (ic_per_i.value)?'('+ic_per_i.value+')':''
   return ic_per.value + temp
 });
+// 空載光達本月增加
 const ic_now_str = computed(()=>{
   let temp = (ic_now_i.value)?'('+ic_now_i.value+')':''
   return ic_now.value + temp
@@ -125,22 +133,47 @@ const jc_now = ref("");
 const jc_total_i = ref(""); 
 const jc_per_i = ref("");
 const jc_now_i = ref("");
+// 小像幅總數
 const jc_total_str = computed(()=>{
   let temp = (jc_total_i.value)?'('+jc_total_i.value+')':''
   return jc_total.value + temp
 });
+// 小像幅前次總數
 const jc_per_str = computed(()=>{
   let temp = (jc_per_i.value)?'('+jc_per_i.value+')':''
   return jc_per.value + temp
 });
+// 小像幅本月增加
 const jc_now_str = computed(()=>{
   let temp = (jc_now_i.value)?'('+jc_now_i.value+')':''
   return jc_now.value + temp
 });
 
-const money_total = ref(""); 
-const money_per = ref("");
-const money_now = ref("");
+const Mc_total = ref(""); 
+const Mc_per = ref("");
+const Mc_now = ref("");
+const Mc_total_i = ref(""); 
+const Mc_per_i = ref("");
+const Mc_now_i = ref("");
+// 車載光達總數
+const Mc_total_str = computed(()=>{
+  let temp = (Mc_total_i.value)?'('+Mc_total_i.value+')':''
+  return Mc_total.value + temp
+});
+// 車載光達前次總數
+const Mc_per_str = computed(()=>{
+  let temp = (Mc_per_i.value)?'('+Mc_per_i.value+')':''
+  return Mc_per.value + temp
+});
+// 車載光達本月增加
+const Mc_now_str = computed(()=>{
+  let temp = (Mc_now_i.value)?'('+Mc_now_i.value+')':''
+  return Mc_now.value + temp
+});
+
+const money_total = ref(""); // 營運收入總數
+const money_per = ref(""); // 營運收入前次總數
+const money_now = ref(""); // 營運收入本月增加
 
 
 // 日期模式清單
@@ -157,238 +190,287 @@ const selDmethodDOM = ref();
 //#endregion 參數==========End
 
 // 統計資料查詢==========Start
+  // 查詢完成日期年份，並填入清單
+  const { mutate: getCaseYears, onDone: getCaseYearsOnDone } = useMutation(ToolsGQL.STATCASEMINMAXYEAR);
+  getCaseYearsOnDone(result=>{
+    let getData = result.data.statCaseMinMaxYear;
+    // chart1
+    selYearMU.value = getData.map(x => {
+      return { text: x, value: x }
+    });selYearMU.value.unshift({ text: "-未選取-", value: -1 });
+    // chart2
+    selYearMU2.value = getData.map(x => {
+      return { text: x, value: x }
+    });selYearMU2.value.unshift({ text: "-未選取-", value: -1 });
+    // chart3
+    selYearMU3.value = getData.map(x => {
+      return { text: x, value: x }
+    });selYearMU3.value.unshift({ text: "-未選取-", value: -1 });
+    // chart4
+    selYearMU4.value = getData.map(x => {
+      return { text: x, value: x }
+    });selYearMU4.value.unshift({ text: "-未選取-", value: -1 });
+    // chart5
+    selYearMU5.value = getData.map(x => {
+      return { text: x, value: x }
+    });selYearMU5.value.unshift({ text: "-未選取-", value: -1 });
+    // chart6
+    let minYear = Math.min(...getData)+1911;
+    let nowYear = new Date().getFullYear();
+    let yearlist =[];
+    for(let i=minYear-1911;i<nowYear-1911+1;i++){
+      yearlist.push({ text: i, value: i });
+    }
+    yearlist.reverse();
+    yearlist.unshift({ text: "-未選取-", value: -1 });
+    selYearMU6.value=yearlist;
+    let monlist =[];
+    for(let m=1;m<13;m++){
+      monlist.push({ text: m, value: m })  
+    }
+    monlist.unshift({ text: "-未選取-", value: -1 });
+    selMounthMU6.value=monlist;
+  })
 
-//#region Chart1==========Start
-const ctx1 = ref();
-const myChart1 = ref();
-const chartData1 = ref([]);
-// 查詢完成日期年份，並填入清單
-const { mutate: getCaseYears, onDone: getCaseYearsOnDone } = useMutation(ToolsGQL.STATCASEMINMAXYEAR);
-getCaseYearsOnDone(result=>{
-  let getData = result.data.statCaseMinMaxYear;
-  // chart1
-  selYearMU.value = getData.map(x => {
-    return { text: x, value: x }
-  });selYearMU.value.unshift({ text: "-未選取-", value: -1 });
-  // chart2
-  selYearMU2.value = getData.map(x => {
-    return { text: x, value: x }
-  });selYearMU2.value.unshift({ text: "-未選取-", value: -1 });
-  // chart3
-  selYearMU3.value = getData.map(x => {
-    return { text: x, value: x }
-  });selYearMU3.value.unshift({ text: "-未選取-", value: -1 });
-  // chart4
-  selYearMU4.value = getData.map(x => {
-    return { text: x, value: x }
-  });selYearMU4.value.unshift({ text: "-未選取-", value: -1 });
-  // chart5
-  selYearMU5.value = getData.map(x => {
-    return { text: x, value: x }
-  });selYearMU5.value.unshift({ text: "-未選取-", value: -1 });
-  // chart6
-  let minYear = Math.min(...getData)+1911;
-  let nowYear = new Date().getFullYear();
-  let yearlist =[];
-  for(let i=minYear-1911;i<nowYear-1911+1;i++){
-    yearlist.push({ text: i, value: i });
-  }
-  yearlist.reverse();
-  yearlist.unshift({ text: "-未選取-", value: -1 });
-  selYearMU6.value=yearlist;
-  let monlist =[];
-  for(let m=1;m<13;m++){
-    monlist.push({ text: m, value: m })  
-  }
-  monlist.unshift({ text: "-未選取-", value: -1 });
-  selMounthMU6.value=monlist;
-})
 
-// 查詢校正人員案件數 by Year
-const { mutate: getCasebyOpr, onDone: getCasebyOprOnDone, onError: getCasebyOpronError } = useMutation(ToolsGQL.STATCASEBYOPR);
-getCasebyOprOnDone(result=>{
-  // console.log('2-getCasebyOprOnDone')
-  chartData1.value = result.data.statCaseByOpr;
-  // console.log(chartData1.value);
-  // console.log('3-OnDone res:',chartData1.value);
-  if(myChart1.value) myChart1.value.destroy();
+  //#region Chart1==========Start
+  const ctx1 = ref();
+  const myChart1 = ref();
+  const chartData1 = ref([]);
+  // Chart1_查詢校正人員案件數 by Year
+  const { mutate: getCasebyOpr, onDone: getCasebyOprOnDone, onError: getCasebyOpronError } = useMutation(ToolsGQL.STATCASEBYOPR);
+  getCasebyOprOnDone(result=>{
+    // console.log('2-getCasebyOprOnDone')
+    chartData1.value = result.data.statCaseByOpr;
+    // console.log(chartData1.value);
+    // console.log('3-OnDone res:',chartData1.value);
+    // 清除Chart1圖表
+    if(myChart1.value) myChart1.value.destroy();
 
-  // console.log('4-new Chart',myChart1.value);
-  ctx1.value = document.getElementById('myChart1').getContext('2d');
-  // console.log('5-ctx1',ctx1.value);
-  myChart1.value = new Chart(ctx1.value, {
-    type: 'bar',
-    data: {
-      datasets: [
-        {
-          label: '航測相機',
-          backgroundColor: bgcolor_60[0],
-          // borderColor: bgcolor_100[0],
-          // borderWidth: 1,
-          data: chartData1.value,
-          parsing: {
-              yAxisKey: 'data.c1_o'
+    // console.log('4-new Chart',myChart1.value);
+    // 取得Chart1畫布空間
+    ctx1.value = document.getElementById('myChart1').getContext('2d');
+    // console.log('5-ctx1',ctx1.value);
+    // 建立Chart1圖表
+    myChart1.value = new Chart(ctx1.value, {
+      type: 'bar',
+      data: {
+        // cal_type c1:航測相機 c2:空載光達 c3:小像幅 c9:車載
+        // _o:外校 _i:內校
+        datasets: [
+          // {
+
+          //   type: 'line',
+          //   label: '總計',
+          //   // backgroundColor: bgcolor_20[5],
+          //   borderColor: '#ff6090',
+          //   borderDash: [10, 6],
+          //   borderWidth: 5,
+          //   data: chartData1.value,
+          //   parsing: {
+          //       yAxisKey: 'data.total'
+          //   },
+          //   hidden: true,
+          //   stacked: false,
+          //   stepped: 'middle',
+          //   radius: 0,
+          // },
+          {
+            label: '航測相機',
+            backgroundColor: bgcolor_60[0],
+            // borderColor: bgcolor_100[0],
+            // borderWidth: 1,
+            data: chartData1.value,
+            parsing: {
+                yAxisKey: 'data.c1_o'
+            },
+            stacked: true,
+            stack: 'Stack 1',
           },
-          stacked: true,
-          stack: 'Stack 1',
-        },
-        {
-          label: '空載光達',
-          backgroundColor: bgcolor_60[1],
-          // borderColor: bgcolor_100[1],
-          // borderWidth: 1,
-          data: chartData1.value,
-          parsing: {
-              yAxisKey: 'data.c2_o'
+          {
+            label: '航測相機(內)',
+            backgroundColor: bgcolor_20[0],
+            // borderColor: bgcolor_100[0],
+            // borderWidth: 1,
+            data: chartData1.value,
+            parsing: {
+                yAxisKey: 'data.c1_i'
+            },
+            stacked: true,
+            stack: 'Stack 1',
           },
-          stacked: true,
-          stack: 'Stack 1',
-        },
-        {
-          label: '小像幅',
-          backgroundColor: bgcolor_60[2],
-          // borderColor: bgcolor_100[2],
-          // borderWidth: 1,
-          data: chartData1.value,
-          parsing: {
-              yAxisKey: 'data.c3_o'
+          {
+            label: '空載光達',
+            backgroundColor: bgcolor_60[1],
+            // borderColor: bgcolor_100[1],
+            // borderWidth: 1,
+            data: chartData1.value,
+            parsing: {
+                yAxisKey: 'data.c2_o'
+            },
+            stacked: true,
+            stack: 'Stack 1',
           },
-          stacked: true,
-          stack: 'Stack 1',
-        },
-        {
-          label: '航測相機(內)',
-          backgroundColor: bgcolor_20[0],
-          // borderColor: bgcolor_100[0],
-          // borderWidth: 1,
-          data: chartData1.value,
-          parsing: {
-              yAxisKey: 'data.c1_i'
+          {
+            label: '空載光達(內)',
+            backgroundColor: bgcolor_20[1],
+            // borderColor: bgcolor_100[1],
+            // borderWidth: 1,
+            data: chartData1.value,
+            parsing: {
+                yAxisKey: 'data.c2_i'
+            },
+            stacked: true,
+            stack: 'Stack 1',
           },
-          stacked: true,
-          stack: 'Stack 2',
-        },
-        {
-          label: '空載光達(內)',
-          backgroundColor: bgcolor_20[1],
-          // borderColor: bgcolor_100[1],
-          // borderWidth: 1,
-          data: chartData1.value,
-          parsing: {
-              yAxisKey: 'data.c2_i'
+          {
+            label: '小像幅',
+            backgroundColor: bgcolor_60[2],
+            // borderColor: bgcolor_100[2],
+            // borderWidth: 1,
+            data: chartData1.value,
+            parsing: {
+                yAxisKey: 'data.c3_o'
+            },
+            stacked: true,
+            stack: 'Stack 1',
           },
-          stacked: true,
-          stack: 'Stack 2',
-        },
-        {
-          label: '小像幅(內)',
-          backgroundColor: bgcolor_20[2],
-          // borderColor: bgcolor_100[2],
-          // borderWidth: 1,
-          data: chartData1.value,
-          parsing: {
-              yAxisKey: 'data.c3_i'
+          {
+            label: '小像幅(內)',
+            backgroundColor: bgcolor_20[2],
+            // borderColor: bgcolor_100[2],
+            // borderWidth: 1,
+            data: chartData1.value,
+            parsing: {
+                yAxisKey: 'data.c3_i'
+            },
+            stacked: true,
+            stack: 'Stack 1',
           },
-          stacked: true,
-          stack: 'Stack 2',
-        },
-        {
-          type: 'line',
-          label: '外校合計',
-          // backgroundColor: bgcolor_20[3],
-          borderColor: bgcolor_100[3],
-          borderDash: [2, 2],
-          borderWidth: 3,
-          data: chartData1.value,
-          parsing: {
-              yAxisKey: 'data.total_o'
+          {
+            label: '車載光達',
+            backgroundColor: bgcolor_60[3],
+            // borderColor: bgcolor_100[2],
+            // borderWidth: 1,
+            data: chartData1.value,
+            parsing: {
+                yAxisKey: 'data.c9_o'
+            },
+            stacked: true,
+            stack: 'Stack 1',
           },
-          stacked: false,
-          hidden: true,
-          stepped: 'middle',
-          radius: 0,
-        },
-        {
-          type: 'line',
-          label: '內校合計',
-          // backgroundColor: bgcolor_20[4],
-          borderColor: bgcolor_100[4],
-          borderDash: [2, 2],
-          borderWidth: 3,
-          data: chartData1.value,
-          parsing: {
-              yAxisKey: 'data.total_i'
+          {
+            label: '車載光達(內)',
+            backgroundColor: bgcolor_20[3],
+            // borderColor: bgcolor_100[2],
+            // borderWidth: 1,
+            data: chartData1.value,
+            parsing: {
+                yAxisKey: 'data.c9_i'
+            },
+            stacked: true,
+            stack: 'Stack 1',
           },
-          stacked: false,
-          hidden: true,
-          stepped: 'middle',
-          radius: 0,
-        },
-        {
-          type: 'line',
-          label: '總計',
-          // backgroundColor: bgcolor_20[5],
-          borderColor: '#ff6090',
-          borderDash: [10, 6],
-          borderWidth: 5,
-          data: chartData1.value,
-          parsing: {
-              yAxisKey: 'data.total'
-          },
-          stacked: false,
-          stepped: 'middle',
-          radius: 0,
-        },
-      ]
-    },
-    options: {
-      responsive: true,
-      interaction: {
-        intersect: false,
-        mode: 'x',
+          // {
+          //   type: 'line',
+          //   label: '外校合計',
+          //   // backgroundColor: bgcolor_20[3],
+          //   borderColor: bgcolor_100[3],
+          //   borderDash: [2, 2],
+          //   borderWidth: 3,
+          //   data: chartData1.value,
+          //   parsing: {
+          //       yAxisKey: 'data.total_o'
+          //   },
+          //   stacked: false,
+          //   hidden: true,
+          //   stepped: 'middle',
+          //   radius: 0,
+          // },
+          // {
+          //   type: 'line',
+          //   label: '內校合計',
+          //   // backgroundColor: bgcolor_20[4],
+          //   borderColor: bgcolor_100[4],
+          //   borderDash: [2, 2],
+          //   borderWidth: 3,
+          //   data: chartData1.value,
+          //   parsing: {
+          //       yAxisKey: 'data.total_i'
+          //   },
+          //   stacked: false,
+          //   hidden: true,
+          //   stepped: 'middle',
+          //   radius: 0,
+          // },
+          
+        ]
       },
-      parsing: {
-        xAxisKey: 'name',
-      },
-      scales: {
-        x: {
-          stacked: true,
+      options: {
+        responsive: true,
+        interaction: {
+          intersect: false,
+          mode: 'index',
         },
-        y: {
+        parsing: {
+          xAxisKey: 'name',
+        },
+        scales: {
+          x: {
+            stacked: true,
+          },
+          y: {
+            title: {
+              display: true,
+              text: '案件數'
+            },
+            ticks: {
+              // forces step size to be 50 units
+              stepSize: 1
+            },
+            beginAtZero: true,
+            suggestedMax: 5
+          }
+        },
+        plugins: {
           title: {
             display: true,
-            text: '案件數'
+            text: '各人員年度案件數',
           },
-          ticks: {
-            // forces step size to be 50 units
-            stepSize: 1
+          legend: {
+            display: false,
+            position: 'right',
           },
-          beginAtZero: true,
-          suggestedMax: 5
+          tooltip:{
+            callbacks: {
+              footer: function(context) {
+                // console.log(context);
+                let total = 0 ;
+                for (let i=0;i<context.length;i++){
+                  total = total + context[i].parsed.y;
+                }
+                return '合計:' + total;
+              },
+              label: function(context) {
+                // console.log(context)
+                return (context.parsed.y===0)?'':(context.dataset.label + ':' + context.parsed.y);
+              },
+            }
+          },
         }
-      },
-      plugins: {
-        title: {
-          display: true,
-          text: '各人員年度案件數',
-        },
-        legend: {
-          position: 'right',
-        },
       }
-    }
+    });
   });
-});
-getCasebyOpronError(e=>{errorHandle(e,infomsg,alert1)});
+  getCasebyOpronError(e=>{errorHandle(e,infomsg,alert1)});
 
-function changeChart1Year(e){
-  getCasebyOpr({
-    year: (parseInt(selYear.value) && parseInt(selYear.value)!==-1)?parseInt(selYear.value)+1911:null,
-    calNum: 3
-  })
-}
+  function changeChart1Year(e){
+    getCasebyOpr({
+      year: (parseInt(selYear.value) && parseInt(selYear.value)!==-1)?parseInt(selYear.value)+1911:new Date().getFullYear(),
+      calNum: 3
+    })
+  }
 
-//#endregion Chart1==========End
+  //#endregion Chart1==========End
 
 //#region Chart2==========Start
 const ctx2 = ref();
@@ -398,118 +480,18 @@ const chartData2 = ref([]);
 const { mutate: getCasebyMounth, onDone: getCasebyMounthOnDone, onError: getCasebyMounthonError } = useMutation(ToolsGQL.STATCASEBYMOUNTH);
 getCasebyMounthOnDone(result=>{
   chartData2.value = result.data.statCaseByMounth;
-  // console.log(chartData2.value);
+  console.log(chartData2.value);
   if(myChart2.value) myChart2.value.destroy();
-
   ctx2.value = document.getElementById('myChart2').getContext('2d');
   myChart2.value = new Chart(ctx2.value, {
     type: 'bar',
     data: {
       datasets: [
         {
-          label: 'F(外校)',
-          backgroundColor: bgcolor_100[0],
-          borderSkipped: false,
-          data: chartData2.value,
-          parsing: {
-              yAxisKey: 'c1o'
-          },
-          stacked: true,
-          stack: 'Stack 1',
-        },
-        {
-          label: 'F(內校)',
-          backgroundColor: bgcolor_60[0],
-          borderSkipped: false,
-          data: chartData2.value,
-          parsing: {
-              yAxisKey: 'c1i'
-          },
-          stacked: true,
-          stack: 'Stack 1',
-        },
-        {
-          label: 'F(未完成)',
-          backgroundColor: bgcolor_20[0],
-          borderSkipped: false,
-          data: chartData2.value,
-          parsing: {
-              yAxisKey: 'c1x'
-          },
-          stacked: true,
-          stack: 'Stack 1',
-        },
-        {
-          label: 'I(外校)',
-          backgroundColor: bgcolor_100[1],
-          borderSkipped: false,
-          data: chartData2.value,
-          parsing: {
-              yAxisKey: 'c2o'
-          },
-          stacked: true,
-          stack: 'Stack 2',
-        },
-        {
-          label: 'I(內校)',
-          backgroundColor: bgcolor_60[1],
-          borderSkipped: false,
-          data: chartData2.value,
-          parsing: {
-              yAxisKey: 'c2i'
-          },
-          stacked: true,
-          stack: 'Stack 2',
-        },
-        {
-          label: 'I(未完成)',
-          backgroundColor: bgcolor_20[1],
-          borderSkipped: false,
-          data: chartData2.value,
-          parsing: {
-              yAxisKey: 'c2x'
-          },
-          stacked: true,
-          stack: 'Stack 2',
-        },
-        {
-          label: 'J(外校)',
-          backgroundColor: bgcolor_100[2],
-          borderSkipped: false,
-          data: chartData2.value,
-          parsing: {
-              yAxisKey: 'c3o'
-          },
-          stacked: true,
-          stack: 'Stack 3',
-        },
-        {
-          label: 'J(內校)',
-          backgroundColor: bgcolor_60[2],
-          borderSkipped: false,
-          data: chartData2.value,
-          parsing: {
-              yAxisKey: 'c3i'
-          },
-          stacked: true,
-          stack: 'Stack 3',
-        },
-        {
-          label: 'J(未完成)',
-          backgroundColor: bgcolor_20[2],
-          borderSkipped: false,
-          data: chartData2.value,
-          parsing: {
-              yAxisKey: 'c3x'
-          },
-          stacked: true,
-          stack: 'Stack 3',
-        },
-        {
           type: 'line',
-          label: '累計(外校)',
-          backgroundColor: bgcolor_20[3],
-          borderColor: bgcolor_100[3],
+          label: '累計',
+          backgroundColor: bgcolor_20[5],
+          borderColor: bgcolor_100[5],
           borderWidth: 1,
           data: chartData2.value,
           parsing: {
@@ -520,24 +502,161 @@ getCasebyMounthOnDone(result=>{
         },
         {
           type: 'line',
-          label: '累計(內校)',
+          label: '當月',
           backgroundColor: bgcolor_20[4],
           borderColor: bgcolor_100[4],
-          borderWidth: 1,
+          borderDash: [6, 2],
+          borderWidth: 2,
           data: chartData2.value,
           parsing: {
-              yAxisKey: 'Stotali'
+              yAxisKey: 'total'
           },
           stacked: false,
-          tension: 0.4
+          stepped: 'middle',
+          radius: 0,
         },
+        {
+          label: '航測像機',
+          backgroundColor: bgcolor_100[0],
+          borderSkipped: false,
+          data: chartData2.value,
+          parsing: {
+              yAxisKey: 'c1o'
+          },
+          stacked: true,
+          stack: 'Stack 1',
+        },
+        {
+          label: '空載光達',
+          backgroundColor: bgcolor_100[1],
+          borderSkipped: false,
+          data: chartData2.value,
+          parsing: {
+              yAxisKey: 'c2o'
+          },
+          stacked: true,
+          stack: 'Stack 1',
+        },
+        {
+          label: '小像幅',
+          backgroundColor: bgcolor_100[2],
+          borderSkipped: false,
+          data: chartData2.value,
+          parsing: {
+              yAxisKey: 'c3o'
+          },
+          stacked: true,
+          stack: 'Stack 1',
+        },
+        {
+          label: '車載光達',
+          backgroundColor: bgcolor_100[3],
+          borderSkipped: false,
+          data: chartData2.value,
+          parsing: {
+              yAxisKey: 'c9o'
+          },
+          stacked: true,
+          stack: 'Stack 1',
+        },
+        {
+          label: '航測像機(未完成)',
+          backgroundColor: bgcolor_20[0],
+          borderSkipped: false,
+          data: chartData2.value,
+          parsing: {
+              yAxisKey: 'c1x'
+          },
+          stacked: true,
+          stack: 'Stack 2',
+        },
+        {
+          label: '空載光達(未完成)',
+          backgroundColor: bgcolor_20[1],
+          borderSkipped: false,
+          data: chartData2.value,
+          parsing: {
+              yAxisKey: 'c2x'
+          },
+          stacked: true,
+          stack: 'Stack 2',
+        },
+        {
+          label: '小像幅(未完成)',
+          backgroundColor: bgcolor_20[2],
+          borderSkipped: false,
+          data: chartData2.value,
+          parsing: {
+              yAxisKey: 'c3x'
+          },
+          stacked: true,
+          stack: 'Stack 2',
+        },
+        {
+          label: '車載光達(未完成)',
+          backgroundColor: bgcolor_20[3],
+          borderSkipped: false,
+          data: chartData2.value,
+          parsing: {
+              yAxisKey: 'c9x'
+          },
+          stacked: true,
+          stack: 'Stack 2',
+        },
+        // {
+        //   label: 'F(內校)',
+        //   backgroundColor: bgcolor_60[0],
+        //   borderSkipped: false,
+        //   data: chartData2.value,
+        //   parsing: {
+        //       yAxisKey: 'c1i'
+        //   },
+        //   stacked: true,
+        //   stack: 'Stack 1',
+        // },
+        // {
+        //   label: 'I(內校)',
+        //   backgroundColor: bgcolor_60[1],
+        //   borderSkipped: false,
+        //   data: chartData2.value,
+        //   parsing: {
+        //       yAxisKey: 'c2i'
+        //   },
+        //   stacked: true,
+        //   stack: 'Stack 2',
+        // },
+        // {
+        //   label: 'J(內校)',
+        //   backgroundColor: bgcolor_60[2],
+        //   borderSkipped: false,
+        //   data: chartData2.value,
+        //   parsing: {
+        //       yAxisKey: 'c3i'
+        //   },
+        //   stacked: true,
+        //   stack: 'Stack 3',
+        // },
+        
+        // {
+        //   type: 'line',
+        //   label: '累計(內校)',
+        //   backgroundColor: bgcolor_20[4],
+        //   borderColor: bgcolor_100[4],
+        //   borderWidth: 1,
+        //   data: chartData2.value,
+        //   parsing: {
+        //       yAxisKey: 'Stotali'
+        //   },
+        //   stacked: false,
+        //   tension: 0.4
+        // },
       ]
     },
     options: {
       responsive: true,
       interaction: {
         intersect: false,
-        mode: 'x',
+        mode: 'index',
       },
       parsing: {
         xAxisKey: 'id',
@@ -568,6 +687,7 @@ getCasebyMounthOnDone(result=>{
           text: '年度每月案件數',
         },
         legend: {
+          display: false,
           position: 'right',
           labels: {
             usePointStyle: true,
@@ -575,6 +695,24 @@ getCasebyMounthOnDone(result=>{
             font:{
               size: 10,
               lineHeight: 1
+            },
+          }
+        },
+        tooltip:{
+          callbacks: {
+            title: function(context) {
+              // console.log(context);
+              return context[0].label + '月'
+            },
+            label: function(context) {
+              // console.log(context)
+              let labelstr = '';
+              if(context.dataset.label==='累計' || context.dataset.label==='當月'){
+                labelstr = (context.parsed.y && context.parsed.y!==0)?(context.dataset.label + ':' + context.parsed.y):(context.dataset.label + ':0');
+              }else{
+                labelstr = (context.parsed.y && context.parsed.y!==0)?(context.dataset.label + ':' + context.parsed.y):'';
+              }
+              return labelstr;
             },
           }
         },
@@ -586,11 +724,16 @@ getCasebyMounthOnDone(result=>{
 getCasebyMounthonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function changeChart2Year(e){
-  getCasebyMounth({
-    year:(parseInt(selYear2.value) && parseInt(selYear2.value)!==-1)?parseInt(selYear2.value)+1911:new Date().getFullYear,
-    calNum: 3,
-    method:(selDmethod.value && selDmethod.value!==-1)?selDmethod.value:'app_date',
-  })
+  // console.log('changeChart2Year');
+  // console.log('year',selYear2.value);
+  // console.log('selDmethod',selDmethod.value);
+  if(selYear2.value!==-1){
+    getCasebyMounth({
+      year:((selYear2.value) && parseInt(selYear2.value)!==-1)?parseInt(selYear2.value)+1911:new Date().getFullYear(),
+      calNum: 3,
+      method:(selDmethod.value && selDmethod.value!==-1)?selDmethod.value:'receive_date',
+    })
+  }
 }
 
 //#endregion Chart2==========End
@@ -604,15 +747,15 @@ const { mutate: getCaseTypebyYear, onDone: getCaseTypebyYearOnDone, onError: get
 getCaseTypebyYearOnDone(result=>{
   // console.log('2-getCasebyOprOnDone')
   chartData3.value = result.data.statCaseTypeByYear;
-  // console.log(chartData3.value);
-  let calName = ['航測像機','空載光達','小像幅']
+  // console.log('chartData3',chartData3.value);
+  let calName = ['航測像機','空載光達','小像幅','車載光達']
   const data = {
     labels: calName,
     datasets: [
       {
         label: '外校',
         data: chartData3.value.map(x=>{return x.count_o}),
-        backgroundColor: bgcolor_100.slice(0,3),
+        backgroundColor: bgcolor_100.slice(0,4),
         hoverOffset: 4,
         tooltip: {
           callbacks: {
@@ -640,7 +783,7 @@ getCaseTypebyYearOnDone(result=>{
       {
         label: '內校',
         data: chartData3.value.map(x=>{return x.count_i}),
-        backgroundColor: bgcolor_20.slice(0,3),
+        backgroundColor: bgcolor_20.slice(0,4),
         hoverOffset: 4,
         tooltip: {
           callbacks: {
@@ -655,7 +798,8 @@ getCaseTypebyYearOnDone(result=>{
             size: 12
           },
           formatter: function(value, context) {
-            return '';
+            return (value>0)?context.chart.data.labels[context.dataIndex]+'(內): '+value:'';
+            // return '';
           }
         }
       },
@@ -694,8 +838,7 @@ getCaseTypebyYearonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function changeChart3Year(e){
   getCaseTypebyYear({
-    year: (parseInt(selYear3.value) && parseInt(selYear3.value)!==-1)?parseInt(selYear3.value)+1911:null,
-    calNum: 3
+    year: (parseInt(selYear3.value) && parseInt(selYear3.value)!==-1)?parseInt(selYear3.value)+1911:new Date().getFullYear()
   })
 }
 //#endregion Chart3==========End
@@ -779,7 +922,7 @@ getCaseStatusbyYearonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function changeChart4Year(e){
   getCaseStatusbyYear({
-    year: (parseInt(selYear4.value) && parseInt(selYear4.value)!==-1)?parseInt(selYear4.value)+1911:null,
+    year: (parseInt(selYear4.value) && parseInt(selYear4.value)!==-1)?parseInt(selYear4.value)+1911:new Date().getFullYear(),
   })
 }
 //#endregion Chart4==========End
@@ -845,6 +988,18 @@ getMoneybyMounthOnDone(result=>{
         stacked: true,
         stack: 'Stack 0',
       },
+      {
+        label: '空載光達',
+        backgroundColor: bgcolor_20[3],
+        borderColor: bgcolor_100[3],
+        borderWidth: 1,
+        data: chartData5.value,
+        parsing: {
+            yAxisKey: 'm9'
+        },
+        stacked: true,
+        stack: 'Stack 0',
+      },
     ]
   };
 
@@ -861,7 +1016,7 @@ getMoneybyMounthOnDone(result=>{
       responsive: true,
       interaction: {
         intersect: false,
-        mode: 'x',
+        mode: 'index',
       },
       parsing: {
         xAxisKey: 'id',
@@ -877,7 +1032,7 @@ getMoneybyMounthOnDone(result=>{
         y: {
           title: {
             display: true,
-            text: '新臺幣'
+            text: '新臺幣(元)'
           },
         },
       },
@@ -887,7 +1042,26 @@ getMoneybyMounthOnDone(result=>{
           text: '年度每月收費統計',
         },
         legend: {
+          display: false,
           position: 'right',
+        },
+        tooltip:{
+          callbacks: {
+            title: function(context) {
+              // console.log(context);
+              return context[0].label + '月'
+            },
+            label: function(context) {
+              // console.log(context)
+              let labelstr = '';
+              if(context.dataset.label==='累計收費'){
+                labelstr = (context.parsed.y && context.parsed.y!==0)?(context.dataset.label + ':' + context.formattedValue + '元'):(context.dataset.label + ':0元');
+              }else{
+                labelstr = (context.parsed.y && context.parsed.y!==0)?(context.dataset.label + ':' + context.formattedValue + '元'):'';
+              }
+              return labelstr;
+            },
+          }
         },
       }
     }
@@ -898,7 +1072,6 @@ getMoneybyMounthonError(e=>{errorHandle(e,infomsg,alert1)});
 function changeChart5Year(e){
   getMoneybyMounth({
     year:(parseInt(selYear5.value) && parseInt(selYear5.value)!==-1)?parseInt(selYear5.value)+1911:new Date().getFullYear(),
-    calNum: 3,
     method:'pay_date',
   })
 }
@@ -937,6 +1110,13 @@ getTablebyMounthOnDone(result=>{
   jc_total_i.value = getData.Jc[3];
   jc_per_i.value = getData.Jc[4];
   jc_now_i.value = getData.Jc[5];
+
+  Mc_total.value = getData.Mc[0]; 
+  Mc_per.value = getData.Mc[1];
+  Mc_now.value = getData.Mc[2];
+  Mc_total_i.value = getData.Mc[3];
+  Mc_per_i.value = getData.Mc[4];
+  Mc_now_i.value = getData.Mc[5];
 
   money_total.value = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(getData.money[0]);
   money_per.value = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(getData.money[1]);
@@ -992,7 +1172,6 @@ const bgcolorList2 = [
 ];
 
 onMounted(()=>{ 
-  
   // console.log('0-onMounted');
   // 確認登入狀況
   getchecktoken().then(res=>{
@@ -1002,9 +1181,9 @@ onMounted(()=>{
       // 圖表1
       selYearDOM.value.setValue(latestYear);
       // 圖表2
-      selDmethod.value = "app_date";
+      selDmethod.value = "receive_date";
       selYearDOM2.value.setValue(latestYear);
-      // selDmethodDOM.value.setValue(selDmethod.value);
+      selDmethodDOM.value.setValue("receive_date");
       // 圖表3
       selYearDOM3.value.setValue(latestYear);
       // 圖表4
@@ -1286,6 +1465,12 @@ function zoomCart(Index){
                           <td class="px-2 bl_r bl_b f_right">{{jc_total_str}}</td>
                           <td class="px-2 bl_r bl_b f_right">{{jc_per_str}}</td>
                           <td class="px-2 bl_r bl_b f_right">{{jc_now_str}}</td>
+                        </tr>
+                        <tr class="f_01">
+                          <td class="ps-2 bl_l bl_r bl_b">車載光達</td>
+                          <td class="px-2 bl_r bl_b f_right">{{Mc_total_str}}</td>
+                          <td class="px-2 bl_r bl_b f_right">{{Mc_per_str}}</td>
+                          <td class="px-2 bl_r bl_b f_right">{{Mc_now_str}}</td>
                         </tr>
                         <tr class="f_01">
                           <td class="ps-2 bl_l bl_r bl_b">營運收入</td>

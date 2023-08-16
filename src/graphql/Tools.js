@@ -15,8 +15,8 @@ const UPLOADFILE = gql`
 `;
 
 const STATCASEBYOPR = gql`
-mutation StatCaseByOpr($year: Int!, $calNum: Int!) {
-  statCaseByOpr(year: $year, calNum: $calNum)
+mutation StatCaseByOpr($year: Int!) {
+  statCaseByOpr(year: $year)
 }
 `;
 const STATCASEMINMAXYEAR = gql`
@@ -26,14 +26,14 @@ mutation StatCaseMinMaxYear {
 `;
 
 const STATCASEBYMOUNTH = gql`
-mutation StatCaseByMounth($year: Int!, $calNum: Int!, $method: String) {
-  statCaseByMounth(year: $year, calNum: $calNum, method: $method)
+mutation StatCaseByMounth($year: Int!, $method: String) {
+  statCaseByMounth(year: $year, method: $method)
 }
 `;
 
 const STATCASETYPEBYYEAR = gql`
-  mutation StatCaseTypeByYear($year: Int!, $calNum: Int!) {
-    statCaseTypeByYear(year: $year, calNum: $calNum)
+  mutation StatCaseTypeByYear($year: Int!) {
+    statCaseTypeByYear(year: $year)
   }
 `;
 
