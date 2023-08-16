@@ -242,7 +242,7 @@ const selDmethodDOM = ref();
   getCasebyOprOnDone(result=>{
     // console.log('2-getCasebyOprOnDone')
     chartData1.value = result.data.statCaseByOpr;
-    console.log(chartData1.value);
+    // console.log(chartData1.value);
     // console.log('3-OnDone res:',chartData1.value);
     // 清除Chart1圖表
     if(myChart1.value) myChart1.value.destroy();
