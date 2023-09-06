@@ -1842,7 +1842,7 @@ onMounted(function () {
                                   <MDBCol col="4" class="px-0 mt-3">
                                     <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('empowerAprvUpload')">
                                       上傳</MDBBtn>
-                                    <MDBBtn tag="a" :href="nowEmpowerAprvUploadDL" download size="sm" color="secondary">下載
+                                    <MDBBtn tag="a" target=_blank :href="nowEmpowerAprvUploadDL" download size="sm" color="secondary">下載
                                     </MDBBtn>
                                   </MDBCol>
                                   <MDBCol md="12" class="my-3">
