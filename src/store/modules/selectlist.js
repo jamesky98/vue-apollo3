@@ -12,6 +12,8 @@ provideApolloClient(apolloClient);
 const { mutate: refgetCaseStatus } = useMutation(CaseGQL.GETCASESTATUS);
 // 校正項目
 const { mutate: refgetCaseCalType } = useMutation(CaseGQL.GETCASECALTYPE);
+const rsCalType = [1,2,3,9]; // 航遙測校正項目代碼
+
 // 顧客機關名稱
 const { mutate: refgetCaseAllOrg } = useMutation(CaseGQL.GETALLORG);
 // 校正件類型
@@ -72,7 +74,9 @@ const state = () => ({
     {text: "基準量測", value: "基準量測"},
   ],
   caseStatusList: [],
-  caseCalTypeList: [],
+  caseCalTypeList: [], // 所有校正項目
+  caseCalTypeList2: [], // 僅航遙測的校正項目
+  caseCalTypeList3: [], // 僅航遙測的校正項目(適用不確定度模組)
   caseOrgDate: [],
   caseOrgList: [],
   caseItemTypeList: [],
@@ -97,6 +101,7 @@ const actions = {
       commit('writeStatusList', tempMU);
     });
   },
+  // 校正項目
   async fetchCalTypeList ({ commit, state }, payload) {
     // console.log('fetchCalTypeList')
     refgetCaseCalType().then(res=>{
@@ -105,6 +110,20 @@ const actions = {
       }); 
       tempMU.unshift({ text: "", value: "", code: "" });
       commit('writeCalTypeList', tempMU);
+
+      let tempMU2 = [];
+      let tempMU3 = [];
+      res.data.getCaseCalType.forEach(x => {
+        // let rsCalType = [1,2,3,9];
+        if(rsCalType.includes(parseInt(x.id))) {
+          tempMU2.push({ text: x.name, value: parseInt(x.id), code: x.code });
+          tempMU3.push({ text: x.code, secondaryText: x.name, value: x.code });
+        }
+      }); 
+      tempMU2.unshift({ text: "", value: "", code: "" });
+      tempMU3.unshift({ text: "", value: "" });
+      commit('writeCalTypeList2', tempMU2);
+      commit('writeCalTypeList3', tempMU3);
     });
   },
   async fetchOrgList ({ commit, state }, payload) {
@@ -218,6 +237,14 @@ const mutations = {
   // 校正項目清單
   writeCalTypeList(state, calTypeList){
     state.caseCalTypeList = [...calTypeList];
+  },
+  // 僅航遙測校正項目清單
+  writeCalTypeList2(state, calTypeList2){
+    state.caseCalTypeList2 = [...calTypeList2];
+  },
+  // 僅航遙測校正項目清單(不確定度模組用)
+  writeCalTypeList3(state, calTypeList3){
+    state.caseCalTypeList3 = [...calTypeList3];
   },
   // 顧客機關清單
   writeOrgData(state, orgData){

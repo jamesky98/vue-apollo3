@@ -14,6 +14,7 @@ import {
   MDBBtn,
   MDBAlert,
 } from 'mdb-vue-ui-kit';
+import { useStore } from 'vuex'
 import CaseGQL from "../graphql/Cases";
 import jStat from "jstat";
 
@@ -76,6 +77,7 @@ const infomsg = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
 const updateKey = ref(0);
+const store = useStore();
 
 const nowUcModuleName = ref(""); // 模組名稱
 const selectUcModuleName = ref(""); // 模組列表
@@ -83,7 +85,7 @@ const nowUcModuleNameMU = ref([]);
 const nowUcModuleNameDOM = ref();
 
 const selectUcCalType = ref(""); // 校正項目列表
-const nowUcCalTypeMU = ref([]);
+const nowUcCalTypeMU = computed(() => store.state.selectlist.caseCalTypeList3);
 const nowUcCalTypeDOM = ref();
 
 const selectUcParmType = ref(""); // 規格型態
@@ -299,20 +301,20 @@ const tboption5 = {
 //#endregion 參數==========End
 
 // 查詢校正項目列表
-const { 
-  onDone: getCaseCalTypeonDone, 
-  mutate: refgetCaseCalType, 
-  onError: getCaseCalTypeonError } = useMutation(CaseGQL.GETCASECALTYPE);
-getCaseCalTypeonDone(result => {
-  // 加入校正項目選單資料
-  if (!result.loading) {
-    // 篩選區
-    nowUcCalTypeMU.value = result.data.getCaseCalType.map(x => {
-      return { text: x.code,secondaryText: x.name, value: x.code }
-    }); nowUcCalTypeMU.value.unshift({ text: "", value: "" });
-  }
-});
-getCaseCalTypeonError(e=>{errorHandle(e,infomsg,alert1)});
+// const { 
+//   onDone: getCaseCalTypeonDone, 
+//   mutate: refgetCaseCalType, 
+//   onError: getCaseCalTypeonError } = useMutation(CaseGQL.GETCASECALTYPE);
+// getCaseCalTypeonDone(result => {
+//   // 加入校正項目選單資料
+//   if (!result.loading) {
+//     // 篩選區
+//     nowUcCalTypeMU.value = result.data.getCaseCalType.map(x => {
+//       return { text: x.code,secondaryText: x.name, value: x.code }
+//     }); nowUcCalTypeMU.value.unshift({ text: "", value: "" });
+//   }
+// });
+// getCaseCalTypeonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 取得不確定度列表
 const {
@@ -640,8 +642,8 @@ testUcError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 確認登入狀況
 getchecktoken().then(res=>{
-  refgetCaseCalType();
-
+  // refgetCaseCalType();
+  store.dispatch('selectlist/fetchCalTypeList');
   return 
 }).catch(e=>{
   errorHandle(e,infomsg,alert1);

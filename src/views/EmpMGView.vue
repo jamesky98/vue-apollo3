@@ -1850,10 +1850,6 @@ onMounted(function () {
                                   </MDBCol>
                                 </MDBRow>
                               </MDBCol>
-
-
-                              
-                              
                             </MDBRow>
                           </MDBCol>
                         </MDBRow>

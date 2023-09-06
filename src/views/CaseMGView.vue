@@ -230,7 +230,7 @@ provide("rGroup", rGroup);
     const nowCaseAppDate = ref("");
     //#region 校正項目
       const caseCalType = ref(); // 校正項目
-      const caseCalTypeList = computed(() => store.state.selectlist.caseCalTypeList);
+      const caseCalTypeList = computed(() => store.state.selectlist.caseCalTypeList2);
       // 資料區
       const nowCaseTypeName = ref("");
       const nowCaseTypeId = ref("");

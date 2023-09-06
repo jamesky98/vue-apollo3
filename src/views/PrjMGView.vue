@@ -101,7 +101,7 @@ const publicPath = computed(() => store.state.selectlist.publicPath);
 const nowPrjId = ref("");
 const nowPrjCode = ref("");
 const nowPrjCalTypeId = ref("");
-const nowPrjCalTypeMU = computed(() => store.state.selectlist.caseCalTypeList);
+const nowPrjCalTypeMU = computed(() => store.state.selectlist.caseCalTypeList2);
 const nowPrjCalTypeDOM = ref();
 
 const nowPrjMethod = ref("");
