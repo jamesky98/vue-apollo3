@@ -707,7 +707,7 @@ function gotoItemMG() {
   router.push("/cust");
 }
 
-// 案加入後回填校正件id
+// 按加入後回填校正件id
 function setItemBtn() {
   nowCaseItemID.value = seletItemId.value;
   nowCaseItemChop.value = selItemChop.value;

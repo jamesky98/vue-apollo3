@@ -1031,7 +1031,7 @@ const saveCaseSVar = computed(()=>{
     title: nowCaseTitle.value,
     address: nowCaseAddress.value,
     purpose: nowCasePurpose.value,
-    itemId: (nowCaseItemID.value === "") ? null : parseInt(nowCaseItemID.value),
+    itemId: (parseInt(nowCaseItemID.value)) ? parseInt(nowCaseItemID.value):null,
     charge: parseInt(nowCaseCharge.value),
     payDate: (nowCasePayDate.value.trim() === "") ? null : (nowCasePayDate.value.trim() + "T00:00:00.000Z"),
     agreement: nowCaseAgreement.value,
@@ -1066,19 +1066,22 @@ function saveNowCaseData() {
       case 3:
         // 小像幅
         // mutation case_base+record01
-        saveCaseS(saveCaseSVar.value);
-        subFormRecord01.value.saveRecord01();
+        saveCaseS(saveCaseSVar.value).then(res=>{
+          return subFormRecord01.value.saveRecord01();
+        });
         break;
       case 2:
         // 空載光達
         // mutation case_base+record02
-        saveCaseS(saveCaseSVar.value);
-        subFormRecord02.value.saveRecord02();
+        saveCaseS(saveCaseSVar.value).then(res=>{
+          return subFormRecord02.value.saveRecord02();
+        });
         break;
       case 9:
         // 車載光達
-        saveCaseS(saveCaseSVar.value);
-        subFormRecord03.value.saveRecord03();
+        saveCaseS(saveCaseSVar.value).then(res=>{
+          subFormRecord03.value.saveRecord03();
+        });
         break;
     }
   } else {
@@ -1216,18 +1219,25 @@ function AddCaseOK() {
   // 新增Case_base
   // 依據校正項目同步新增record_01或record_02※解析器已經同步新增
   if (addCaseTypeIdSEL.value !== "") {
-    addCase().then(result => {
-      // let getResultData = result.data.creatCase;
-      // // 填入基本資料
-      // nowCaseID.value = getResultData.id;
-      // 更新列表==重新查詢案件
-      updateAllCaseList();
-      refgetNowCaseS({getCasebyIdId: nowCaseID.value});
-      showCaseNew.value = false;
-      // 更新狀態訊息
-      infomsg.value = "ID:" + nowCaseID.value + "完成新增";
-      // alertColor.value = "primary";
-      // alert1.value = true;
+    // 查詢該編號是否已存在
+    refgetNowCaseS({getCasebyIdId: addCaseID.value}).then(res=>{
+      if(res.data.getCasebyID){
+        infomsg.value = "ID:" + addCaseID.value + "編號重複";
+      }else{
+        addCase().then(result => {
+          // let getResultData = result.data.creatCase;
+          // // 填入基本資料
+          // nowCaseID.value = getResultData.id;
+          // 更新列表==重新查詢案件
+          updateAllCaseList();
+          refgetNowCaseS({getCasebyIdId: nowCaseID.value});
+          showCaseNew.value = false;
+          // 更新狀態訊息
+          infomsg.value = "ID:" + nowCaseID.value + "完成新增";
+          // alertColor.value = "primary";
+          // alert1.value = true;
+        });
+      }
     });
   }
 }
