@@ -2413,8 +2413,18 @@ onMounted(function () {
                       <MDBBtn size="sm" color="primary" type="submit">確認</MDBBtn>
                       <MDBBtn size="sm" color="warning" @click="showAPIFrom=true">連線取得</MDBBtn>
                     </div>
-                    <MDBCol col="6" class="mb-4">
-                      <MDBInput required counter :maxlength="12" size="sm" type="number" label="案件編號" v-model="addCaseID" />
+                    <MDBCol col="6" class="mb-3">
+                      <MDBInput 
+                        label="案件編號" 
+                        v-model="addCaseID"
+                        validationEvent="input"
+                        minlength="12"
+                        maxLength="12"
+                        pattern="(((19|20)([2468][048]|[13579][26]|0[48])|2000)0229|((19|20)[0123456789]{2}(0[469]|11)(0[123456789]|[12][0123456789]|30)|(19|20)[0123456789]{2}(0[13578]|1[02])(0[123456789]|[12][0123456789]|3[01])|(19|20)[0123456789]{2}02(0[123456789]|1[0123456789]|2[012345678])))\d{4}"
+                        required
+                        size="sm" 
+                        class="mb-3"
+                      />
                     </MDBCol>
                     <div></div>
                     <MDBCol style="font-size: 0.8rem" class="mx-3 mb-3 p-2 border border-1">
