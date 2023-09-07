@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:lts-slim
 RUN yarn create vite vue-apollo3 --template vue
 COPY vite* /vue-apollo3/
 WORKDIR /vue-apollo3
