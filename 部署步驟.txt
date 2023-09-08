@@ -2,7 +2,7 @@
 latest:
 
 vue41.tar
-apollotest21.tar
+apollotest22.tar
 
 ================
 vue-apollo3:
@@ -32,7 +32,7 @@ apollotest:
 docker compose up
 
 2>>
-docker save -o apollotest21.tar apollotest-apollo
+docker save -o apollotest22.tar apollotest-apollo
 
 3>>
 copu apollotest**.tar to P:\
