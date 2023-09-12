@@ -654,7 +654,7 @@ getEmpowerByIdOnDone(result=>{
   nowEmpowerRoleDOM.value.setValue(nowEmpowerRole.value);
 
   nowEmpowerAssResult.value = getData.assessment_result;
-  nowEmpowerAssID.value = getData.assessor;
+  nowEmpowerAssID.value = (getData.assessor)?getData.assessor:null;
   nowEmpowerAssDOM.value.setValue(nowEmpowerAssID.value);
 
   if(getData.assessment_date){
@@ -663,7 +663,7 @@ getEmpowerByIdOnDone(result=>{
     nowEmpowerAssDate.value = " ";
     // nowEmpowerAssDateDOM.value.inputValue="";
   }
-  nowEmpowerSupID.value = getData.lab_supervisor;
+  nowEmpowerSupID.value = (getData.lab_supervisor)?getData.lab_supervisor:null;
   nowEmpowerSupDOM.value.setValue(nowEmpowerSupID.value);
 
   if(getData.empower_date){
@@ -745,10 +745,12 @@ function newEmpowerBtn(){
   nowEmpowerRole.value = "";
   nowEmpowerRoleDOM.value.setValue("");
   nowEmpowerAssResult.value = "";
-  nowEmpowerAssID.value = "";
+  nowEmpowerAssID.value = null;
   nowEmpowerAssDate.value = " ";
-  // nowEmpowerAssDateDOM.value.inputValue = "";
-  nowEmpowerSupID.value = "";
+  nowEmpowerAssDOM.value.setValue(nowEmpowerAssID.value);
+  nowEmpowerSupID.value = null;
+  nowEmpowerSupDOM.value.setValue(nowEmpowerSupID.value);
+
   nowEmpowerDate.value = " ";
   // nowEmpowerDateDOM.value.inputValue = "";
   nowEmpowerSusDate.value = " ";
@@ -782,7 +784,13 @@ const {
 newEmpowerOnDone(result=>{
   nowEmpowerID.value = result.data.createEmpower.empower_id;
   infomsg.value = "序號：" + nowEmpowerID.value + " 儲存完成"
-  getEmpower();
+  getEmpower().then(res=>{
+    // 更新授權人員下拉式選單
+    return getSupList();
+  }).then(res=>{
+    // 更新評估人員下拉式選單
+    return getAssList();
+  });
 });
 newEmpowerError(e=>{errorHandle(e,infomsg,alert1);});
 
@@ -810,7 +818,13 @@ const {
 saveEmpowerOnDone(result=>{
   nowEmpowerID.value = result.data.updateEmpower.empower_id;
   infomsg.value = "序號：" + nowEmpowerID.value + " 儲存完成"
-  getEmpower();
+  getEmpower().then(res=>{
+    // 更新授權人員下拉式選單
+    return getSupList();
+  }).then(res=>{
+    // 更新評估人員下拉式選單
+    return getAssList();
+  });
 });
 saveEmpowerError(e=>{errorHandle(e,infomsg,alert1);});
 

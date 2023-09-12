@@ -15,7 +15,10 @@ import { MDBCard,
 } from 'mdb-vue-ui-kit';
 import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
 
+
+
 // 傳遞參數
+const version = ref(import.meta.env.VITE_VERSION);
 const user_name = ref('');
 const user_password = ref('');
 const token = ref('');
@@ -82,7 +85,7 @@ loginError(e => {
               <MDBCol lg="6">
                 <MDBCardBody class="p-md-5 mx-md-4">
                   <div class="text-center">
-                    <img src="/LOGO01.png" style="width: 185px;" alt="logo">
+                    <a href="https://siclm-nlsc.moi.gov.tw/USER/LogOn" target="_blank"><img src="/LOGO01.png" style="width: 185px;" alt="logo"></a>
                     <h4 class="mt-1 mb-5 pb-1">航遙測校正管理系統</h4>
                   </div>
                   <form @submit.prevent="userlogin()">
@@ -111,7 +114,9 @@ loginError(e => {
 
               <MDBCol lg="6" class="d-flex align-items-center gradient-custom-2">
                 <slogan></slogan>
+                <div style="position:absolute; right: 0.5rem;bottom: 0.5rem; ">{{version}}</div>
               </MDBCol>
+              
 
             </MDBRow>
           </MDBCard>
