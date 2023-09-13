@@ -1,6 +1,7 @@
 <script setup>
 // 航測像機、小像幅像機校正表單
 import SelectItem from "./SelectItem.vue";
+import SelectPrj from "./SelectPrj.vue";
 import { ref, reactive, provide, inject } from "vue";
 import path from "path-browserify";
 import {
@@ -18,7 +19,6 @@ import UsersGQL from "../graphql/Users";
 import ToolsGQL from "../graphql/Tools";
 import CaseGQL from "../graphql/Cases";
 import EmpGQL from "../graphql/Employee";
-import ItemGQL from "../graphql/Item";
 import PrjGQL from "../graphql/Prj";
 import SelectPs from "./SelectPs.vue";
 import SelectUc from "./SelectUc.vue";
@@ -67,6 +67,7 @@ const nowCaseAddress = inject("nowCaseAddress"); //報告地址
 const updateKey = ref(0);
 const isSMCam = ref(true);
 const nowCaseCalType = ref(""); //校正項目
+provide('nowCaseCalType', nowCaseCalType);
 const nowCaseCalTypeCode = ref(""); //校正項目
 const nowCaseCamTypeID = ref(""); // 像機類型
 const nowCaseItemID = inject("nowCaseItemID"); // 校正件索引
@@ -94,7 +95,6 @@ const nowCaseImuModel = ref("");
 provide('nowCaseImuModel', nowCaseImuModel);
 const nowCaseImuSN = ref("");
 provide('nowCaseImuSN', nowCaseImuSN);
-
 
 const nowCaseFocal = ref(""); // 焦距
 const nowCasePPAx = ref(""); // ppa_x
@@ -360,16 +360,19 @@ const showPrjFrom = ref(false);
 const prjTabId = ref("prjFilter");
 
 const seletPrjID = ref("");
+provide("seletPrjID", seletPrjID);
 const seletPrjCode = ref("");
+provide("seletPrjCode", seletPrjCode);
 const seletPrjPublishDate = ref("");
+provide("seletPrjPublishDate", seletPrjPublishDate);
 
-const filterPrjCode = ref("");
+// const filterPrjCode = ref("");
 
-const filterPrjPubDateStart = ref("");
-const filterPrjPubDateStartDOM = ref();
+// const filterPrjPubDateStart = ref("");
+// const filterPrjPubDateStartDOM = ref();
 
-const filterPrjPubDateEnd = ref("");
-const filterPrjPubDateEndDOM = ref();
+// const filterPrjPubDateEnd = ref("");
+// const filterPrjPubDateEndDOM = ref();
 //#endregion 參數==========End
 
 //#region 案件詳細編輯資料==========start
@@ -625,24 +628,36 @@ function showItemFromBtn(x) {
   iType.value = x;
   showItemFrom.value = true;
 }
-// let dtItem;
-// const tableItem = ref();
-// const dataItem = ref([]);
-// // 設定表格tableItem
-// const columnsItem = [
+//#endregion 校正件列表=========end
+
+//#region 參考值列表=========start
+const subSelectPrj = ref();
+function shownPrjModal(){
+  subSelectPrj.value.shownPrjModal();
+}
+// let dtPrj;
+// const tablePrj = ref();
+// const dataPrj = ref([]);
+// // 設定表格tablePrj
+// const columnsPrj = [
 //   { data: "id", title: "編號", defaultContent: "-" },
-//   { data: "chop", title: "廠牌", defaultContent: "-" },
-//   { data: "model", title: "型號", defaultContent: "-" },
-//   { data: "serial_number", title: "序號", defaultContent: "-" },
-//   { data: "item_type.type", title: "儀器類型", defaultContent: "-" },
+//   { data: "project_code", title: "作業編號", defaultContent: "-" },
+//   { data: "cal_type.name", title: "校正項目", defaultContent: "-" },
+//   { data: "publish_date", title: "發布日", defaultContent: "-", render: (data) => { return toTWDate(data); } },
+//   { data: "method", title: "方式", defaultContent: "-" },
+//   { data: "year", title: "作業年", defaultContent: "-" },
+//   { data: "month", title: "月", defaultContent: "-" },
+//   { data: "organizer", title: "作業機關", defaultContent: "-" },
+//   { data: "start_date", title: "開始日", defaultContent: "-", render: (data) => { return toTWDate(data); } },
+//   { data: "end_date", title: "結束日", defaultContent: "-", render: (data) => { return toTWDate(data); } },
 // ];
-// const tboptionItem = {
+// const tboptionPrj = {
 //   dom: "fti",
 //   select: {
 //     style: "single",
 //     info: false,
 //   },
-//   order: [[0, "asc"]],
+//   order: [[1, "desc"]],
 //   scrollY: "22vh",
 //   scrollX: true,
 //   lengthChange: false,
@@ -654,215 +669,70 @@ function showItemFromBtn(x) {
 //   },
 // };
 
-// // 查詢校正件資料
-// const {
-//   mutate: refgetAllItem,
-//   onDone: getAllItemonDone,
-//   onError: getAllItemonError
-// } = useMutation(ItemGQL.GETALLITEM);
-// getAllItemonDone((result) => {
-//   // 加入校正件資料
-//   if (!result.loading && result.data.getAllItem) {
-//     dataItem.value = result.data.getAllItem;
-//   }
-// });
-// getAllItemonError(e=>{errorHandle(e,infomsg,alert1)});
-
-
-// // 查詢選取校正件資料
-// const {
-//   mutate: refgetselItem,
-//   onDone: getselItemonDone,
-//   onError: getselItemonError,
-// } = useMutation(ItemGQL.GETITEMBYID);
-// getselItemonDone((result) => {
-//   if (!result.loading && result && result.data.getItemByID) {
-//     let getData = result.data.getItemByID;
-//     selItemChop.value = getData.chop;
-//     selItemModel.value = getData.model;
-//     selItemSN.value = getData.serial_number;
+// const getPrjCalTypeId = computed(() => {
+//   if (nowCaseCalType.value === '') {
+//     return null
+//   } else if (nowCaseCalType.value === 3) {
+//     return 1
 //   } else {
-//     selItemChop.value = "";
-//     selItemModel.value = "";
-//     selItemSN.value = "";
-//     if (selItemTypeDOM.value) {
-//       selItemTypeDOM.value.setValue("");
-//     }
+//     return nowCaseCalType.value
+//   }
+// })
+// // 查詢量測作業資料
+// const {
+//   mutate: refgetAllPrj,
+//   onDone: getAllPrjonDone,
+//   onError: getAllPrjonError
+// } = useMutation(PrjGQL.GETALLPRJ, () => ({
+//   variables: {
+//     calTypeId: getPrjCalTypeId.value,
+//     method: "量測",
+//   }
+// }));
+// getAllPrjonDone((result) => {
+//   // 加入量測作業資料
+//   if (!result.loading && result.data.getAllPrj) {
+//     dataPrj.value = result.data.getAllPrj;
 //   }
 // });
-// getselItemonError(e=>{errorHandle(e,infomsg,alert1)});
+// getAllPrjonError(e=>{errorHandle(e,infomsg,alert1)});
 
-// // 開啟選擇校正件選單
-// function shownItemModal() {
-//   dtItem = tableItem.value.dt();
-//   dtItem.on("select", function (e, dt, type, indexes) {
+// // 開啟參考值選單
+// function shownPrjModal() {
+//   dtPrj = tablePrj.value.dt();
+//   dtPrj.on("select", function (e, dt, type, indexes) {
 //     let getData = dt.rows(indexes).data()[0];
-//     seletItemId.value = getData.id;
-//     refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
+//     seletPrjID.value = getData.id;
+//     seletPrjCode.value = getData.project_code;
+//     seletPrjPublishDate.value = (getData.publish_date)?getData.publish_date.split("T")[0]:" ";
 //   });
+//   refgetAllPrj();
+// }
+
+// // 更多編輯=>引導至量測作業管理
+// function gotoPrjMG() {
+//   router.push("/prjs");
+// }
+
+// // 清除量測作業篩選條件
+// function clearPrjFilter() {
+//   filterPrjCode.value = "";
+//   filterPrjPubDateStart.value = " ";
+//   filterPrjPubDateEnd.value = " ";
+// }
+
+// // 執行量測作業篩選
+// function doPrjFilter() {
 //   let where = {};
-//   where.type = 1;
-//   refgetAllItem(where);
+//   if (filterPrjCode.value !== "") where.projectCode = filterPrjCode.value;
+//   if (filterPrjPubDateStart.value.trim() !== "")
+//     where.pubdateStart = filterPrjPubDateStart.value;
+//   if (filterPrjPubDateEnd.value.trim() !== "")
+//     where.pubdateEnd = filterPrjPubDateEnd.value;
+
+//   // varAllPrj.value = where;
+//   refgetAllPrj(where);
 // }
-
-// // 儲存校正件資料
-// const {
-//   mutate: saveItem,
-//   onDone: saveItemOnDone,
-//   onError: saveItemError,
-// } = useMutation(ItemGQL.SAVEITEM, () => ({
-//   variables: {
-//     updateItemId: parseInt(seletItemId.value),
-//     chop: selItemChop.value,
-//     model: selItemModel.value,
-//     serialNumber: selItemSN.value,
-//   },
-// }));
-// saveItemOnDone(() => {
-//   refgetAllItem();
-//   refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
-//   // infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
-//   // alert1.value = true;
-// });
-// saveItemError(e=>{errorHandle(e,infomsg,alert1)});
-
-// // 更多編輯=>引導至校正件管理
-// function gotoItemMG() {
-//   router.push("/cust");
-// }
-
-// // 按加入後回填校正件id
-// function setItemBtn() {
-//   nowCaseItemID.value = seletItemId.value;
-//   nowCaseItemChop.value = selItemChop.value;
-//   nowCaseItemModel.value = selItemModel.value;
-//   nowCaseItemSN.value = selItemSN.value;
-
-//   showItemFrom.value = false;
-// }
-//#endregion 校正件列表=========end
-
-//#region 參考值列表=========start
-let dtPrj;
-const tablePrj = ref();
-const dataPrj = ref([]);
-// 設定表格tablePrj
-const columnsPrj = [
-  { data: "id", title: "編號", defaultContent: "-" },
-  { data: "project_code", title: "作業編號", defaultContent: "-" },
-  { data: "cal_type.name", title: "校正項目", defaultContent: "-" },
-  {
-    data: "publish_date",
-    title: "發布日",
-    defaultContent: "-",
-    render: (data) => {
-      return toTWDate(data);
-    },
-  },
-  { data: "method", title: "方式", defaultContent: "-" },
-  { data: "year", title: "作業年", defaultContent: "-" },
-  { data: "month", title: "月", defaultContent: "-" },
-  { data: "organizer", title: "作業機關", defaultContent: "-" },
-  {
-    data: "start_date",
-    title: "開始日",
-    defaultContent: "-",
-    render: (data) => {
-      tableItem
-      return toTWDate(data);
-    },
-  },
-  {
-    data: "end_date",
-    title: "結束日",
-    defaultContent: "-",
-    render: (data) => {
-      return toTWDate(data);
-    },
-  },
-];
-const tboptionPrj = {
-  dom: "fti",
-  select: {
-    style: "single",
-    info: false,
-  },
-  order: [[1, "desc"]],
-  scrollY: "22vh",
-  scrollX: true,
-  lengthChange: false,
-  searching: true,
-  paging: false,
-  responsive: true,
-  language: {
-    info: "共 _TOTAL_ 筆資料",
-  },
-};
-
-const getPrjCalTypeId = computed(() => {
-  if (nowCaseCalType.value === '') {
-    return null
-  } else if (nowCaseCalType.value === 3) {
-    return 1
-  } else {
-    return nowCaseCalType.value
-  }
-})
-// 查詢量測作業資料
-const {
-  mutate: refgetAllPrj,
-  onDone: getAllPrjonDone,
-  onError: getAllPrjonError
-} = useMutation(PrjGQL.GETALLPRJ, () => ({
-  variables: {
-    calTypeId: getPrjCalTypeId.value,
-    method: "量測",
-  }
-}));
-getAllPrjonDone((result) => {
-  // 加入量測作業資料
-  if (!result.loading && result.data.getAllPrj) {
-    dataPrj.value = result.data.getAllPrj;
-  }
-});
-getAllPrjonError(e=>{errorHandle(e,infomsg,alert1)});
-
-// 開啟參考值選單
-function shownPrjModal() {
-  dtPrj = tablePrj.value.dt();
-  dtPrj.on("select", function (e, dt, type, indexes) {
-    let getData = dt.rows(indexes).data()[0];
-    seletPrjID.value = getData.id;
-    seletPrjCode.value = getData.project_code;
-    seletPrjPublishDate.value = (getData.publish_date)?getData.publish_date.split("T")[0]:" ";
-  });
-  refgetAllPrj();
-}
-
-// 更多編輯=>引導至量測作業管理
-function gotoPrjMG() {
-  router.push("/prjs");
-}
-
-// 清除量測作業篩選條件
-function clearPrjFilter() {
-  filterPrjCode.value = "";
-  filterPrjPubDateStart.value = " ";
-  filterPrjPubDateEnd.value = " ";
-}
-
-// 執行量測作業篩選
-function doPrjFilter() {
-  let where = {};
-  if (filterPrjCode.value !== "") where.projectCode = filterPrjCode.value;
-  if (filterPrjPubDateStart.value.trim() !== "")
-    where.pubdateStart = filterPrjPubDateStart.value;
-  if (filterPrjPubDateEnd.value.trim() !== "")
-    where.pubdateEnd = filterPrjPubDateEnd.value;
-
-  // varAllPrj.value = where;
-  refgetAllPrj(where);
-}
 
 // 按加入後回填量測作業id
 function setPrjBtn() {
@@ -1799,74 +1669,7 @@ defineExpose({
         <MDBModalTitle>請選擇參考值量測作業</MDBModalTitle>
       </MDBModalHeader>
       <MDBModalBody>
-        <MDBContainer fluid>
-          <MDBRow>
-            <!-- 量測作業列表 -->
-            <MDBCol col="12">
-              <DataTable :data="dataPrj" :columns="columnsPrj" :options="tboptionPrj" ref="tablePrj"
-                style="font-size: smaller" class="display w-100 compact" />
-            </MDBCol>
-            <!-- 篩選 或 編輯 -->
-            <MDBCol col="12" class="border border-1">
-              <MDBTabs v-model="prjTabId">
-                <MDBTabNav tabsClasses="">
-                  <MDBTabItem tabId="prjFilter" href="prjFilter">條件篩選</MDBTabItem>
-                </MDBTabNav>
-                <MDBTabContent>
-                  <!-- 篩選表單 -->
-                  <MDBTabPane tabId="prjFilter">
-                    <!-- 功能列 -->
-                    <div class="mt-2">
-                      <MDBBtn size="sm" color="primary" @click="doPrjFilter">篩選</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="clearPrjFilter()">清除</MDBBtn>
-                      <MDBBtn size="sm" color="primary" @click="gotoPrjMG">量測作業管理</MDBBtn>
-                    </div>
-                    <!-- 條件欄位 -->
-                    <MDBRow>
-                      <MDBCol col="6" class="mb-2">
-                        目前：{{ seletPrjID }}-{{ seletPrjCode }}
-                      </MDBCol>
-                      <MDBCol col="6" class="mb-2">
-                        <MDBInput size="sm" type="text" label="作業編號" v-model="filterPrjCode" />
-                      </MDBCol>
-                      <div></div>
-                      <MDBCol col="6" class="mb-3">
-                        <MDBDatepicker 
-                          size="sm" 
-                          v-model="filterPrjPubDateStart" 
-                          format="YYYY-MM-DD" label="發布日(起)"
-                          :monthsFull = "monthsFull"
-                          :monthsShort = "monthsShort"
-                          :weekdaysFull = "weekdaysFull"
-                          :weekdaysShort = "weekdaysShort"
-                          :weekdaysNarrow = "weekdaysNarrow"
-                          confirmDateOnSelect
-                          removeCancelBtn
-                          removeOkBtn
-                          ref="filterPrjPubDateStartDOM" />
-                      </MDBCol>
-                      <MDBCol col="6" class="mb-3">
-                        <MDBDatepicker 
-                          size="sm" 
-                          v-model="filterPrjPubDateEnd" 
-                          format="YYYY-MM-DD" label="發布日(迄)"
-                          :monthsFull = "monthsFull"
-                          :monthsShort = "monthsShort"
-                          :weekdaysFull = "weekdaysFull"
-                          :weekdaysShort = "weekdaysShort"
-                          :weekdaysNarrow = "weekdaysNarrow"
-                          confirmDateOnSelect
-                          removeCancelBtn
-                          removeOkBtn
-                          ref="filterPrjPubDateEndDOM" />
-                      </MDBCol>
-                    </MDBRow>
-                  </MDBTabPane>
-                </MDBTabContent>
-              </MDBTabs>
-            </MDBCol>
-          </MDBRow>
-        </MDBContainer>
+        <SelectPrj ref="subSelectPrj"></SelectPrj>
       </MDBModalBody>
       <MDBModalFooter>
         <MDBBtn color="primary" @click="setPrjBtn">加入</MDBBtn>

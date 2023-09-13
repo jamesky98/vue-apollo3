@@ -16,7 +16,6 @@ import UsersGQL from "../graphql/Users";
 import ToolsGQL from "../graphql/Tools";
 import CaseGQL from "../graphql/Cases";
 import EmpGQL from "../graphql/Employee";
-import ItemGQL from "../graphql/Item";
 import PrjGQL from "../graphql/Prj";
 import SelectPs from "./SelectPs.vue";
 import SelectUc from "./SelectUc.vue";
