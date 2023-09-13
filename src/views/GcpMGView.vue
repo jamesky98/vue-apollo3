@@ -103,6 +103,7 @@ const updateKey = ref(0);
 const updateKey2 = ref(0);
 const updateKey3 = ref(0);
 const infomsg = ref("");
+const msgColor = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
 const notProssing = ref(false);
@@ -304,11 +305,11 @@ getAllPrjonDone(result=>{
     nowPRecordPrjIdMU.value = recordPrjList;
   }
 });
-getAllPrjonError(e=>{errorHandle(e,infomsg,alert1)});
+getAllPrjonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 聯絡機關清單
 const { mutate: refgetContactById, onError: refgetContactByIdonError } = useMutation(GcpGQL.GETCONTACTBYID);
-refgetContactByIdonError(e=>{errorHandle(e,infomsg,alert1)});
+refgetContactByIdonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function updateContact(){
   let newoption = nowGcpContactName.value;
@@ -389,7 +390,7 @@ getRecPersonOnDone(result=>{
       return { text: x, value: x }
     });nowPRecordPersonMU.value.unshift({ text: "-未選取-", value: -1 });
 });
-getRecPersonError(e=>{errorHandle(e,infomsg,alert1)});
+getRecPersonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function updateRecPerson(){
   let newoption = nowPRecordPerson.value;
@@ -500,7 +501,7 @@ getAllGcpOnDone(result=>{
     updateKey.value = updateKey.value + 1;
   }
 });
-getAllGcpError(e=>{errorHandle(e,infomsg,alert1)});
+getAllGcpError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢GCPbyID
 const { mutate: getGcpById, onDone: getGcpByIdOnDone, onError: getGcpByIdError } = useMutation(GcpGQL.GETGCPBYID);
@@ -544,17 +545,18 @@ getGcpByIdOnDone(result=>{
   }
   updateKey.value = updateKey.value + 1;
 });
-getGcpByIdError(e=>{errorHandle(e,infomsg,alert1)});
+getGcpByIdError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 儲存
 const { mutate: saveGcp, onDone: saveGcpOnDone, onError: saveGcpError } = useMutation(GcpGQL.UPDATEGCP);
 saveGcpOnDone(result=>{
   infomsg.value = "點位 " + result.data.updateGCP.id + "儲存完畢";
+  msgColor.value = "blue";
 });
-saveGcpError(e=>{errorHandle(e,infomsg,alert1)});
+saveGcpError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 const { mutate: saveGcpContact, onDone: saveGcpContactOnDone, onError: saveGcpContactError } = useMutation(GcpGQL.UPDATEGCPCONTACT);
-saveGcpContactError(e=>{errorHandle(e,infomsg,alert1)});
+saveGcpContactError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function saveGcpBtn(){
   new Promise((resovle,rej)=>{
@@ -642,8 +644,9 @@ const { mutate: delGcp, onDone: delGcpOnDone, onError: delGcpError } = useMutati
 }}));
 delGcpOnDone(result=>{
   infomsg.value = "點位 " + result.data.delGCP.id + "刪除完畢"
+  msgColor.value = "blue";
 });
-delGcpError(e=>{errorHandle(e,infomsg,alert1)});
+delGcpError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 //#endregion 點位基本列表==========End
 
 //#region 歷年量測列表==========Start
@@ -685,7 +688,7 @@ getRcordByPIdonDone(result=>{
     data_hist.value = result.data.getGcpRecordsByGCPId;
   }
 });
-getRcordByPIdonError(e=>{errorHandle(e,infomsg,alert1)});
+getRcordByPIdonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢Record單筆紀錄
 const { mutate: getRecordById, onDone: getRecordByIdOnDone, onError: getRecordByIdError } = useMutation(GcpGQL.GETRECORDBYID);
@@ -718,7 +721,7 @@ getRecordByIdOnDone(result=>{
     updateKey2.value=updateKey2.value+1;
   }
 });
-getRecordByIdError(e=>{errorHandle(e,infomsg,alert1)});
+getRecordByIdError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 儲存
 const { mutate: saveGcpRecord, onDone: saveGcpRecordOnDone, onError: saveGcpRecordError } = useMutation(GcpGQL.UPDATEGCPRECORD);
@@ -726,8 +729,9 @@ saveGcpRecordOnDone(result=>{
   nowPRecordId.value = result.data.updateGcpRecord.id;
   nowGcpId.value = result.data.updateGcpRecord.gcp_id;
   infomsg.value = "點位 " + result.data.updateGcpRecord.gcp_id + "紀錄儲存完畢"
+  msgColor.value = "blue";
 });
-saveGcpRecordError(e=>{errorHandle(e,infomsg,alert1)});
+saveGcpRecordError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function saveGcpRecordBtn(){
   saveGcpRecord({
@@ -780,8 +784,9 @@ const { mutate: delGcpRecord, onDone: delGcpRecordOnDone, onError: delGcpRecordE
   GcpGQL.DELGCPRECORD);
 delGcpRecordOnDone(result=>{
   infomsg.value = "點位 " + result.data.delGcpRecord.gcp_id + "紀錄刪除完畢"
+  msgColor.value = "blue";
 });
-delGcpRecordError(e=>{errorHandle(e,infomsg,alert1)});
+delGcpRecordError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function delGcpRecordBtn(){
   delGcpRecord({
@@ -941,7 +946,7 @@ uploadFileOnDone((result) => {
   inputDOM = document.getElementById("AllUpload");
   inputDOM.value = "";
 });
-uploadFileonError(e=>{errorHandle(e,infomsg,alert1)});
+uploadFileonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // drop
 function cancelDefault(e) {
@@ -1001,7 +1006,7 @@ getchecktoken().then(res=>{
 
   return 
 }).catch(e=>{
-  errorHandle(e,infomsg,alert1);
+  errorHandle(e,infomsg,alert1,msgColor);
 });
 
 //#region 加載表格選取事件
@@ -1598,7 +1603,7 @@ function selectNowGCPRecord(){
         </MDBCol>
       </MDBRow>
       <!-- 頁腳 -->
-      <Footer1 :msg="infomsg" />
+      <Footer1 :msg="infomsg" :activeColor="msgColor" />
     </MDBRow>
   </MDBContainer>
 </template>

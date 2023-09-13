@@ -86,6 +86,7 @@ const rGroup =computed(()=>{
 const NavItem = ref("items");
 provide("NavItem",NavItem);
 const infomsg = ref("");
+const msgColor = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
 const store = useStore();
@@ -213,7 +214,7 @@ getAllEqptonDone(result=>{
     data_eqpt2.value = result.data.getAllEqpt;
   }
 });
-getAllEqptonError(e=>{errorHandle(e,infomsg,alert1)});
+getAllEqptonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢全標準件 By ID
 const { mutate: getEqptById, onDone: getEqptByIdOnDone, onError: getEqptByIdError } = useMutation(PrjGQL.GETEQPTBYID);
@@ -232,7 +233,7 @@ getEqptByIdOnDone(result=>{
   nowEqptCycle.value = getData.cal_cycle;
   nowEqptComment.value = getData.comment;
 });
-getEqptByIdError(e=>{errorHandle(e,infomsg,alert1)});
+getEqptByIdError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 切換標準件類型
 function changeEqptType(){
@@ -283,7 +284,11 @@ function newEqpt(){
 
 // 儲存
 const { mutate: saveRefEqpt, onDone: saveRefEqptOnDone, onError: saveRefEqptError } = useMutation(PrjGQL.SAVEREFEQPT);
-saveRefEqptError(e=>{errorHandle(e,infomsg,alert1)});
+saveRefEqptOnDone(result=>{
+  infomsg.value = "標準件 " + result.data.updateRefEqpt.ref_equpt_id + "儲存完畢";
+  msgColor.value = "blue";
+})
+saveRefEqptError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function saveEqpt(){
   // console.log('saveEqpt');
@@ -304,7 +309,11 @@ function saveEqpt(){
 
 // 刪除
 const { mutate: delRefEqpt, onDone: delRefEqptOnDone, onError: delRefEqptError } = useMutation(PrjGQL.DELREFEQPT);
-delRefEqptError(e=>{errorHandle(e,infomsg,alert1)});
+delRefEqptOnDone(result=>{
+  infomsg.value = "標準件 " + result.data.delRefEqpt.ref_equpt_id + "刪除完畢";
+  msgColor.value = "blue";
+});
+delRefEqptError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function delEqpt(){
   delRefEqpt({
@@ -366,7 +375,7 @@ const { mutate: getChkByEqpt, onDone: getChkByEqptOnDone, onError: getChkByEqptE
 getChkByEqptOnDone(result=>{
   data_chk.value = result.data.getChkByEqptId;
 });
-getChkByEqptError(e=>{errorHandle(e,infomsg,alert1)});
+getChkByEqptError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢查核紀錄By Id
 const { mutate: getChkById, onDone: getChkByIdOnDone, onError: getChkByIdError } = useMutation(PrjGQL.GETCHKBYID);
@@ -389,7 +398,7 @@ getChkByIdOnDone(result=>{
   }
   nowChkCalComment.value = getData.comment;
 });
-getChkByIdError(e=>{errorHandle(e,infomsg,alert1)});
+getChkByIdError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 新增Chk
 function newChk(){
@@ -408,7 +417,11 @@ function newChk(){
 }
 // 儲存Chk
 const { mutate: saveRefEqptChk, onDone: saveRefEqptChkOnDone, onError: saveRefEqptChkError } = useMutation(PrjGQL.SAVEREFEQPTCHK);
-saveRefEqptChkError(e=>{errorHandle(e,infomsg,alert1)});
+saveRefEqptChkOnDone(result=>{
+  infomsg.value = "查核紀錄 " + result.data.updateRefEqptChk.eq_ck_id + "儲存完畢";
+  msgColor.value = "blue";
+})
+saveRefEqptChkError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function saveChk(){
   saveRefEqptChk({
@@ -431,7 +444,11 @@ function saveChk(){
 
 // 刪除Chk
 const { mutate: delRefEqptChk, onDone: delRefEqptChkOnDone, onError: delRefEqptChkError } = useMutation(PrjGQL.DELREFEQPTCHK);
-delRefEqptChkError(e=>{errorHandle(e,infomsg,alert1)});
+delRefEqptChkOnDone(result=>{
+  infomsg.value = "查核紀錄 " + result.data.delRefEqptChk.eq_ck_id + "刪除完畢";
+  msgColor.value = "blue";
+})
+delRefEqptChkError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function delChk(){
   delRefEqptChk({
@@ -451,7 +468,7 @@ getChkOrgListOnDone(result=>{
       return { text: x, value: x }
     });nowChkCalOrgMU.value.unshift({ text: "-未選取-", value: -1 });
 });
-getChkOrgListError(e=>{errorHandle(e,infomsg,alert1)});
+getChkOrgListError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function updateChkOrg(){
   let newoption = nowChkCalOrg.value;
@@ -533,7 +550,7 @@ uploadFileOnDone((result) => {
   inputDOM = document.getElementById("AllUpload");
   inputDOM.value = "";
 });
-uploadFileonError(e=>{errorHandle(e,infomsg,alert1)});
+uploadFileonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // drop
 function cancelDefault(e) {
@@ -557,7 +574,7 @@ getchecktoken().then(res=>{
   
   return
 }).catch(e=>{
-  errorHandle(e,infomsg,alert1);
+  errorHandle(e,infomsg,alert1,msgColor);
 });
 
 //#region 加載表格選取事件==========Start
@@ -810,7 +827,7 @@ function selectNowId(nowId, col, dt){
         </MDBCol>
       </MDBRow>
       <!-- 頁腳 -->
-      <Footer1 :msg="infomsg" />
+      <Footer1 :msg="infomsg" :activeColor="msgColor" />
     </MDBRow>
   </MDBContainer>
 </template>

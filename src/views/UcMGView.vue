@@ -74,6 +74,7 @@ const rGroup =computed(()=>{
 const NavItem = ref("ucedit");
 provide("NavItem",NavItem);
 const infomsg = ref("");
+const msgColor = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
 const updateKey = ref(0);
@@ -337,7 +338,7 @@ getUcListOnDone((result) => {
   nowUcModuleNameMU.value = myArray;
   nowUcModuleNameDOM.value.setValue(-1);
 });
-getUcListError(e=>{errorHandle(e,infomsg,alert1)});
+getUcListError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function readUcModule(){
   // console.log('readUcModule')
@@ -382,7 +383,7 @@ getUcModuleOnDone(result=>{
   // console.log(nowUcCalTypeDOM.value);
 
 });
-getUcModuleonError(e=>{errorHandle(e,infomsg,alert1)});
+getUcModuleonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function getItemData(){
   // console.log('nowUcModule',nowUcModule.uc);
@@ -436,6 +437,7 @@ function saveUcModuleBtn(){
     // console.log(nowUcModule.uc);
     // 更新狀態訊息
     infomsg.value = "模組 "+ nowUcModuleName.value + "儲存完畢";
+    msgColor.value = "blue";
     // alertColor.value = "primary";
     // alert1.value = true;
     getUcList().then(res=>{
@@ -452,7 +454,7 @@ const { mutate: saveUcModule, onError: saveUcModuleError } = useMutation(
     }
   })
 );
-saveUcModuleError(e=>{errorHandle(e,infomsg,alert1)});
+saveUcModuleError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 增加Section
 function addSection(){
@@ -634,10 +636,11 @@ testUcOnDone(result=>{
   let secID = nowUcSection.value;
   data2.value = result.data.getUcResultformJson.data[secID].data;
   infomsg.value = "試算結果 ucH: "+ result.data.getUcResultformJson.ucH_o + " ucV: " + result.data.getUcResultformJson.ucV_o;
+  msgColor.value = "blue";
   // alertColor.value = "primary";
   // alert1.value = true;
 });
-testUcError(e=>{errorHandle(e,infomsg,alert1)});
+testUcError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 //#endregion  試算Uc===========end
 
 // 確認登入狀況
@@ -646,7 +649,7 @@ getchecktoken().then(res=>{
   store.dispatch('selectlist/fetchCalTypeList');
   return 
 }).catch(e=>{
-  errorHandle(e,infomsg,alert1);
+  errorHandle(e,infomsg,alert1,msgColor);
 });
 
 // 加載表格選取事件
@@ -1082,7 +1085,7 @@ function changeSectionUpdatItem(sectoin, item){
         </MDBRow>
       </div>
       <!-- 頁腳 -->
-      <Footer1 :msg="infomsg" />
+      <Footer1 :msg="infomsg" :activeColor="msgColor" />
     </MDBRow>
   </MDBContainer>
 </template>

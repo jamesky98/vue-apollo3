@@ -81,6 +81,7 @@ const props = defineProps({
 const NavItem = ref("users");
 provide("NavItem", NavItem);
 const infomsg = ref("");
+const msgColor = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
 const updateKey = ref(0);
@@ -179,7 +180,7 @@ getAllUseronDone(result=>{
     dt1.columns.adjust();
   }
 });
-getAllUseronError(e=>{errorHandle(e,infomsg,alert1)});
+getAllUseronError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢User
 const { onDone: getUserbyNameonDone, mutate: refgetUserbyName, onError: getUserbyNameonError } = useMutation(
@@ -201,7 +202,7 @@ getUserbyNameonDone(result=>{
     nowUserRoleDOM.value.setValue(getData.role);
   }
 });
-getUserbyNameonError(e=>{errorHandle(e,infomsg,alert1)});
+getUserbyNameonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 儲存使用者
 const { mutate: saveUser, onDone: saveUserOnDone, onError: saveUserError } = useMutation(
@@ -219,7 +220,7 @@ const { mutate: saveUser, onDone: saveUserOnDone, onError: saveUserError } = use
 saveUserOnDone(result=>{
   refgetAllUser();
 });
-saveUserError(e=>{errorHandle(e,infomsg,alert1)});
+saveUserError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 變更密碼
 function changePassWord(enforce){
@@ -246,8 +247,9 @@ changePassOnDone(result=>{
   newPassWord.value = "";
   chkPassWord.value = "";
   infomsg.value = result.data.changePASSWord;
+  msgColor.value = "blue";
 });
-changePassError(e=>{errorHandle(e,infomsg,alert1)});
+changePassError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 刪除使用者
 const { mutate: delUser, onDone: delUserOnDone, onError: delUserError } = useMutation(
@@ -260,9 +262,10 @@ const { mutate: delUser, onDone: delUserOnDone, onError: delUserError } = useMut
 );
 delUserOnDone(result=>{
   infomsg.value = "刪除使用者 " + nowUserId.value;
+  msgColor.value = "blue";
   refgetAllUser();
 });
-delUserError(e=>{errorHandle(e,infomsg,alert1)});
+delUserError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 確認登入狀況
 getchecktoken().then(res=>{
@@ -271,7 +274,7 @@ getchecktoken().then(res=>{
 
   return 
 }).catch(e=>{
-  errorHandle(e,infomsg,alert1);
+  errorHandle(e,infomsg,alert1,msgColor);
 });
 
 // 加載表格選取事件
@@ -386,7 +389,7 @@ onMounted(function () {
         </MDBRow>
       </div>
       <!-- 頁腳 -->
-      <Footer1 :msg="infomsg" />
+      <Footer1 :msg="infomsg" :activeColor="msgColor" />
     </MDBRow>
   </MDBContainer>
 </template>

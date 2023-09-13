@@ -84,6 +84,7 @@ const rGroup =computed(()=>{
 const NavItem = ref("prjs");
 provide("NavItem",NavItem);
 const infomsg = ref("");
+const msgColor = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
 const activeTabId1 = ref("gcp_mg");
@@ -437,7 +438,7 @@ getAllPrjonDone(result=>{
     // console.log('OrgMU',nowPrjOrganizerMU.value);
   }
 });
-getAllPrjonError(e=>{errorHandle(e,infomsg,alert1)});
+getAllPrjonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢PrjByID
 const { onDone: getPrjByIdonDone, mutate: refgetPrjById, onError: getPrjByIdonError } = useMutation(
@@ -470,7 +471,7 @@ getPrjByIdonDone(result=>{
     }
   }
 });
-getPrjByIdonError(e=>{errorHandle(e,infomsg,alert1)});
+getPrjByIdonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 執行單位列表
 function updatePrjOrganizer(){
@@ -505,8 +506,9 @@ function createPrj(){
 const { mutate: savePrj, onDone: savePrjOnDone, onError: savePrjError } = useMutation(PrjGQL.SAVEPRJ);
 savePrjOnDone(result=>{
   infomsg.value = "編號 " + result.data.updateRefPrj.project_code + "儲存完畢";
+  msgColor.value = "blue";
 });
-savePrjError(e=>{errorHandle(e,infomsg,alert1)});
+savePrjError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 function savePrjBtn(){
   savePrj({
     updateRefPrjId: (parseInt(nowPrjId.value))?parseInt(nowPrjId.value):-1,
@@ -533,16 +535,17 @@ function savePrjBtn(){
 // 刪除
 const { mutate: delPrj, onDone: delPrjOnDone, onError: delPrjError } = useMutation(PrjGQL.DELPRJ);
 delPrjOnDone(result=>{
-  infomsg.value = "編號 " + result.data.delRefPrj.project_code + "儲存完畢";
+  infomsg.value = "編號 " + result.data.delRefPrj.project_code + "刪除完畢";
+  msgColor.value = "blue";
 });
-delPrjError(e=>{errorHandle(e,infomsg,alert1)});
+delPrjError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 匯入紀錄
 const { mutate: inputGcpRd, onDone: inputGcpRdOnDone, onError: inputGcpRdError } = useMutation(PrjGQL.INPUTGCPRECORDS);
 inputGcpRdOnDone(result=>{
   // console.log(result.data.inputGCPRecords);
 });
-inputGcpRdError(e=>{errorHandle(e,infomsg,alert1)});
+inputGcpRdError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 function inputRecord(POfile){
   if (POfile) {
     notProssing2.value = false;
@@ -587,6 +590,7 @@ function inputRecord(POfile){
           // 更新gcp table
           // console.log(res)
           infomsg.value = '共匯入' + res.data.inputGCPRecords + '筆紀錄';
+          msgColor.value = "blue";
           getRcordByPrj({projectId: parseInt(nowPrjId.value)});
         });
       }
@@ -642,7 +646,7 @@ getRcordByPrjOnDone(result=>{
   data_gcp.value = result.data.getAllGcp;
   notProssing2.value = true;
 });
-getRcordByPrjError(e=>{errorHandle(e,infomsg,alert1)});
+getRcordByPrjError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 作業編號清單
 const { onDone: getAllPrjlistonDone, mutate: refgetAllPrjlist, onError: getAllPrjlistonError } = useMutation(PrjGQL.GETALLPRJ);
@@ -659,7 +663,7 @@ getAllPrjlistonDone(result=>{
     nowPRecordPrjIdMU.value = recordPrjList;
   }
 });
-getAllPrjlistonError(e=>{errorHandle(e,infomsg,alert1)});
+getAllPrjlistonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function nowPrjClose(e){
   if(nowPRecordPrjId.value===-1){
@@ -732,7 +736,7 @@ getRecordByIdOnDone(result=>{
     updateKey2.value=updateKey2.value+1;
   }
 });
-getRecordByIdError(e=>{errorHandle(e,infomsg,alert1)});
+getRecordByIdError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 新增
 function newPRecordBtn(){
@@ -789,25 +793,41 @@ const { mutate: saveGcp, onDone: saveGcpOnDone, onError: saveGcpError } = useMut
 const { mutate: saveGcpContact, onDone: saveGcpContactOnDone, onError: saveGcpContactError } = useMutation(GcpGQL.UPDATEGCPCONTACT);
 const { mutate: saveGcpRecord, onDone: saveGcpRecordOnDone, onError: saveGcpRecordError } = useMutation(GcpGQL.UPDATEGCPRECORD);
 
-saveGcpError(e=>{errorHandle(e,infomsg,alert1)});
-saveGcpContactError(e=>{errorHandle(e,infomsg,alert1)});
-saveGcpRecordError(e=>{errorHandle(e,infomsg,alert1)});
+saveGcpOnDone(result=>{
+  infomsg.value = "點位 " + result.data.updateGCP.id + "儲存完畢";
+  msgColor.value = "blue";
+});
+saveGcpContactOnDone(result=>{
+  infomsg.value = "聯絡機關 " + result.data.updateGcpContact.id + "儲存完畢";
+  msgColor.value = "blue";
+});
+saveGcpRecordOnDone(result=>{
+  infomsg.value = "維護紀錄 " + result.data.updateGcpRecord.id + "儲存完畢";
+  msgColor.value = "blue";
+});
+
+saveGcpError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+saveGcpContactError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+saveGcpRecordError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function saveGcpRecordBtn(){
   // 點號 作業編號 為必要
   if(!nowPRecordPtId.value){
     infomsg.value = "缺少點號"
-    alert1.value = true;
+    msgColor.value = "red";
+    // alert1.value = true;
     return
   }
   if(!nowPRecordPrjId.value || parseInt(nowPRecordPrjId.value)===-1){
     infomsg.value = "缺少作業編號"
-    alert1.value = true;
+    msgColor.value = "red";
+    // alert1.value = true;
     return
   }
   if(!nowGcpTypeCode.value || parseInt(nowGcpTypeCode.value)===-1){
     infomsg.value = "缺少點號類別"
-    alert1.value = true;
+    msgColor.value = "red";
+    // alert1.value = true;
     return
   }
   let nowID = nowPRecordId.value;
@@ -878,6 +898,7 @@ function saveGcpRecordBtn(){
     }).then(res=>{
       // 更新列表
       infomsg.value = "點位 " + res.data.updateGcpRecord.gcp_id + "紀錄儲存完畢"
+      msgColor.value = "blue";
       notProssing2.value = false;
       return getRcordByPrj({projectId: parseInt(nowPrjId.value)});
     }).then(res=>{
@@ -894,8 +915,9 @@ const { mutate: delGcpRecord, onDone: delGcpRecordOnDone, onError: delGcpRecordE
   GcpGQL.DELGCPRECORD);
 delGcpRecordOnDone(result=>{
   infomsg.value = "點位 " + result.data.delGcpRecord.gcp_id + "紀錄刪除完畢"
+  msgColor.value = "blue";
 });
-delGcpRecordError(e=>{errorHandle(e,infomsg,alert1)});
+delGcpRecordError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function delGcpRecordBtn(){
   delGcpRecord({
@@ -927,7 +949,7 @@ getRecPersonOnDone(result=>{
     });nowPRecordPersonMU.value.unshift({ text: "-未選取-", value: -1 });
   // console.log('PersonMU',nowPRecordPersonMU.value);
 });
-getRecPersonError(e=>{errorHandle(e,infomsg,alert1)});
+getRecPersonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function updateRecPerson(){
   let newoption = nowPRecordPerson.value;
@@ -940,7 +962,7 @@ function updateRecPerson(){
 
 // 聯絡機關清單
 const { mutate: refgetContactById, onError: refgetContactByIdonError } = useMutation(GcpGQL.GETCONTACTBYID);
-refgetContactByIdonError(e=>{errorHandle(e,infomsg,alert1)});
+refgetContactByIdonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function updateContact(){
   let newoption = nowGcpContactName.value;
@@ -1071,7 +1093,7 @@ getEqptByPrjOnDone(result=>{
   data_eqpt.value = getData;
   notProssing3.value = true;
 });
-getEqptByPrjError(e=>{errorHandle(e,infomsg,alert1)});
+getEqptByPrjError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 const dt_eqpt2 = ref();
 const table_eqpt2 = ref(); 
@@ -1117,7 +1139,7 @@ getAllEqptonDone(result=>{
     // console.log('data_eqpt2',data_eqpt2.value);
   }
 });
-getAllEqptonError(e=>{errorHandle(e,infomsg,alert1)});
+getAllEqptonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 切換標準件類型
 function changeEqptType(){
@@ -1171,7 +1193,7 @@ const { mutate: getChkByEqpt, onDone: getChkByEqptOnDone, onError: getChkByEqptE
 getChkByEqptOnDone(result=>{
   data_chk.value = result.data.getChkByEqptId;
 });
-getChkByEqptError(e=>{errorHandle(e,infomsg,alert1)});
+getChkByEqptError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢查核紀錄By Id
 const { mutate: getChkById, onDone: getChkByIdOnDone, onError: getChkByIdError } = useMutation(PrjGQL.GETCHKBYID);
@@ -1195,7 +1217,7 @@ getChkByIdOnDone(result=>{
 
   nowChkCalComment.value = getData.comment;
 });
-getChkByIdError(e=>{errorHandle(e,infomsg,alert1)});
+getChkByIdError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 更新表格顯示(欄寬)
 function updatTable(){
@@ -1267,12 +1289,12 @@ function saveChk(){
     return getChkByEqpt({refEqptId: parseInt(nowEqptId.value)});
   })
 }
-saveRefEqptChkError(e=>{errorHandle(e,infomsg,alert1)});
+saveRefEqptChkError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 
 // 刪除Chk
 const { mutate: delRefEqptChk, onDone: delRefEqptChkOnDone, onError: delRefEqptChkError } = useMutation(PrjGQL.DELREFEQPTCHK);
-delRefEqptChkError(e=>{errorHandle(e,infomsg,alert1)});
+delRefEqptChkError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function delChk(){
   delRefEqptChk({eqCkId: parseInt(nowChkId.value)})
@@ -1286,7 +1308,7 @@ getChkOrgListOnDone(result=>{
       return { text: x, value: x }
     });nowChkCalOrgMU.value.unshift({ text: "-未選取-", value: -1 });
 });
-getChkOrgListError(e=>{errorHandle(e,infomsg,alert1)});
+getChkOrgListError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function updateChkOrg(){
   let newoption = nowChkCalOrg.value;
@@ -1302,8 +1324,8 @@ const tempLink = ref([]);
 const { mutate: savePrjEqpts, onDone: savePrjEqptsOnDone, onError: savePrjEqptsError } = useMutation(PrjGQL.SAVEPRJEQPTUSE);
 const { mutate: delPrjEqpts, onDone: delPrjEqptsOnDone, onError: delPrjEqptsError } = useMutation(PrjGQL.DELPRJEQPTUSE);
 
-savePrjEqptsError(e=>{errorHandle(e,infomsg,alert1)});
-delPrjEqptsError(e=>{errorHandle(e,infomsg,alert1)});
+savePrjEqptsError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+delPrjEqptsError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function saveLink(){
   // 先刪除nowLinkDel中的紀錄，再新增無所引的紀錄
@@ -1364,7 +1386,7 @@ const {
   onDone: getAllCChartListonDone, 
   onError: getAllCChartListonError
 } = useMutation(PrjGQL.GETALLCCHARTLIST);
-getAllCChartListonError(e=>{errorHandle(e,infomsg,alert1)});
+getAllCChartListonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢管制圖資料
 const { 
@@ -1372,7 +1394,7 @@ const {
   onDone: getAllCtlChartOnDone, 
   onError: getAllCtlChartonError 
 } = useMutation(PrjGQL.GETALLCTLCHART);
-getAllCtlChartonError(e=>{errorHandle(e,infomsg,alert1)});
+getAllCtlChartonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢目前管制資料
 const { 
@@ -1380,7 +1402,7 @@ const {
   onDone: getNowCtlChartOnDone, 
   onError: getNowCtlChartonError 
 } = useMutation(PrjGQL.GETCTLCHARTDATA);
-getNowCtlChartonError(e=>{errorHandle(e,infomsg,alert1)});
+getNowCtlChartonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 計算管制圖資料
 const { 
@@ -1391,7 +1413,7 @@ const {
 computeCtlChartonDone(result=>{
   // console.log(result.data)
 })
-computeCtlChartonError(e=>{errorHandle(e,infomsg,alert1)});
+computeCtlChartonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 function computeCChart(calCode,label,prjIdBase){
   console.log('calCode',calCode);
   console.log('label',label);
@@ -1416,7 +1438,7 @@ const {
   onDone: getCCDataOnDone, 
   onError: getCCDataonError 
 } = useMutation(PrjGQL.GETCCDATA);
-getCCDataonError(e=>{errorHandle(e,infomsg,alert1)});
+getCCDataonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 // 匯出管制資料計算成果
 function saveCCData(calCode,prjId){
   getCCData({
@@ -1979,7 +2001,7 @@ uploadFileOnDone((result) => {
   inputDOM = document.getElementById("AllUpload");
   inputDOM.value = "";
 });
-uploadFileonError(e=>{errorHandle(e,infomsg,alert1)});
+uploadFileonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // drop
 function cancelDefault(e) {
@@ -2010,7 +2032,7 @@ getchecktoken().then(res=>{
 
   return
 }).catch(e=>{
-  errorHandle(e,infomsg,alert1);
+  errorHandle(e,infomsg,alert1,msgColor);
 });
 
 //#region 加載表格選取事件==========Start
@@ -2955,7 +2977,7 @@ function selectNowChk(nowId, col, dt){
         </MDBCol>
       </MDBRow>
       <!-- 頁腳 -->
-      <Footer1 :msg="infomsg" />
+      <Footer1 :msg="infomsg" :activeColor="msgColor" />
     </MDBRow>
   </MDBContainer>
 </template>

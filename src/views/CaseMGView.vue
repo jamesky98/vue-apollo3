@@ -96,6 +96,7 @@ provide("rGroup", rGroup);
     const NavItem = ref("cases");
     provide("NavItem", NavItem);
     const infomsg = ref("");
+    const msgColor = ref("");
     const alert1 = ref(false);
     const alertColor = ref("primary");
     const updateKey = ref(0);
@@ -441,7 +442,7 @@ provide("rGroup", rGroup);
           writeOperatorList(tempMU);
         }
       });
-      getCaseOperatoronError(e=>{errorHandle(e,infomsg,alert1)});
+      getCaseOperatoronError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
       // 將上層案件狀態資料寫入本組件之選單物件
       function writeOperatorList(newList){
         if(listOpened.value){return}
@@ -499,7 +500,7 @@ provide("rGroup", rGroup);
           writeLeaderList(tempMU);
         }
       });
-      getCaseLeaderonError(e=>{errorHandle(e,infomsg,alert1)});
+      getCaseLeaderonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
       // 將上層案件狀態資料寫入本組件之選單物件
       function writeLeaderList(newList){
         if(listOpened.value){return}
@@ -737,7 +738,7 @@ getAllCaseonDone(result => {
     notProssing2.value = true;
   }
 });
-getAllCaseonError(e=>{errorHandle(e,infomsg,alert1)});
+getAllCaseonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 //#endregion 案件列表=========End
 
@@ -786,7 +787,7 @@ getAllCustonDone(result => {
     dataCust.value = result.data.getAllCust;
   }
 });
-getAllCustonError(e=>{errorHandle(e,infomsg,alert1)});
+getAllCustonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢選取顧客資料
 const {  mutate: refgetselCust, onDone: getselCustonDone, onError: getselCustonError } = useMutation(
@@ -809,7 +810,7 @@ getselCustonDone(result => {
     selCustAddress.value = getData.address;
   }
 });
-getselCustonError(e=>{errorHandle(e,infomsg,alert1)});
+getselCustonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 開啟顧客視窗
 function shownCustModal() {
@@ -845,9 +846,10 @@ saveCustOnDone(() => {
   refgetselCust({getCustByIdId: seletCustId.value});
   store.dispatch('selectlist/fetchOrgList');
   infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
-  alert1.value = true;
+  msgColor.value = "blue";
+  // alert1.value = true;
 });
-saveCustError(e=>{errorHandle(e,infomsg,alert1)});
+saveCustError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 更多編輯=>引導至顧客管理
 function gotoCustMG() {
@@ -982,7 +984,7 @@ getNowCaseSonDone(result => {
     }
   }
 });
-getNowCaseSonError(e=>{errorHandle(e,infomsg,alert1)});
+getNowCaseSonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 報告抬頭地址同上
 function copyTileAdd() {
@@ -1004,7 +1006,7 @@ delCaseOnDone(() => {
   // 更新列表==重新查詢案件
   updateAllCaseList();
 });
-delCaseError(e=>{errorHandle(e,infomsg,alert1)});
+delCaseError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 新增案件==開啟表單
 function openAddCaseForm() {
@@ -1045,10 +1047,11 @@ saveCaseSOnDone(result => {
   if (!addBtnDisabled.value) {
     updateAllCaseList();
     infomsg.value = "ID:" + nowCaseID.value + "完成儲存";
+    msgColor.value = "blue";
     // alert1.value = true;
   }
 });
-saveCaseSError(e=>{errorHandle(e,infomsg,alert1)});
+saveCaseSError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // mutation record01
 const subFormRecord01 = ref();
@@ -1186,8 +1189,9 @@ function getAppDateByCaseId() {
   if (isNaN(isValidDate)) {
     // 非正確日期
     infomsg.value = "非正確日期";
-    alertColor.value = "danger";
-    alert1.value = true;
+    msgColor.value = "red";
+    // alertColor.value = "danger";
+    // alert1.value = true;
   } else {
     // 填入日期
     addCaseAppDate.value = checkstr;
@@ -1212,7 +1216,7 @@ addCaseOnDone((result) => {
   // 填入基本資料
   nowCaseID.value = getResultData.id;
 });
-addCaseError(e=>{errorHandle(e,infomsg,alert1)});
+addCaseError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function AddCaseOK() {
   // 檢查必填資料
@@ -1223,6 +1227,7 @@ function AddCaseOK() {
     refgetNowCaseS({getCasebyIdId: addCaseID.value}).then(res=>{
       if(res.data.getCasebyID){
         infomsg.value = "ID:" + addCaseID.value + "編號重複";
+        msgColor.value = "red";
       }else{
         addCase().then(result => {
           // let getResultData = result.data.creatCase;
@@ -1234,6 +1239,7 @@ function AddCaseOK() {
           showCaseNew.value = false;
           // 更新狀態訊息
           infomsg.value = "ID:" + nowCaseID.value + "完成新增";
+          msgColor.value = "blue";
           // alertColor.value = "primary";
           // alert1.value = true;
         });
@@ -1338,7 +1344,7 @@ const { mutate: refgetAPIAllCase, onDone: getAPIAllCaseonDone, onError: getAPIAl
 getAPIAllCaseonDone(result => {
   hasNowAllCase.value = result.data.getAllCase;
 });
-getAPIAllCaseonError(e=>{errorHandle(e,infomsg,alert1)});
+getAPIAllCaseonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function getCaseByAPI() {
   const url = import.meta.env.VITE_SICLAPI_URL;
@@ -1494,9 +1500,9 @@ const { mutate: dlFromAPI, onDone: dlFromAPIOnDone, onError: dlFromAPIError } = 
 const { mutate: getCustByName, onDone: getCustByNameOnDone, onError: getCustByNameError } = useMutation(CustGQL.GETCUSTBYNAME);
 const { mutate: getItemBySN, onDone: getItemBySNOnDone, onError: getItemBySNError } = useMutation(ItemGQL.GETITEMBYSN);
 
-dlFromAPIError(e=>{errorHandle(e,infomsg,alert1)});
-getCustByNameError(e=>{errorHandle(e,infomsg,alert1)});
-getItemBySNError(e=>{errorHandle(e,infomsg,alert1)});
+dlFromAPIError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+getCustByNameError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+getItemBySNError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function saveAPIRecord(nowData) {
   // 查詢顧客
@@ -1786,7 +1792,7 @@ const {
   onDone: saveRecord01APIOnDone,
   onError: saveRecord01APIError,
 } = useMutation(CaseGQL.SAVECASERECORD01);
-saveRecord01APIError(e=>{errorHandle(e,infomsg,alert1)});
+saveRecord01APIError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 儲存Record02API
 const {
@@ -1794,7 +1800,7 @@ const {
   onDone: saveRecord02APIOnDone,
   onError: saveRecord02APIError,
 } = useMutation(CaseGQL.SAVECASERECORD02);
-saveRecord02APIError(e=>{errorHandle(e,infomsg,alert1)});
+saveRecord02APIError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 儲存Record03API
 const {
@@ -1802,7 +1808,7 @@ const {
   onDone: saveRecord03APIOnDone,
   onError: saveRecord03APIError,
 } = useMutation(CaseGQL.SAVECASERECORD03);
-saveRecord03APIError(e=>{errorHandle(e,infomsg,alert1)});
+saveRecord03APIError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 //#endregion 連線取得案件==========End
 
 //#region 檢驗案件狀態==========Start
@@ -1944,7 +1950,7 @@ getchecktoken().then(res=>{
     refgetCaseOperator();
     refgetCaseLeader();
   }).catch(e=>{
-    errorHandle(e,infomsg,alert1);
+    errorHandle(e,infomsg,alert1,msgColor);
   });
 
 function updateAllCaseList(){
@@ -1953,6 +1959,7 @@ function updateAllCaseList(){
   // console.log('filterVariables',filterVariables.value)
   refgetAllCase(filterVariables.value).then(res=>{
     if (showCaseLeftDiv.value){
+      // 更新後保持該編號呈現選擇狀態
       dt1.rows(function(idx,data,node){
         return data.id === nowCaseID.value? true:false
       }).select();
@@ -2509,7 +2516,7 @@ onMounted(function () {
         </MDBCol>
       </MDBRow>
       <!-- 頁腳 -->
-      <Footer1 :msg="infomsg" />
+      <Footer1 :msg="infomsg" :activeColor="msgColor" />
     </MDBRow>
   </MDBContainer>
 </template>

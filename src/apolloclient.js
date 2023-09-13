@@ -23,20 +23,20 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const logoutLink = onError(({ graphQLErrors, networkError }) => {
-  if (graphQLErrors){
-    graphQLErrors.forEach(({ message, locations, path }) => {
-      console.log(
-        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-      );
+  // if (graphQLErrors){
+  //   graphQLErrors.forEach(({ message, locations, path }) => {
+  //     console.log(
+  //       `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+  //     );
       
-      if(message.indexOf('Foreign key constraint failed')!==-1){
-        console.log('有其他連結資料，本資料不可變更')
-      }else{
-        // logOut();
-      }
-    }
-    );
-  }
+  //     if(message.indexOf('Foreign key constraint failed')!==-1){
+  //       console.log('有其他連結資料，本資料不可變更')
+  //     }else{
+  //       // logOut();
+  //     }
+  //   }
+  //   );
+  // }
   
   if (networkError){
     console.log(`[Network error]: ${networkError}`);

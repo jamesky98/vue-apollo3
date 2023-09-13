@@ -1,34 +1,34 @@
 import router from "../router";
 
-function errorHandle(e,infomsg,alert1){
-  console.log('errorHandle',e ,e.message);
-  switch (e.message) {
-    case "No such user found":
+async function errorHandle(e,infomsg,alert1,msgColor){
+  console.log('errorHandle',e);
+  const res_3 = await new Promise((res, rej) => {
+
+    if(e.message.indexOf('No such user found')!==-1){
       infomsg.value = "查無此帳號";
       alert1.value = true;
-      break;
-    case "Invalid password":
+    }else if(e.message.indexOf('Invalid password')!==-1){
       infomsg.value = "密碼錯誤";
       alert1.value = true;
-      break;
-    case "Not active":
+    }else if(e.message.indexOf('Not active')!==-1){
       infomsg.value = "帳號尚未啟用";
       alert1.value = true;
-      break;
-    case "No token found":
-        infomsg.value = "未登入";
-        alert1.value = true;
-        logOut();
-        break;
-    case "Foreign key constraint failed":
+    }else if(e.message.indexOf('No token found')!==-1){
+      infomsg.value = "未登入";
+      // alert1.value = true;
+      logOut();
+    }else if(e.message.indexOf('Foreign key constraint failed')!==-1){
       infomsg.value = "本資料不可變更，因含有其他連結資料，請刪除連結資料後再試";
-      alert1.value = true;
-      break;
-    case "Token expired":
+      msgColor.value = 'red'
+      // alert1.value = true;
+    }else if(e.message.indexOf('Token expired')!==-1){
       infomsg.value = "授權過期";
       logOut();
-      break;
-  }
+    }
+    res(infomsg.value);
+  })
+  return res_3;
+  
 }
 
 function logOut() {

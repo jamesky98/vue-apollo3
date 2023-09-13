@@ -1,5 +1,6 @@
 <script setup>
 // 車載光達校正表單
+import SelectItem from "./SelectItem.vue";
 import { ref, provide, inject } from "vue";
 import path from "path-browserify";
 import {
@@ -65,8 +66,11 @@ const nowCaseCalType = ref(""); //校正項目
 const nowCaseCalTypeCode = ref(""); //校正項目
 const nowCaseItemID = inject("nowCaseItemID"); // 校正件索引
 const nowCaseItemChop = ref(""); // 光達廠牌
+provide('nowCaseItemChop', nowCaseItemChop);
 const nowCaseItemModel = ref(""); // 光達型號
+provide('nowCaseItemModel', nowCaseItemModel);
 const nowCaseItemSN = ref(""); // 光達序號
+provide('nowCaseItemSN', nowCaseItemSN);
 
 // const nowCaseParaType = ref("");  // 規格參數類型1:各項均有 2:整合精度
 const isFullPara = ref(true);
@@ -79,16 +83,24 @@ const nowCaseLrAngResol = ref("");  // LIDAR設備掃描角解析度
 const nowCaseLrBeam = ref("");  // LIDAR設備發散角
 
 const nowCaseGnssID = ref("");  // GNSS設備索引
+provide('nowCaseGnssID', nowCaseGnssID);
 const nowCaseGnssChop = ref("");  // GNSS設備廠牌
+provide('nowCaseGnssChop', nowCaseGnssChop);
 const nowCaseGnssModel = ref("");  // GNSS設備型號
+provide('nowCaseGnssModel', nowCaseGnssModel);
 const nowCaseGnssSN = ref("");  // GNSS設備序號
+provide('nowCaseGnssSN', nowCaseGnssSN);
 const nowCaseGnssPrcH = ref("");  // GNSS設備水平精度 或 整合型平面精度
 const nowCaseGnssPrcV = ref("");  // GNSS設備高程精度 或 整合型高程精度
 
 const nowCaseImuID = ref("");  // IMU設備索引
+provide('nowCaseImuID', nowCaseImuID);
 const nowCaseImuChop = ref("");  // IMU設備廠牌
+provide('nowCaseImuChop', nowCaseImuChop);
 const nowCaseImuModel = ref("");  // IMU設備型號
+provide('nowCaseImuModel', nowCaseImuModel);
 const nowCaseImuSN = ref("");  // IMU設備序號
+provide('nowCaseImuSN', nowCaseImuSN);
 const nowCaseImuOmg = ref("");  // IMU設備Omega精度
 const nowCaseImuPhi = ref("");  // IMU設備Phi精度
 const nowCaseImuKap = ref("");  // IMU設備Kappa精度
@@ -122,14 +134,6 @@ const nowCasePosReportDL = computed(() => {
 
 // 航線規劃圖
 
-
-
-
-
-
-
-
-
 // 送校
 const nowCaseRecDate = ref(""); // 送校日期
 const nowCaseRecDateDOM = ref();
@@ -154,14 +158,6 @@ const nowCaseScanMapAcDL = computed(() => {
 });
 
 // 掃描紀錄表
-
-
-
-
-
-
-
-
 const nowCaseLASNo = ref(""); // 點雲檔案數
 const nowCaseOther = ref(""); // 設備佐證照片
 const nowCaseOtherDL = computed(() => {
@@ -297,33 +293,10 @@ const nowCasePDFPath = computed(() => {
 });
 // 案件之詳細資料^^^
 // 校正件列表
-const iType = ref("");  // 選擇儀器類型2:光達 3:GNSS 4:IMU
+const iType = ref("");  // 選擇儀器類型 1:相機 2:光達 3:GNSS 4:IMU 6:車載光達
+provide("iType", iType);
 const showItemFrom = ref(false);
-const itemTabId = ref("itemEditor");
-
-const seletItemId = ref("");
-
-const selItemTypeID = ref("");
-const selItemTypeMU = ref([]);
-const selItemTypeDOM = ref();
-
-const selItemChop = ref("");
-const selItemModel = ref("");
-const selItemSN = ref("");
-
-const filterItemTypeID = ref("");
-const filterItemTypeMU = ref([]);
-const filterItemTypeDOM = ref();
-
-const filterItemChop = ref("");
-const filterItemChopMU = ref([]);
-const filterItemChopDOM = ref();
-
-const filterItemModel = ref("");
-const filterItemModelMU = ref([]);
-const filterItemModelDOM = ref();
-
-const filterItemSN = ref("");
+provide("showItemFrom", showItemFrom);
 
 // 參考值列表
 const showPrjFrom = ref(false);
@@ -554,243 +527,17 @@ getAllChkPsononError(e=>{errorHandle(e,infomsg,alert1)});
 //#endregion 案件詳細編輯資料==========end
 
 //#region 校正件列表=========start
-let dtItem;
-const tableItem = ref();
-const dataItem = ref([]);
-// 設定表格tableItem
-const columnsItem = [
-  { data: "id", title: "編號", defaultContent: "-" },
-  { data: "chop", title: "廠牌", defaultContent: "-" },
-  { data: "model", title: "型號", defaultContent: "-" },
-  { data: "serial_number", title: "序號", defaultContent: "-" },
-  { data: "item_type.type", title: "儀器類型", defaultContent: "-" },
-];
-const tboptionItem = {
-  dom: 'fti',
-  select: {
-    style: 'single',
-    info: false
-  },
-  order: [[0, 'asc']],
-  scrollY: '22vh',
-  scrollX: true,
-  lengthChange: false,
-  searching: true,
-  paging: false,
-  responsive: true,
-  language: {
-    info: '共 _TOTAL_ 筆資料',
+  const subSelectItem = ref();
+  function shownItemModal(){
+    subSelectItem.value.shownItemModal();
   }
-};
-
-// 查詢校正件資料
-const {
-  mutate: refgetAllItem,
-  onDone: getAllItemonDone,
-  onError: getAllItemonError
-} = useMutation(ItemGQL.GETALLITEM);
-getAllItemonDone(result => {
-  // 加入校正件資料
-  if (!result.loading && result.data.getAllItem) {
-    dataItem.value = result.data.getAllItem;
-
-    // 加入下拉式選單    
-    let choplist = [];
-    let modellist = [];
-
-    choplist = result.data.getAllItem.map(x => { return x.chop });//從物件陣列中取出成陣列
-    choplist = [...new Set(choplist)]; //ES6排除重複值語法
-    filterItemChopMU.value = choplist.sort().map(x => {
-      return { text: x, value: x }
-    }); filterItemChopMU.value.unshift({ text: "", value: "" });
-
-    modellist = result.data.getAllItem.map(x => { return x.model });//從物件陣列中取出成陣列
-    modellist = [...new Set(modellist)]; //ES6排除重複值語法
-    filterItemModelMU.value = modellist.sort().map(x => {
-      return { text: x, value: x }
-    }); filterItemModelMU.value.unshift({ text: "", value: "" });
+  function setItemBtn(){
+    subSelectItem.value.setItemBtn();
   }
-});
-getAllItemonError(e=>{errorHandle(e,infomsg,alert1)});
-
-// 查詢儀器類型
-const {
-  mutate: refgetAllItemType,
-  onDone: getAllItemTypeonDone,
-  onError: getAllItemTypeonError
-} = useMutation(ItemGQL.GETALLITEMTYPE);
-getAllItemTypeonDone(result => {
-  // 加入儀器類型選單資料
-  if (!result.loading && result.data.getAllItemType) {
-    // 資料區
-    selItemTypeMU.value = result.data.getAllItemType.map(x => {
-      return { text: x.type, value: parseInt(x.id) }
-    }); selItemTypeMU.value.unshift({ text: "", value: "" });
-    // 篩選區
-    filterItemTypeMU.value = result.data.getAllItemType.map(x => {
-      return { text: x.type, value: parseInt(x.id) }
-    }); filterItemTypeMU.value.unshift({ text: "", value: "" });
+  function showItemFromBtn(x) {
+    iType.value = x;
+    showItemFrom.value = true;
   }
-});
-getAllItemTypeonError(e=>{errorHandle(e,infomsg,alert1)});
-
-
-// 查詢選取校正件資料
-const {
-  mutate: refgetselItem,
-  onDone: getselItemonDone,
-  onError: getselItemonError,
-} = useMutation(ItemGQL.GETITEMBYID);
-getselItemonDone(result => {
-  if (!result.loading && result && result.data.getItemByID) {
-    let getData = result.data.getItemByID
-    selItemChop.value = getData.chop;
-    selItemTypeID.value = getData.type;
-    selItemTypeDOM.value.setValue(parseInt(getData.type));
-    selItemModel.value = getData.model;
-    selItemSN.value = getData.serial_number;
-  } else {
-    selItemChop.value = "";
-    selItemModel.value = "";
-    selItemSN.value = "";
-    if (selItemTypeDOM.value) {
-      selItemTypeDOM.value.setValue("");
-    }
-  }
-});
-getselItemonError(e=>{errorHandle(e,infomsg,alert1)});
-
-// 開啟選擇校正件選單
-function shownItemModal() {
-  dtItem = tableItem.value.dt();
-  dtItem.on('select', function (e, dt, type, indexes) {
-    let getData = dt.rows(indexes).data()[0];
-    seletItemId.value = getData.id;
-    refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
-  });
-  let where = {};
-  where.type = iType.value;
-  refgetAllItem(where).then(result=>{
-    // 建立廠牌型號下拉式選單
-    let choplist = [];
-    let modellist = [];
-    choplist = result.data.getAllItem.map((x) => {
-      return x.chop;
-    }); //從物件陣列中取出成陣列
-    choplist = [...new Set(choplist)]; //ES6排除重複值語法
-    filterItemChopMU.value = choplist.sort().map((x) => {
-      return { text: x, value: x };
-    });
-    filterItemChopMU.value.unshift({ text: "", value: "" });
-
-    modellist = result.data.getAllItem.map((x) => {
-      return x.model;
-    }); //從物件陣列中取出成陣列
-    modellist = [...new Set(modellist)]; //ES6排除重複值語法
-    filterItemModelMU.value = modellist.sort().map((x) => {
-      return { text: x, value: x };
-    });
-    filterItemModelMU.value.unshift({ text: "", value: "" });
-  });
-  refgetAllItemType();
-
-  switch (iType.value) {
-    case 6:
-      if (nowCaseItemID.value) {
-        seletItemId.value = nowCaseItemID.value;
-        refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
-      }
-      break;
-    case 3:
-      if (nowCaseGnssID.value) {
-        seletItemId.value = nowCaseGnssID.value;
-        refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
-      }
-      break;
-    case 4:
-      if (nowCaseImuID.value) {
-        seletItemId.value = nowCaseImuID.value;
-        refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
-      }
-      break;
-  }
-}
-
-// 儲存校正件資料
-const { mutate: saveItem, onDone: saveItemOnDone, onError: saveItemError } = useMutation(
-  ItemGQL.SAVEITEM,
-  () => ({
-    variables: {
-      updateItemId: parseInt(seletItemId.value),
-      chop: selItemChop.value,
-      model: selItemModel.value,
-      serialNumber: selItemSN.value,
-      type: parseInt(selItemTypeID.value),
-    }
-  })
-);
-
-saveItemOnDone(() => {
-  refgetAllItem();
-  refgetselItem({getItemByIdId: parseInt(seletItemId.value)});
-  // infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
-  // alert1.value = true;
-});
-saveItemError(e=>{errorHandle(e,infomsg,alert1)});
-
-// 更多編輯=>引導至校正件管理
-function gotoItemMG() {
-  router.push('/cust');
-}
-
-// 清除校正件篩選條件
-function clearItemFilter() {
-  filterItemTypeID.value = "";
-  filterItemTypeDOM.value.setValue("");
-
-  filterItemChop.value = "";
-  filterItemChopDOM.value.setValue("");
-
-  filterItemModel.value = "";
-  filterItemModelDOM.value.setValue("");
-
-  filterItemSN.value = "";
-}
-
-// 案加入後回填校正件id
-function setItemBtn() {
-  switch (iType.value) {
-    case 6:
-      nowCaseItemID.value = seletItemId.value;
-      nowCaseItemChop.value = selItemChop.value;
-      nowCaseItemModel.value = selItemModel.value;
-      nowCaseItemSN.value = selItemSN.value;
-      break;
-    case 3:
-      nowCaseGnssID.value = seletItemId.value;
-      nowCaseGnssChop.value = selItemChop.value;
-      nowCaseGnssModel.value = selItemModel.value;
-      nowCaseGnssSN.value = selItemSN.value;
-      break;
-    case 4:
-      nowCaseImuID.value = seletItemId.value;
-      nowCaseImuChop.value = selItemChop.value;
-      nowCaseImuModel.value = selItemModel.value;
-      nowCaseImuSN.value = selItemSN.value;
-      break;
-  }
-
-  showItemFrom.value = false;
-}
-
-function showItemFromBtn(x) {
-  // let where = {};
-  iType.value = x;
-  // where.type = iType.value;
-  // varAllItem.value = where;
-  showItemFrom.value = true;
-}
-
 //#endregion 校正件列表=========end
 
 //#region 參考值列表=========start
@@ -1797,40 +1544,7 @@ defineExpose({
         <MDBModalTitle>請選擇校正件</MDBModalTitle>
       </MDBModalHeader>
       <MDBModalBody>
-        <MDBContainer fluid>
-          <MDBRow>
-            <!-- 校正件列表 -->
-            <MDBCol col="12">
-              <DataTable :data=" dataItem" :columns="columnsItem" :options="tboptionItem" ref="tableItem"
-                style="font-size: smaller" class="display w-100 compact" />
-            </MDBCol>
-            <!-- 編輯 -->
-            <MDBCol col="12" class="border border-1">
-              <!-- 功能列 -->
-              <div class="mt-2">
-                <MDBBtn size="sm" color="primary" @click="saveItem">儲存</MDBBtn>
-                <MDBBtn size="sm" color="primary" @click="gotoItemMG">校正件管理</MDBBtn>
-              </div>
-              <MDBRow>
-                <MDBSelect filter size="sm" class="my-3  col-6" label="儀器類型" v-model:options="selItemTypeMU"
-                  v-model:selected="selItemTypeID" ref="selItemTypeDOM" />
-                <MDBCol col="6" class="my-3 fs-6">
-                  目前:{{ seletItemId }}
-                </MDBCol>
-                <!-- <div></div> -->
-                <MDBCol col="6" class="mb-2">
-                  <MDBInput size="sm" type="text" label="廠牌" v-model="selItemChop" />
-                </MDBCol>
-                <MDBCol col="6" class="mb-2">
-                  <MDBInput size="sm" type="text" label="型號" v-model="selItemModel" />
-                </MDBCol>
-                <MDBCol col="12" class="mb-2">
-                  <MDBInput size="sm" type="text" label="序號" v-model="selItemSN" />
-                </MDBCol>
-              </MDBRow>
-            </MDBCol>
-          </MDBRow>
-        </MDBContainer>
+        <SelectItem ref="subSelectItem"></SelectItem>
       </MDBModalBody>
       <MDBModalFooter>
         <MDBBtn color="primary" @click="setItemBtn">加入</MDBBtn>

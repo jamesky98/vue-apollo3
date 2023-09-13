@@ -81,6 +81,7 @@ const rGroup = computed(() => {
 //#region 參數==========Start
 // Information
 const infomsg = ref("");
+const msgColor = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
 const NavItem = ref("employee");
@@ -247,7 +248,7 @@ getAllEmponDone(result => {
     data1.value = getData;
   }
 });
-getAllEmponError(e=>{errorHandle(e,infomsg,alert1)});
+getAllEmponError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 const { mutate: getEmpbyID, onDone: getEmpbyIDonDone, onError: getEmpbyIDonError } = useMutation(
   EmpGQL.GETEMPBYID,
@@ -288,7 +289,7 @@ getEmpbyIDonDone(result => {
     nowEmpComment.value = getData.comment;
   }
 });
-getEmpbyIDonError(e=>{errorHandle(e,infomsg,alert1);});
+getEmpbyIDonError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 
 let dt1;
 const table1 = ref();
@@ -372,7 +373,8 @@ const {
 }));
 saveEmpOnDone(result=>{
   infomsg.value = result.data.updateEmp.person_id + " 儲存完畢";
-  alert1.value = true;
+  msgColor.value = "blue";
+  // alert1.value = true;
   getAllEmp();
 });
 // 刪除
@@ -388,11 +390,12 @@ const {
 delEmpOnDone(result=>{
   // console.log(result);
   infomsg.value = result.data.delEmp.person_id + "刪除完畢";
+  msgColor.value = "blue";
   newEmpBtn();
   getAllEmp();
 });
 delEmpError(e=>{
-  errorHandle(e,infomsg,alert1);
+  errorHandle(e,infomsg,alert1,msgColor);
 })
 //#endregion 人員列表==========End
 
@@ -409,7 +412,7 @@ getTrainonDone(result=>{
     data_train.value = result.data.getTrainByPerson;
   }
 });
-getTrainonError(e=>{errorHandle(e,infomsg,alert1)});
+getTrainonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 const {
   mutate: getTrainById,
@@ -440,7 +443,7 @@ getTrainByIdOnDone(result=>{
   nowTrainUpload.value = getData.upload
   nowTrainComment.value = getData.comment
 });
-getTrainByIdError(e=>{errorHandle(e,infomsg,alert1)});
+getTrainByIdError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 let dt_train;
 const table_train = ref();
@@ -526,9 +529,10 @@ const {
 newTrainOnDone(result=>{
   nowTrainID.value = result.data.createTrain.train_id;
   infomsg.value = "序號：" + nowTrainID.value + " 儲存完成"
+  msgColor.value = "blue";
   getTrain();
 });
-newTrainError(e=>{errorHandle(e,infomsg,alert1);});
+newTrainError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 
 const {
   mutate: saveTrain,
@@ -548,9 +552,10 @@ const {
 }));
 saveTrainOnDone(result=>{
   infomsg.value = "序號：" + result.data.updateTrain.train_id + " 儲存完成";
+  msgColor.value = "blue";
   getTrain();
 });
-saveTrainError(e=>{errorHandle(e,infomsg,alert1);});
+saveTrainError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 
 function saveTrainBtn(){
   if(!nowTrainID.value || nowTrainID.value===''){
@@ -574,6 +579,7 @@ const {
 }));
 delTrainOnDone(result=>{
   infomsg.value = "序號：" + result.data.delTrain.train_id + " 已刪除";
+  msgColor.value = "blue";
   getTrain();
 });
 
@@ -598,7 +604,7 @@ getAllTrainonDone(result=>{
 
   }
 });
-getAllTrainonError(e=>{errorHandle(e,infomsg,alert1);});
+getAllTrainonError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 
 function updateTrainName(){
   let newoption = nowTrainName.value;
@@ -633,7 +639,7 @@ getEmpoweronDone(result=>{
     data_empower.value = result.data.getEmpowerByPerson;
   }
 });
-getEmpoweronError(e=>{errorHandle(e,infomsg,alert1);});
+getEmpoweronError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 
 const {
   mutate: getEmpowerById,
@@ -682,7 +688,7 @@ getEmpowerByIdOnDone(result=>{
   nowEmpowerAprvUpload.value = getData.approval_doc;
   nowEmpowerComment.value = getData.comment;
 });
-getEmpowerByIdError(e=>{errorHandle(e,infomsg,alert1);});
+getEmpowerByIdError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 
 let dt_empower;
 const table_empower = ref();
@@ -784,6 +790,7 @@ const {
 newEmpowerOnDone(result=>{
   nowEmpowerID.value = result.data.createEmpower.empower_id;
   infomsg.value = "序號：" + nowEmpowerID.value + " 儲存完成"
+  msgColor.value = "blue";
   getEmpower().then(res=>{
     // 更新授權人員下拉式選單
     return getSupList();
@@ -792,7 +799,7 @@ newEmpowerOnDone(result=>{
     return getAssList();
   });
 });
-newEmpowerError(e=>{errorHandle(e,infomsg,alert1);});
+newEmpowerError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 
 const {
   mutate: saveEmpower,
@@ -818,6 +825,7 @@ const {
 saveEmpowerOnDone(result=>{
   nowEmpowerID.value = result.data.updateEmpower.empower_id;
   infomsg.value = "序號：" + nowEmpowerID.value + " 儲存完成"
+  msgColor.value = "blue";
   getEmpower().then(res=>{
     // 更新授權人員下拉式選單
     return getSupList();
@@ -826,7 +834,7 @@ saveEmpowerOnDone(result=>{
     return getAssList();
   });
 });
-saveEmpowerError(e=>{errorHandle(e,infomsg,alert1);});
+saveEmpowerError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 
 function saveEmpowerBtn(){
   if(!nowEmpowerID.value || nowEmpowerID.value===''){
@@ -850,9 +858,10 @@ const {
 }));
 delEmpowerOnDone(result=>{
   infomsg.value = "序號：" + result.data.delEmpower.empower_id + " 已刪除";
+  msgColor.value = "blue";
   getEmpower();
 });
-delEmpowerError(e=>{errorHandle(e,infomsg,alert1);});
+delEmpowerError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 
 //#endregion Table 授權列表==========End
 
@@ -870,7 +879,7 @@ getOptCaseonDone(result => {
     data_optcase.value = result.data.getAllCase;
   }
 });
-getOptCaseonError(e=>{errorHandle(e,infomsg,alert1)});
+getOptCaseonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 let dt_optcase;
 const table_optcase = ref();
@@ -1034,7 +1043,7 @@ getSignCaseonDone(result => {
     data_signcase.value = result.data.getAllCase;
   }
 });
-getSignCaseonError(e=>{errorHandle(e,infomsg,alert1)});
+getSignCaseonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 let dt_signcase;
 const table_signcase = ref();
@@ -1281,7 +1290,7 @@ uploadFileOnDone((result) => {
   inputDOM = document.getElementById("AllUpload");
   inputDOM.value = "";
 });
-uploadFileonError(e=>{errorHandle(e,infomsg,alert1);});
+uploadFileonError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 //#endregion 檔案上傳==========End
 
 
@@ -1297,7 +1306,7 @@ getEmpRoleonDone(result => {
     }); nowEmpowerRoleMU.value.unshift({ text: "", value: "" });
   }
 });
-getEmpRoleonError(e=>{errorHandle(e,infomsg,alert1)});
+getEmpRoleonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢評估人員列表
 const { mutate: getAssList, onDone: getAssListonDone, onError: getAssListonError } = useMutation(
@@ -1320,7 +1329,7 @@ getAssListonDone(result => {
     }); nowEmpowerAssMU.value.unshift({ text: "", value: "" });
   }
 });
-getAssListonError(e=>{errorHandle(e,infomsg,alert1)});
+getAssListonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢授權人員列表
 const { mutate: getSupList, onDone: getSupListonDone, onError: getSupListonError } = useMutation(
@@ -1338,7 +1347,7 @@ getSupListonDone(result => {
     }); nowEmpowerSupMU.value.unshift({ text: "", value: "" });
   }
 });
-getSupListonError(e=>{errorHandle(e,infomsg,alert1)});
+getSupListonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 //#endregion 選單查詢==========End
 
@@ -1392,7 +1401,7 @@ getchecktoken().then(res=>{
 }).then(res=>{
   return getAllTrain(); // 查詢訓練課程及開課單位清單
 }).catch(e=>{
-  errorHandle(e,infomsg,alert1);
+  errorHandle(e,infomsg,alert1,msgColor);
 });
 
 // 加載表格選取事件
@@ -1908,7 +1917,7 @@ onMounted(function () {
 
       </MDBRow>
       <!-- 頁腳 -->
-      <Footer1 :msg="infomsg" />
+      <Footer1 :msg="infomsg" :activeColor="msgColor" />
     </MDBRow>
   </MDBContainer>
 </template>

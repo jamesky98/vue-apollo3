@@ -78,6 +78,7 @@ const rGroup =computed(()=>{
 const NavItem = ref("docs");
 provide("NavItem",NavItem);
 const infomsg = ref("");
+const msgColor = ref("");
 const alert1 = ref(false);
 const store = useStore();
 const publicPath = computed(() => store.state.selectlist.publicPath);
@@ -183,7 +184,7 @@ getAllDocLatestonDone(result => {
     notProssing2.value = true;
   }
 });
-getAllDocLatestonError(e=>{errorHandle(e,infomsg,alert1)});
+getAllDocLatestonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 為上階文件選單另外建立一個
 const { 
@@ -202,7 +203,7 @@ getAllDocLatest2onDone(result => {
     }); parentsmu.value.unshift({ text: "", value: "" });
   }
 });
-getAllDocLatest2onError(e=>{errorHandle(e,infomsg,alert1)});
+getAllDocLatest2onError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢文件類型
 const { 
@@ -221,7 +222,7 @@ getAllDocTypeonDone(result => {
     }); nowDocTypemu.value.unshift({ text: "", value: "" });
   }
 });
-getAllDocTypeonError(e=>{errorHandle(e,infomsg,alert1)});
+getAllDocTypeonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢歷史文件
 const { 
@@ -241,7 +242,7 @@ getHistDoconDone(result => {
     data2.value = result.data.getDocHistory;
   }
 });
-getHistDoconError(e=>{errorHandle(e,infomsg,alert1)});
+getHistDoconError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 查詢下階文件
 const { 
@@ -261,7 +262,7 @@ getChildDoconDone(result => {
     data3.value = result.data.getDocChild;
   }
 });
-getChildDoconError(e=>{errorHandle(e,infomsg,alert1)});
+getChildDoconError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 選取項目時填入該資料
 function updateDocContext(e, dt, type, indexes){
@@ -527,9 +528,10 @@ addDocOnDone(()=>{
   refgetAllDocLatest2();
   refgetHistDoc();
   infomsg.value = "ID:" + nowIDed.value+ " " + nowDocIDed.value + "完成新增";
-  alert1.value = true;
+  msgColor.value = "blue";
+  // alert1.value = true;
 });
-addDocError(e=>{errorHandle(e,infomsg,alert1)});
+addDocError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 編輯表單-新增
 function addDocBtn(){
@@ -570,9 +572,10 @@ delDocOnDone(()=>{
   refgetAllDocLatest2();
   refgetHistDoc();
   infomsg.value = "ID:" + nowIDed.value+ " " + nowDocIDed.value + "完成刪除";
-  alert1.value = true;
+  msgColor.value = "blue";
+  // alert1.value = true;
 });
-delDocError(e=>{errorHandle(e,infomsg,alert1)});
+delDocError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 編輯表單-修改
 const { mutate: saveDoc, onDone: saveDocOnDone, onError: saveDocError } = useMutation(
@@ -599,9 +602,10 @@ saveDocOnDone(()=>{
   refgetAllDocLatest2();
   refgetHistDoc();
   infomsg.value = "ID:"+nowIDed.value+ " " + nowDocIDed.value + "完成修改";
-  alert1.value = true;
+  msgColor.value = "blue";
+  // alert1.value = true;
 });
-saveDocError(e=>{errorHandle(e,infomsg,alert1)});
+saveDocError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 編輯表單-儲存
 function saveDocBtn() {
@@ -639,19 +643,20 @@ function saveDocBtn() {
   
   // 上傳檔案
   const { mutate: uploadDoc, onDone: uploadDocOnDone, onError: uploadDoconError } = useMutation(DocsGQL.UPLOADDOC);
-  uploadDoconError(e=>{errorHandle(e,infomsg,alert1)});
+  uploadDoconError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
   // 儲存(更新)上傳路徑檔名
   const { mutate: saveUpload, onDone: saveUploadOnDone, onError: saveUploadError } = useMutation(DocsGQL.SAVEUPLOAD);
   saveUploadOnDone(() => {
     filterAllDocLatest();
     refgetHistDoc();
   });
-  saveUploadError(e=>{errorHandle(e,infomsg,alert1)});
+  saveUploadError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
   uploadDocOnDone((result)=>{
     // console.log(result.data.uploadDoc);
     infomsg.value = "ID:" + nowIDed.value + " " + nowDocIDed.value + "檔案完成上傳";
-    alert1.value = true;
+    msgColor.value = "blue";
+    // alert1.value = true;
     if(isUploadBtn.value){
       nowUpload.value = result.data.uploadDoc.filename;
       saveUpload({
@@ -727,7 +732,7 @@ getchecktoken().then(res=>{
   refgetChildDoc();
   return 
 }).catch(e=>{
-  errorHandle(e,infomsg,alert1);
+  errorHandle(e,infomsg,alert1,msgColor);
 });
 
 
@@ -980,7 +985,7 @@ onMounted(function () {
       </MDBRow>
 
       <!-- 頁腳 -->
-      <Footer1 :msg="infomsg" />
+      <Footer1 :msg="infomsg" :activeColor="msgColor" />
     </MDBRow>
   </MDBContainer>
 </template>

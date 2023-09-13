@@ -75,6 +75,7 @@ const rGroup =computed(()=>{
 const NavItem = ref("cust");
 provide("NavItem",NavItem);
 const infomsg = ref("");
+const msgColor = ref("");
 const alert1 = ref(false);
 const alertColor = ref("primary");
 const store = useStore();
@@ -225,8 +226,9 @@ const { mutate: saveOrg, onDone: saveOrgOnDone, onError: saveOrgError } = useMut
 saveOrgOnDone(result=>{
   store.dispatch('selectlist/fetchOrgList');
   infomsg.value = "機關 " + result.data.updateOrg.id + " 儲存完畢";
+  msgColor.value = "blue";
 });
-saveOrgError(e=>{errorHandle(e,infomsg,alert1)});
+saveOrgError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 刪除機關資料
 const { mutate: delOrg, onDone: delOrgOnDone, onError: delOrgError } = useMutation(
@@ -240,8 +242,9 @@ const { mutate: delOrg, onDone: delOrgOnDone, onError: delOrgError } = useMutati
 delOrgOnDone(result=>{
   store.dispatch('selectlist/fetchOrgList');
   infomsg.value = "機關 " + result.data.delOrg.id + " 刪除完成";
+  msgColor.value = "blue";
 });
-delOrgError(e=>{errorHandle(e,infomsg,alert1)});
+delOrgError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 //#endregion 公司表格==========End
 
@@ -252,7 +255,7 @@ getAllCustonDone(result=>{
     data_cust.value = result.data.getAllCust;
   }
 });
-getAllCustonError(e=>{errorHandle(e,infomsg,alert1)});
+getAllCustonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 const { onDone: getselCustonDone, mutate: refgetselCust, onError: getselCustonError } = useMutation(
   CustGQL.GETCUSTBYID,()=>({
@@ -269,7 +272,7 @@ getselCustonDone(result=>{
     nowCustSelOrgId.value = getData.org_id;
   }
 });
-getselCustonError(e=>{errorHandle(e,infomsg,alert1)});
+getselCustonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 let dt_cust;
 const table_cust = ref(); 
@@ -325,6 +328,7 @@ const { mutate: saveCust, onDone: saveCustOnDone, onError: saveCustError } = use
 );
 saveCustOnDone(result=>{
   infomsg.value = "聯絡人 " + result.data.updateCust.id + " 儲存完畢";
+  msgColor.value = "blue";
   if(joinCust.value){
     if(nowCustOrgID.value && nowCustOrgID.value!==""){
       // console.log("nowCustOrgID",nowCustOrgID.value);
@@ -336,7 +340,7 @@ saveCustOnDone(result=>{
     refgetAllCust({orgId: null});
   }
 });
-saveCustError(e=>{errorHandle(e,infomsg,alert1)});
+saveCustError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 刪除顧客資料
 const { mutate: delCust, onDone: delCustOnDone, onError: delCustError } = useMutation(
@@ -349,6 +353,7 @@ const { mutate: delCust, onDone: delCustOnDone, onError: delCustError } = useMut
 );
 delCustOnDone(result=>{
   infomsg.value = "聯絡人 " + result.data.delCust.id + " 刪除完成";
+  msgColor.value = "blue";
   if(joinCust.value){
     if(nowCustOrgID.value && nowCustOrgID.value!==""){
       // console.log("nowCustOrgID",nowCustOrgID.value);
@@ -360,7 +365,7 @@ delCustOnDone(result=>{
     refgetAllCust({orgId: null});
   }
 });
-delCustError(e=>{errorHandle(e,infomsg,alert1)});
+delCustError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 // 聯絡人表格==========End
 
@@ -371,7 +376,7 @@ getAllItemonDone(result=>{
     data_Item.value = result.data.getAllItem;
   }
 });
-getAllItemonError(e=>{errorHandle(e,infomsg,alert1)});
+getAllItemonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 const { onDone: getItemByIdonDone, mutate: refgetItemById, onError: getItemByIdonError } = useMutation(ItemGQL.GETITEMBYID);
 getItemByIdonDone(result=>{
@@ -387,7 +392,7 @@ getItemByIdonDone(result=>{
     nowItemSN.value = getData.serial_number;
   }
 });
-getItemByIdonError(e=>{errorHandle(e,infomsg,alert1)});
+getItemByIdonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 let dt_Item;
 const table_Item = ref(); 
@@ -517,6 +522,7 @@ function saveItemBtn(){
 const { mutate: saveItem, onDone: saveItemOnDone, onError: saveItemError } = useMutation(ItemGQL.SAVEITEM);
 saveItemOnDone(result=>{
   infomsg.value = "校正件 " + result.data.updateItem.id + " 儲存完畢";
+  msgColor.value = "blue";
   store.dispatch('selectlist/fetchChopList');
   store.dispatch('selectlist/fetchModelList');
   if(joinItem.value){
@@ -539,7 +545,7 @@ saveItemOnDone(result=>{
     })
   }
 });
-saveItemError(e=>{errorHandle(e,infomsg,alert1)});
+saveItemError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 const { mutate: delItem, onDone: delItemOnDone, onError: delItemError } = useMutation(
   ItemGQL.DELITEM, () => ({
@@ -549,6 +555,7 @@ const { mutate: delItem, onDone: delItemOnDone, onError: delItemError } = useMut
 );
 delItemOnDone(result=>{
   infomsg.value = "校正件 " + result.data.delItem.id + " 刪除完成";
+  msgColor.value = "blue";
   if(joinItem.value){
     if(nowCustOrgID.value && nowCustOrgID.value!==""){
       // console.log("nowCustOrgID",nowCustOrgID.value);
@@ -569,7 +576,9 @@ delItemOnDone(result=>{
     })
   }
 });
-delItemError(e=>{errorHandle(e,infomsg,alert1)});
+delItemError(e=>{
+  errorHandle(e,infomsg,alert1,msgColor);
+});
 
 //#endregion 校正件表格==========End
 
@@ -588,7 +597,7 @@ getItemCaseonDone(result=>{
     data_Case.value = result.data.getAllCase;
   }
 });
-getItemCaseonError(e=>{errorHandle(e,infomsg,alert1)});
+getItemCaseonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 let dt_Case;
 const table_Case = ref(); 
@@ -720,7 +729,7 @@ getchecktoken().then(res=>{
 
   return
 }).catch(e=>{
-  errorHandle(e,infomsg,alert1);
+  errorHandle(e,infomsg,alert1,msgColor);
 });
 
 
@@ -952,6 +961,7 @@ onMounted(function () {
                                   ref="nowItemTypeDOM" />
                                 
                                 <MDBSelect size="sm" class="mt-2 col-12" 
+                                  filter
                                   label="廠牌" 
                                   v-model:options="nowItemChopMU"
                                   v-model:selected="nowItemChop" 
@@ -961,6 +971,7 @@ onMounted(function () {
                                 </MDBSelect>
 
                                 <MDBSelect size="sm" class="mt-2 col-12" 
+                                  filter
                                   label="型號" 
                                   v-model:options="nowItemModelMU"
                                   v-model:selected="nowItemModel" 
@@ -1008,7 +1019,7 @@ onMounted(function () {
         </MDBCol>
       </MDBRow>
       <!-- 頁腳 -->
-      <Footer1 :msg="infomsg" />
+      <Footer1 :msg="infomsg" :activeColor="msgColor" />
     </MDBRow>
   </MDBContainer>
 </template>
