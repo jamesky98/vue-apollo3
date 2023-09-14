@@ -1,14 +1,11 @@
 <script setup>
-import { ref, provide, inject, unref } from "vue";
+import { ref, inject } from "vue";
 import {
-  MDBInput,  MDBSwitch,  MDBTextarea,
+  MDBInput,
   MDBCol,  MDBRow,  MDBContainer,
-  MDBSelect,  MDBDatepicker,  MDBBtn,  MDBBtnClose,
-  MDBStepper,  MDBStepperStep,  MDBStepperHead,  MDBStepperContent,  MDBStepperForm,
-  MDBModal,  MDBModalHeader,  MDBModalTitle,  MDBModalBody,  MDBModalFooter,
-  MDBTabs,  MDBTabNav,  MDBTabContent,  MDBTabItem,  MDBTabPane,
+  MDBBtn,
 } from 'mdb-vue-ui-kit';
-import { useQuery, useMutation } from "@vue/apollo-composable";
+import { useMutation } from "@vue/apollo-composable";
 import PrjGQL from "../graphql/Prj";
 
 import DataTable from "datatables.net-vue3";
@@ -16,15 +13,7 @@ import DataTableBs5 from "datatables.net-bs5";
 import Select from "datatables.net-select";
 import { computed } from "@vue/reactivity";
 import router from "../router";
-import { errorHandle, logIn, logOut, toTWDate } from "../methods/User";
-import { useStore } from 'vuex'
-import { 
-  monthsFull, 
-  monthsShort, 
-  weekdaysFull, 
-  weekdaysShort,
-  weekdaysNarrow
-} from "../methods/datePickerParams.js"
+import { errorHandle, toTWDate } from "../methods/User";
 
 DataTable.use(DataTableBs5);
 DataTable.use(Select);
@@ -34,21 +23,20 @@ DataTable.use(Select);
   const nowCaseCalType = inject("nowCaseCalType");
 
   // 參考值列表
-  // const showPrjFrom = ref(false);
-  const prjTabId = ref("prjFilter");
+  const nowCaseRefPrjID = inject("nowCaseRefPrjID"); // 量測作業索引
+  const nowCaseRefPrjCode = inject("nowCaseRefPrjCode"); // 量測作業編號編號
+  const nowCaseRefPrjPublishDate = inject("nowCaseRefPrjPublishDate"); // 參考值發布日期
+  const seletPrjPublishDate = computed(()=>{
+    return (nowCaseRefPrjPublishDate.value.trim())?toTWDate(nowCaseRefPrjPublishDate.value):""
+  });
 
-  const seletPrjID = inject("seletPrjID");
-  const seletPrjCode = inject("seletPrjCode");
-  const seletPrjPublishDate = inject("seletPrjPublishDate");
-
-  const filterPrjCode = ref("");
-
-  const filterPrjPubDateStart = ref("");
-  const filterPrjPubDateStartDOM = ref();
-
-  const filterPrjPubDateEnd = ref("");
-  const filterPrjPubDateEndDOM = ref();
-
+  const selPrjYear = ref("");
+  const selPrjMounth = ref("");
+  const selPrjCalType = ref("");
+  const selPrjMethod = ref("");
+  const selPrjOrg = ref("");
+  const selPrjStartDate = ref("");
+  const selPrjEndDate = ref("");
 //#endregion 參數==========End
 
 //#region 參考值列表=========start
@@ -57,11 +45,11 @@ DataTable.use(Select);
   const dataPrj = ref([]);
   // 設定表格tablePrj
   const columnsPrj = [
-    { data: "id", title: "編號", defaultContent: "-" },
-    { data: "project_code", title: "作業編號", defaultContent: "-" },
+    { data: "id", title: "索引", defaultContent: "-" },
+    { data: "project_code", title: "編號", defaultContent: "-" },
     { data: "cal_type.name", title: "校正項目", defaultContent: "-" },
     { data: "publish_date", title: "發布日", defaultContent: "-", render: (data) => { return toTWDate(data); } },
-    { data: "method", title: "方式", defaultContent: "-" },
+    { data: "method", title: "類型", defaultContent: "-" },
     { data: "year", title: "作業年", defaultContent: "-" },
     { data: "month", title: "月", defaultContent: "-" },
     { data: "organizer", title: "作業機關", defaultContent: "-" },
@@ -119,11 +107,28 @@ DataTable.use(Select);
     dtPrj = tablePrj.value.dt();
     dtPrj.on('select', function (e, dt, type, indexes) {
       let getData = dt.rows(indexes).data()[0];
-      seletPrjID.value = getData.id;
-      seletPrjCode.value = getData.project_code;
-      seletPrjPublishDate.value = (getData.publish_date)?getData.publish_date.split("T")[0]:" ";
+      nowCaseRefPrjID.value = getData.id;
+      nowCaseRefPrjCode.value = getData.project_code;
+      nowCaseRefPrjPublishDate.value = (getData.publish_date)?getData.publish_date.split("T")[0]:" ";
+
+      selPrjYear.value = getData.year;
+      selPrjMounth.value = getData.month;
+      selPrjCalType.value = getData.cal_type.name;
+      selPrjMethod.value = getData.method;
+      selPrjOrg.value = getData.organizer;
+      selPrjStartDate.value = (getData.start_date)?toTWDate(getData.start_date):"";
+      selPrjEndDate.value = (getData.end_date)?toTWDate(getData.end_date):"";
     });
-    refgetAllPrj();
+    refgetAllPrj().then(res=>{
+      // 選擇原作業
+      // console.log('nowCaseRefPrjID',nowCaseRefPrjID.value)
+      if(nowCaseRefPrjID.value){
+        dtPrj.rows(function(idx,data,node){
+          // console.log('data_id: ',data.id);
+          return parseInt(data.id) === parseInt(nowCaseRefPrjID.value)? true:false
+        }).select();
+      }
+    });
   }
 
   // 更多編輯=>引導至校正件管理
@@ -131,23 +136,6 @@ DataTable.use(Select);
     router.push('/prjs');
   }
 
-  // 清除校正件篩選條件
-  function clearPrjFilter() {
-    filterPrjCode.value = "";
-    filterPrjPubDateStart.value = " ";
-    filterPrjPubDateEnd.value = " ";
-  }
-
-  // 執行量測作業篩選
-  function doPrjFilter() {
-    let where = {};
-    if (filterPrjCode.value !== "") where.projectCode = filterPrjCode.value;
-    if (filterPrjPubDateStart.value.trim() !== "") where.pubdateStart = filterPrjPubDateStart.value.trim();
-    if (filterPrjPubDateEnd.value.trim() !== "") where.pubdateEnd = filterPrjPubDateEnd.value.trim();
-
-    // varAllPrj.value = where;
-    refgetAllPrj(where);
-  }
 //#endregion 參考值列表=========end
 
 defineExpose({
@@ -165,62 +153,43 @@ defineExpose({
       </MDBCol>
       <!-- 篩選 或 編輯 -->
       <MDBCol col="12" class="border border-1">
-        <MDBTabs v-model="prjTabId">
-          <MDBTabNav tabsClasses="">
-            <MDBTabItem tabId="prjFilter" href="prjFilter">條件篩選</MDBTabItem>
-          </MDBTabNav>
-          <MDBTabContent>
-            <!-- 篩選表單 -->
-            <MDBTabPane tabId="prjFilter">
-              <!-- 功能列 -->
-              <div class="mt-2">
-                <MDBBtn size="sm" color="primary" @click="doPrjFilter">篩選</MDBBtn>
-                <MDBBtn size="sm" color="primary" @click="clearPrjFilter">清除</MDBBtn>
-                <MDBBtn size="sm" color="primary" @click="gotoPrjMG">量測作業管理</MDBBtn>
-              </div>
-              <!-- 條件欄位 -->
-              <MDBRow>
-                <MDBCol col="6" class="mb-2">
-                  目前：{{seletPrjID}}-{{seletPrjCode}}
-                </MDBCol>
-                <MDBCol col="6" class="mb-2">
-                  <MDBInput size="sm" type="text" label="作業編號" v-model="filterPrjCode" />
-                </MDBCol>
-                <div></div>
-                <MDBCol col="6" class="mb-3">
-                  <MDBDatepicker 
-                    size="sm" 
-                    v-model="filterPrjPubDateStart" 
-                    format="YYYY-MM-DD" label="發布日(起)"
-                    :monthsFull = "monthsFull"
-                    :monthsShort = "monthsShort"
-                    :weekdaysFull = "weekdaysFull"
-                    :weekdaysShort = "weekdaysShort"
-                    :weekdaysNarrow = "weekdaysNarrow"
-                    confirmDateOnSelect
-                    removeCancelBtn
-                    removeOkBtn
-                    ref="filterPrjPubDateStartDOM" />
-                </MDBCol>
-                <MDBCol col="6" class="mb-3">
-                  <MDBDatepicker 
-                    size="sm" 
-                    v-model="filterPrjPubDateEnd" 
-                    format="YYYY-MM-DD" label="發布日(迄)"
-                    :monthsFull = "monthsFull"
-                    :monthsShort = "monthsShort"
-                    :weekdaysFull = "weekdaysFull"
-                    :weekdaysShort = "weekdaysShort"
-                    :weekdaysNarrow = "weekdaysNarrow"
-                    confirmDateOnSelect
-                    removeCancelBtn
-                    removeOkBtn
-                    ref="filterPrjPubDateEndDOM" />
-                </MDBCol>
-              </MDBRow>
-            </MDBTabPane>
-          </MDBTabContent>
-        </MDBTabs>
+        <MDBRow>
+          <MDBCol  col="12" class="my-2">
+            <MDBBtn size="sm" color="primary" @click="gotoPrjMG">量測作業管理</MDBBtn>
+          </MDBCol>
+          <MDBCol col="12" class="mb-2">
+            目前選擇：{{nowCaseRefPrjID}}
+          </MDBCol>
+          <MDBCol col="4" class="mb-2">
+            <MDBInput disabled size="sm" type="text" label="作業編號" v-model="nowCaseRefPrjCode" />
+          </MDBCol>
+          <MDBCol col="4" class="mb-2">
+            <MDBInput disabled size="sm" type="text" label="年" v-model="selPrjYear" />
+          </MDBCol>
+          <MDBCol col="4" class="mb-2">
+            <MDBInput disabled size="sm" type="text" label="月" v-model="selPrjMounth" />
+          </MDBCol>
+          <MDBCol col="4" class="mb-2">
+            <MDBInput disabled size="sm" type="text" label="校正項目" v-model="selPrjCalType" />
+          </MDBCol>
+          <MDBCol col="4" class="mb-2">
+            <MDBInput disabled size="sm" type="text" label="作業方式" v-model="selPrjMethod" />
+          </MDBCol>
+          <MDBCol col="4" class="mb-2">
+            <MDBInput disabled size="sm" type="text" label="作業機關" v-model="selPrjOrg" />
+          </MDBCol>
+          <MDBCol col="4" class="mb-2">
+            <MDBInput disabled size="sm" type="text" label="開始日" v-model="selPrjStartDate" />
+          </MDBCol>
+          <MDBCol col="4" class="mb-2">
+            <MDBInput disabled size="sm" type="text" label="結束日" v-model="selPrjEndDate" />
+          </MDBCol>
+          <MDBCol col="4" class="mb-2">
+            <MDBInput disabled size="sm" type="text" label="發布日" v-model="seletPrjPublishDate" />
+          </MDBCol>
+        </MDBRow>
+        
+
       </MDBCol>
     </MDBRow>
   </MDBContainer>

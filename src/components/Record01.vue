@@ -196,8 +196,11 @@ const nowCaseStartDate = inject('nowCaseStartDate'); //開始校正日
 const nowCaseStartDateDOM = ref();
 
 const nowCaseRefPrjID = ref(""); // 量測作業索引
+provide("nowCaseRefPrjID", nowCaseRefPrjID);
 const nowCaseRefPrjCode = ref(""); // 量測作業編號編號
+provide("nowCaseRefPrjCode", nowCaseRefPrjCode);
 const nowCaseRefPrjPublishDate = ref(""); // 參考值發布日期
+provide("nowCaseRefPrjPublishDate", nowCaseRefPrjPublishDate);
 const nowCaseRefEqpt = ref(); // 使用標準件
 
 const nowCaseImgNo = ref(""); // 使用影像數
@@ -263,7 +266,7 @@ const nowCaseNetGraphDL = computed(() => {
   if (nowCaseNetGraph.value && nowCaseNetGraph.value !== "") {
     return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseNetGraph.value + '?t=' + new Date().getTime();
   } else {
-    return undefined;
+    return "";
   }
 });
 
@@ -272,7 +275,7 @@ const nowCaseGCPGraphDL = computed(() => {
   if (nowCaseGCPGraph.value && nowCaseGCPGraph.value !== "") {
     return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseGCPGraph.value + '?t=' + new Date().getTime();
   } else {
-    return undefined;
+    return "";
   }
 });
 
@@ -357,22 +360,7 @@ provide("showItemFrom", showItemFrom);
 
 // 參考值列表
 const showPrjFrom = ref(false);
-const prjTabId = ref("prjFilter");
 
-const seletPrjID = ref("");
-provide("seletPrjID", seletPrjID);
-const seletPrjCode = ref("");
-provide("seletPrjCode", seletPrjCode);
-const seletPrjPublishDate = ref("");
-provide("seletPrjPublishDate", seletPrjPublishDate);
-
-// const filterPrjCode = ref("");
-
-// const filterPrjPubDateStart = ref("");
-// const filterPrjPubDateStartDOM = ref();
-
-// const filterPrjPubDateEnd = ref("");
-// const filterPrjPubDateEndDOM = ref();
 //#endregion 參數==========End
 
 //#region 案件詳細編輯資料==========start
@@ -631,122 +619,23 @@ function showItemFromBtn(x) {
 //#endregion 校正件列表=========end
 
 //#region 參考值列表=========start
-const subSelectPrj = ref();
-function shownPrjModal(){
-  subSelectPrj.value.shownPrjModal();
-}
-// let dtPrj;
-// const tablePrj = ref();
-// const dataPrj = ref([]);
-// // 設定表格tablePrj
-// const columnsPrj = [
-//   { data: "id", title: "編號", defaultContent: "-" },
-//   { data: "project_code", title: "作業編號", defaultContent: "-" },
-//   { data: "cal_type.name", title: "校正項目", defaultContent: "-" },
-//   { data: "publish_date", title: "發布日", defaultContent: "-", render: (data) => { return toTWDate(data); } },
-//   { data: "method", title: "方式", defaultContent: "-" },
-//   { data: "year", title: "作業年", defaultContent: "-" },
-//   { data: "month", title: "月", defaultContent: "-" },
-//   { data: "organizer", title: "作業機關", defaultContent: "-" },
-//   { data: "start_date", title: "開始日", defaultContent: "-", render: (data) => { return toTWDate(data); } },
-//   { data: "end_date", title: "結束日", defaultContent: "-", render: (data) => { return toTWDate(data); } },
-// ];
-// const tboptionPrj = {
-//   dom: "fti",
-//   select: {
-//     style: "single",
-//     info: false,
-//   },
-//   order: [[1, "desc"]],
-//   scrollY: "22vh",
-//   scrollX: true,
-//   lengthChange: false,
-//   searching: true,
-//   paging: false,
-//   responsive: true,
-//   language: {
-//     info: "共 _TOTAL_ 筆資料",
-//   },
-// };
-
-// const getPrjCalTypeId = computed(() => {
-//   if (nowCaseCalType.value === '') {
-//     return null
-//   } else if (nowCaseCalType.value === 3) {
-//     return 1
-//   } else {
-//     return nowCaseCalType.value
-//   }
-// })
-// // 查詢量測作業資料
-// const {
-//   mutate: refgetAllPrj,
-//   onDone: getAllPrjonDone,
-//   onError: getAllPrjonError
-// } = useMutation(PrjGQL.GETALLPRJ, () => ({
-//   variables: {
-//     calTypeId: getPrjCalTypeId.value,
-//     method: "量測",
-//   }
-// }));
-// getAllPrjonDone((result) => {
-//   // 加入量測作業資料
-//   if (!result.loading && result.data.getAllPrj) {
-//     dataPrj.value = result.data.getAllPrj;
-//   }
-// });
-// getAllPrjonError(e=>{errorHandle(e,infomsg,alert1)});
-
-// // 開啟參考值選單
-// function shownPrjModal() {
-//   dtPrj = tablePrj.value.dt();
-//   dtPrj.on("select", function (e, dt, type, indexes) {
-//     let getData = dt.rows(indexes).data()[0];
-//     seletPrjID.value = getData.id;
-//     seletPrjCode.value = getData.project_code;
-//     seletPrjPublishDate.value = (getData.publish_date)?getData.publish_date.split("T")[0]:" ";
-//   });
-//   refgetAllPrj();
-// }
-
-// // 更多編輯=>引導至量測作業管理
-// function gotoPrjMG() {
-//   router.push("/prjs");
-// }
-
-// // 清除量測作業篩選條件
-// function clearPrjFilter() {
-//   filterPrjCode.value = "";
-//   filterPrjPubDateStart.value = " ";
-//   filterPrjPubDateEnd.value = " ";
-// }
-
-// // 執行量測作業篩選
-// function doPrjFilter() {
-//   let where = {};
-//   if (filterPrjCode.value !== "") where.projectCode = filterPrjCode.value;
-//   if (filterPrjPubDateStart.value.trim() !== "")
-//     where.pubdateStart = filterPrjPubDateStart.value;
-//   if (filterPrjPubDateEnd.value.trim() !== "")
-//     where.pubdateEnd = filterPrjPubDateEnd.value;
-
-//   // varAllPrj.value = where;
-//   refgetAllPrj(where);
-// }
-
-// 按加入後回填量測作業id
-function setPrjBtn() {
-  nowCaseRefPrjID.value = seletPrjID.value;
-  nowCaseRefPrjCode.value = seletPrjCode.value;
-  nowCaseRefPrjPublishDate.value = seletPrjPublishDate.value;
-  saveRecord01().then(res=>{
-    return refgetNowCaseF();
-  }).then(res=>{
-    return getUcList();
-  }).then(res => {
-    showPrjFrom.value = false;
-  });
-}
+  const subSelectPrj = ref();
+  function shownPrjModal(){
+    subSelectPrj.value.shownPrjModal();
+  }
+  // 按加入後回填量測作業id
+  function setPrjBtn() {
+    // nowCaseRefPrjID.value = seletPrjID.value;
+    // nowCaseRefPrjCode.value = seletPrjCode.value;
+    // nowCaseRefPrjPublishDate.value = seletPrjPublishDate.value;
+    saveRecord01().then(res=>{
+      return refgetNowCaseF();
+    }).then(res=>{
+      return getUcList();
+    }).then(res => {
+      showPrjFrom.value = false;
+    });
+  }
 
 //#endregion 參考值列表=========end
 
@@ -1634,7 +1523,6 @@ getRptListError(e=>{errorHandle(e,infomsg,alert1)});
 
 //#endregion 產生報告==========End
 
-
 getchecktoken().then(res=>{
   refgetNowCaseF();
   refgetAllSignPson();
@@ -1649,7 +1537,7 @@ defineExpose({
 });
 </script>
 <template>
-  <div class="h-100 overflow-auto">
+  <div class="h-100 overflow-auto" ref="divFrom">
     <input type="file" id="AllUpload" @change="uploadChenge($event)" style="display: none" />
     <!-- 選擇校正件 -->
     <MDBModal @shown="shownItemModal" v-model="showItemFrom" staticBackdrop scrollable>
@@ -1664,7 +1552,7 @@ defineExpose({
       </MDBModalFooter>
     </MDBModal>
     <!-- 選擇參考值量測作業 -->
-    <MDBModal @shown="shownPrjModal" v-model="showPrjFrom" staticBackdrop scrollable>
+    <MDBModal @shown="shownPrjModal" v-model="showPrjFrom" size="lg" staticBackdrop scrollable>
       <MDBModalHeader>
         <MDBModalTitle>請選擇參考值量測作業</MDBModalTitle>
       </MDBModalHeader>
@@ -1676,12 +1564,12 @@ defineExpose({
       </MDBModalFooter>
     </MDBModal>
     <!-- record01表單 linear -->
-    <MDBStepper linear @onChangeStep="onChangeStep">
+    <MDBStepper linear @onChangeStep="onChangeStep" class="h-100">
       <MDBStepperForm>
         <MDBStepperStep active>
           <MDBStepperHead icon="1"> 申請 </MDBStepperHead>
-          <MDBStepperContent :key="updateKey">
-            <MDBRow>
+          <MDBStepperContent :key="updateKey" style="height: calc(100% - 5rem);">
+            <MDBRow class="h-100 overflow-auto">
               <MDBCol col="12" class="rounded-top-5 bg-info text-white">
                 校正件
               </MDBCol>
@@ -1871,8 +1759,8 @@ defineExpose({
         </MDBStepperStep>
         <MDBStepperStep>
           <MDBStepperHead icon="2"> 送校 </MDBStepperHead>
-          <MDBStepperContent :key="updateKey">
-            <MDBRow>
+          <MDBStepperContent :key="updateKey" style="height: calc(100% - 5rem);">
+            <MDBRow class="h-100 overflow-auto">
               <MDBCol col="4" class="my-3">
                 <MDBDatepicker 
                   required size="sm" 
@@ -2039,8 +1927,8 @@ defineExpose({
         </MDBStepperStep>
         <MDBStepperStep>
           <MDBStepperHead icon="3"> 校正 </MDBStepperHead>
-          <MDBStepperContent :key="updateKey">
-            <MDBRow>
+          <MDBStepperContent :key="updateKey" style="height: calc(100% - 5rem);">
+            <MDBRow class="h-100 overflow-auto">
               <MDBCol col="4" class="my-3">
                 <MDBDatepicker 
                   required size="sm" 
@@ -2102,7 +1990,21 @@ defineExpose({
               </MDBCol>
               <MDBCol col="12" class="mb-3 border border-1 rounded-bottom-5">
                 <MDBRow>
-                  <MDBCol col="12" class="my-3">
+                  <!-- 空三報表檔 -->
+                  <MDBCol col="8" class="my-3">
+                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
+                      label="PrintOut.0 空三報表檔" v-model="nowCaseATreport">
+                      <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowCaseATreport = ''"
+                        class="btn-upload-close" />
+                    </MDBInput>
+                  </MDBCol>
+                  <MDBCol col="3" class="px-0 my-3">
+                    <MDBBtn size="sm" color="primary" :disabled="!selectUcModel || selectUcModel === '-1' || !rGroup[2]"
+                      @click="uploadBtn('ATreportUpload')">上傳</MDBBtn>
+                    <MDBBtn tag="a" target=_blank :href="nowCaseATreportDL" download size="sm" color="secondary">下載</MDBBtn>
+                  </MDBCol>
+                  <!-- 功能紐 -->
+                  <MDBCol col="12" class="mb-3">
                     <MDBBtn :disabled="!nowCaseCalResult" size="sm" color="primary">
                       <RouterLink target="_blank" :to="{
                         path: '/sicltab05',
@@ -2154,19 +2056,7 @@ defineExpose({
                     <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="uploadBtn('FixUpload')">上傳</MDBBtn>
                     <MDBBtn tag="a" target=_blank :href="nowCaseFixUploadDL" download size="sm" color="secondary">下載</MDBBtn>
                   </MDBCol>
-                  <!-- 空三報表檔 -->
-                  <MDBCol col="8" class="mb-3">
-                    <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                      label="空三報表檔" v-model="nowCaseATreport">
-                      <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowCaseATreport = ''"
-                        class="btn-upload-close" />
-                    </MDBInput>
-                  </MDBCol>
-                  <MDBCol col="3" class="px-0 mb-3">
-                    <MDBBtn size="sm" color="primary" :disabled="!selectUcModel || selectUcModel === '-1' || !rGroup[2]"
-                      @click="uploadBtn('ATreportUpload')">上傳</MDBBtn>
-                    <MDBBtn tag="a" target=_blank :href="nowCaseATreportDL" download size="sm" color="secondary">下載</MDBBtn>
-                  </MDBCol>
+                  
                   <div></div>
                   <MDBCol col="4" class="mb-3">
                     <MDBInput tooltipFeedback required readonly size="sm" type="text" label="使用影像數"
@@ -2319,8 +2209,8 @@ defineExpose({
         </MDBStepperStep>
         <MDBStepperStep>
           <MDBStepperHead icon="4"> 出具報告 </MDBStepperHead>
-          <MDBStepperContent :key="updateKey">
-            <MDBRow>
+          <MDBStepperContent :key="updateKey" style="height: calc(100% - 5rem);">
+            <MDBRow class="h-100 overflow-auto">
               <MDBCol col="6">
                 <MDBRow>
                   <MDBCol col="12" class="rounded-top-5 bg-info text-white">
