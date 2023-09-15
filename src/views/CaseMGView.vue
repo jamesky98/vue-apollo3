@@ -287,19 +287,19 @@ provide("rGroup", rGroup);
       const nowCaseCustId = ref(""); // 顧客聯絡人ID
       provide("nowCaseCustId", nowCaseCustId);
       const nowCaseCustOrgId = ref(""); // 顧客公司ID
-      provide("nowCaseCustOrgId", nowCaseCustOrgId);
+      // provide("nowCaseCustOrgId", nowCaseCustOrgId);
       const nowCaseCustOrgName = ref(""); // 顧客公司名稱
-      provide("nowCaseCustOrgName", nowCaseCustOrgName);
+      // provide("nowCaseCustOrgName", nowCaseCustOrgName);
       const nowCaseCustTaxID = ref(""); // 統一編號
-      provide("nowCaseCustTaxID", nowCaseCustTaxID);
+      // provide("nowCaseCustTaxID", nowCaseCustTaxID);
       const nowCaseCustName = ref(""); // 聯絡人名稱
-      provide("nowCaseCustName", nowCaseCustName);
+      // provide("nowCaseCustName", nowCaseCustName);
       const nowCaseCustTel = ref(""); // 顧客電話
-      provide("nowCaseCustTel", nowCaseCustTel);
+      // provide("nowCaseCustTel", nowCaseCustTel);
       const nowCaseCustFax = ref(""); // 顧客傳真
-      provide("nowCaseCustFax", nowCaseCustFax);
+      // provide("nowCaseCustFax", nowCaseCustFax);
       const nowCaseCustAddress = ref(""); // 聯絡地址
-      provide("nowCaseCustAddress", nowCaseCustAddress);
+      // provide("nowCaseCustAddress", nowCaseCustAddress);
 
       // 報告抬頭
       const nowCaseTitle = ref("");
@@ -744,138 +744,18 @@ getAllCaseonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
   function shownCustModal(){
     subSelectCust.value.shownCustModal();
   }
-  function setCustBtn(){
-    subSelectCust.value.setCustBtn();
+  async function setCustBtn(){
+    let result = await subSelectCust.value.setCustBtn();
+    nowCaseCustId.value = result.CustId;
+    nowCaseCustOrgName.value = result.CustOrgName;
+    nowCaseCustTaxID.value = result.CustTaxID;
+    nowCaseCustName.value = result.CustName;
+    nowCaseCustTel.value = result.CustTel;
+    nowCaseCustFax.value = result.CustFax;
+    nowCaseCustAddress.value = result.CustAddress;
+
+    showCustFrom.value = false;
   }
-// let dtCust;
-// const tableCust = ref();
-// const dataCust = ref([]);
-// // 設定表格tableCust
-// const columnsCust = [
-//   { data: "id", title: "編號", defaultContent: "-" },
-//   { data: "cus_org.name", title: "公司名稱", defaultContent: "-" },
-//   { data: "name", title: "聯絡人", defaultContent: "-" },
-//   { data: "tel", title: "電話", defaultContent: "-" },
-//   { data: "fax", title: "傳真", defaultContent: "-" },
-//   { data: "cus_org.tax_id", title: "統一編號", defaultContent: "-" },
-//   { data: "address", title: "地址", defaultContent: "-" },
-// ];
-// const tboptionCust = {
-//   dom: 'fti',
-//   select: {
-//     style: 'single',
-//     info: false
-//   },
-//   order: [[0, 'asc']],
-//   scrollY: '22vh',
-//   scrollX: true,
-//   lengthChange: false,
-//   searching: true,
-//   paging: false,
-//   responsive: true,
-//   language: {
-//     info: '共 _TOTAL_ 筆資料',
-//   }
-// };
-
-// // 查詢顧客資料
-// const { mutate: refgetAllCust , onDone: getAllCustonDone, onError: getAllCustonError } = useMutation(
-//   CustGQL.GETALLCUST,
-//   ()=>({
-//     variables: varAllCust.value
-//   })
-// );
-// getAllCustonDone(result => {
-//   // 加入顧客資料
-//   if (!result.loading && result.data) {
-//     dataCust.value = result.data.getAllCust;
-//   }
-// });
-// getAllCustonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
-
-// // 查詢選取顧客資料
-// const {  mutate: refgetselCust, onDone: getselCustonDone, onError: getselCustonError } = useMutation(
-//   CustGQL.GETCUSTBYID,
-//   () => ({
-//     getCustByIdId: (parseInt(seletCustId.value))?parseInt(seletCustId.value):-1
-//   })
-// );
-// getselCustonDone(result => {
-//   if (!result.loading && result && result.data.getCustById) {
-//     // console.log('selCustID',seletCustId.value);
-//     let getData = result.data.getCustById
-//     // console.log('getData',getData);
-//     selCustName.value = getData.name;
-//     selCustOrgName.value = getData.org_id;
-//     selCustOrgNameDOM.value.setValue(parseInt(selCustOrgName.value));
-//     selCustTaxId.value = getData.cus_org.tax_id;
-//     selCustTel.value = getData.tel;
-//     selCustFax.value = getData.fax;
-//     selCustAddress.value = getData.address;
-//   }
-// });
-// getselCustonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
-
-// // 開啟顧客視窗
-// function shownCustModal() {
-//   dtCust = tableCust.value.dt();
-//   dtCust.on('select', function (e, dt, type, indexes) {
-//     let getData = dt.rows(indexes).data()[0];
-//     // console.log('getID',getData.id);
-//     seletCustId.value = (parseInt(getData.id))?parseInt(getData.id):-1;
-//     refgetselCust({getCustByIdId: seletCustId.value});
-//   });
-//   refgetAllCust();
-//   if (nowCaseCustId.value) {
-//     seletCustId.value = nowCaseCustId.value;
-//   }
-// }
-
-// // 儲存顧客資料
-// const { mutate: saveCust, onDone: saveCustOnDone, onError: saveCustError } = useMutation(
-//   CustGQL.UPDATECUST,
-//   () => ({
-//     variables: {
-//       updateCustId: parseInt(seletCustId.value),
-//       name: selCustName.value,
-//       address: selCustAddress.value,
-//       tel: selCustTel.value,
-//       fax: selCustFax.value,
-//       orgId: parseInt(selCustOrgName.value),
-//     }
-//   })
-// );
-// saveCustOnDone(() => {
-//   refgetAllCust();
-//   refgetselCust({getCustByIdId: seletCustId.value});
-//   store.dispatch('selectlist/fetchOrgList');
-//   infomsg.value = "ID:" + seletCustId.value + " " + selCustName.value + "完成修改";
-//   msgColor.value = "blue";
-//   // alert1.value = true;
-// });
-// saveCustError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
-
-// // 更多編輯=>引導至顧客管理
-// function gotoCustMG() {
-//   router.push('/cust');
-// }
-
-// 按加入後回填顧客id
-// function setCustBtn() {
-  // nowCaseCustId.value = seletCustId.value;
-  // let getData = caseOrgList.value.filter((x) => {
-  //   return parseInt(x.value) === selCustOrgName.value;
-  // })[0];
-  // 表單顯示顧客資訊
-  // nowCaseCustOrgName.value = (getData) ? getData.text : "";
-  // nowCaseCustTaxID.value = selCustTaxId.value;
-  // nowCaseCustName.value = selCustName.value;
-  // nowCaseCustTel.value = selCustTel.value;
-  // nowCaseCustFax.value = selCustFax.value;
-  // nowCaseCustAddress.value = selCustAddress.value;
-
-//   showCustFrom.value = false;
-// }
 //#endregion 顧客列表=========end
 
 //#region 篩選=========start

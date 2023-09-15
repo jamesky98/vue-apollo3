@@ -288,7 +288,7 @@ DataTable.use(Select);
     dtItem.rows(function(idx,data,node){
       // console.log('itemid:',seletItemId.value);
       // console.log('d.id:',data.id);
-      return data.id === seletItemId.value? true:false
+      return parseInt(data.id) === parseInt(seletItemId.value)? true:false
     }).select();
   }
 

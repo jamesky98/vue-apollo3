@@ -28,17 +28,9 @@ DataTable.use(Select);
   const alert1 =ref(false);
   const store = useStore();
 
-  // 顧客列表
-  const showCustFrom = inject("showCustFrom");
+  // 上層參數
   const nowCaseCustId = inject("nowCaseCustId"); // 顧客聯絡人ID
-  const nowCaseCustOrgId = inject("nowCaseCustOrgId"); // 顧客公司名稱
-  const nowCaseCustOrgName = inject("nowCaseCustOrgName"); // 顧客公司名稱
-  const nowCaseCustTaxID = inject("nowCaseCustTaxID"); // 統一編號
-  const nowCaseCustName = inject("nowCaseCustName"); // 聯絡人名稱
-  const nowCaseCustTel = inject("nowCaseCustTel"); // 顧客電話
-  const nowCaseCustFax = inject("nowCaseCustFax"); // 顧客傳真
-  const nowCaseCustAddress = inject("nowCaseCustAddress"); // 聯絡地址
-
+  // 選擇顧客
   const selCaseCustId = ref(""); // 顧客聯絡人ID
   const selCaseCustOrgId = ref("");; // 顧客公司名稱
   const selCaseCustOrgName = ref(""); // 顧客公司名稱
@@ -87,11 +79,7 @@ DataTable.use(Select);
 
   // 查詢顧客資料
   const { mutate: refgetAllCust , onDone: getAllCustonDone, onError: getAllCustonError } = useMutation(
-    CustGQL.GETALLCUST,
-    ()=>({
-      variables: varAllCust.value
-    })
-  );
+    CustGQL.GETALLCUST);
   getAllCustonDone(result => {
     // 加入顧客資料
     if (!result.loading && result.data) {
@@ -127,17 +115,29 @@ DataTable.use(Select);
   // 開啟顧客視窗
   function shownCustModal() {
     dtCust = tableCust.value.dt();
-    dtCust.on('select', function (e, dt, type, indexes) {
-      let getData = dt.rows(indexes).data()[0];
+    dtCust.on('user-select', function ( e, dt, type, cell, originalEvent ) {
+      let dtNowRowIndex = cell.index(this).row;
+      let getData = dt.rows(dtNowRowIndex).data()[0];
       // console.log('getID',getData.id);
       selCaseCustId.value = (parseInt(getData.id))?parseInt(getData.id):-1;
+      // console.log('selCaseCustId',selCaseCustId.value);
       refgetselCust({getCustByIdId: selCaseCustId.value});
     });
     refgetAllCust().then(res=>{
       if (nowCaseCustId.value) {
-        selCaseCustId.value = nowCaseCustId.value;
+        selCaseCustId.value = nowCaseCustId.value;        
+        refgetselCust({getCustByIdId: selCaseCustId.value});
+        selectDtItem();
       }
     });
+  }
+  // 更新後保持該編號呈現選擇狀態
+  function selectDtItem(){
+    dtCust.rows(function(idx,data,node){
+      // console.log('itemid:',selCaseCustId.value);
+      // console.log('d.id:',data.id);
+      return parseInt(data.id) === parseInt(selCaseCustId.value)? true:false
+    }).select();
   }
 
   // 儲存顧客資料
@@ -170,18 +170,21 @@ DataTable.use(Select);
   }
 
   // 按加入後回填顧客id
-  function setCustBtn() {
-    nowCaseCustId.value = selCaseCustId.value;
-    let getData = selCustOrgNameMU.value.filter((x) => {
-      return parseInt(x.value) === selCaseCustOrgName.value;
+  async function setCustBtn() {
+    // nowCaseCustId.value = selCaseCustId.value;
+    let getData = await selCustOrgNameMU.value.filter((x) => {
+      return parseInt(x.value) === selCaseCustOrgId.value;
     })[0];
-    nowCaseCustOrgName.value = (getData) ? getData.text : "";
-    nowCaseCustTaxID.value = selCaseCustTaxID.value;
-    nowCaseCustName.value = selCaseCustName.value;
-    nowCaseCustTel.value = selCaseCustTel.value;
-    nowCaseCustFax.value = selCaseCustFax.value;
-    nowCaseCustAddress.value = selCaseCustAddress.value;
-    showCustFrom.value = false;
+
+    return {
+      CustId: selCaseCustId.value,
+      CustOrgName: (getData) ? getData.text : "",
+      CustTaxID: selCaseCustTaxID.value,
+      CustName: selCaseCustName.value,
+      CustTel: selCaseCustTel.value,
+      CustFax: selCaseCustFax.value,
+      CustAddress: selCaseCustAddress.value,
+    }
   }
 //#endregion 顧客列表=========end
 
@@ -215,7 +218,7 @@ defineExpose({
             label="公司名稱" 
             :preselect="false"
             v-model:options="selCustOrgNameMU"
-            v-model:selected="nowCaseCustOrgId" 
+            v-model:selected="selCaseCustOrgId" 
             ref="selCustOrgNameDOM" 
             @open="listOpened=true"
             @close="listOpened=false"/>
