@@ -31,21 +31,9 @@ DataTable.use(Select);
   // const publicPath = computed(() => store.state.selectlist.publicPath);
 
   // 上層參數
-  const showItemFrom = inject("showItemFrom");
   const nowCaseItemID = inject("nowCaseItemID"); // 校正件索引
-  const nowCaseItemChop = inject("nowCaseItemChop");
-  const nowCaseItemModel = inject("nowCaseItemModel");
-  const nowCaseItemSN = inject("nowCaseItemSN");
-
   const nowCaseGnssID = inject("nowCaseGnssID");
-  const nowCaseGnssChop = inject("nowCaseGnssChop");
-  const nowCaseGnssModel = inject("nowCaseGnssModel");
-  const nowCaseGnssSN = inject("nowCaseGnssSN");
-
   const nowCaseImuID = inject("nowCaseImuID");
-  const nowCaseImuChop = inject("nowCaseImuChop");
-  const nowCaseImuModel = inject("nowCaseImuModel");
-  const nowCaseImuSN = inject("nowCaseImuSN");
 
   // 校正件列表
   const seletItemId = ref("");
@@ -98,19 +86,6 @@ DataTable.use(Select);
   // 序號
   const selItemSN = ref("");
 
-  const filterItemTypeID = ref("");
-  const filterItemTypeMU = ref([]);
-  const filterItemTypeDOM = ref();
-
-  const filterItemChop = ref("");
-  const filterItemChopMU = ref([]);
-  const filterItemChopDOM = ref();
-
-  const filterItemModel = ref("");
-  const filterItemModelMU = ref([]);
-  const filterItemModelDOM = ref();
-
-  const filterItemSN = ref("");
 //#endregion 參數==========end
 
 
@@ -172,9 +147,9 @@ DataTable.use(Select);
         return { text: x.type, value: parseInt(x.id) }
       }); selItemTypeMU.value.unshift({ text: "", value: "" });
       // 篩選區
-      filterItemTypeMU.value = result.data.getAllItemType.map(x => {
-        return { text: x.type, value: parseInt(x.id) }
-      }); filterItemTypeMU.value.unshift({ text: "", value: "" });
+      // filterItemTypeMU.value = result.data.getAllItemType.map(x => {
+      //   return { text: x.type, value: parseInt(x.id) }
+      // }); filterItemTypeMU.value.unshift({ text: "", value: "" });
     }
   });
   getAllItemTypeonError(e=>{errorHandle(e,infomsg,alert1)});
@@ -320,46 +295,17 @@ DataTable.use(Select);
     router.push('/cust');
   }
 
-  // 案加入後回填校正件id
+  // 按加入後回填校正件id
   function setItemBtn() {
-    // console.log(iType.value);
-    // console.log({
-    //   seletItemId: seletItemId.value,
-    //   selItemChop: selItemChop.value,
-    //   selItemModel: selItemModel.value,
-    //   selItemSN: selItemSN.value,
-    // })
-    switch (iType.value) {
-      case 6:
-      case 1:
-      case 2:
-        nowCaseItemID.value = seletItemId.value;
-        nowCaseItemChop.value = selItemChop.value;
-        nowCaseItemModel.value = selItemModel.value;
-        nowCaseItemSN.value = selItemSN.value;
-        break;
-      case 3:
-        nowCaseGnssID.value = seletItemId.value;
-        nowCaseGnssChop.value = selItemChop.value;
-        nowCaseGnssModel.value = selItemModel.value;
-        nowCaseGnssSN.value = selItemSN.value;
-        break;
-      case 4:
-        nowCaseImuID.value = seletItemId.value;
-        nowCaseImuChop.value = selItemChop.value;
-        nowCaseImuModel.value = selItemModel.value;
-        nowCaseImuSN.value = selItemSN.value;
-        break;
-    }
-    // console.log({
-    //   nowCaseItemID: nowCaseItemID.value,
-    //   nowCaseItemChop: nowCaseItemChop.value,
-    //   nowCaseItemModel: nowCaseItemModel.value,
-    //   nowCaseItemSN: nowCaseItemSN.value,
-    // })
+    let result = {};
+    result.ItemId = seletItemId.value;
+    result.ItemChop = selItemChop.value;
+    result.ItemModel = selItemModel.value;
+    result.ItemSN = selItemSN.value;
 
-    showItemFrom.value = false;
+    return result;
   }
+  
   // 新增按鈕(清空內容)
   function newItem(){
     seletItemId.value = null;
@@ -371,6 +317,10 @@ DataTable.use(Select);
   }
 
 //#endregion 校正件列表=========end
+
+function domTextSelect(e){
+  e.target.select()
+}
 
 defineExpose({
   shownItemModal,
@@ -400,31 +350,31 @@ defineExpose({
           </MDBCol>
           <MDBSelect disabled size="sm" class="my-3  col-6" label="儀器類型" v-model:options="selItemTypeMU"
             v-model:selected="selItemTypeID" ref="selItemTypeDOM" />
-          <!-- <div></div> -->
-          <!-- <MDBCol col="6" class="mb-2">
-            <MDBInput size="sm" type="text" label="廠牌" v-model="selItemChop" />
-          </MDBCol> -->
-
           <MDBSelect filter size="sm" class="mb-2 col-6" 
             label="廠牌" 
             v-model:options="selItemChopMU"
             v-model:selected="selItemChop" 
             ref="selItemChopDOM"
             @close="updateItemChop()">
-            <MDBInput size="sm" type="text" label="自訂新選項" v-model="selItemChop" />
+            <MDBInput 
+              size="sm" 
+              type="text" 
+              label="自訂新選項" 
+              v-model="selItemChop"
+              @click="domTextSelect($event)" />
           </MDBSelect>
-          
-          <!-- <MDBCol col="6" class="mb-2">
-            <MDBInput size="sm" type="text" label="型號" v-model="selItemModel" />
-          </MDBCol> -->
-
           <MDBSelect filter size="sm" class="mb-2 col-6" 
             label="型號" 
             v-model:options="selItemModelMU"
             v-model:selected="selItemModel" 
             ref="selItemModelDOM"
             @close="updateItemModel()">
-            <MDBInput size="sm" type="text" label="自訂新選項" v-model="selItemModel" />
+            <MDBInput 
+              size="sm" 
+              type="text" 
+              label="自訂新選項" 
+              v-model="selItemModel"
+              @click="domTextSelect($event)" />
           </MDBSelect>
 
           <MDBCol col="12" class="mb-2">

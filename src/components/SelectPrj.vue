@@ -21,13 +21,14 @@ DataTable.use(Select);
 //#region 參數==========start
   // 上層參數
   const nowCaseCalType = inject("nowCaseCalType");
+  const nowCaseRefPrjID = inject("nowCaseRefPrjID"); // 量測作業索引
 
   // 參考值列表
-  const nowCaseRefPrjID = inject("nowCaseRefPrjID"); // 量測作業索引
-  const nowCaseRefPrjCode = inject("nowCaseRefPrjCode"); // 量測作業編號編號
-  const nowCaseRefPrjPublishDate = inject("nowCaseRefPrjPublishDate"); // 參考值發布日期
-  const seletPrjPublishDate = computed(()=>{
-    return (nowCaseRefPrjPublishDate.value.trim())?toTWDate(nowCaseRefPrjPublishDate.value):""
+  const selCaseRefPrjID = ref("");
+  const selCaseRefPrjCode = ref(""); // 量測作業編號編號
+  const selCaseRefPrjPublishDate = ref(""); // 參考值發布日期
+  const selPrjPublishDate = computed(()=>{
+    return (selCaseRefPrjPublishDate.value.trim())?toTWDate(selCaseRefPrjPublishDate.value):""
   });
 
   const selPrjYear = ref("");
@@ -105,30 +106,45 @@ DataTable.use(Select);
   // 開啟參考值選單
   function shownPrjModal() {
     dtPrj = tablePrj.value.dt();
-    dtPrj.on('select', function (e, dt, type, indexes) {
-      let getData = dt.rows(indexes).data()[0];
-      nowCaseRefPrjID.value = getData.id;
-      nowCaseRefPrjCode.value = getData.project_code;
-      nowCaseRefPrjPublishDate.value = (getData.publish_date)?getData.publish_date.split("T")[0]:" ";
-
-      selPrjYear.value = getData.year;
-      selPrjMounth.value = getData.month;
-      selPrjCalType.value = getData.cal_type.name;
-      selPrjMethod.value = getData.method;
-      selPrjOrg.value = getData.organizer;
-      selPrjStartDate.value = (getData.start_date)?toTWDate(getData.start_date):"";
-      selPrjEndDate.value = (getData.end_date)?toTWDate(getData.end_date):"";
+    dtPrj.on('user-select', function ( e, dt, type, cell, originalEvent ) {
+      let dtNowRowIndex = cell.index(this).row;
+      let getData = dt.rows(dtNowRowIndex).data()[0];
+      getPrjDate(getData);
     });
     refgetAllPrj().then(res=>{
       // 選擇原作業
-      // console.log('nowCaseRefPrjID',nowCaseRefPrjID.value)
       if(nowCaseRefPrjID.value){
-        dtPrj.rows(function(idx,data,node){
-          // console.log('data_id: ',data.id);
-          return parseInt(data.id) === parseInt(nowCaseRefPrjID.value)? true:false
-        }).select();
+        selCaseRefPrjID.value = nowCaseRefPrjID.value;
+        selectDtItem();
+        let getData = dtPrj.rows(function(idx,data,node){
+          return parseInt(data.id) === parseInt(selCaseRefPrjID.value)? true:false
+        }).data()[0];
+        getPrjDate(getData);
       }
     });
+  }
+
+  function getPrjDate(getData){
+    selCaseRefPrjID.value = getData.id;
+    selCaseRefPrjCode.value = getData.project_code;
+    selCaseRefPrjPublishDate.value = (getData.publish_date)?getData.publish_date.split("T")[0]:" ";
+
+    selPrjYear.value = getData.year;
+    selPrjMounth.value = getData.month;
+    selPrjCalType.value = getData.cal_type.name;
+    selPrjMethod.value = getData.method;
+    selPrjOrg.value = getData.organizer;
+    selPrjStartDate.value = (getData.start_date)?toTWDate(getData.start_date):"";
+    selPrjEndDate.value = (getData.end_date)?toTWDate(getData.end_date):"";
+  }
+
+  // 更新後保持該編號呈現選擇狀態
+  async function selectDtItem(){
+    dtPrj.rows(function(idx,data,node){
+      // console.log('itemid:',seletItemId.value);
+      // console.log('d.id:',data.id);
+      return parseInt(data.id) === parseInt(selCaseRefPrjID.value)? true:false
+    }).select();
   }
 
   // 更多編輯=>引導至校正件管理
@@ -136,10 +152,20 @@ DataTable.use(Select);
     router.push('/prjs');
   }
 
+  // 按加入後回填校正件id
+  function setPrjBtn() {
+    let result = {};
+    result.PrjID = selCaseRefPrjID.value;
+    result.PrjCode = selCaseRefPrjCode.value;
+    result.PublishDate = selPrjPublishDate.value;
+
+    return result;
+  }
 //#endregion 參考值列表=========end
 
 defineExpose({
   shownPrjModal,
+  setPrjBtn,
 });
 
 </script>
@@ -158,10 +184,10 @@ defineExpose({
             <MDBBtn size="sm" color="primary" @click="gotoPrjMG">量測作業管理</MDBBtn>
           </MDBCol>
           <MDBCol col="12" class="mb-2">
-            目前選擇：{{nowCaseRefPrjID}}
+            目前選擇：{{selCaseRefPrjID}}
           </MDBCol>
           <MDBCol col="4" class="mb-2">
-            <MDBInput disabled size="sm" type="text" label="作業編號" v-model="nowCaseRefPrjCode" />
+            <MDBInput disabled size="sm" type="text" label="作業編號" v-model="selCaseRefPrjCode" />
           </MDBCol>
           <MDBCol col="4" class="mb-2">
             <MDBInput disabled size="sm" type="text" label="年" v-model="selPrjYear" />
@@ -185,11 +211,9 @@ defineExpose({
             <MDBInput disabled size="sm" type="text" label="結束日" v-model="selPrjEndDate" />
           </MDBCol>
           <MDBCol col="4" class="mb-2">
-            <MDBInput disabled size="sm" type="text" label="發布日" v-model="seletPrjPublishDate" />
+            <MDBInput disabled size="sm" type="text" label="發布日" v-model="selPrjPublishDate" />
           </MDBCol>
         </MDBRow>
-        
-
       </MDBCol>
     </MDBRow>
   </MDBContainer>

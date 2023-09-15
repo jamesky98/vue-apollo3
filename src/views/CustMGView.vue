@@ -31,7 +31,7 @@ import ButtonsBs5 from 'datatables.net-buttons-bs5';
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate, domTextSelect } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -789,9 +789,6 @@ onMounted(function () {
   });
 });
 
-
-
-
 </script>
 <template>
   <MDBAlert v-model="alert1" id="alert-primary" :color="alertColor" position="top-right" stacking width="535px"
@@ -967,7 +964,12 @@ onMounted(function () {
                                   v-model:selected="nowItemChop" 
                                   ref="nowItemChopDOM"
                                   @close="updateItemChop()">
-                                  <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowItemChop" />
+                                  <MDBInput 
+                                    size="sm" 
+                                    type="text" 
+                                    label="自訂新選項" 
+                                    v-model="nowItemChop" 
+                                    @click="domTextSelect($event)" />
                                 </MDBSelect>
 
                                 <MDBSelect size="sm" class="mt-2 col-12" 
@@ -977,7 +979,12 @@ onMounted(function () {
                                   v-model:selected="nowItemModel" 
                                   ref="nowItemModelDOM"
                                   @close="updateItemModel()">
-                                  <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowItemModel" />
+                                  <MDBInput 
+                                    size="sm" 
+                                    type="text" 
+                                    label="自訂新選項" 
+                                    v-model="nowItemModel"
+                                    @click="domTextSelect($event)" />
                                 </MDBSelect>
 
                                 <MDBCol col="12" class="mt-2">

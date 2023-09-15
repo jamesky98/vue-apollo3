@@ -80,4 +80,7 @@ function rolePass(level){
   
 }
 
-export { errorHandle, logIn, logOut, toTWDate };
+function domTextSelect(e){
+  e.target.select()
+}
+export { errorHandle, logIn, logOut, toTWDate, domTextSelect };

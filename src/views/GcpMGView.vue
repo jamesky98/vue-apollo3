@@ -53,7 +53,7 @@ import ButtonsBs5 from 'datatables.net-buttons-bs5';
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate, domTextSelect } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -1325,7 +1325,12 @@ function selectNowGCPRecord(){
                                 v-model:selected="nowGcpContactId" 
                                 ref="nowGcpContactDOM" 
                                 @close="updateContact()">
-                                <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowGcpContactName" />
+                                <MDBInput 
+                                  size="sm" 
+                                  type="text" 
+                                  label="自訂新選項" 
+                                  v-model="nowGcpContactName"
+                                  @click="domTextSelect($event)" />
                               </MDBSelect>
 
                               <MDBCol xl="12" class="mt-2">
@@ -1413,7 +1418,12 @@ function selectNowGCPRecord(){
                                 v-model:selected="nowPRecordPerson" 
                                 ref="nowPRecordPersonDOM"
                                 @close="updateRecPerson()">
-                                <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowPRecordPerson" />
+                                <MDBInput 
+                                  size="sm" 
+                                  type="text" 
+                                  label="自訂新選項" 
+                                  v-model="nowPRecordPerson"
+                                  @click="domTextSelect($event)" />
                               </MDBSelect>
 
                               <MDBSelect size="sm" class="mt-2 col-xl-6" label="點位狀況" v-model:options="nowPRecordPtStatusMU"

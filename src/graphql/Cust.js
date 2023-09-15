@@ -86,6 +86,16 @@ const DELCUST = gql`
   }
 `;
 
+const GETORGBYID = gql`
+  mutation GetOrgById($getOrgByIdId: Int!) {
+    getOrgById(id: $getOrgByIdId) {
+      id
+      name
+      tax_id
+    }
+  }
+`;
+
 export default {
   GETALLCUST,
   GETCUSTBYID,
@@ -94,4 +104,5 @@ export default {
   UPDATEORG,
   DELORG,
   DELCUST,
+  GETORGBYID,
 };

@@ -42,7 +42,7 @@ import ButtonsBs5 from 'datatables.net-buttons-bs5';
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate, domTextSelect } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -700,7 +700,12 @@ function selectNowId(nowId, col, dt){
                       v-model:selected="nowEqptChop" 
                       ref="nowEqptChopDOM"
                       @close="updateChop()">
-                      <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowEqptChop" />
+                      <MDBInput 
+                        size="sm" 
+                        type="text" 
+                        label="自訂新選項" 
+                        v-model="nowEqptChop"
+                        @click="domTextSelect($event)" />
                     </MDBSelect>
                     
                     <MDBSelect size="sm" class="mt-2 col-xl-8" 
@@ -710,7 +715,12 @@ function selectNowId(nowId, col, dt){
                       v-model:selected="nowEqptModel" 
                       ref="nowEqptModelDOM"
                       @close="updateModeel()">
-                      <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowEqptModel" />
+                      <MDBInput 
+                        size="sm" 
+                        type="text" 
+                        label="自訂新選項" 
+                        v-model="nowEqptModel"
+                        @click="domTextSelect($event)" />
                     </MDBSelect>
 
                     <MDBCol xl="8" class="mt-2">
@@ -802,7 +812,12 @@ function selectNowId(nowId, col, dt){
                       v-model:selected="nowChkCalOrg" 
                       ref="nowChkCalOrgDOM"
                       @close="updateChkOrg()">
-                      <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowChkCalOrg" />
+                      <MDBInput 
+                        size="sm" 
+                        type="text" 
+                        label="自訂新選項" 
+                        v-model="nowChkCalOrg"
+                        @click="domTextSelect($event)" />
                     </MDBSelect>
                     <MDBCol col="4" class="mt-2">
                       <MDBInput size="sm" type="text" label="實驗室編號" v-model="nowChkCalOrgCode" />

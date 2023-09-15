@@ -279,6 +279,10 @@ provide("rGroup", rGroup);
     // 校正件
     const nowCaseItemID = ref("");
     provide('nowCaseItemID', nowCaseItemID);
+    const nowCaseGnssID = ref("");
+    provide('nowCaseGnssID', nowCaseGnssID);
+    const nowCaseImuID = ref("");
+    provide('nowCaseImuID', nowCaseImuID);
 
     //#region 顧客
       // 顧客公司清單

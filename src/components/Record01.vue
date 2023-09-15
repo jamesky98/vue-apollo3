@@ -71,30 +71,12 @@ provide('nowCaseCalType', nowCaseCalType);
 const nowCaseCalTypeCode = ref(""); //校正項目
 const nowCaseCamTypeID = ref(""); // 像機類型
 const nowCaseItemID = inject("nowCaseItemID"); // 校正件索引
+const nowCaseGnssID = inject("nowCaseGnssID");
+const nowCaseImuID = inject("nowCaseImuID");
+
 const nowCaseItemChop = ref(""); // 像機廠牌
-provide('nowCaseItemChop', nowCaseItemChop);
 const nowCaseItemModel = ref(""); // 像機型號
-provide('nowCaseItemModel', nowCaseItemModel);
 const nowCaseItemSN = ref(""); // 像機序號
-provide('nowCaseItemSN', nowCaseItemSN);
-
-const nowCaseGnssID = ref("");
-provide('nowCaseGnssID', nowCaseGnssID);
-const nowCaseGnssChop = ref("");
-provide('nowCaseGnssChop', nowCaseGnssChop);
-const nowCaseGnssModel = ref("");
-provide('nowCaseGnssModel', nowCaseGnssModel);
-const nowCaseGnssSN = ref("");
-provide('nowCaseGnssSN', nowCaseGnssSN);
-
-const nowCaseImuID = ref("");
-provide('nowCaseImuID', nowCaseImuID);
-const nowCaseImuChop = ref("");
-provide('nowCaseImuChop', nowCaseImuChop);
-const nowCaseImuModel = ref("");
-provide('nowCaseImuModel', nowCaseImuModel);
-const nowCaseImuSN = ref("");
-provide('nowCaseImuSN', nowCaseImuSN);
 
 const nowCaseFocal = ref(""); // 焦距
 const nowCasePPAx = ref(""); // ppa_x
@@ -198,9 +180,7 @@ const nowCaseStartDateDOM = ref();
 const nowCaseRefPrjID = ref(""); // 量測作業索引
 provide("nowCaseRefPrjID", nowCaseRefPrjID);
 const nowCaseRefPrjCode = ref(""); // 量測作業編號編號
-provide("nowCaseRefPrjCode", nowCaseRefPrjCode);
 const nowCaseRefPrjPublishDate = ref(""); // 參考值發布日期
-provide("nowCaseRefPrjPublishDate", nowCaseRefPrjPublishDate);
 const nowCaseRefEqpt = ref(); // 使用標準件
 
 const nowCaseImgNo = ref(""); // 使用影像數
@@ -351,16 +331,6 @@ const nowCaseReportScanDL = computed(() => {
   }
 });
 const nowCasePDFPath = ref("pdfjs-dist/web/viewer.html"); //校正報告掃描檔路徑
-
-// 校正件列表
-const iType = ref("");
-provide("iType", iType);
-const showItemFrom = ref(false);
-provide("showItemFrom", showItemFrom);
-
-// 參考值列表
-const showPrjFrom = ref(false);
-
 //#endregion 參數==========End
 
 //#region 案件詳細編輯資料==========start
@@ -605,29 +575,44 @@ getAllChkPsononError(e=>{errorHandle(e,infomsg,alert1)});
 //#endregion 案件詳細編輯資料==========end
 
 //#region 校正件列表=========start
-const subSelectItem = ref();
-function shownItemModal(){
-  subSelectItem.value.shownItemModal();
-}
-function setItemBtn(){
-  subSelectItem.value.setItemBtn();
-}
-function showItemFromBtn(x) {
-  iType.value = x;
-  showItemFrom.value = true;
-}
+  // 校正件列表
+  const iType = ref("");
+  provide("iType", iType);
+  const showItemFrom = ref(false);
+
+  const subSelectItem = ref();
+  function shownItemModal(){
+    subSelectItem.value.shownItemModal();
+  }
+  async function setItemBtn(){
+    let result = await subSelectItem.value.setItemBtn();
+    nowCaseItemID.value = result.ItemId;
+    nowCaseItemChop.value = result.ItemChop;
+    nowCaseItemModel.value = result.ItemModel;
+    nowCaseItemSN.value = result.ItemSN;
+
+    showItemFrom.value = false;
+  }
+  function showItemFromBtn(x) {
+    iType.value = x;
+    showItemFrom.value = true;
+  }
 //#endregion 校正件列表=========end
 
 //#region 參考值列表=========start
+  // 參考值列表
+  const showPrjFrom = ref(false);
   const subSelectPrj = ref();
   function shownPrjModal(){
     subSelectPrj.value.shownPrjModal();
   }
   // 按加入後回填量測作業id
-  function setPrjBtn() {
-    // nowCaseRefPrjID.value = seletPrjID.value;
-    // nowCaseRefPrjCode.value = seletPrjCode.value;
-    // nowCaseRefPrjPublishDate.value = seletPrjPublishDate.value;
+  async function setPrjBtn() {
+    let result = await subSelectPrj.value.setPrjBtn();
+    nowCaseRefPrjID.value = result.PrjID;
+    nowCaseRefPrjCode.value = result.PrjCode;
+    nowCaseRefPrjPublishDate.value = result.PublishDate;
+
     saveRecord01().then(res=>{
       return refgetNowCaseF();
     }).then(res=>{

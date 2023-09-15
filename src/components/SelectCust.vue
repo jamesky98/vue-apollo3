@@ -16,7 +16,7 @@ import DataTableBs5 from "datatables.net-bs5";
 import Select from "datatables.net-select";
 import { computed } from "@vue/reactivity";
 import router from "../router";
-import { errorHandle, logIn, logOut, toTWDate } from "../methods/User";
+import { errorHandle, logIn, logOut, toTWDate, domTextSelect } from "../methods/User";
 import { useStore } from 'vuex'
 
 DataTable.use(DataTableBs5);
@@ -26,6 +26,7 @@ DataTable.use(Select);
   // Information
   const infomsg = ref('');
   const alert1 =ref(false);
+  const msgColor =ref('');
   const store = useStore();
 
   // 上層參數
@@ -39,10 +40,8 @@ DataTable.use(Select);
   const selCaseCustTel = ref(""); // 顧客電話
   const selCaseCustFax = ref(""); // 顧客傳真
   const selCaseCustAddress = ref(""); // 聯絡地址
-  const selCustOrgNameMU = computed(() => store.state.selectlist.caseOrgList);
+  const selCustOrgNameMU = ref([]);
   const selCustOrgNameDOM = ref();
-
-  const varAllCust = ref({});
 
 //#endregion 參數==========End
 //#region 顧客列表=========start
@@ -77,7 +76,7 @@ DataTable.use(Select);
     }
   };
 
-  // 查詢顧客資料
+  // 查詢全部顧客資料
   const { mutate: refgetAllCust , onDone: getAllCustonDone, onError: getAllCustonError } = useMutation(
     CustGQL.GETALLCUST);
   getAllCustonDone(result => {
@@ -112,6 +111,11 @@ DataTable.use(Select);
   });
   getselCustonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
+  // 查詢公司資料
+  const { mutate: refgetOrgById , onDone: getOrgByIdonDone, onError: getOrgByIdonError } = useMutation(
+    CustGQL.GETORGBYID);
+  getOrgByIdonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+
   // 開啟顧客視窗
   function shownCustModal() {
     dtCust = tableCust.value.dt();
@@ -123,7 +127,11 @@ DataTable.use(Select);
       // console.log('selCaseCustId',selCaseCustId.value);
       refgetselCust({getCustByIdId: selCaseCustId.value});
     });
-    refgetAllCust().then(res=>{
+    refgetAllCust().then(res_1=>{
+      // 載入公司清單
+      selCustOrgNameMU.value = JSON.parse(JSON.stringify(store.state.selectlist.caseOrgList));
+    }).then(res_2=>{
+      // 有選取資料，則跳到該筆資料
       if (nowCaseCustId.value) {
         selCaseCustId.value = nowCaseCustId.value;        
         refgetselCust({getCustByIdId: selCaseCustId.value});
@@ -141,19 +149,7 @@ DataTable.use(Select);
   }
 
   // 儲存顧客資料
-  const { mutate: saveCust, onDone: saveCustOnDone, onError: saveCustError } = useMutation(
-    CustGQL.UPDATECUST,
-    () => ({
-      variables: {
-        updateCustId: parseInt(selCaseCustId.value),
-        name: selCaseCustName.value,
-        address: selCaseCustAddress.value,
-        tel: selCaseCustTel.value,
-        fax: selCaseCustFax.value,
-        orgId: parseInt(selCaseCustOrgId.value),
-      }
-    })
-  );
+  const { mutate: saveCust, onDone: saveCustOnDone, onError: saveCustError } = useMutation(CustGQL.UPDATECUST);
   saveCustOnDone(() => {
     refgetAllCust();
     refgetselCust({getCustByIdId: selCaseCustId.value});
@@ -163,6 +159,24 @@ DataTable.use(Select);
     // alert1.value = true;
   });
   saveCustError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+
+  // 儲存
+  function saveCustBtn(){
+    // 如果為新公司
+    // 則新增公司
+    // 之後再存聯絡人
+
+    // 否則更新公司內容，並儲存聯絡人
+
+    saveCust({
+      updateCustId: parseInt(selCaseCustId.value),
+      name: selCaseCustName.value,
+      address: selCaseCustAddress.value,
+      tel: selCaseCustTel.value,
+      fax: selCaseCustFax.value,
+      orgId: parseInt(selCaseCustOrgId.value),
+    })
+  }
 
   // 更多編輯=>引導至顧客管理
   function gotoCustMG() {
@@ -188,6 +202,51 @@ DataTable.use(Select);
   }
 //#endregion 顧客列表=========end
 
+// #region 公司選單=========Start
+  function addNewOrg(){
+    // console.log(selCaseCustOrgId.value);
+    // console.log(selCaseCustOrgName.value);
+    // console.log(selCustOrgNameMU.value);
+    // 檢查公司名稱是否重複
+    let isRpt = selCustOrgNameMU.value.some(x=> x.text.trim()===selCaseCustOrgName.value.trim());
+    // console.log('是否重複',isRpt)
+
+    if(!isRpt){
+      // 清單中增加新公司
+      // 將新名稱加入清單，值為-1?
+      selCustOrgNameMU.value.push({
+        text: selCaseCustOrgName.value.trim(),
+        value: -1,
+      });
+      selCustOrgNameDOM.value.setValue(-1);
+    }
+  }
+
+  function changeOrgTexID(){
+    refgetOrgById({getOrgByIdId: (selCaseCustOrgId.value)?selCaseCustOrgId.value:-1}).then(res=>{
+      if(res.data.getOrgById){
+        selCaseCustOrgName.value = res.data.getOrgById.name;
+        selCaseCustTaxID.value = res.data.getOrgById.tax_id;
+      }
+    })
+  }
+// #endregion 公司選單=========End
+
+// 新增按鈕(清空欄位)
+function newCust(){
+  selCaseCustId.value = "";
+
+  selCaseCustOrgId.value = "";
+  selCaseCustOrgName.value = "";
+  selCustOrgNameDOM.value.setValue(null);
+
+  selCaseCustTaxID.value = "";
+  selCaseCustName.value = "";
+  selCaseCustTel.value = "";
+  selCaseCustFax.value = "";
+  selCaseCustAddress.value = "";
+}
+
 defineExpose({
   shownCustModal,
   setCustBtn,
@@ -206,7 +265,8 @@ defineExpose({
       <MDBCol col="12" class="border border-1">
         <!-- 功能列 -->
         <div class="mt-2">
-          <MDBBtn size="sm" color="primary" @click="saveCust()">儲存</MDBBtn>
+          <MDBBtn size="sm" color="primary" @click="newCust()">新增</MDBBtn>
+          <MDBBtn size="sm" color="primary" @click="saveCustBtn()">儲存</MDBBtn>
           <MDBBtn size="sm" color="primary" @click="gotoCustMG()">顧客管理</MDBBtn>
         </div>
         <MDBRow>
@@ -214,20 +274,28 @@ defineExpose({
             目前選擇：{{selCaseCustId}} - {{ selCaseCustName }}
           </MDBCol>
           <MDBSelect 
-            filter size="sm" class="mb-2 col-12" 
+            filter size="sm" class="mb-2 col-8" 
             label="公司名稱" 
             :preselect="false"
             v-model:options="selCustOrgNameMU"
             v-model:selected="selCaseCustOrgId" 
             ref="selCustOrgNameDOM" 
-            @open="listOpened=true"
-            @close="listOpened=false"/>
+            @change="changeOrgTexID"
+            @close="addNewOrg">
+            <MDBInput 
+              size="sm" 
+              type="text" 
+              label="自訂新選項" 
+              v-model="selCaseCustOrgName"
+              @click="domTextSelect($event)" />
+          </MDBSelect>
+          <MDBCol col="4" class="mb-2">
+            <MDBInput size="sm" type="text" label="統一編號" v-model="selCaseCustTaxID" />
+          </MDBCol>
           <MDBCol col="6" class="mb-2">
             <MDBInput size="sm" type="text" label="聯絡人" v-model="selCaseCustName" />
           </MDBCol>
-          <MDBCol col="6" class="mb-2">
-            <MDBInput size="sm" type="text" label="統一編號" v-model="selCaseCustTaxID" disabled />
-          </MDBCol>
+          <div></div>
           <MDBCol col="6" class="mb-2">
             <MDBInput size="sm" type="text" label="聯絡電話" v-model="selCaseCustTel" />
           </MDBCol>

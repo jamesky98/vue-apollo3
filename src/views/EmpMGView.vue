@@ -36,7 +36,7 @@ import ButtonsBs5 from 'datatables.net-buttons-bs5';
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate, domTextSelect } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -1662,7 +1662,12 @@ onMounted(function () {
                                     v-model:selected="nowTrainName" 
                                     ref="nowTrainNameDOM"
                                     @close="updateTrainName()">
-                                    <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowTrainName" />
+                                    <MDBInput 
+                                      size="sm" 
+                                      type="text" 
+                                      label="自訂新選項" 
+                                      v-model="nowTrainName"
+                                      @click="domTextSelect($event)" />
                                   </MDBSelect>
 
                                   <MDBSelect filter :disabled="!rGroup[2]" size="sm" class="mt-3 col-xl-12" 
@@ -1671,7 +1676,12 @@ onMounted(function () {
                                     v-model:selected="nowTrainInstitution" 
                                     ref="nowTrainInstitutionDOM"
                                     @close="updateTrainInstitution()">
-                                    <MDBInput size="sm" type="text" label="自訂新選項" v-model="nowTrainInstitution" />
+                                    <MDBInput 
+                                      size="sm" 
+                                      type="text" 
+                                      label="自訂新選項" 
+                                      v-model="nowTrainInstitution"
+                                      @click="domTextSelect($event)" />
                                   </MDBSelect>
 
                                   <MDBCol md="6" class="mt-3">
