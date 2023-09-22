@@ -1,6 +1,8 @@
 {
   "name": "vue-apollo3",
-  "version": "0.0.0",
+  "version": "1.0.42",
+  "license": "ISC",
+  "author": "james hsu <jamesky98@gmail.com>",
   "scripts": {
     "dev": "vite --host --port 4173",
     "build": "vite build",
