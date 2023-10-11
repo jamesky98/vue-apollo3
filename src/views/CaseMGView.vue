@@ -1395,13 +1395,21 @@ getCustByNameError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 getItemBySNError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function saveAPIRecord(nowData) {
-  // 查詢顧客
+  console.log('nowData',nowData);
   getCustByName({
     name: nowData.OWNER_ID,
   }).then(res => {
+    // 查詢顧客
     let result={};
     if(res.data.getCustByName.length === 1) {
+      // 有查到顧客
       result.cust_id = res.data.getCustByName[0].id;
+    }else{
+      // 新顧客
+
+      // 新增機關
+      // 新增顧客
+      // 傳回顧客ID
     }
     // console.log("cust-result",result);
     return result;

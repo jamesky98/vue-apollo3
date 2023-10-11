@@ -160,21 +160,33 @@ DataTable.use(Select);
   });
   saveCustError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
-  // 儲存
+  // 儲存公司資料
+  const { mutate: saveOrg, onDone: saveOrgOnDone, onError: saveOrgError } = useMutation(CustGQL.UPDATEORG);
+  saveOrgOnDone(result=>{
+    store.dispatch('selectlist/fetchOrgList').then(res_1=>{
+      return selCustOrgNameMU.value = JSON.parse(JSON.stringify(store.state.selectlist.caseOrgList));
+    }).then(res_2=>{
+      infomsg.value = "機關 " + result.data.updateOrg.id + " 儲存完畢";
+      msgColor.value = "blue";
+    })
+  });
+  saveOrgError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+
+  // 儲存按鈕
   function saveCustBtn(){
-    // 如果為新公司
-    // 則新增公司
-    // 之後再存聯絡人
-
-    // 否則更新公司內容，並儲存聯絡人
-
-    saveCust({
-      updateCustId: parseInt(selCaseCustId.value),
-      name: selCaseCustName.value,
-      address: selCaseCustAddress.value,
-      tel: selCaseCustTel.value,
-      fax: selCaseCustFax.value,
-      orgId: parseInt(selCaseCustOrgId.value),
+    saveOrg({
+      updateOrgId: (parseInt(selCaseCustOrgId.value)),
+      name: selCaseCustOrgName.value,
+      taxId: selCaseCustTaxID.value,
+    }).then(res=>{
+      saveCust({
+        updateCustId: parseInt(selCaseCustId.value),
+        name: selCaseCustName.value,
+        address: selCaseCustAddress.value,
+        tel: selCaseCustTel.value,
+        fax: selCaseCustFax.value,
+        orgId: parseInt(res.data.updateOrg.id),
+      })
     })
   }
 
@@ -206,7 +218,6 @@ DataTable.use(Select);
   function addNewOrg(){
     // console.log(selCaseCustOrgId.value);
     // console.log(selCaseCustOrgName.value);
-    // console.log(selCustOrgNameMU.value);
     // 檢查公司名稱是否重複
     let isRpt = selCustOrgNameMU.value.some(x=> x.text.trim()===selCaseCustOrgName.value.trim());
     // console.log('是否重複',isRpt)
@@ -214,11 +225,19 @@ DataTable.use(Select);
     if(!isRpt){
       // 清單中增加新公司
       // 將新名稱加入清單，值為-1?
-      selCustOrgNameMU.value.push({
-        text: selCaseCustOrgName.value.trim(),
-        value: -1,
-      });
-      selCustOrgNameDOM.value.setValue(-1);
+      new Promise((res,rej)=>{
+        let temp = JSON.parse(JSON.stringify(selCustOrgNameMU.value));
+        temp.push({
+          text: selCaseCustOrgName.value.trim(),
+          value: -1,
+        });
+        res(selCustOrgNameMU.value = temp);
+      }).then(res_1=>{
+        selCustOrgNameDOM.value.setValue(-1);
+      })
+      
+      
+      
     }
   }
 

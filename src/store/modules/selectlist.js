@@ -94,7 +94,7 @@ const getters = {
 const actions = {
   async fetchStatusList ({ commit, state }, payload) {
     // console.log('fetchStatusList')
-    refgetCaseStatus().then(res=>{
+    await refgetCaseStatus().then(res=>{
       let tempMU = res.data.getCaseStatus.map(x => {
         return { text: x.status, value: parseInt(x.code) }
       }); 
@@ -104,7 +104,7 @@ const actions = {
   // 校正項目
   async fetchCalTypeList ({ commit, state }, payload) {
     // console.log('fetchCalTypeList')
-    refgetCaseCalType().then(res=>{
+    await refgetCaseCalType().then(res=>{
       let tempMU = res.data.getCaseCalType.map(x => {
         return { text: x.name, value: parseInt(x.id), code: x.code }
       }); 
@@ -127,8 +127,7 @@ const actions = {
     });
   },
   async fetchOrgList ({ commit, state }, payload) {
-    // console.log('fetchOrgList')
-    refgetCaseAllOrg().then(res=>{
+    await refgetCaseAllOrg().then(res=>{
       let tempData = res.data.getAllOrg;
       let tempMU = res.data.getAllOrg.map(x => {
         return { text: x.name, value: parseInt(x.id) }
@@ -140,7 +139,7 @@ const actions = {
   },
   async fetchItemTypeList ({ commit, state }, payload) {
     // console.log('fetchOrgList')
-    refgetAllItemType().then(res=>{
+    await refgetAllItemType().then(res=>{
       let tempMU = res.data.getAllItemType.map(x => {
         return { text: x.type, value: parseInt(x.id) }
       }); 
@@ -150,7 +149,7 @@ const actions = {
   },
   async fetchChopList ({ commit, state }, payload) {
     // console.log('fetchOrgList')
-    refgetChopList().then(res=>{
+    await refgetChopList().then(res=>{
       let tempMU = res.data.getUniItemChop.map(x => {
         return { text: x, value: x }
       }); 
@@ -160,7 +159,7 @@ const actions = {
   },
   async fetchModelList ({ commit, state }, payload) {
     // console.log('fetchOrgList')
-    refgetModelList().then(res=>{
+    await refgetModelList().then(res=>{
       let tempMU = res.data.getUniItemModel.map(x => {
         return { text: x, value: x }
       }); 
@@ -170,7 +169,7 @@ const actions = {
   },
   async fetchGcpTypeList ({ commit, state }, payload) {
     // console.log('fetchOrgList')
-    refgetGcpType().then(res=>{
+    await refgetGcpType().then(res=>{
       let tempMU = res.data.getGcpType.map(x => {
         return { text: x.type_name, value: parseInt(x.code) }
       }); 
@@ -180,7 +179,7 @@ const actions = {
   },
   async fetchGcpStyleList ({ commit, state }, payload) {
     // console.log('fetchOrgList')
-    getGcpStyle().then(res=>{
+    await getGcpStyle().then(res=>{
       let tempMU = res.data.getAllGcpStyleList.map(x => {
         return { text: x, value: x }
       }); 
@@ -190,7 +189,7 @@ const actions = {
   },
   async fetchEqptTypeList ({ commit, state }, payload) {
     // console.log('fetchOrgList')
-    refgetEqptType().then(res=>{
+    await refgetEqptType().then(res=>{
       let tempMU = res.data.getEqptType.map(x => {
         return { text: x.type, value: parseInt(x.eqpt_type_id) }
       }); 
@@ -200,7 +199,7 @@ const actions = {
   },
   async fetchEqptChopList ({ commit, state }, payload) {
     // console.log('fetchOrgList')
-    getEqptChopList().then(res=>{
+    await getEqptChopList().then(res=>{
       let tempMU = res.data.getEqptChopList.map(x => {
         return { text: x, value: x }
       }); 
@@ -210,7 +209,7 @@ const actions = {
   },
   async fetchEqptModelList ({ commit, state }, payload) {
     // console.log('fetchOrgList')
-    getEqptModelList().then(res=>{
+    await getEqptModelList().then(res=>{
       let tempMU = res.data.getEqptModelList.map(x => {
         return { text: x, value: x }
       }); 
@@ -219,7 +218,7 @@ const actions = {
     })
   },
   async fetchGcpContactList ({ commit, state }, payload) {
-    refgetAllContact().then(res=>{
+    await refgetAllContact().then(res=>{
       let tempMU = res.data.getAllContact.map(x => {
         return { text: x.name, value: parseInt(x.id) }
       }); 
