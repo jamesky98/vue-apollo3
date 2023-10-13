@@ -388,7 +388,7 @@ const tboption_prj = {
       text: '重新整理',
       className: 'btn-sm',
       action: function ( e, dt, node, config ) {
-        updateAllCaseList();
+        refgetAllPrj();
       }
     },
     {
@@ -539,6 +539,12 @@ delPrjOnDone(result=>{
   msgColor.value = "blue";
 });
 delPrjError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+
+function delPrjBtn(){
+  delPrj({delRefPrjId: parseInt(nowPrjId.value)}).then(res=>{
+    refgetAllPrj();
+  })
+}
 
 // 匯入紀錄
 const { mutate: inputGcpRd, onDone: inputGcpRdOnDone, onError: inputGcpRdError } = useMutation(PrjGQL.INPUTGCPRECORDS);
@@ -2171,7 +2177,7 @@ function selectNowChk(nowId, col, dt){
                       <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="createPrj">新增</MDBBtn>
                       <MDBBtn :disabled="!rGroup[1]" size="sm" color="primary" @click="savePrjBtn">儲存</MDBBtn>
                       <MDBPopconfirm :disabled="!rGroup[1] || !nowPrjId" class="btn-sm btn-danger me-auto" message="刪除後無法恢復，確定刪除嗎？"
-                        cancelText="取消" confirmText="確定" @confirm="delPrj">
+                        cancelText="取消" confirmText="確定" @confirm="delPrjBtn">
                         刪除
                       </MDBPopconfirm>
                       

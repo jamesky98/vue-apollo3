@@ -1389,110 +1389,117 @@ function inputAPICase() {
 const { mutate: dlFromAPI, onDone: dlFromAPIOnDone, onError: dlFromAPIError } = useMutation(CaseGQL.DOWNLOADFROMAPI);
 const { mutate: getCustByName, onDone: getCustByNameOnDone, onError: getCustByNameError } = useMutation(CustGQL.GETCUSTBYNAME);
 const { mutate: getItemBySN, onDone: getItemBySNOnDone, onError: getItemBySNError } = useMutation(ItemGQL.GETITEMBYSN);
+const { mutate: getOrgByName, onDone: getOrgByNameOnDone, onError: getOrgByNameError } = useMutation(CustGQL.GETORGBYNAME);
+const { mutate: addOrg, onDone: addOrgOnDone, onError: addOrgError } = useMutation(CustGQL.UPDATEORG);
+const { mutate: addCust, onDone: addCustOnDone, onError: addCustError } = useMutation(CustGQL.UPDATECUST);
+const { mutate: addItem, onDone: addItemOnDone, onError: addItemError } = useMutation(ItemGQL.SAVEITEM);
 
 dlFromAPIError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 getCustByNameError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 getItemBySNError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+getOrgByNameError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+addOrgError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+addCustError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+addItemError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function saveAPIRecord(nowData) {
-  console.log('nowData',nowData);
+  // console.log('nowData',nowData);
+  notProssing2.value = false;
   getCustByName({
     name: nowData.OWNER_ID,
   }).then(res => {
-    // 查詢顧客
+    // 查詢顧客(聯絡人)
     let result={};
-    if(res.data.getCustByName.length === 1) {
-      // 有查到顧客
+    if(res.data.getCustByName.length >= 1) {
+      // 有查到顧客(聯絡人)
       result.cust_id = res.data.getCustByName[0].id;
+      // console.log('has cust:',result.cust_id);
+      return result;
     }else{
-      // 新顧客
-
-      // 新增機關
-      // 新增顧客
-      // 傳回顧客ID
+      // console.log('noCust');
+      // 查詢是否新機關
+      return getOrgByName({name: nowData.EXTRA_4}).then(res_2=>{
+        // console.log('check ORG');
+        if(res_2.data.getOrgByName.length >= 1){
+          // 既有機關，取得機關ID
+          return result.org_id = res_2.data.getOrgByName[0].id
+        }else{
+          // console.log('no ORG');
+          // 新增機關
+          return addOrg({
+            updateOrgId:-1, // 序號-1為新增
+            name: nowData.EXTRA_4, // 機關名稱
+            taxId: nowData.META_KEYWORD, // 統一編號
+          }).then(res_3=>{
+            result.org_name = res_3.data.updateOrg.name;
+            result.org_taxID = res_3.data.updateOrg.tax_id;
+            return result.org_id = res_3.data.updateOrg.id;
+          })
+        }
+      }).then(org_id=>{
+        // console.log('get ORG_ID: ', org_id);
+        // 新增顧客
+        return addCust({
+          updateCustId: -1, // 序號-1為新增
+          name: nowData.OWNER_ID, // 聯絡人
+          address: nowData.EXTRA_3, // 地址
+          tel: nowData.EXTRA_1, // 電話
+          fax: nowData.EXTRA_2, // 傳真
+          orgId: parseInt(org_id),
+        }).then(res_4=>{
+          return result.cust_id = res_4.data.updateCust.id;
+        })
+      }).then(res_5=>{
+        // 傳回資料
+        return result;
+      });
     }
-    // console.log("cust-result",result);
-    return result;
   }).then(res1 => {
-    let result;
     // 查詢儀器
+    let result;
+    let item_type_code;
     switch (nowData.Code) {
       case "F":
       case "J":
-        result = getItemBySN({
-          sn: nowData.COL04,
-        }).then(res =>{
-          let preresult = res1;
-          if(res.data.getItemBySN.length === 1){
-            preresult.item_id = res.data.getItemBySN[0].id;
-          }
-          return preresult;
-        })
-        return result;
+        return findItemOrAdd(nowData.COL04, nowData.COL02, nowData.COL03, 1, res1, nowData)
+        break;
       case "I":
       case "M":
-        result = getItemBySN({
-          sn: nowData.COL04,
-        }).then(res =>{
-          // console.log("res1",res1);
-          // console.log("item_id",res);
-          let preresult = res1;
-          if(res.data.getItemBySN.length === 1){
-            preresult.item_id = res.data.getItemBySN[0].id;
-          }
-          return preresult;
-        }).then(res2 => {
-
-          result = getItemBySN({
-            sn: nowData.COL11,
-          }).then(res=>{
-            // console.log("res2",res2);
-            let preresult = res2;
-            if(res.data.getItemBySN.length === 1){
-              preresult.gnss_id = res.data.getItemBySN[0].id;
-            }
-            // console.log("gnss_id",preresult);
-            return preresult;
-          })
-          return result;
-        }).then(res3 => {
-          // console.log("res3",res3);
-          result = getItemBySN({
-            sn: nowData.COL16,
-          }).then(res=>{
-            let preresult = res3;
-            if(res.data.getItemBySN.length === 1){
-              preresult.imu_id = res.data.getItemBySN[0].id;
-            }
-            return preresult;
-          })
-          return result;
-        })
+        if(nowData.Code==='I'){item_type_code=2}
+        if(nowData.Code==='M'){item_type_code=6}
+        // find LiDAR item
+        return findItemOrAdd(nowData.COL04, nowData.COL02, nowData.COL03, item_type_code, res1, nowData).then(res_1=>{
+          // find GNSS item
+          return findItemOrAdd(nowData.COL11, nowData.COL09, nowData.COL10, 3, res_1, nowData)
+        }).then(res_2=>{
+          // find IMU item
+          return findItemOrAdd(nowData.COL16, nowData.COL14, nowData.COL15, 4, res_2, nowData);
+        });
         break;
     }
-    return result;
-  }).then(res => {
-    let result = saveCaseS({
+  }).then(res_6 => {
+    // 儲存基本資料
+    return saveCaseS({
       updateCaseId: nowData.caseid,
       statusCode: parseInt(1),
-      cusId: (res.cust_id)?parseInt(res.cust_id):null,
+      cusId: (res_6.cust_id)?parseInt(res_6.cust_id):null,
       title: nowData.EXTRA_4,
       address: nowData.EXTRA_6,
       purpose: nowData.META_DESCRIPTION,
-      itemId: (res.item_id)?parseInt(res.item_id):null,
+      itemId: (res_6.item_id)?parseInt(res_6.item_id):null,
       // charge: null,
       // payDate: null,
       agreement: (!nowData.EXTRA_10 && !nowData.EXTRA_9)?'':(nowData.EXTRA_10 + "\n" + nowData.EXTRA_9),
       // leaderId: null,
       operatorsId: parseInt(nowData.Corrector),
-      
+    }).then(res=>{
+      return refgetNowCaseS({getCasebyIdId: res.data.updateCase.id});
     })
-    return res;
   }).then(res => {
-    // console.log("saveCaseS_result",res);
+    // 下載附件(目前停用)
     let result;
     let preresult;
-      // 下載附件
+      
       // switch (nowData.Code) {
       //   case "F":
       //   case "J":
@@ -1568,120 +1575,156 @@ function saveAPIRecord(nowData) {
       // }
       // // console.log("download_result",result);
       // return result;
-      return null;
-    }).then(res => {
-      // 填入其他資料
-      switch (nowData.Code) {
-        case "F":
-          saveRecord01API({
-            updateRecord01Id: nowData.caseid,
-            camType: parseInt(nowData.COL01),
-            focal: parseFloat(nowData.COL05),
-            ppaX: parseFloat(nowData.COL06),
-            ppaY: parseFloat(nowData.COL07),
-            pxW: parseInt(nowData.COL09),
-            pxH: parseInt(nowData.COL08),
-            pxSizeX: parseFloat(nowData.COL10),
-            pxSizeY: parseFloat(nowData.COL11),
-            sizeX: parseFloat(((parseFloat(nowData.COL09) * parseFloat(nowData.COL10)) / 1000).toFixed(4)),
-            sizeY: parseFloat(((parseFloat(nowData.COL08) * parseFloat(nowData.COL11)) / 1000).toFixed(4)),
-            planYear: parseInt(nowData.COL14),
-            planMonth: parseInt(nowData.COL15),
-            gsd: parseFloat(nowData.COL16),
-            stripsNs: parseInt(nowData.COL17),
-            stripsEw: parseInt(nowData.COL18),
-            endLap: parseFloat(nowData.COL19),
-            sideLap: parseFloat(nowData.COL20),
-            ellHeight: parseFloat(nowData.COL21),
-            agl: parseFloat(nowData.COL22),
-            // camReport: res[0],
-            // planMap: res[1],
-            signPersonId: parseInt(nowData.Signatory),
-          });
-          break;
-        case "J":
-          saveRecord01API({
-            updateRecord01Id: nowData.caseid,
-            camType: 3,
-            focal: parseFloat(nowData.COL05),
-            ppaX: parseFloat(nowData.COL06),
-            ppaY: parseFloat(nowData.COL07),
-            pxW: parseInt(nowData.COL09),
-            pxH: parseInt(nowData.COL08),
-            pxSizeX: parseFloat(nowData.COL10),
-            pxSizeY: parseFloat(nowData.COL11),
-            sizeX: parseFloat(((parseFloat(nowData.COL09) * parseFloat(nowData.COL10)) / 1000).toFixed(4)),
-            sizeY: parseFloat(((parseFloat(nowData.COL08) * parseFloat(nowData.COL11)) / 1000).toFixed(4)),
-            distorCorrSoft: nowData.COL14.split(";")[0],
-            distorCorrVer: nowData.COL14.split(";")[1],
-            planYear: parseInt(nowData.COL15),
-            planMonth: parseInt(nowData.COL16),
-            gsd: parseFloat(nowData.COL17),
-            stripsNs: parseInt(nowData.COL18),
-            stripsEw: parseInt(nowData.COL19),
-            endLap: parseFloat(nowData.COL20),
-            sideLap: parseFloat(nowData.COL21),
-            ellHeight: parseFloat(nowData.COL22),
-            agl: parseFloat(nowData.COL23),
-            // camReport: res[0],
-            // planMap: res[1],
-            signPersonId: parseInt(nowData.Signatory),
-          });
-          break;
-        case "I":
-          saveRecord02API({
-            updateRecord02Id: nowData.caseid,
-            type: parseInt(nowData.COL05),
-            gnssId: (res[3])?parseInt(res[3]):null,
-            imuId: (res[4])?parseInt(res[4]):null,
-            disPresision: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL06):null,
-            angResolution: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL07):null,
-            beam: parseFloat(nowData.COL08),
-            precH: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL12):parseFloat(nowData.COL06),
-            precV: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL13):parseFloat(nowData.COL07),
-            omega: parseFloat(nowData.COL17),
-            phi: parseFloat(nowData.COL18),
-            kappa: parseFloat(nowData.COL19),
-            precOri: parseFloat(nowData.COL20),
-            planYear: parseInt(nowData.COL21),
-            planMonth: parseInt(nowData.COL22),
-            stripsNo: parseInt(nowData.COL23),
-            ellHeight: parseFloat(nowData.COL24),
-            agl: parseFloat(nowData.COL25),
-            cloudDensity: parseFloat(nowData.COL26),
-            fov: parseFloat(nowData.COL27),
-            // lidarReport: res[0],
-            // posReport: res[1],
-            // planMap: res[2],
-            signPersonId: parseInt(nowData.Signatory),
-          });
-          break;
-        case "M":
-          saveRecord03API({
-            updateRecord02Id: nowData.caseid,
-            type: parseInt(nowData.COL05),
-            gnssId: (res[3])?parseInt(res[2]):null,
-            imuId: (res[4])?parseInt(res[3]):null,
-            disPresision: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL06):null,
-            angResolution: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL07):null,
-            beam: parseFloat(nowData.COL08),
-            precH: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL12):parseFloat(nowData.COL06),
-            precV: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL13):parseFloat(nowData.COL07),
-            omega: parseFloat(nowData.COL17),
-            phi: parseFloat(nowData.COL18),
-            kappa: parseFloat(nowData.COL19),
-            precOri: parseFloat(nowData.COL20),
-            // planYear: parseInt(nowData.COL21),
-            // planMonth: parseInt(nowData.COL22),
-            stripsNo: parseInt(nowData.COL23),
-            cloudDensity: parseFloat(nowData.COL26),
-            lidarReport: res[0],
-            posReport: res[1],
-            signPersonId: parseInt(nowData.Signatory),
-          });
-          break;
+      return res;
+  }).then(res => {
+    // 填入詳細資料
+    switch (nowData.Code) {
+      case "F":
+        saveRecord01API({
+          updateRecord01Id: nowData.caseid,
+          camType: parseInt(nowData.COL01),
+          focal: parseFloat(nowData.COL05),
+          ppaX: parseFloat(nowData.COL06),
+          ppaY: parseFloat(nowData.COL07),
+          pxW: parseInt(nowData.COL09),
+          pxH: parseInt(nowData.COL08),
+          pxSizeX: parseFloat(nowData.COL10),
+          pxSizeY: parseFloat(nowData.COL11),
+          sizeX: parseFloat(((parseFloat(nowData.COL09) * parseFloat(nowData.COL10)) / 1000).toFixed(4)),
+          sizeY: parseFloat(((parseFloat(nowData.COL08) * parseFloat(nowData.COL11)) / 1000).toFixed(4)),
+          planYear: parseInt(nowData.COL14),
+          planMonth: parseInt(nowData.COL15),
+          gsd: parseFloat(nowData.COL16),
+          stripsNs: parseInt(nowData.COL17),
+          stripsEw: parseInt(nowData.COL18),
+          endLap: parseFloat(nowData.COL19),
+          sideLap: parseFloat(nowData.COL20),
+          ellHeight: parseFloat(nowData.COL21),
+          agl: parseFloat(nowData.COL22),
+          // camReport: res[0],
+          // planMap: res[1],
+          signPersonId: parseInt(nowData.Signatory),
+        });
+        break;
+      case "J":
+        saveRecord01API({
+          updateRecord01Id: nowData.caseid,
+          camType: 3,
+          focal: parseFloat(nowData.COL05),
+          ppaX: parseFloat(nowData.COL06),
+          ppaY: parseFloat(nowData.COL07),
+          pxW: parseInt(nowData.COL09),
+          pxH: parseInt(nowData.COL08),
+          pxSizeX: parseFloat(nowData.COL10),
+          pxSizeY: parseFloat(nowData.COL11),
+          sizeX: parseFloat(((parseFloat(nowData.COL09) * parseFloat(nowData.COL10)) / 1000).toFixed(4)),
+          sizeY: parseFloat(((parseFloat(nowData.COL08) * parseFloat(nowData.COL11)) / 1000).toFixed(4)),
+          distorCorrSoft: nowData.COL14.split(";")[0],
+          distorCorrVer: nowData.COL14.split(";")[1],
+          planYear: parseInt(nowData.COL15),
+          planMonth: parseInt(nowData.COL16),
+          gsd: parseFloat(nowData.COL17),
+          stripsNs: parseInt(nowData.COL18),
+          stripsEw: parseInt(nowData.COL19),
+          endLap: parseFloat(nowData.COL20),
+          sideLap: parseFloat(nowData.COL21),
+          ellHeight: parseFloat(nowData.COL22),
+          agl: parseFloat(nowData.COL23),
+          // camReport: res[0],
+          // planMap: res[1],
+          signPersonId: parseInt(nowData.Signatory),
+        });
+        break;
+      case "I":
+        saveRecord02API({
+          updateRecord02Id: nowData.caseid,
+          type: parseInt(nowData.COL05),
+          gnssId: (nowData.gnss_id)?parseInt(nowData.gnss_id):null,
+          imuId: (nowData.imu_id)?parseInt(nowData.imu_id):null,
+          disPresision: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL06):null,
+          angResolution: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL07):null,
+          beam: parseFloat(nowData.COL08),
+          precH: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL12):parseFloat(nowData.COL06),
+          precV: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL13):parseFloat(nowData.COL07),
+          omega: parseFloat(nowData.COL17),
+          phi: parseFloat(nowData.COL18),
+          kappa: parseFloat(nowData.COL19),
+          precOri: parseFloat(nowData.COL20),
+          planYear: parseInt(nowData.COL21),
+          planMonth: parseInt(nowData.COL22),
+          stripsNo: parseInt(nowData.COL23),
+          ellHeight: parseFloat(nowData.COL24),
+          agl: parseFloat(nowData.COL25),
+          cloudDensity: parseFloat(nowData.COL26),
+          fov: parseFloat(nowData.COL27),
+          // lidarReport: res[0],
+          // posReport: res[1],
+          // planMap: res[2],
+          signPersonId: parseInt(nowData.Signatory),
+        });
+        break;
+      case "M":
+        saveRecord03API({
+          updateRecord02Id: nowData.caseid,
+          type: parseInt(nowData.COL05),
+          gnssId: (nowData.gnss_id)?parseInt(nowData.gnss_id):null,
+          imuId: (nowData.imu_id)?parseInt(nowData.imu_id):null,
+          disPresision: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL06):null,
+          angResolution: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL07):null,
+          beam: parseFloat(nowData.COL08),
+          precH: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL12):parseFloat(nowData.COL06),
+          precV: (parseInt(nowData.COL05)===1)?parseFloat(nowData.COL13):parseFloat(nowData.COL07),
+          omega: parseFloat(nowData.COL17),
+          phi: parseFloat(nowData.COL18),
+          kappa: parseFloat(nowData.COL19),
+          precOri: parseFloat(nowData.COL20),
+          // planYear: parseInt(nowData.COL21),
+          // planMonth: parseInt(nowData.COL22),
+          stripsNo: parseInt(nowData.COL23),
+          cloudDensity: parseFloat(nowData.COL26),
+          lidarReport: res[0],
+          posReport: res[1],
+          signPersonId: parseInt(nowData.Signatory),
+        });
+        break;
+    }
+  }); 
+}
+
+// 查詢是否既有儀器否則新增儀器
+function findItemOrAdd(ndSN, ndC2, ndC3, ndCode, preResult, nowData){
+  return new Promise((resolve, reject)=>{
+    getItemBySN({sn: ndSN}).then(res=>{
+      if(res.data.getItemBySN.length === 1){
+        // 既有儀器回傳ID
+        preResult.item_id = res.data.getItemBySN[0].id;
+        resolve(preResult);
+      }else{
+        resolve(addItem({
+          updateItemId:-1, // 新儀器
+          chop: ndC2,
+          model: ndC3,
+          serialNumber: ndSN,
+          type: parseInt(ndCode),
+        }).then(res=>{
+          switch (ndCode) {
+            case 3:
+              preResult.gnss_id = res.data.updateItem.id;
+              nowData.gnss_id = res.data.updateItem.id;
+              break;
+            case 4:
+              preResult.imu_id = res.data.updateItem.id;
+              nowData.imu_id = res.data.updateItem.id;
+              break;
+            default:
+              preResult.item_id = res.data.updateItem.id;
+              nowData.item_id = res.data.updateItem.id;
+          }
+          return preResult;
+        }))
       }
-    }); 
+    })
+  })
 }
 
 // 儲存Record01API

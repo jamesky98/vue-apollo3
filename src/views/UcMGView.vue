@@ -343,9 +343,8 @@ getUcListError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 function readUcModule(){
   // console.log('readUcModule')
   // selectUcModuleName.value = nowUcModuleNameDOM.value.inputValue;
-  // console.log(selectUcModuleName.value)
-  if(selectUcModuleName.value){
-    getUcModule();
+  if(selectUcModuleName.value && selectUcModuleName.value!==-1){
+    getUcModule({filename: selectUcModuleName.value});
   }else{
     createNewUc();
   }
@@ -357,18 +356,15 @@ const {
   onDone: getUcModuleOnDone, 
   onError: getUcModuleonError
 } = useMutation(
-  CaseGQL.GETUCMODULE,
-  () => ({
-    variables: {
-      filename: selectUcModuleName.value,
-    }
-  })
+  CaseGQL.GETUCMODULE
 );
 getUcModuleOnDone(result=>{
   // 填入基本資料
   nowUcModule.uc = JSON.parse(result.data.getUcModule);
   nowUcModuleName.value = selectUcModuleName.value;
   nowUcCalTypeDOM.value.setValue(nowUcModule.uc.calType);
+  // selectUcParmType.value = result.data.getUcModule
+  // console.log('parmtype',nowUcModule.uc.parmtype)
   nowUcParmTypeDOM.value.setValue(nowUcModule.uc.parmtype);
   nowUcSection.value=0;
   nowUcItem.value=0;
@@ -433,15 +429,17 @@ function createNewUc(){
 
 // 儲存模組
 function saveUcModuleBtn(){
-  saveUcModule().then(res=>{
-    // console.log(nowUcModule.uc);
+  saveUcModule().then(res_1=>{
+    // console.log(res_1);
+    // console.log(res_1.data.saveUcModule);
     // 更新狀態訊息
     infomsg.value = "模組 "+ nowUcModuleName.value + "儲存完畢";
     msgColor.value = "blue";
     // alertColor.value = "primary";
     // alert1.value = true;
+    let temp = res_1.data.saveUcModule;
     getUcList().then(res=>{
-      nowUcModuleNameDOM.value.setValue(result.data.saveUcModule);
+      nowUcModuleNameDOM.value.setValue(temp);
     });
   })
 }
@@ -579,6 +577,10 @@ function delFa(){
 function updateCalType(){
   // console.log("selectUcCalType:",selectUcCalType.value);
   nowUcModule.uc.calType = selectUcCalType.value;
+}
+function updateParmType(){
+  // console.log("selectUcCalType:",selectUcCalType.value);
+  nowUcModule.uc.parmtype = selectUcParmType.value;
 }
 function updataSecType(){
   // console.log("selectUcSecType:",selectUcSecType.value);
@@ -822,7 +824,7 @@ function changeSectionUpdatItem(sectoin, item){
                   <div>基本資訊</div>
                   <!-- 模組存取工具列 -->
                   <div>
-                    <MDBBtn :disabled="!rGroup[1]" v-if="nowUcModuleName===selectUcModuleName" size="sm" color="primary" style="background-color: rgb(172, 43, 172);" @click="saveUcModule">
+                    <MDBBtn :disabled="!rGroup[1]" v-if="nowUcModuleName===selectUcModuleName" size="sm" color="primary" style="background-color: rgb(172, 43, 172);" @click="saveUcModuleBtn">
                       <i class="far fa-save">儲存</i>
                     </MDBBtn>
                     <MDBBtn :disabled="!rGroup[1]" v-else size="sm" color="primary" style="background-color: rgb(172, 43, 172);" @click="saveUcModuleBtn">
@@ -854,8 +856,8 @@ function changeSectionUpdatItem(sectoin, item){
                     <MDBCol md="4" class="mb-2">
                       <MDBInput size="sm" type="text" label="系統評估版本" v-model="nowUcModule.uc.ver"/>
                     </MDBCol>
-                    <MDBSelect :disabled="selectUcCalType!=='I'" size="sm" class="mb-2 col-md-4" label="規格型態" v-model:options="nowUcParmTypeMU"
-                      v-model:selected="selectUcParmType" ref="nowUcParmTypeDOM"/>
+                    <MDBSelect :disabled="selectUcCalType!=='I' && selectUcCalType!=='M'" size="sm" class="mb-2 col-md-4" label="規格型態" v-model:options="nowUcParmTypeMU"
+                      v-model:selected="selectUcParmType" ref="nowUcParmTypeDOM" @change="updateParmType"/>
 
                     <MDBCol md="4" class="mb-2">
                       <MDBInput size="sm" type="text" label="最小不確定度H" v-model="nowUcModule.uc.minUcH"/>
