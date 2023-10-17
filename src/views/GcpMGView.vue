@@ -121,7 +121,7 @@ const selPrjCodeDOM = ref();
 const selGcpId = ref("");
 // 啟用狀態清單
 const selGcpEnable = ref("");
-const selGcpEnableMU = computed(() => store.state.selectlist.gcpEnableMU);
+const selGcpEnableMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.gcpEnableMU)));
 const selGcpEnableDOM = ref();
 
 const selGcpStatus = ref("");

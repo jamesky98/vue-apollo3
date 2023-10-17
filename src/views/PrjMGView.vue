@@ -196,7 +196,7 @@ const nowPRecordPersonMU = ref([]);
 const nowPRecordPersonDOM = ref();
 
 const nowPRecordPtStatus = ref("");
-const nowPRecordPtStatusMU = computed(() => store.state.selectlist.ptStatusMU);
+const nowPRecordPtStatusMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.ptStatusMU)));
 const nowPRecordPtStatusDOM = ref();
 
 const nowPRecordE = ref("");
@@ -686,6 +686,7 @@ getRecordByIdOnDone(result=>{
     // console.log("getRecordByIdOnDone")
     let getData = result.data.getGcpRecordById;
     let getBase = result.data.getGcpRecordById.gcp;
+    // console.log("getBase",getBase)
     nowPRecordPtId.value = getData.gcp_id;
     nowPRecordPrjId.value = getData.project_id;
     nowPRecordPrjIdDOM.value.setValue(nowPRecordPrjId.value);
@@ -738,7 +739,7 @@ getRecordByIdOnDone(result=>{
       nowGcpContactTel.value = "";
       nowGcpContactCom.value = "";
     }
-    console.log('getRecordById')
+    // console.log('getRecordById')
     updateKey2.value=updateKey2.value+1;
   }
 });
@@ -2064,7 +2065,7 @@ onMounted(function () {
   dt_gcp.value.on('user-select', function ( e, dt, type, cell, originalEvent ) {
     let indexes = cell.index(this).row;
     nowPRecordId.value = dt.rows(indexes).data()[0].gcp_record[0].id;
-    console.log(nowPRecordId.value)
+    // console.log(nowPRecordId.value)
     getRecordById({getGcpRecordByIdId: parseInt(nowPRecordId.value)});
   });
   // dt_gcp.value.on('select', function (e, dt, type, indexes) {
