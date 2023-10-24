@@ -18,7 +18,7 @@ const itemID = computed(()=>{return props.caseID.slice(-2)}); //校正件編號
 const nowCaseAppDate = ref(""); // 申請日期
 const appDateStr = computed(()=>{
 	let dateArray = nowCaseAppDate.value.split("-");
-	return dateArray[0]-1911 + "年" + dateArray[1] + "月" + dateArray[1] + "日"
+	return dateArray[0]-1911 + "年" + dateArray[1] + "月" + dateArray[2] + "日"
 })
 const nowCaseOperatorName = ref("");// 校正人員名稱
 const nowCaseCalTypeCode = ref(""); //校正項目代碼
