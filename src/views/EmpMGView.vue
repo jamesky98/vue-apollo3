@@ -36,7 +36,7 @@ import ButtonsBs5 from 'datatables.net-buttons-bs5';
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { errorHandle, logIn, logOut, toTWDate, domTextSelect } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate, domTextSelect, updateSelMU} from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -560,10 +560,10 @@ saveTrainError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 function saveTrainBtn(){
   if(!nowTrainID.value || nowTrainID.value===''){
     // 無序號為新增
-    newTrain();
+    newTrain().then(res=>{getAllTrain()});
   }else{
     // 有序號為儲存
-    saveTrain();
+    saveTrain().then(res=>{getAllTrain()});
   }
 }
 
@@ -607,21 +607,28 @@ getAllTrainonDone(result=>{
 getAllTrainonError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 
 function updateTrainName(){
-  let newoption = nowTrainName.value;
-  let findid = nowTrainNameMU.value.findIndex(x => x.value===newoption);
-  if(findid===-1){
-    nowTrainNameMU.value.push({text: newoption, value: newoption})
-    nowTrainNameDOM.value.setValue(newoption);
-  }
+  updateSelMU({
+    newValue: nowTrainName,
+    nowMU: nowTrainNameMU,
+    nowDOM: nowTrainNameDOM,
+    isUseID: false,
+  })
 }
 
 function updateTrainInstitution(){
-  let newoption = nowTrainInstitution.value;
-  let findid = nowTrainInstitutionMU.value.findIndex(x => x.value===newoption);
-  if(findid===-1){
-    nowTrainInstitutionMU.value.push({text: newoption, value: newoption})
-    nowTrainInstitutionDOM.value.setValue(newoption);
-  }
+  updateSelMU({
+    newValue: nowTrainInstitution,
+    nowMU: nowTrainInstitutionMU,
+    nowDOM: nowTrainInstitutionDOM,
+    isUseID: false,
+  })
+
+  // let newoption = nowTrainInstitution.value;
+  // let findid = nowTrainInstitutionMU.value.findIndex(x => x.value===newoption);
+  // if(findid===-1){
+  //   nowTrainInstitutionMU.value.push({text: newoption, value: newoption})
+  //   nowTrainInstitutionDOM.value.setValue(newoption);
+  // }
 }
 
 //#endregion Table 訓練列表==========End

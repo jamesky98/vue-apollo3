@@ -16,7 +16,7 @@ import DataTableBs5 from "datatables.net-bs5";
 import Select from "datatables.net-select";
 import { computed } from "@vue/reactivity";
 import router from "../router";
-import { errorHandle, logIn, logOut, toTWDate, domTextSelect } from "../methods/User";
+import { errorHandle, logIn, logOut, toTWDate, domTextSelect,updateSelMU } from "../methods/User";
 import { useStore } from 'vuex'
 
 DataTable.use(DataTableBs5);
@@ -215,37 +215,27 @@ DataTable.use(Select);
 //#endregion 顧客列表=========end
 
 // #region 公司選單=========Start
+  let addNewCustOrg = '';
   function addNewOrg(){
-    // console.log(selCaseCustOrgId.value);
-    // console.log(selCaseCustOrgName.value);
-    // 檢查公司名稱是否重複
-    let isRpt = selCustOrgNameMU.value.some(x=> x.text.trim()===selCaseCustOrgName.value.trim());
-    // console.log('是否重複',isRpt)
-
-    if(!isRpt){
-      // 清單中增加新公司
-      // 將新名稱加入清單，值為-1?
-      new Promise((res,rej)=>{
-        let temp = JSON.parse(JSON.stringify(selCustOrgNameMU.value));
-        temp.push({
-          text: selCaseCustOrgName.value.trim(),
-          value: -1,
-        });
-        res(selCustOrgNameMU.value = temp);
-      }).then(res_1=>{
-        selCustOrgNameDOM.value.setValue(-1);
-      })
-      
-      
-      
-    }
+    // console.log('selCaseCustOrgName',selCaseCustOrgName);
+    addNewCustOrg = selCaseCustOrgName.value;
+    updateSelMU({
+      newValue: selCaseCustOrgName,
+      nowMU: selCustOrgNameMU,
+      nowDOM: selCustOrgNameDOM,
+      isUseID: true,
+    })
   }
 
   function changeOrgTexID(){
+    console.log('selCaseCustOrgId',selCaseCustOrgId.value);
     refgetOrgById({getOrgByIdId: (selCaseCustOrgId.value)?selCaseCustOrgId.value:-1}).then(res=>{
       if(res.data.getOrgById){
         selCaseCustOrgName.value = res.data.getOrgById.name;
         selCaseCustTaxID.value = res.data.getOrgById.tax_id;
+      }else if(selCaseCustOrgId.value===-1){
+        selCaseCustOrgName.value = selCustOrgNameMU.value.find(x=>x.value===-1).text;
+        selCaseCustTaxID.value = '';
       }
     })
   }

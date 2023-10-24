@@ -31,7 +31,7 @@ import ButtonsBs5 from 'datatables.net-buttons-bs5';
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { errorHandle, logIn, logOut, toTWDate, domTextSelect } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate, domTextSelect, updateSelMU } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -107,41 +107,30 @@ const nowItemTypeMU = computed(() => JSON.parse(JSON.stringify(store.state.selec
 const nowItemTypeDOM = ref();
 
 const nowItemChop = ref("");
-const nowItemChopMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.caseChopList)));
+const nowItemChopMU = ref([]);
 const nowItemChopDOM = ref();
 function updateItemChop(){
-  let newoption = nowItemChop.value;
-  let findid = nowItemChopMU.value.findIndex(x => x.value===newoption);
-  if(findid===-1){
-    // nowEqptChopMU.value.push({text: newoption, value: newoption})
-    new Promise((res,rej)=>{
-      res(store.commit('selectlist/addChopList',newoption))
-    }).then(res=>{
-      // console.log('nowEqptChopMU',nowEqptChopMU.value)
-      // console.log('newoption',newoption)
-      nowItemChopDOM.value.setValue(newoption);
-    });
-  }
+  updateSelMU({
+    newValue: nowItemChop,
+    nowMU: nowItemChopMU,
+    nowDOM: nowItemChopDOM,
+    isUseID: false,
+  })
 }
 
 const nowItemModel = ref("");
-const nowItemModelMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.caseModelList)));
+const nowItemModelMU = ref([]);
 const nowItemModelDOM = ref();
 function updateItemModel(){
-  let newoption = nowItemModel.value;
-  let findid = nowItemModelMU.value.findIndex(x => x.value===newoption);
-  if(findid===-1){
-    // nowEqptChopMU.value.push({text: newoption, value: newoption})
-    new Promise((res,rej)=>{
-      res(store.commit('selectlist/addModelList',newoption))
-    }).then(res=>{
-      nowItemModelDOM.value.setValue(newoption);
-    });
-  }
+  updateSelMU({
+    newValue: nowItemModel,
+    nowMU: nowItemModelMU,
+    nowDOM: nowItemModelDOM,
+    isUseID: false,
+  })
 }
 
 const nowItemSN = ref("");
-
 const selItemType = ref("");
 const selItemTypeMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.caseItemTypeList)));
 const selItemTypeDOM = ref();
@@ -523,8 +512,12 @@ const { mutate: saveItem, onDone: saveItemOnDone, onError: saveItemError } = use
 saveItemOnDone(result=>{
   infomsg.value = "校正件 " + result.data.updateItem.id + " 儲存完畢";
   msgColor.value = "blue";
-  store.dispatch('selectlist/fetchChopList');
-  store.dispatch('selectlist/fetchModelList');
+  store.dispatch('selectlist/fetchChopList').then(res=>{
+    nowItemChopMU.value = JSON.parse(JSON.stringify(store.state.selectlist.caseChopList));
+  });
+  store.dispatch('selectlist/fetchModelList').then(res=>{
+    nowItemModelMU.value = JSON.parse(JSON.stringify(store.state.selectlist.caseModelList));
+  });
   if(joinItem.value){
     if(nowCustOrgID.value && nowCustOrgID.value!==""){
       // console.log("nowCustOrgID",nowCustOrgID.value);
@@ -721,8 +714,12 @@ const tboption_Case = {
 getchecktoken().then(res=>{
   store.dispatch('selectlist/fetchOrgList');
   store.dispatch('selectlist/fetchItemTypeList');
-  store.dispatch('selectlist/fetchChopList');
-  store.dispatch('selectlist/fetchModelList');
+  store.dispatch('selectlist/fetchChopList').then(res=>{
+    nowItemChopMU.value = JSON.parse(JSON.stringify(store.state.selectlist.caseChopList));
+  });
+  store.dispatch('selectlist/fetchModelList').then(res=>{
+    nowItemModelMU.value = JSON.parse(JSON.stringify(store.state.selectlist.caseModelList));
+  });
   refgetAllCust();
   refgetAllItem();
   // refgetItemList();

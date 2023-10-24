@@ -53,7 +53,7 @@ import ButtonsBs5 from 'datatables.net-buttons-bs5';
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { errorHandle, logIn, logOut, toTWDate, domTextSelect } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate, domTextSelect, updateSelMU } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -195,7 +195,7 @@ const nowGcpDespImgDL = computed(()=>{
 const nowGcpDespStr = ref("");
 const nowGcpNeedContact = ref(false);
 const nowGcpContactId = ref("");
-const nowGcpContactMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.gcpContactList)));
+const nowGcpContactMU = ref([]);
 const nowGcpContactDOM = ref();
 const nowGcpContactName = ref("");
 
@@ -312,53 +312,37 @@ const { mutate: refgetContactById, onError: refgetContactByIdonError } = useMuta
 refgetContactByIdonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function updateContact(){
-  let newoption = nowGcpContactName.value;
-  let findid = nowGcpContactMU.value.findIndex(x => x.text===newoption);
-  let findTempid = nowGcpContactMU.value.findIndex(x => x.value===-2);
-  if(nowGcpContactName.value!=='' && nowGcpContactName.value!=='-未選取-' && findid===-1 ){
-    // 確認是新選項
-    if(findTempid>-1){
-      // 檢查有無有暫存選項，先刪除暫存選項
-      store.commit('selectlist/delGcpContactList', findTempid);
-    }
-    let newItem = {
-      id: -2,
-      name: nowGcpContactName.value,
-    }
-    
-    new Promise((res,rej)=>{
-      res(store.commit('selectlist/addGcpContactList', newItem));
-    }).then(res=>{
-      nowGcpContactId.value = -2;
-      nowGcpContactDOM.value.setValue(nowGcpContactId.value);
-      nowGcpContactName.value = "";
-    })
-  }
+  // console.log('nowGcpContactId',nowGcpContactId.value)
+  updateSelMU({
+    newValue: nowGcpContactName,
+    nowMU: nowGcpContactMU,
+    nowDOM: nowGcpContactDOM,
+    isUseID: true,
+  })
 }
-
-watch(nowGcpContactId,(newvalue)=>{
-  // console.log('newvalue',newvalue)
-  if(newvalue===-1){
-    // 清空
-    nowGcpContactAds.value = '';
-    nowGcpContactPrs.value = '';
-    nowGcpContactTel.value = '';
-    nowGcpContactCom.value = '';
-  }else{
-    refgetContactById(
-      {getContactByIdId: newvalue}
-    ).then(res=>{
-      // 填入聯絡廠商欄位
-      let getData = res.data.getContactById;
-      if(getData){
-        nowGcpContactAds.value = getData.address;
-        nowGcpContactPrs.value = getData.person;
-        nowGcpContactTel.value = getData.tel;
-        nowGcpContactCom.value = getData.comment;
-      }
-    });
-  }
-})
+function changeContactID(){
+  // console.log('nowGcpContactId',nowGcpContactId.value);
+  refgetContactById(
+    {getContactByIdId: (nowGcpContactId.value)?nowGcpContactId.value:-1}
+  ).then(res=>{
+    // 填入聯絡廠商欄位
+    let getData = res.data.getContactById;
+    // console.log('getData',getData);
+    if(getData){
+      nowGcpContactName.value = getData.name;
+      nowGcpContactAds.value = getData.address;
+      nowGcpContactPrs.value = getData.person;
+      nowGcpContactTel.value = getData.tel;
+      nowGcpContactCom.value = getData.comment;
+    }else if(nowGcpContactId.value===-1){
+      nowGcpContactName.value = nowGcpContactMU.value.find(x=>x.value===-1).text;
+      nowGcpContactAds.value = '';
+      nowGcpContactPrs.value = '';
+      nowGcpContactTel.value = '';
+      nowGcpContactCom.value = '';
+    }
+  });
+}
 
 // 清除篩選
 function clearfilter(){
@@ -530,14 +514,16 @@ getGcpByIdOnDone(result=>{
   nowGcpDespStr.value = getData.pt_desc;
   nowGcpNeedContact.value = (getData.need_contact===1)?true:false;
   nowGcpContactId.value = (getData.contact_id)?getData.contact_id:-1;
-  nowGcpContactDOM.value.setValue(nowGcpContactId.value);
+  nowGcpContactDOM.value.setValue(parseInt(nowGcpContactId.value));
 
   if(getData.gcp_contact){
+    nowGcpContactName.value = getData.gcp_contact.name;
     nowGcpContactAds.value = getData.gcp_contact.address;
     nowGcpContactPrs.value = getData.gcp_contact.person;
     nowGcpContactTel.value = getData.gcp_contact.tel;
     nowGcpContactCom.value = getData.gcp_contact.comment;
   }else{
+    nowGcpContactName.value = '-未選取-';
     nowGcpContactAds.value = "";
     nowGcpContactPrs.value = "";
     nowGcpContactTel.value = "";
@@ -565,7 +551,7 @@ function saveGcpBtn(){
     if(nowGcpContactId.value>-1 || nowGcpContactId.value===-2){
       result=saveGcpContact({
         updateGcpContactId: nowGcpContactId.value,
-        name: document.querySelector('#contactSelectDOM div input').value,
+        name: nowGcpContactMU.value.find(x=>x.value=== parseInt(nowGcpContactId.value)).text, // document.querySelector('#contactSelectDOM div input').value,
         address: nowGcpContactAds.value,
         person: nowGcpContactPrs.value,
         tel: nowGcpContactTel.value,
@@ -1002,7 +988,9 @@ getchecktoken().then(res=>{
   
   store.dispatch('selectlist/fetchGcpTypeList');
   store.dispatch('selectlist/fetchGcpStyleList');
-  store.dispatch('selectlist/fetchGcpContactList');
+  store.dispatch('selectlist/fetchGcpContactList').then(res=>{
+    nowGcpContactMU.value = JSON.parse(JSON.stringify(store.state.selectlist.gcpContactList));
+  });
 
   return 
 }).catch(e=>{
@@ -1321,9 +1309,11 @@ function selectNowGCPRecord(){
                                 :disabled="!nowGcpNeedContact"
                                 id="contactSelectDOM" size="sm" class="mt-2 col-12" 
                                 label="機關名稱" 
+                                :preselect="false"
                                 v-model:options="nowGcpContactMU"
                                 v-model:selected="nowGcpContactId" 
                                 ref="nowGcpContactDOM" 
+                                @change="changeContactID()"
                                 @close="updateContact()">
                                 <MDBInput 
                                   size="sm" 

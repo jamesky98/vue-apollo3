@@ -16,7 +16,7 @@ import DataTableBs5 from "datatables.net-bs5";
 import Select from "datatables.net-select";
 import { computed } from "@vue/reactivity";
 import router from "../router";
-import { errorHandle, logIn, logOut, toTWDate } from "../methods/User";
+import { errorHandle, logIn, logOut, toTWDate, updateSelMU} from "../methods/User";
 import { useStore } from 'vuex'
 
 DataTable.use(DataTableBs5);
@@ -46,42 +46,24 @@ DataTable.use(Select);
   const selItemChopMU = ref([]);
   const selItemChopDOM = ref();
   function updateItemChop(){
-    let newoption = selItemChop.value;
-    let findid = selItemChopMU.value.findIndex(x => x.value===newoption);
-    if(findid===-1){
-      let myarray=[];
-      selItemChopMU.value.map(x=>{
-        myarray.push({text: x.text, value: x.value});
-      })
-      new Promise((res,rej)=>{
-        myarray.push({text: newoption, value: newoption});
-        selItemChopMU.value = myarray;
-        res(selItemChopMU.value);
-      }).then(res=>{
-        selItemChopDOM.value.setValue(newoption);
-      });
-    }
+    updateSelMU({
+      newValue: selItemChop,
+      nowMU: selItemChopMU,
+      nowDOM: selItemChopDOM,
+      isUseID: false,
+    })
   }
   // 型號
   const selItemModel = ref("");
   const selItemModelMU = ref([]);
   const selItemModelDOM = ref();
   function updateItemModel(){
-    let newoption = selItemModel.value;
-    let findid = selItemModelMU.value.findIndex(x => x.value===newoption);
-    if(findid===-1){
-      let myarray=[];
-      selItemModelMU.value.map(x=>{
-        myarray.push({text: x.text, value: x.value});
-      })
-      new Promise((res,rej)=>{
-        myarray.push({text: newoption, value: newoption});
-        selItemModelMU.value = myarray;
-        res(selItemModelMU.value);
-      }).then(res=>{
-        selItemModelDOM.value.setValue(newoption);
-      });
-    }
+    updateSelMU({
+      newValue: selItemModel,
+      nowMU: selItemModelMU,
+      nowDOM: selItemModelDOM,
+      isUseID: false,
+    })
   }
   // 序號
   const selItemSN = ref("");

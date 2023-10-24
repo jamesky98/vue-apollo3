@@ -34,6 +34,8 @@ const { mutate: getEqptChopList } = useMutation(PrjGQL.GETCHOPLIST);
 const { mutate: getEqptModelList } = useMutation(PrjGQL.GETMODELLIST);
 // 聯絡機關
 const { mutate: refgetAllContact } = useMutation(GcpGQL.GETALLCONTACT);
+// 校正實驗室
+const { mutate: getChkOrgList } = useMutation(PrjGQL.GETALLCHKORGLIST);
 
 const state = () => ({
   publicPath: import.meta.env.VITE_GRAPHQL_PUBLIC,
@@ -86,6 +88,7 @@ const state = () => ({
   eqptModelList: [],
   eqptTypeList: [],
   gcpContactList: [],
+  chkOrgList: [],
 })
 
 const getters = {
@@ -222,8 +225,17 @@ const actions = {
       let tempMU = res.data.getAllContact.map(x => {
         return { text: x.name, value: parseInt(x.id) }
       }); 
-      tempMU.unshift({ text: "-未選取-", value: -1 });
+      tempMU.unshift({ text: "-未選取-", value: '' });
       commit('writeGcpContactList', tempMU);
+    })
+  },
+  async fetchChkOrgList ({ commit, state }, payload) {
+    await getChkOrgList().then(res=>{
+      let tempMU = res.data.getAllChkOrgList.map(x => {
+        return { text: x, value: x }
+      }); 
+      tempMU.unshift({ text: "-未選取-", value: -1 });
+      commit('writeChkOrgList', tempMU);
     })
   },
 }
@@ -305,7 +317,14 @@ const mutations = {
   },
   delGcpContactList(state, delId){
     state.gcpContactList.splice(delId,1);;
-  }
+  },
+  // 校正實驗室
+  writeChkOrgList(state, ChkOrgList){
+    state.chkOrgList = [...ChkOrgList];
+  },
+  addChkOrgList(state, newItem){
+    state.chkOrgList.push({text: newItem, value: newItem});
+  },
 }
 
 export default {

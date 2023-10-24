@@ -76,11 +76,47 @@ function toTWDate(data) {
   return ttdate;
 }
 
-function rolePass(level){
-  
-}
-
 function domTextSelect(e){
   e.target.select()
 }
-export { errorHandle, logIn, logOut, toTWDate, domTextSelect };
+
+function updateSelMU(paras){
+  // paras:{
+    // newValue, 新項目的值
+    // nowMU, 目前清單列表
+    // nowDOM, 目前清單的物件
+    // isUseID, 是否使用索引
+  // }
+  // 檢查項目名稱是否重複
+  // console.log('paras',paras);
+  let nowValue = (paras.newValue.value && paras.newValue.value!==-1)?paras.newValue.value.trim():'';
+  let isRpt = paras.nowMU.value.some(x=> ((x.text)?x.text.trim():'')===nowValue);
+  paras.isUseID = (paras.isUseID)?true:false;
+
+  // console.log('isRpt',isRpt);
+  if(!isRpt){
+    // 清單中增加新項目
+    // 將新名稱加入清單，值為-1?
+    new Promise((res,rej)=>{
+      let temp = JSON.parse(JSON.stringify(paras.nowMU.value));
+      if(paras.isUseID){
+        temp = temp.filter(x=>x.value!==-1); 
+      }
+      temp.push({
+        text: nowValue,
+        value: (paras.isUseID)?-1:nowValue,
+      });
+      res(paras.nowMU.value = temp);
+    }).then(res_1=>{
+      // console.log('res_1',res_1)
+      if(paras.isUseID){
+        paras.nowDOM.value.setValue(-1);
+      }else{
+        paras.nowDOM.value.setValue(nowValue);
+      }
+    })
+  }
+}
+
+
+export { errorHandle, logIn, logOut, toTWDate, domTextSelect, updateSelMU};

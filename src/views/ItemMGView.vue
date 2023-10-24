@@ -42,7 +42,7 @@ import ButtonsBs5 from 'datatables.net-buttons-bs5';
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { errorHandle, logIn, logOut, toTWDate, domTextSelect } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate, domTextSelect, updateSelMU } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -106,11 +106,11 @@ const nowEqptTypeMU = computed(() => JSON.parse(JSON.stringify(store.state.selec
 const nowEqptTypeDOM = ref();
 
 const nowEqptChop = ref("");
-const nowEqptChopMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.eqptChopList)));
+const nowEqptChopMU = ref([]);
 const nowEqptChopDOM = ref();
 
 const nowEqptModel = ref("");
-const nowEqptModelMU = computed(() => JSON.parse(JSON.stringify(store.state.selectlist.eqptModelList)));
+const nowEqptModelMU = ref([]);
 const nowEqptModelDOM = ref();
 
 const nowEqptSN = ref("");
@@ -242,30 +242,22 @@ function changeEqptType(){
 
 // 廠牌清單
 function updateChop(){
-  let newoption = nowEqptChop.value;
-  let findid = nowEqptChopMU.value.findIndex(x => x.value===newoption);
-  if(findid===-1){
-    // nowEqptChopMU.value.push({text: newoption, value: newoption})
-    new Promise((res,rej)=>{
-      res(store.commit('selectlist/addEqptChopList',newoption))
-    }).then(res=>{
-      nowEqptChopDOM.value.setValue(newoption);
-    });
-  }
+  updateSelMU({
+    newValue: nowEqptChop,
+    nowMU: nowEqptChopMU,
+    nowDOM: nowEqptChopDOM,
+    isUseID: false,
+  })
 }
 
 // 型號清單
 function updateModeel(){
-  let newoption = nowEqptModel.value;
-  let findid = nowEqptModelMU.value.findIndex(x => x.value===newoption);
-  if(findid===-1){
-    // nowEqptModelMU.value.push({text: newoption, value: newoption})
-    new Promise((res,rej)=>{
-      res(store.commit('selectlist/addEqptModelList',newoption))
-    }).then(res=>{
-      nowEqptModelDOM.value.setValue(newoption);
-    });
-  }
+  updateSelMU({
+    newValue: nowEqptModel,
+    nowMU: nowEqptModelMU,
+    nowDOM: nowEqptModelDOM,
+    isUseID: false,
+  })
 }
 
 // 新增
@@ -461,22 +453,13 @@ function delChk(){
 }
 
 // 實驗室清單
-const { mutate: getChkOrgList, onDone: getChkOrgListOnDone, onError: getChkOrgListError } = useMutation(PrjGQL.GETALLCHKORGLIST);
-getChkOrgListOnDone(result=>{
-  let getData = result.data.getAllChkOrgList;
-  nowChkCalOrgMU.value = getData.map(x => {
-      return { text: x, value: x }
-    });nowChkCalOrgMU.value.unshift({ text: "-未選取-", value: -1 });
-});
-getChkOrgListError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
-
 function updateChkOrg(){
-  let newoption = nowChkCalOrg.value;
-  let findid = nowChkCalOrgMU.value.findIndex(x => x.value===newoption);
-  if(findid===-1){
-    nowChkCalOrgMU.value.push({text: newoption, value: newoption})
-    nowChkCalOrgDOM.value.setValue(newoption);
-  }
+  updateSelMU({
+    newValue: nowChkCalOrg,
+    nowMU: nowChkCalOrgMU,
+    nowDOM: nowChkCalOrgDOM,
+    isUseID: false,
+  })
 }
 //#endregion 查核紀錄==========End
 
@@ -568,9 +551,15 @@ function dropFile(e){
 getchecktoken().then(res=>{
   refgetAllEqpt();
   store.dispatch('selectlist/fetchEqptTypeList');
-  store.dispatch('selectlist/fetchEqptChopList');
-  store.dispatch('selectlist/fetchEqptModelList');
-  getChkOrgList();
+  store.dispatch('selectlist/fetchEqptChopList').then(res=>{
+    nowEqptChopMU.value = JSON.parse(JSON.stringify(store.state.selectlist.eqptChopList));
+  });
+  store.dispatch('selectlist/fetchEqptModelList').then(res=>{
+    nowEqptModelMU.value = JSON.parse(JSON.stringify(store.state.selectlist.eqptModelList));
+  });
+  store.dispatch('selectlist/fetchChkOrgList').then(res=>{
+    nowChkCalOrgMU.value = JSON.parse(JSON.stringify(store.state.selectlist.chkOrgList));
+  });
   
   return
 }).catch(e=>{
