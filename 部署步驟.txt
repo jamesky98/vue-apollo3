@@ -46,6 +46,8 @@ volumes: /SICL : /apollotest/public
 ================
 mysql:
 ================
+docker save -o mysql-lts.tar mysql
+
 PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 GOSU_VERSION:1.14
 MYSQL_MAJOR:8.0
@@ -54,6 +56,7 @@ MYSQL_SHELL_VERSION:8.0.31-1.el8
 MYSQL_ROOT_PASSWORD:Nlsc!1234567
 
 連接埠設定：
+bridge
 3306 :: 3306 ::TCP
 
 儲存空間：
