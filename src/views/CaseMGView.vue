@@ -455,9 +455,9 @@ provide("rGroup", rGroup);
         new Promise((res,rej)=>{
           nowCaseOperatorMU.value = JSON.parse(JSON.stringify(tempList));
           res(nowCaseOperatorMU.value);
-        }).then(res=>{
-          caseOptMU.value = JSON.parse(JSON.stringify(tempList));
-          return caseOptMU.value
+        // }).then(res=>{
+        //   caseOptMU.value = JSON.parse(JSON.stringify(tempList));
+        //   return caseOptMU.value
         }).then(res=>{
           // 寫回保留值
           nowCaseOperator.value = tempNowCaseOperator;
@@ -1901,7 +1901,22 @@ getchecktoken().then(res=>{
     store.dispatch('selectlist/fetchChopList');
     store.dispatch('selectlist/fetchModelList');
     updateAllCaseList();
-    refgetCaseOperator();
+    refgetCaseOperator().then(result=>{
+      // 加入校正人員選單資料
+      if (!result.loading && result.data.getEmpowerbyRole) {
+        let mylist = [];
+        mylist = result.data.getEmpowerbyRole.map(
+          x => { return {person_id:x.person_id,name: x.employee.name} 
+        });//從物件陣列中取出成陣列
+        mylist = filterArrayforObj(mylist,"person_id");// 去除重複
+
+        let tempMU = mylist.map(x => {
+          return { text: x.name, value: x.person_id }
+        });
+        tempMU.unshift({ text: "-未選取-", value: "-1" });
+        caseOptMU.value = JSON.parse(JSON.stringify(tempMU));
+      }
+    })
     refgetCaseLeader();
   }).catch(e=>{
     errorHandle(e,infomsg,alert1,msgColor);
