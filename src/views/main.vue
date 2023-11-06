@@ -1496,13 +1496,22 @@ function zoomCart(Index){
         </MDBCol>
       </MDBRow>
       <!-- Footer -->
-      <footer>
+      <footer style="position: relative;">
         <!-- Copyright -->
         <div class="text-center" style="background-color: rgba(0, 0, 0, 0.05); height: 2.5em;">
           © 2022 Copyright:
-          <a class="text-reset fw-bold" href="">jamesky98</a>
+          <a class="text-reset fw-bold" href="mailto:jamesky98@gmail.com">jamesky98</a>
         </div>
         <!-- Copyright -->
+        <div style="position: absolute; right: 12px; top:0">
+          <a href="https://sicl-nlsc.moi.gov.tw/" target="_blank">
+            <img src="/sicl-fn.png" style="height:2.5em;" alt="服務網前台連結">
+          </a>
+          <a href="https://siclm-nlsc.moi.gov.tw/USER/LogOn" target="_blank">
+            <img src="/sicl-bk.png" style="height:2.5em;" alt="服務網後台連結">
+          </a>
+        </div>
+
       </footer>
       <!-- Footer -->
     </MDBRow>

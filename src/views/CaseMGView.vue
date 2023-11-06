@@ -663,11 +663,24 @@ const columns1 = [
     }
   },
   {
+    data: "case_record_01.receive_date", title: "收件日", defaultContent: "-", render: (data, type, row) => {
+      if (data) {
+        return toTWDate(data);
+      } else if (row.case_record_02) {
+        return toTWDate(row.case_record_02.receive_date);
+      } else if (row.case_record_03) {
+        return toTWDate(row.case_record_03.receive_date);
+      }
+    }
+  },
+  {
     data: "case_record_01.complete_date", title: "完成日", defaultContent: "-", render: (data, type, row) => {
       if (data) {
         return toTWDate(data);
       } else if (row.case_record_02) {
         return toTWDate(row.case_record_02.complete_date);
+      } else if (row.case_record_03) {
+        return toTWDate(row.case_record_03.complete_date);
       }
     }
   },

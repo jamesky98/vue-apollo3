@@ -83,10 +83,17 @@ const GETALLCASE = gql`
         name
       }
       case_record_01 {
+        receive_date
         complete_date
         sign_person_id
       }
       case_record_02 {
+        receive_date
+        complete_date
+        sign_person_id
+      }
+      case_record_03 {
+        receive_date
         complete_date
         sign_person_id
       }
