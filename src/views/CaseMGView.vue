@@ -696,7 +696,7 @@ const columns1 = [
     }
   },
   { data: "cus.cus_org.name", title: "顧客名稱", defaultContent: "-" },
-
+  { data: "cus.name", title: "聯絡人", defaultContent: "-", visible: false },
   { data: "item_base.chop", title: "廠牌", defaultContent: "-" },
   { data: "item_base.model", title: "型號", defaultContent: "-" },
   { data: "item_base.serial_number", title: "序號", defaultContent: "-" },
