@@ -186,13 +186,13 @@ tr.selected>td>span.typeM {
 
 .imgtitle{
   position: absolute; 
-  top: 0; 
+  top: 0.2rem; 
   left: 0.2rem;
   color: white;
   background-color: rgba(0, 0, 0, 0.6);
-  height: 1.5rem;
+  height: 1.4rem;
   border-radius: 0.25rem;
-  font-size: 0.5rem;
+  font-size: 0.8rem;
   padding-left: 0.2rem;
   padding-right: 0.2rem;
 }

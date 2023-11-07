@@ -2397,6 +2397,7 @@ function selectNowChk(nowId, col, dt){
                                             @dragenter.prevent="cancelDefault($event)" />
                                           <!-- 按鈕 -->
                                           <div v-show="nowGcpSimage" class="imgtitle">{{nowGcpSimage}}</div>
+                                          <div v-show="!nowGcpSimage" class="imgtitle">航拍略圖</div>
                                           <button v-show="nowGcpSimage" class="imgcancel btn p-0" @click.prevent="nowGcpSimage=''"></button>
                                           <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                             <MDBBtn :disabled="!rGroup[1] || !nowPRecordPtId" size="sm" color="primary" @click.prevent="uploadBtn('GcpSimage')">上傳</MDBBtn>
@@ -2422,6 +2423,7 @@ function selectNowChk(nowId, col, dt){
                                             @dragenter.prevent="cancelDefault($event)" />
                                           <!-- 按鈕 -->
                                           <div v-show="nowGcpDespImg" class="imgtitle">{{nowGcpDespImg}}</div>
+                                          <div v-show="!nowGcpDespImg" class="imgtitle">點之記略圖</div>
                                           <button v-show="nowGcpDespImg" class="imgcancel btn p-0" @click.prevent="nowGcpDespImg=''"></button>
                                           <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                             <MDBBtn :disabled="!rGroup[1] || !nowPRecordPtId" size="sm" color="primary" @click.prevent="uploadBtn('GcpDespImg')">上傳</MDBBtn>
@@ -2548,6 +2550,7 @@ function selectNowChk(nowId, col, dt){
                                               @dragenter.prevent="cancelDefault($event)" />
                                             <!-- 按鈕 -->
                                             <div v-show="nowPRecordImg0" class="imgtitle">{{nowPRecordImg0}}</div>
+                                            <div v-show="!nowPRecordImg0" class="imgtitle">近照</div>
                                             <button v-show="nowPRecordImg0" class="imgcancel btn p-0" @click.prevent="nowPRecordImg0=''"></button>
                                             <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                               <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg0')">上傳</MDBBtn>
@@ -2573,6 +2576,7 @@ function selectNowChk(nowId, col, dt){
                                               @dragenter.prevent="cancelDefault($event)" />
                                             <!-- 按鈕 -->
                                             <div v-show="nowPRecordImg1" class="imgtitle">{{nowPRecordImg1}}</div>
+                                            <div v-show="!nowPRecordImg1" class="imgtitle">遠照1</div>
                                             <button v-show="nowPRecordImg1" class="imgcancel btn p-0" @click.prevent="nowPRecordImg1=''"></button>
                                             <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                               <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg1')">上傳</MDBBtn>
@@ -2598,6 +2602,7 @@ function selectNowChk(nowId, col, dt){
                                               @dragenter.prevent="cancelDefault($event)" />
                                             <!-- 按鈕 -->
                                             <div v-show="nowPRecordImg2" class="imgtitle">{{nowPRecordImg2}}</div>
+                                            <div v-show="!nowPRecordImg2" class="imgtitle">遠照2</div>
                                             <button v-show="nowPRecordImg2" class="imgcancel btn p-0" @click.prevent="nowPRecordImg2=''"></button>
                                             <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                               <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg2')">上傳</MDBBtn>
@@ -2623,6 +2628,7 @@ function selectNowChk(nowId, col, dt){
                                               @dragenter.prevent="cancelDefault($event)" />
                                             <!-- 按鈕 -->
                                             <div v-show="nowPRecordImg3" class="imgtitle">{{nowPRecordImg3}}</div>
+                                            <div v-show="!nowPRecordImg3" class="imgtitle">遠照3</div>
                                             <button v-show="nowPRecordImg3" class="imgcancel btn p-0" @click.prevent="nowPRecordImg3=''"></button>
                                             <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                               <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImg3')">上傳</MDBBtn>
@@ -2648,6 +2654,7 @@ function selectNowChk(nowId, col, dt){
                                               @dragenter.prevent="cancelDefault($event)" />
                                             <!-- 按鈕 -->
                                             <div v-show="nowPRecordObs" class="imgtitle">{{nowPRecordObs}}</div>
+                                            <div v-show="!nowPRecordObs" class="imgtitle">透空圖</div>
                                             <button v-show="nowPRecordObs" class="imgcancel btn p-0" @click.prevent="nowPRecordObs=''"></button>
                                             <div style="position: absolute; right: 0.2rem; bottom: 0.2rem;">
                                               <MDBBtn :disabled="!rGroup[1] || !nowPRecordId || !nowPRecordPrjCode" size="sm" color="primary" @click.prevent="uploadBtn('PRecordImgObs')">上傳</MDBBtn>
