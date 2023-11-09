@@ -377,12 +377,18 @@ getRecPersonOnDone(result=>{
 getRecPersonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function updateRecPerson(){
-  let newoption = nowPRecordPerson.value;
-  let findid = nowPRecordPersonMU.value.findIndex(x => x.value===newoption);
-  if(findid===-1){
-    nowPRecordPersonMU.value.push({text: newoption, value: newoption})
-    nowPRecordPersonDOM.value.setValue(newoption);
-  }
+  // let newoption = nowPRecordPerson.value;
+  // let findid = nowPRecordPersonMU.value.findIndex(x => x.value===newoption);
+  // if(findid===-1){
+  //   nowPRecordPersonMU.value.push({text: newoption, value: newoption})
+  //   nowPRecordPersonDOM.value.setValue(newoption);
+  // }
+  updateSelMU({
+    newValue: nowPRecordPerson,
+    nowMU: nowPRecordPersonMU,
+    nowDOM: nowPRecordPersonDOM,
+    isUseID: false,
+  })
 }
 
 //#endregion 下拉式篩選清單填入==========End

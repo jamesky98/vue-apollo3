@@ -89,11 +89,7 @@ DataTable.use(Select);
 
   // 查詢選取顧客資料
   const {  mutate: refgetselCust, onDone: getselCustonDone, onError: getselCustonError } = useMutation(
-    CustGQL.GETCUSTBYID,
-    () => ({
-      getCustByIdId: (parseInt(selCaseCustId.value))?parseInt(selCaseCustId.value):-1
-    })
-  );
+    CustGQL.GETCUSTBYID);
   getselCustonDone(result => {
     if (!result.loading && result && result.data.getCustById) {
       // console.log('selCustID',seletCustId.value);
@@ -101,8 +97,9 @@ DataTable.use(Select);
       // console.log('getData',getData);
       selCaseCustName.value = getData.name;
       selCaseCustOrgId.value = getData.org_id;
+      // console.log('selCaseCustOrgId',selCaseCustOrgId.value);
       selCaseCustOrgName.value = (getData.cus_org)?getData.cus_org.name:null;
-      selCustOrgNameDOM.value.setValue(parseInt(selCaseCustOrgId.value));
+      selCustOrgNameDOM.value.setValue(parseInt(getData.org_id));
       selCaseCustTaxID.value = getData.cus_org.tax_id;
       selCaseCustTel.value = getData.tel;
       selCaseCustFax.value = getData.fax;
@@ -152,8 +149,6 @@ DataTable.use(Select);
   const { mutate: saveCust, onDone: saveCustOnDone, onError: saveCustError } = useMutation(CustGQL.UPDATECUST);
   saveCustOnDone(() => {
     refgetAllCust();
-    refgetselCust({getCustByIdId: selCaseCustId.value});
-    store.dispatch('selectlist/fetchOrgList');
     infomsg.value = "ID:" + selCaseCustId.value + " " + selCaseCustName.value + "完成修改";
     msgColor.value = "blue";
     // alert1.value = true;
@@ -174,11 +169,14 @@ DataTable.use(Select);
 
   // 儲存按鈕
   function saveCustBtn(){
+    // console.log('selCaseCustOrgId',parseInt(selCaseCustOrgId.value));
     saveOrg({
       updateOrgId: (parseInt(selCaseCustOrgId.value)),
       name: selCaseCustOrgName.value,
       taxId: selCaseCustTaxID.value,
     }).then(res=>{
+      // console.log('selCaseCustId',parseInt(selCaseCustId.value));
+      selCaseCustOrgId.value = res.data.updateOrg.id;
       saveCust({
         updateCustId: parseInt(selCaseCustId.value),
         name: selCaseCustName.value,
@@ -186,6 +184,8 @@ DataTable.use(Select);
         tel: selCaseCustTel.value,
         fax: selCaseCustFax.value,
         orgId: parseInt(res.data.updateOrg.id),
+      }).then(res=>{
+        refgetselCust({getCustByIdId: parseInt(res.data.updateCust.id)});
       })
     })
   }
@@ -243,9 +243,9 @@ DataTable.use(Select);
 
 // 新增按鈕(清空欄位)
 function newCust(){
-  selCaseCustId.value = "";
+  selCaseCustId.value = -1;
 
-  selCaseCustOrgId.value = "";
+  selCaseCustOrgId.value = -1;
   selCaseCustOrgName.value = "";
   selCustOrgNameDOM.value.setValue(null);
 
