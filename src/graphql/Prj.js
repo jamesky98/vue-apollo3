@@ -424,6 +424,12 @@ const GETALLCTLCHART = gql`
   }
 `;
 
+const GETALLCTLCHARTM = gql`
+  mutation GetAllCtlChartM($calCode: String!, $stopPrj: String) {
+    getAllCtlChartM(cal_code: $calCode, stop_prj: $stopPrj)
+  }
+`;
+
 const GETCTLCHARTDATA = gql`
   mutation GetCtlChartData($prjId: String, $calCode: String) {
     getCtlChartData(prj_id: $prjId, cal_code: $calCode) {
@@ -445,8 +451,15 @@ const GETCCDATA = gql`
   mutation GetCtlChartData($prjId: String, $calCode: String) {
     getCtlChartData(prj_id: $prjId, cal_code: $calCode) {
       id
+      prj_id_base
       prj_id
       cal_code
+      label
+      ave
+      std
+      min
+      max
+      hasdata
       data
     }
   }
@@ -488,6 +501,7 @@ export default {
   DELREFEQPT,
   SAVEREFEQPT,
   GETALLCTLCHART,
+  GETALLCTLCHARTM,
   GETCTLCHARTDATA,
   GETCCDATA,
   COMPUTECTLCHART,

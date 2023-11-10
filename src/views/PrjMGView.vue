@@ -957,12 +957,6 @@ getRecPersonOnDone(result=>{
 getRecPersonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 function updateRecPerson(){
-  // let newoption = nowPRecordPerson.value;
-  // let findid = nowPRecordPersonMU.value.findIndex(x => x.value===newoption);
-  // if(findid===-1){
-  //   nowPRecordPersonMU.value.push({text: newoption, value: newoption})
-  //   nowPRecordPersonDOM.value.setValue(newoption);
-  // }
   updateSelMU({
     newValue: nowPRecordPerson,
     nowMU: nowPRecordPersonMU,
@@ -1384,6 +1378,13 @@ const {
 } = useMutation(PrjGQL.GETALLCTLCHART);
 getAllCtlChartonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
+const { 
+  mutate: getAllCtlChartM, 
+  onDone: getAllCtlChartMOnDone, 
+  onError: getAllCtlChartMonError 
+} = useMutation(PrjGQL.GETALLCTLCHARTM);
+getAllCtlChartMonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
+
 // 查詢目前管制資料
 const { 
   mutate: getNowCtlChart, 
@@ -1403,9 +1404,9 @@ computeCtlChartonDone(result=>{
 })
 computeCtlChartonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 function computeCChart(calCode,label,prjIdBase){
-  console.log('calCode',calCode);
-  console.log('label',label);
-  console.log('prjIdBase',prjIdBase);
+  // console.log('calCode',calCode);
+  // console.log('label',label);
+  // console.log('prjIdBase',prjIdBase);
 
   // if(label!=="目前作業非量測作業"){
     computeCtlChart({
@@ -1435,7 +1436,7 @@ function saveCCData(calCode,prjId){
   }).then(res=>{
     if(res && res.data){
       let getData = res.data.getCtlChartData[0].data;
-      let dataStr = "p1,p2,s,ds";
+      let dataStr = "p1,p2,s,ds\n";
       // console.log(getData)
       for (let i = 0; i < getData.length; i++) {
         dataStr =
@@ -1515,6 +1516,19 @@ function dataSetArray(getData){
       backgroundColor: 'rgb(255,255,0)', pointStyle: 'triangle', radius:6,borderColor: 'rgb(255,153,0)',},
     { label: '最小值', data: getData, parsing: { yAxisKey: 'min' }, 
       backgroundColor: 'rgb(255,0,255)', pointStyle: 'rect', radius:6,},
+  ];
+}
+function dataSetArrayM(getData){
+  getData.unshift({ label:'', ds: null });
+  getData.push({ label:' ', ds: null });
+  // console.log('getData',getData);
+  return [
+    { label: '較差', data: getData, parsing: { yAxisKey: 'ds' }, 
+      backgroundColor: 'rgb(0,114,255)', pointStyle: 'rect', radius:6, rotation: 45,},
+    // { label: '平均值', data: getData, parsing: { yAxisKey: 'avg' }, 
+    //   backgroundColor: 'rgb(255,255,0)', pointStyle: 'triangle', radius:6,borderColor: 'rgb(255,153,0)',},
+    // { label: '最小值', data: getData, parsing: { yAxisKey: 'min' }, 
+    //   backgroundColor: 'rgb(255,0,255)', pointStyle: 'rect', radius:6,},
   ];
 }
 // 圖表設定
@@ -1766,7 +1780,7 @@ function updateCtlCahart(){
       if(!getData){
         refPrjCodeM.value = "-1";
         refPrjCodeMDOM.value.setValue('-1');
-        ccLabel_M.value = (nowPrjMethod.value==='基準量測' || nowPrjMethod.value==='中間巡查')?"":"目前作業非量測作業";
+        ccLabel_M.value = (nowPrjMethod.value==='基準量測' || nowPrjMethod.value==='中間查核')?"":"目前作業非量測作業";
         ccAvg_M.value = "-";
         ccStd_M.value = "-";
         ccMax_M.value = "-";
@@ -1782,23 +1796,25 @@ function updateCtlCahart(){
         ccMin_M.value = (getData.min)?getData.min.toFixed(3):"-";
         cchasData_M.value = getData.hasdata;
       }
+      // console.log(getData);
       return
     }).then(res=>{
-      return getAllCtlChart({calCode: 'M', stopPrj: nowPrjCode.value})
+      return getAllCtlChartM({calCode: 'M', stopPrj: nowPrjCode.value})
     }).then(res=>{
       let canvas = document.getElementById("ctlChartM");
       let ctxM = canvas.getContext('2d');
       // 展繪M圖
-      let getData = res.data.getAllCtlChart;
+      let getData = res.data.getAllCtlChartM;
+      // console.log(getData)
       if(ctlChartM){
         // ctlChartI.value.destroy();
-        ctlChartM.data.datasets = dataSetArray(getData);
+        ctlChartM.data.datasets = dataSetArrayM(getData);
         ctlChartM.update();
       }else{
         ctlChartM = new Chart(ctxM,{
           type: 'line',
-          data: { datasets: dataSetArray(getData) },
-          options: chartOptions('車載光達管制圖','時間(年月)','基線較差(m)',0.012,-0.016,0.004,0.02,-0.02),
+          data: { datasets: dataSetArrayM(getData) },
+          options: chartOptions('車載光達管制圖','時間(年月)','基線較差(m)',0.014,-0.014,0.0035,0.021,-0.021),
         })
       }
     })
