@@ -79,6 +79,7 @@ const props = defineProps({
 
 // Information
 const NavItem = ref("users");
+const roleType = inject("roleType");
 provide("NavItem", NavItem);
 const infomsg = ref("");
 const msgColor = ref("");
@@ -122,16 +123,7 @@ const columns1 = [
   {title:"姓名", data:"user_name2",width:"6rem"},
   {title:"E-mail", data:"user_mail"},
   {title:"權限", data:"role",render: (data,type,row) => {
-    switch(data){
-      case 0:
-        return "訪客";
-      case 1:
-        return "技術人員";
-      case 2:
-        return "技術主管";
-      case 3:
-        return "系統負責人";
-    }
+    return roleType[data]
   }},
   {title:"更新日期", data:"user_updated_time"},
 ];

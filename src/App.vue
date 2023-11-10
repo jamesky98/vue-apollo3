@@ -12,6 +12,8 @@ import EmpGQL from "./graphql/Employee";
   provide("myUserName", myUserName);
   const myUserRole = ref("");
   provide("myUserRole", myUserRole);
+  const roleType = ["訪客","技術人員","技術主管","系統負責人"];
+  provide("roleType", roleType);
 
   //#region 權限清單的讀取函式
   function rGroupSetting(role,opt1){

@@ -20,6 +20,8 @@ import { logOut } from '../methods/User';
 const NavItem = inject("NavItem");
 const username = ref(localStorage.getItem("USER_NAME2")) ;
 const usercode = ref(localStorage.getItem("USER_NAME")) ;
+const userRole = ref(localStorage.getItem("USER_ROLE")) ;
+const roleType = inject("roleType");
 const collapse1 = ref(false);
 const dropdown3 = ref(false);
 
@@ -27,7 +29,7 @@ const dropdown3 = ref(false);
 <template>
   <!-- Navbar -->
   <MDBNavbar expand="xl" light bg="light" container>
-    <MDBNavbarBrand>{{ username }}，您好</MDBNavbarBrand>
+    <MDBNavbarBrand>{{ username }}<span style="font-size: 0.9rem; color: blue;">({{ roleType[userRole] }})</span>，您好</MDBNavbarBrand>
     <MDBNavbarToggler @click="collapse1 = !collapse1" target="#navbarSupportedContent"></MDBNavbarToggler>
     <MDBCollapse v-model="collapse1" id="navbarSupportedContent">
       <MDBNavbarNav class="mb-2 mb-xl-0">
