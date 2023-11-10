@@ -185,7 +185,11 @@ DataTable.use(Select);
         fax: selCaseCustFax.value,
         orgId: parseInt(res.data.updateOrg.id),
       }).then(res=>{
-        refgetselCust({getCustByIdId: parseInt(res.data.updateCust.id)});
+        refgetselCust({getCustByIdId: parseInt(res.data.updateCust.id)}).then(res_1=>{
+          dtCust.rows(function(idx,data,node){
+            return parseInt(data.id) === parseInt(selCaseCustId.value)? true:false
+          }).select();
+        })
       })
     })
   }
@@ -228,7 +232,7 @@ DataTable.use(Select);
   }
 
   function changeOrgTexID(){
-    console.log('selCaseCustOrgId',selCaseCustOrgId.value);
+    // console.log('selCaseCustOrgId',selCaseCustOrgId.value);
     refgetOrgById({getOrgByIdId: (selCaseCustOrgId.value)?selCaseCustOrgId.value:-1}).then(res=>{
       if(res.data.getOrgById){
         selCaseCustOrgName.value = res.data.getOrgById.name;
