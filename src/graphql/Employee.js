@@ -94,16 +94,17 @@ const GETTRAINBYID = gql`
   }
 `;
 
-const GETEMPOWER = gql`
+const GETEMPOWERBYPERSON = gql`
 mutation GetEmpowerByPerson($personId: Int) {
   getEmpowerByPerson(person_id: $personId) {
     empower_id
+    person_id
+    role_type
     cal_type
     cal_type_cal_typeToemployee_empower {
       name
       code
     }
-    role_type
     assessment_result
     assessor
     employee_employeeToemployee_empower_assessor {
@@ -119,6 +120,10 @@ mutation GetEmpowerByPerson($personId: Int) {
     table_upload
     approval_doc
     comment
+    employee {
+      name
+      resignation_date
+    }
   }
 }
 `;
@@ -128,15 +133,12 @@ const GETEMPOWERBYID = gql`
     getEmpowerByID(empower_id: $empowerId) {
       empower_id
       person_id
-      employee {
-        name
-      }
+      role_type
       cal_type
       cal_type_cal_typeToemployee_empower {
         name
         code
       }
-      role_type
       assessment_result
       assessor
       employee_employeeToemployee_empower_assessor {
@@ -152,6 +154,10 @@ const GETEMPOWERBYID = gql`
       table_upload
       approval_doc
       comment
+      employee {
+        name
+        resignation_date
+      }
     }
   }
 `;
@@ -217,15 +223,12 @@ const GETEMPOWERBYROLE = gql`
     getEmpowerbyRole(role_type: $roleType, cal_type: $calType) {
       empower_id
       person_id
-      employee {
-        name
-      }
+      role_type
       cal_type
       cal_type_cal_typeToemployee_empower {
         name
         code
       }
-      role_type
       assessment_result
       assessor
       employee_employeeToemployee_empower_assessor {
@@ -241,6 +244,10 @@ const GETEMPOWERBYROLE = gql`
       table_upload
       approval_doc
       comment
+      employee {
+        name
+        resignation_date
+      }
     }
   }
 `;
@@ -260,6 +267,40 @@ mutation GetAllTrain {
 }
 `;
 
+const GETEMPOWER = gql`
+  mutation GetEmpower($personId: Int, $roleType: String, $calType: Int, $showRes: Boolean, $showSus: Boolean) {
+    getEmpower(person_id: $personId, role_type: $roleType, cal_type: $calType, show_res: $showRes, show_sus: $showSus) {
+      empower_id
+      person_id
+      role_type
+      cal_type
+      cal_type_cal_typeToemployee_empower {
+        name
+        code
+      }
+      assessment_result
+      assessor
+      employee_employeeToemployee_empower_assessor {
+        name
+      }
+      assessment_date
+      lab_supervisor
+      employee_employeeToemployee_empower_lab_supervisor {
+        name
+      }
+      empower_date
+      suspension_date
+      table_upload
+      approval_doc
+      comment
+      employee {
+        name
+        resignation_date
+      }
+    }
+  }
+`;
+
 export default {
   GETALLEMP,
   GETEMPBYID,
@@ -267,7 +308,7 @@ export default {
   UPDATEEMP,
   GETTRAIN,
   GETTRAINBYID,
-  GETEMPOWER,
+  GETEMPOWERBYPERSON,
   GETEMPOWERBYID,
   UPDATETRAIN,
   CREATETRAIN,
@@ -278,4 +319,5 @@ export default {
   GETEMPROLE,
   GETEMPOWERBYROLE,
   GETALLTRAIN,
+  GETEMPOWER,
 };

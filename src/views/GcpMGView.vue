@@ -2,7 +2,7 @@
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import path from "path-browserify";
-import { ref, onMounted, provide, inject, watch, isProxy, toRaw } from "vue";
+import { ref, onMounted, provide, inject } from "vue";
 import {
   MDBInput,
   MDBCol,

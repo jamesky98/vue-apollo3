@@ -1,10 +1,12 @@
 <script setup>
+import Chart from 'chart.js/auto';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
 import { ref, onMounted, provide, inject, watch, isProxy, toRaw } from "vue";
 import path, { join } from "path-browserify";
 import {
-  MDBInput,
+  MDBInput, MDBAnimation, MDBSpinner,
   MDBCol,  MDBRow,  MDBContainer,
   MDBBtn,  MDBDatepicker,  MDBTextarea,
   MDBTabs,  MDBTabNav,  MDBTabItem,  MDBTabContent,  MDBTabPane,
@@ -90,6 +92,12 @@ const updateKey = ref(0);
 const activeTabId1 = ref('train');
 const store = useStore();
 const publicPath = computed(() => store.state.selectlist.publicPath);
+const showByCalType = ref(true);
+const personFrom = ref(null);
+const calTypeFrom = ref(null);
+const showEmpSus = ref(false);
+const notProssing = ref(false);
+const notProssing2 = ref(false);
 
 // 人員詳細編輯資料==========start
 const showEmpRes = ref(false);
@@ -183,6 +191,7 @@ function writeEmpowerCalTypeList(newList){
   let tempCalTypeID = nowEmpowerCalTypeID.value;
   new Promise((res,rej)=>{
     nowEmpowerCalTypeIdMU.value = JSON.parse(JSON.stringify(tempList));
+    nowEmpowerCalTypeIdMU2.value = JSON.parse(JSON.stringify(tempList));
     res(nowEmpowerCalTypeIdMU.value)
   }).then(res=>{
     // 寫回保留值
@@ -246,6 +255,7 @@ getAllEmponDone(result => {
   if (!result.loading && result.data.getAllEmp) {
     let getData = result.data.getAllEmp;
     data1.value = getData;
+    notProssing.value = true;
   }
 });
 getAllEmponError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
@@ -634,19 +644,19 @@ function updateTrainInstitution(){
 //#endregion Table 訓練列表==========End
 
 //#region Table 授權列表==========Start
-const { mutate: getEmpower, onDone: getEmpoweronDone, onError: getEmpoweronError } = useMutation(
-  EmpGQL.GETEMPOWER,
+const { mutate: getEmpowerByPerson, onDone: getEmpowerByPersononDone, onError: getEmpowerByPersononError } = useMutation(
+  EmpGQL.GETEMPOWERBYPERSON,
   () => ({
     variables: {
       personId: parseInt(nowEmpID.value),
     }
   }));
-getEmpoweronDone(result=>{
+getEmpowerByPersononDone(result=>{
   if(!result.loading && result.data.getEmpowerByPerson){
     data_empower.value = result.data.getEmpowerByPerson;
   }
 });
-getEmpoweronError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
+getEmpowerByPersononError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 
 const {
   mutate: getEmpowerById,
@@ -719,7 +729,7 @@ const tboption_empower = {
       text: '重新整理',
       className: 'btn-sm',
       action: function ( e, dt, node, config ) {
-        getEmpower();
+        getEmpowerByPerson();
       }
     },
     {
@@ -798,7 +808,7 @@ newEmpowerOnDone(result=>{
   nowEmpowerID.value = result.data.createEmpower.empower_id;
   infomsg.value = "序號：" + nowEmpowerID.value + " 儲存完成"
   msgColor.value = "blue";
-  getEmpower().then(res=>{
+  getEmpowerByPerson().then(res=>{
     // 更新授權人員下拉式選單
     return getSupList();
   }).then(res=>{
@@ -833,7 +843,7 @@ saveEmpowerOnDone(result=>{
   nowEmpowerID.value = result.data.updateEmpower.empower_id;
   infomsg.value = "序號：" + nowEmpowerID.value + " 儲存完成"
   msgColor.value = "blue";
-  getEmpower().then(res=>{
+  getEmpowerByPerson().then(res=>{
     // 更新授權人員下拉式選單
     return getSupList();
   }).then(res=>{
@@ -866,7 +876,7 @@ const {
 delEmpowerOnDone(result=>{
   infomsg.value = "序號：" + result.data.delEmpower.empower_id + " 已刪除";
   msgColor.value = "blue";
-  getEmpower();
+  getEmpowerByPerson();
 });
 delEmpowerError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 
@@ -1308,9 +1318,12 @@ const { mutate: getEmpRole, onDone: getEmpRoleonDone, onError: getEmpRoleonError
 getEmpRoleonDone(result => {
   // 加入校正項目選單資料
   if (!result.loading && result.data.getEmpRoleList) {
-    nowEmpowerRoleMU.value = result.data.getEmpRoleList.map(x => {
+    let tempList = [];
+    tempList = result.data.getEmpRoleList.map(x => {
       return { text: x.role_type, value: x.role_type }
-    }); nowEmpowerRoleMU.value.unshift({ text: "", value: "" });
+    }); tempList.unshift({ text: "-未選擇-", value: "" });
+    nowEmpowerRoleMU.value = JSON.parse(JSON.stringify(tempList));
+    nowEmpowerRoleMU2.value = JSON.parse(JSON.stringify(tempList));
   }
 });
 getEmpRoleonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
@@ -1357,6 +1370,326 @@ getSupListonDone(result => {
 getSupListonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
 //#endregion 選單查詢==========End
+
+//#region 項目查詢==========Start
+  const nowEmpowerCalTypeID2 = ref("");
+  const nowEmpowerCalTypeIdMU2 = ref([]);
+  const nowEmpowerCalTypeIdDOM2 = ref();
+
+  const nowEmpowerRole2 = ref("");
+  const nowEmpowerRoleMU2 = ref([]);
+  const nowEmpowerRoleDOM2 = ref();
+
+  // 監視篩選條件變動
+  watch([
+    nowEmpowerCalTypeID2, 
+    nowEmpowerRole2, 
+    showEmpRes, 
+    showEmpSus],([
+      newCalTypeID,
+      newRole,
+      newShowRes,
+      newShowSus
+    ])=>{
+      getEmpower({
+        roleType: newRole,
+        calType: parseInt(newCalTypeID),
+        showRes: newShowRes,
+        showSus: newShowSus
+      });
+  })
+  // 切換功能
+  function showCalTypeForm(){
+    showByCalType.value=!showByCalType.value;
+    getEmpower({
+      showRes: showEmpRes.value,
+      showSus: showEmpSus.value
+    });
+    calTypeFrom.value.startAnimation();
+  }
+  function showPersonForm(){
+    showByCalType.value=!showByCalType.value;
+    personFrom.value.startAnimation();
+  }
+  const { mutate: getEmpower, onDone: getEmpoweronDone, onError: getEmpoweronError } = useMutation(
+    EmpGQL.GETEMPOWER);
+  getEmpoweronDone(result=>{
+    if(!result.loading && result.data.getEmpower){
+      data2.value = result.data.getEmpower;
+      let yset = computeChartData(result.data.getEmpower);
+      // console.log('yset',yset);
+      // console.log('chartData_emp',chartData_emp.value);
+      
+      if(myChart_emp.value) myChart_emp.value.destroy();
+      ctx_emp.value = document.getElementById('myChartEmp').getContext('2d');
+      myChart_emp.value = new Chart(ctx_emp.value,
+        {
+          type: 'bar',
+          data: {
+            labels: chartData_emp.value.map(row => row.label),
+            datasets: yset
+          },
+          options: {
+            responsive: true,
+            // parsing: {
+            //   xAxisKey: 'name',
+            // },
+            scales: {
+              x: { stacked: false },
+              y: {
+                title: {
+                  display: true,
+                  text: '人數'
+                },
+                ticks: {
+                  // forces step size to be 50 units
+                  stepSize: 1
+                },
+                beginAtZero: true,
+                suggestedMax: 5
+              }
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: '各項目人員數量統計',
+              },
+              legend: {
+                display: true,
+                position: 'right',
+              },
+              
+            }
+          }
+        }
+      )
+      
+      notProssing2.value = true;
+      // console.log(data2.value)
+    }
+  });
+  getEmpoweronError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
+  // 授權列表
+  let dt2;
+  const table2 = ref();
+  const data2 = ref([]);
+  const columns2 = [
+    { title: "索引", data: "empower_id", defaultContent: "-", width: "100px" },
+    { title: "校正項目", data: "cal_type_cal_typeToemployee_empower.name", defaultContent: "-"},
+    { title: "職務", data: "role_type", defaultContent: "-"},
+    { title: "員工編號", data: "person_id", defaultContent: "-", width: "100px" },
+    { title: "姓名", data: "employee.name", defaultContent: "-", width: "100px" },
+    {
+      data: "employee.resignation_date", title: "解職日", className: 'dt-right', defaultContent: "-", render: (data) => {
+        return toTWDate(data);
+      }
+    },
+    { title: "授權日", data: "empower_date", defaultContent: "-", render: (data) => {
+      return toTWDate(data);} 
+    },
+    { title: "停權日", data: "suspension_date", defaultContent: "-", render: (data) => {
+      return toTWDate(data);} 
+    },
+  ];
+  const tboption2 = {
+    dom: 'Bfti',
+    buttons: [
+      {
+        text: '重新整理',
+        className: 'btn-sm',
+        action: function ( e, dt, node, config ) {
+          notProssing2.value = false;
+          getEmpower({
+            roleType: nowEmpowerRole2.value,
+            calType: parseInt(nowEmpowerCalTypeID2.value),
+            showRes: showEmpRes.value,
+            showSus: showEmpSus.value
+          }).then(res=>{
+            notProssing2.value = true;
+          })
+        }
+      },
+      {
+        extend: 'copy',
+        text: '複製',
+        className: 'btn-sm',
+        exportOptions: {
+          modifier: {
+            selected: null
+          }
+        }
+      },
+      {
+        extend: 'colvis',
+        className: 'btn-sm',
+        text: '顯示欄位',
+      }
+    ],
+    select: {
+      style: 'single',
+      info: false
+    },
+    order: [[1, 'asc']],
+    scrollY: 'calc(50vh - 15rem)',
+    scrollX: true,
+    lengthChange: false,
+    searching: true,
+    paging: false,
+    responsive: true,
+    language: {
+      info: '共 _TOTAL_ 筆資料',
+    }
+  };
+  // 統計圖表
+  const ctx_emp = ref();
+  const myChart_emp = ref();
+  const chartData_emp = ref([]);
+  function computeChartData(dtData){
+    // console.log(dtData)
+    chartData_emp.value = [];
+    let resMtx = {};
+    let roleMtx = {};
+    for(let i=0;i<dtData.length;i++){
+      if(!resMtx[dtData[i].cal_type]){
+        resMtx[dtData[i].cal_type]={};
+      }
+
+      if(!resMtx[dtData[i].cal_type][dtData[i].role_type]){
+        resMtx[dtData[i].cal_type][dtData[i].role_type]=1;
+      }else{
+        resMtx[dtData[i].cal_type][dtData[i].role_type]++;
+      }
+
+      if(!roleMtx[dtData[i].role_type]){
+        roleMtx[dtData[i].role_type]=1;
+      }
+    }
+    // console.log('resMtx',resMtx);
+
+    for (let key in resMtx){
+      chartData_emp.value.push({
+        label: nowEmpowerCalTypeIdMU2.value.find(e=>parseInt(e.value)===parseInt(key)).text,
+        data: resMtx[key],
+      })
+    }
+    // console.log('chartData_emp',chartData_emp.value);
+
+    let y_DataSet =[];
+    let count_role = -1;
+    for (let key in roleMtx){
+      count_role=count_role+1;
+      // count_role = count_role % 6
+      y_DataSet.push({
+        label: key,
+        backgroundColor: bgcolor_60[count_role],
+        data: chartData_emp.value.map(row => row.data[key]),
+        // parsing: {
+        //   yAxisKey: 'data.' + key
+        // }
+      })
+    }
+    // console.log('y_DataSet', y_DataSet);
+    return y_DataSet
+  }
+
+  function updateChartEmp(y_DataSet){
+    // 取得資料
+    // chartData_emp.value = result.data.;
+    // 清除舊圖表
+    if(myChart_emp.value) myChart_emp.value.destroy();
+    console.log(myChart_emp.value)
+    // 取得Chart畫布空間
+    ctx_emp.value = document.getElementById('myChartEmp').getContext('2d');
+    // 設定圖表參數
+    myChart_emp.value = new Chart(ctx_emp.value, {
+      type: 'bar',
+      data: {
+        datasets: [
+          {
+            label: '校正人員',
+            backgroundColor: bgcolor_60[0],
+            data: chartData_emp.value,
+            parsing: {
+              yAxisKey: 'data.校正人員'
+            }
+          },
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        parsing: {
+          xAxisKey: 'name',
+        },
+        scales: {
+          x: {
+            stacked: false,
+          },
+          y: {
+            title: {
+              display: true,
+              text: '人數'
+            },
+            ticks: {
+              // forces step size to be 50 units
+              stepSize: 1
+            },
+            beginAtZero: true,
+            suggestedMax: 5
+          }
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: '各項目人員數量統計',
+          },
+          legend: {
+            display: true,
+            position: 'right',
+          },
+          
+        }
+      }
+    });
+  }
+
+  // 圖表設定
+  const bgcolor_20 = [
+    'rgba(255, 99, 132, 0.2)',
+    'rgba(54, 162, 235, 0.2)',
+    'rgba(255, 206, 86, 0.2)',
+    'rgba(75, 192, 192, 0.2)',
+    'rgba(153, 102, 255, 0.2)',
+    'rgba(255, 159, 64, 0.2)'];
+  const bgcolor_60 = [
+    'rgba(255, 99, 132, 0.6)',
+    'rgba(54, 162, 235, 0.6)',
+    'rgba(255, 206, 86, 0.6)',
+    'rgba(75, 192, 192, 0.6)',
+    'rgba(153, 102, 255, 0.6)',
+    'rgba(255, 159, 64, 0.6)'];
+  const bgcolor_100 = [
+    'rgba(255, 99, 132, 1)',
+    'rgba(54, 162, 235, 1)',
+    'rgba(255, 206, 86, 1)',
+    'rgba(75, 192, 192, 1)',
+    'rgba(153, 102, 255, 1)',
+    'rgba(255, 159, 64, 1)'];
+  const bgcolorList2 = [
+    '#4dc9f6',
+    '#f67019',
+    '#f53794',
+    '#537bc4',
+    '#acc236',
+    '#166a8f',
+    '#00a950',
+    '#58595b',
+    '#8549ba'
+  ];
+//#endregion 項目查詢==========End
 
 // 頁籤切換更新表格標題寬度
 function tabShown(e){
@@ -1418,7 +1751,7 @@ onMounted(function () {
     nowEmpID.value = dt.rows(indexes).data()[0].person_id;
     getEmpbyID();
     getTrain();
-    getEmpower();
+    getEmpowerByPerson();
     getOptCase({ operatorsId: parseInt(nowEmpID.value) });
     getSignCase({ signPersonId: parseInt(nowEmpID.value) });
     newTrainBtn();
@@ -1435,6 +1768,18 @@ onMounted(function () {
   dt_empower.on('select', function (e, dt, type, indexes) {
     nowEmpowerID.value = dt.rows(indexes).data()[0].empower_id;
     getEmpowerById();
+  });
+
+  dt2 = table2.value.dt();
+  dt2.on('select', function (e, dt, type, indexes) {
+    nowEmpID.value = dt.rows(indexes).data()[0].person_id;
+    getEmpbyID();
+    getTrain();
+    getEmpowerByPerson();
+    getOptCase({ operatorsId: parseInt(nowEmpID.value) });
+    getSignCase({ signPersonId: parseInt(nowEmpID.value) });
+    newTrainBtn();
+    newEmpowerBtn();
   });
 });
 
@@ -1454,160 +1799,234 @@ onMounted(function () {
       <MDBRow style="margin-left:0;margin-right:0;height: calc(100% - 6.5em);" class="align-content-between">
         <!-- 上方 -->
         <MDBCol col="12" class="my-2 bg-light border border-5 rounded-8 shadow-4" style="height: calc(50% - 1em)">
-          <MDBRow class="h-100 overflow-auto">
-            <MDBCol md="5" class="h-100 overflow-auto" style="position: relative ;">
-              <!-- 人員列表 -->
-              <DataTable 
-                :data="data1" 
-                :columns="columns1" 
-                :options="tboption1" 
-                ref="table1" 
-                style="font-size: smaller; padding-top: 0.5rem;"
-                class="display w-100 compact" />
-
-              <div class="mt-2" style="position:absolute; top: 0.2rem; left: 1rem;">
-                <MDBSwitch :label="doSwitchShowEmpRes" v-model="showEmpRes"/>
+          <MDBAnimation class="h-100"
+            v-show="showByCalType"  
+            trigger="manually" 
+            :duration="1000"
+            animation="fade-in"
+            ref="personFrom">
+            <MDBRow v-show="showByCalType" class="h-100 overflow-auto" style="position: relative ;">
+              <MDBCol md="5" class="h-100 overflow-auto" style="position: relative ;">
+                <div :class="{ 'hiddenSpinner': notProssing}" style="position: absolute; left: 50%; top: 10rem;">
+                  <MDBSpinner size="md" color="primary" />Loading...
+                </div>
+                <!-- 人員列表 -->
+                <DataTable 
+                  :data="data1" 
+                  :columns="columns1" 
+                  :options="tboption1" 
+                  ref="table1" 
+                  style="font-size: smaller; padding-top: 0.5rem;"
+                  class="display w-100 compact" />
+                <div class="mt-2" style="position:absolute; top: 0.2rem; left: 1rem;">
+                  <MDBSwitch :label="doSwitchShowEmpRes" v-model="showEmpRes"/>
+                </div>
+              </MDBCol>
+              <!-- 分割 -->
+              <MDBCol md="7" class="h-100 border-1 border-start">
+                <MDBRow class="h-100">
+                  <!-- 人員基本資料 -->
+                  <MDBCol col="12" class="mt-3 border-1 border-bottom">
+                    <MDBBtn :disabled="nowEmpID===''" v-if="rGroup[0]" size="sm" color="primary" @click="newEmpBtn">
+                      新增
+                    </MDBBtn>
+                    <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveEmp">
+                      儲存
+                    </MDBBtn>
+                    <MDBPopconfirm :disabled="!rGroup[2] || nowEmpID===''" class="btn-sm btn-light btn-outline-danger me-auto" position="top"
+                      message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delEmp">
+                      刪除
+                    </MDBPopconfirm>
+                    <!-- <MDBSwitch label="顯示解職" v-model="showEmpRes"/> -->
+                  </MDBCol>
+                  <MDBCol col="12" class="overflow-auto" style="height: calc(100% - 4rem);">
+                    <MDBRow>
+                      <MDBCol xl="6">
+                        <MDBRow>
+                          <MDBCol md="4" class="mt-3">
+                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="員工編號" v-model="nowEmpID" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mt-3">
+                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="實驗室編號" v-model="nowEmpLabID" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mt-3">
+                            <MDBInput disabled size="sm" type="text" label="更新日期" v-model="nowEmpModifyDate" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mt-3">
+                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="姓名" v-model="nowEmpName" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mt-3">
+                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="身分證字號"
+                              v-model="nowEmpIDNumber" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mt-3">
+                            <MDBDatepicker 
+                              required size="sm" 
+                              v-model="nowEmpBirthday" 
+                              format="YYYY-MM-DD" label="出生日"
+                              :monthsFull = "monthsFull"
+                              :monthsShort = "monthsShort"
+                              :weekdaysFull = "weekdaysFull"
+                              :weekdaysShort = "weekdaysShort"
+                              :weekdaysNarrow = "weekdaysNarrow"
+                              confirmDateOnSelect
+                              removeCancelBtn removeOkBtn
+                              ref="nowEmpBirthdayDOM" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mt-3">
+                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="職稱" v-model="nowEmpJobTitle" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mt-3">
+                            <MDBDatepicker 
+                              required size="sm" 
+                              v-model="nowEmpAppDate" 
+                              format="YYYY-MM-DD" label="到職日"
+                              :monthsFull = "monthsFull"
+                              :monthsShort = "monthsShort"
+                              :weekdaysFull = "weekdaysFull"
+                              :weekdaysShort = "weekdaysShort"
+                              :weekdaysNarrow = "weekdaysNarrow"
+                              confirmDateOnSelect
+                              removeCancelBtn removeOkBtn
+                              ref="nowEmpAppDateDOM" />
+                          </MDBCol>
+                          <div></div>
+                          <MDBCol md="4" class="mt-3">
+                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="電話" v-model="nowEmpTel" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mt-3">
+                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="手機" v-model="nowEmpMobile" />
+                          </MDBCol>
+                          <MDBCol md="4" class="mt-3">
+                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="e-Mail"
+                              v-model="nowEmpEmail" />
+                          </MDBCol>
+                          <MDBCol md="12" class="mt-3">
+                            <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="住址" v-model="nowEmpAddress" />
+                          </MDBCol>
+                        </MDBRow>
+                      </MDBCol>
+                      <MDBCol lg="6">
+                        <MDBRow>
+                          <MDBCol md="12" class="mt-3">
+                            <MDBTextarea :disabled="!rGroup[2]" size="sm" label="學歷" rows="4" v-model="nowEmpEducation" />
+                          </MDBCol>
+                          <MDBCol md="12" class="mt-3">
+                            <MDBTextarea :disabled="!rGroup[2]" size="sm" label="經歷" rows="5" v-model="nowEmpExperience" />
+                          </MDBCol>
+                        </MDBRow>
+                      </MDBCol>
+                      <MDBCol lg="6">
+                        <MDBRow>
+                          <MDBCol md="6" class="mt-3">
+                            <MDBDatepicker 
+                              required size="sm" 
+                              v-model="nowEmpResDate" 
+                              format="YYYY-MM-DD" label="解職日"
+                              :monthsFull = "monthsFull"
+                              :monthsShort = "monthsShort"
+                              :weekdaysFull = "weekdaysFull"
+                              :weekdaysShort = "weekdaysShort"
+                              :weekdaysNarrow = "weekdaysNarrow"
+                              confirmDateOnSelect
+                              removeCancelBtn removeOkBtn
+                              ref="nowEmpResDateDOM" />
+                          </MDBCol>
+                          <div></div>
+                          <!-- 解職證明上傳 -->
+                          <MDBCol col="8" class="mt-3">
+                            <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
+                              label="解職證明" v-model="nowEmpResUpload">
+                              <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpResUpload = ''"
+                                class="btn-upload-close" />
+                            </MDBInput>
+                          </MDBCol>
+                          <MDBCol col="4" class="px-0 mt-3">
+                            <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('resUpload')">
+                              上傳</MDBBtn>
+                            <MDBBtn tag="a" target=_blank :href="nowEmpResUploadDL" download size="sm" color="secondary">下載
+                            </MDBBtn>
+                          </MDBCol>
+                        </MDBRow>
+                      </MDBCol>
+                      <MDBCol lg="6">
+                        <MDBRow>
+                          <MDBCol md="12" class="mt-3 mb-2">
+                            <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="3" v-model="nowEmpComment" />
+                          </MDBCol>
+                        </MDBRow>
+                      </MDBCol>
+                    </MDBRow>
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              <div style="position: absolute; right:0;top:1rem; width: fit-content;">
+                <button class="btn btn-primary btn-sm" @click="showCalTypeForm()">
+                  依校正項目
+                </button>
               </div>
-            </MDBCol>
-            <!-- 分割 -->
-            <MDBCol md="7" class="h-100 border-1 border-start">
-              <MDBRow class="h-100">
-                <!-- 人員基本資料 -->
-                <MDBCol col="12" class="mt-3 border-1 border-bottom">
-                  <MDBBtn :disabled="nowEmpID===''" v-if="rGroup[0]" size="sm" color="primary" @click="newEmpBtn">
-                    新增
-                  </MDBBtn>
-                  <MDBBtn :disabled="!rGroup[2]" size="sm" color="primary" @click="saveEmp">
-                    儲存
-                  </MDBBtn>
-                  <MDBPopconfirm :disabled="!rGroup[2] || nowEmpID===''" class="btn-sm btn-light btn-outline-danger me-auto" position="top"
-                    message="刪除後無法恢復，確定刪除嗎？" cancelText="取消" confirmText="確定" @confirm="delEmp">
-                    刪除
-                  </MDBPopconfirm>
-                  <!-- <MDBSwitch label="顯示解職" v-model="showEmpRes"/> -->
-                </MDBCol>
-                <MDBCol col="12" class="overflow-auto" style="height: calc(100% - 4rem);">
-                  <MDBRow>
-                    <MDBCol xl="6">
-                      <MDBRow>
-                        <MDBCol md="4" class="mt-3">
-                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="員工編號" v-model="nowEmpID" />
-                        </MDBCol>
-                        <MDBCol md="4" class="mt-3">
-                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="實驗室編號" v-model="nowEmpLabID" />
-                        </MDBCol>
-                        <MDBCol md="4" class="mt-3">
-                          <MDBInput disabled size="sm" type="text" label="更新日期" v-model="nowEmpModifyDate" />
-                        </MDBCol>
-                        <MDBCol md="4" class="mt-3">
-                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="姓名" v-model="nowEmpName" />
-                        </MDBCol>
-                        <MDBCol md="4" class="mt-3">
-                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="身分證字號"
-                            v-model="nowEmpIDNumber" />
-                        </MDBCol>
-                        <MDBCol md="4" class="mt-3">
-                          <MDBDatepicker 
-                            required size="sm" 
-                            v-model="nowEmpBirthday" 
-                            format="YYYY-MM-DD" label="出生日"
-                            :monthsFull = "monthsFull"
-                            :monthsShort = "monthsShort"
-                            :weekdaysFull = "weekdaysFull"
-                            :weekdaysShort = "weekdaysShort"
-                            :weekdaysNarrow = "weekdaysNarrow"
-                            confirmDateOnSelect
-                            removeCancelBtn removeOkBtn
-                            ref="nowEmpBirthdayDOM" />
-                        </MDBCol>
-                        <MDBCol md="4" class="mt-3">
-                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="職稱" v-model="nowEmpJobTitle" />
-                        </MDBCol>
-                        <MDBCol md="4" class="mt-3">
-                          <MDBDatepicker 
-                            required size="sm" 
-                            v-model="nowEmpAppDate" 
-                            format="YYYY-MM-DD" label="到職日"
-                            :monthsFull = "monthsFull"
-                            :monthsShort = "monthsShort"
-                            :weekdaysFull = "weekdaysFull"
-                            :weekdaysShort = "weekdaysShort"
-                            :weekdaysNarrow = "weekdaysNarrow"
-                            confirmDateOnSelect
-                            removeCancelBtn removeOkBtn
-                            ref="nowEmpAppDateDOM" />
-                        </MDBCol>
-                        <div></div>
-                        <MDBCol md="4" class="mt-3">
-                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="電話" v-model="nowEmpTel" />
-                        </MDBCol>
-                        <MDBCol md="4" class="mt-3">
-                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="手機" v-model="nowEmpMobile" />
-                        </MDBCol>
-                        <MDBCol md="4" class="mt-3">
-                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="e-Mail"
-                            v-model="nowEmpEmail" />
-                        </MDBCol>
-                        <MDBCol md="12" class="mt-3">
-                          <MDBInput :disabled="!rGroup[2]" required size="sm" type="text" label="住址" v-model="nowEmpAddress" />
-                        </MDBCol>
-                      </MDBRow>
-                    </MDBCol>
-                    <MDBCol lg="6">
-                      <MDBRow>
-                        <MDBCol md="12" class="mt-3">
-                          <MDBTextarea :disabled="!rGroup[2]" size="sm" label="學歷" rows="4" v-model="nowEmpEducation" />
-                        </MDBCol>
-                        <MDBCol md="12" class="mt-3">
-                          <MDBTextarea :disabled="!rGroup[2]" size="sm" label="經歷" rows="5" v-model="nowEmpExperience" />
-                        </MDBCol>
-                      </MDBRow>
-                    </MDBCol>
-                    <MDBCol lg="6">
-                      <MDBRow>
-                        <MDBCol md="6" class="mt-3">
-                          <MDBDatepicker 
-                            required size="sm" 
-                            v-model="nowEmpResDate" 
-                            format="YYYY-MM-DD" label="解職日"
-                            :monthsFull = "monthsFull"
-                            :monthsShort = "monthsShort"
-                            :weekdaysFull = "weekdaysFull"
-                            :weekdaysShort = "weekdaysShort"
-                            :weekdaysNarrow = "weekdaysNarrow"
-                            confirmDateOnSelect
-                            removeCancelBtn removeOkBtn
-                            ref="nowEmpResDateDOM" />
-                        </MDBCol>
-                        <div></div>
-                        <!-- 解職證明上傳 -->
-                        <MDBCol col="8" class="mt-3">
-                          <MDBInput tooltipFeedback required readonly style="padding-right: 2.2em" size="sm" type="text"
-                            label="解職證明" v-model="nowEmpResUpload">
-                            <MDBBtnClose :disabled="!rGroup[2]" @click.prevent="nowEmpResUpload = ''"
-                              class="btn-upload-close" />
-                          </MDBInput>
-                        </MDBCol>
-                        <MDBCol col="4" class="px-0 mt-3">
-                          <MDBBtn :disabled="!rGroup[2] || nowEmpID ===''" size="sm" color="primary" @click="uploadBtn('resUpload')">
-                            上傳</MDBBtn>
-                          <MDBBtn tag="a" target=_blank :href="nowEmpResUploadDL" download size="sm" color="secondary">下載
-                          </MDBBtn>
-                        </MDBCol>
-                      </MDBRow>
-                    </MDBCol>
-                    <MDBCol lg="6">
-                      <MDBRow>
-                        <MDBCol md="12" class="mt-3 mb-2">
-                          <MDBTextarea :disabled="!rGroup[2]" size="sm" label="備註" rows="3" v-model="nowEmpComment" />
-                        </MDBCol>
-                      </MDBRow>
-                    </MDBCol>
-                  </MDBRow>
-                </MDBCol>
-              </MDBRow>
-            </MDBCol>
-          </MDBRow>
+            </MDBRow>
+          </MDBAnimation>
+          <!-- 依校正項目呈現人員  -->
+          <MDBAnimation class="h-100"
+            v-show="!showByCalType"
+            trigger="manually"            
+            :duration="1000"
+            animation="fade-in"
+            ref="calTypeFrom">
+            <MDBRow v-show="!showByCalType" class="h-100 overflow-auto" style="position: relative ;">
+              <MDBCol md="6" class="h-100 overflow-auto" style="position: relative ;">
+                <MDBRow class="h-100 align-content-start">
+                  <!-- 篩選工具 -->
+                  <MDBCol>
+                    <MDBRow>
+                      <MDBSelect 
+                        size="sm" class="mt-3 col" 
+                        label="校正項目" 
+                        v-model:options="nowEmpowerCalTypeIdMU2"
+                        v-model:selected="nowEmpowerCalTypeID2" 
+                        ref="nowEmpowerCalTypeIdDOM2"/>
+                      <MDBSelect 
+                        size="sm" class="mt-3 col" 
+                        label="職務" 
+                        v-model:options="nowEmpowerRoleMU2"
+                        v-model:selected="nowEmpowerRole2" ref="nowEmpowerRoleDOM2" />
+                      <MDBCol class="mt-3">
+                        <MDBSwitch label="顯示解職" v-model="showEmpRes"/>
+                      </MDBCol>
+                      <MDBCol class="mt-3">
+                        <MDBSwitch label="顯示停權" v-model="showEmpSus"/>
+                      </MDBCol>
+                    </MDBRow>
+                  </MDBCol>
+                  <div></div>
+                  <!-- 授權列表 -->
+                  <MDBCol>
+                    <div :class="{ 'hiddenSpinner': notProssing2}" style="position: absolute; left: 50%; top: 10rem;">
+                      <MDBSpinner size="md" color="primary" />Loading...
+                    </div>
+                    <DataTable 
+                      :data="data2" 
+                      :columns="columns2" 
+                      :options="tboption2" 
+                      ref="table2" 
+                      style="font-size: smaller; padding-top: 0.5rem;"
+                      class="display w-100 compact" />
+                  </MDBCol>
+                </MDBRow>
+              </MDBCol>
+              <!-- 分割 -->
+              <MDBCol md="6" class="h-100 border-1 border-start">
+                <!-- 統計表 -->
+                <canvas id="myChartEmp" class="" style="max-height: 100%; max-width: 100%"></canvas>
+              </MDBCol>
+              <div style="position: absolute; right:0;top:1rem; width: fit-content;">
+                <button class="btn btn-primary btn-sm" @click="showPersonForm()">
+                  依個別人員
+                </button>
+              </div>
+            </MDBRow>
+          </MDBAnimation>
         </MDBCol>
         <!-- 下方 -->
         <MDBCol col="12" class="my-2 bg-light border border-5 rounded-8 shadow-4"

@@ -111,7 +111,7 @@ const actions = {
       let tempMU = res.data.getCaseCalType.map(x => {
         return { text: x.name, value: parseInt(x.id), code: x.code }
       }); 
-      tempMU.unshift({ text: "", value: "", code: "" });
+      tempMU.unshift({ text: "-未選擇-", value: "", code: "" });
       commit('writeCalTypeList', tempMU);
 
       let tempMU2 = [];
@@ -123,8 +123,8 @@ const actions = {
           tempMU3.push({ text: x.code, secondaryText: x.name, value: x.code });
         }
       }); 
-      tempMU2.unshift({ text: "", value: "", code: "" });
-      tempMU3.unshift({ text: "", value: "" });
+      tempMU2.unshift({ text: "-未選擇-", value: "", code: "" });
+      tempMU3.unshift({ text: "-未選擇-", value: "" });
       commit('writeCalTypeList2', tempMU2);
       commit('writeCalTypeList3', tempMU3);
     });
@@ -135,7 +135,7 @@ const actions = {
       let tempMU = res.data.getAllOrg.map(x => {
         return { text: x.name, value: parseInt(x.id) }
       }); 
-      tempMU.unshift({ text: "", value: "" });
+      tempMU.unshift({ text: "-未選擇-", value: "" });
       commit('writeOrgData', tempData);
       commit('writeOrgList', tempMU);
     })
