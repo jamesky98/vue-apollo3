@@ -2016,7 +2016,7 @@ onMounted(function () {
                 </MDBRow>
               </MDBCol>
               <!-- 分割 -->
-              <MDBCol md="6" class="h-100 border-1 border-start">
+              <MDBCol md="6" class="h-100 border-1 border-start" style="padding-top: 3rem;">
                 <!-- 統計表 -->
                 <canvas id="myChartEmp" class="" style="max-height: 100%; max-width: 100%"></canvas>
               </MDBCol>
