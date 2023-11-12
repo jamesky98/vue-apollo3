@@ -31,7 +31,10 @@ import ButtonsBs5 from 'datatables.net-buttons-bs5';
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { errorHandle, logIn, logOut, toTWDate, domTextSelect, updateSelMU } from '../methods/User';
+import { 
+  errorHandle, logIn, logOut, toTWDate, 
+  domTextSelect, updateSelMU,
+  renderStatus, renderMoney } from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -408,6 +411,14 @@ const columns_Item = [
             maxCalDate = (mydate > maxCalDate)?mydate:maxCalDate;
           }
         }
+      }else if(row.case_base[i].case_record_03){
+        if(row.case_base[i].cus){
+          // 車載光達
+          if(parseInt(row.case_base[i].cus.org_id)!==5){
+            let mydate = Date.parse(row.case_base[i].case_record_03.complete_date);
+            maxCalDate = (mydate > maxCalDate)?mydate:maxCalDate;
+          }
+        }
       }
     }
     if(maxCalDate===0){
@@ -596,50 +607,7 @@ let dt_Case;
 const table_Case = ref(); 
 const data_Case = ref([]);
 const columns_Case = [
-{
-    data: "status_code", title: "狀態", defaultContent: "-", className: "colnowarp", render: (data, type, row) => {
-      let markicon = "";
-      let classn = "";
-      switch (data) {
-        case 9: //退件
-          markicon = '<i class="fas fa-reply-all"></i>';
-          classn = "status89";
-          break;
-        case 8: //補件
-          markicon = '<i class="fas fa-history"></i>';
-          classn = "status89";
-          break;
-        case 7: //結案
-          markicon = '<i class="fas fa-check"></i>';
-          classn = "status7";
-          break;
-        case 6: //待繳費
-          markicon = '<i class="fas fa-donate"></i>';
-          classn = "status6";
-          break;
-        case 5: //陳核
-          markicon = '<i class="fas fa-paste"></i>';
-          classn = "status45";
-          break;
-        case 4: //校正中
-          markicon = '<i class="fas fa-play"></i>';
-          classn = "status45";
-          break;
-        case 3: //待送件
-          markicon = '<i class="fas fa-hourglass-start"></i>';
-          classn = "status23";
-          break;
-        case 2: //審核中
-          markicon = '<i class="fas fa-glasses"></i>';
-          classn = "status23";
-          break;
-        case 1: //(空)
-          markicon = '<i class="fas fa-exclamation-circle"></i>';
-          classn = "status1";
-      }
-      return "<span class='" + classn + "'>" + markicon + row.case_status.status + "</span>"
-    }
-  },
+  {title:"狀態", data: "status_code", defaultContent: "-", className: "colnowarp", render: renderStatus},
   {title:"案件編號", data:"id",width:"2rem"},
   {title:"機關名稱", data:"cus.cus_org.name", defaultContent: "-"},
   {title:"聯絡人", data:"cus.name", defaultContent: "-"},
@@ -649,18 +617,13 @@ const columns_Case = [
         return toTWDate(data);
       } else if (row.case_record_02) {
         return toTWDate(row.case_record_02.complete_date);
+      } else if (row.case_record_03) {
+        return toTWDate(row.case_record_03.complete_date);
       }
     }
   },
-  {title:"費用", data:"charge", className: "dt-right", defaultContent: "-",
-    render: function (data, type) {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(data)
-    }
-  },
-  {title:"繳費日期", data:"pay_date", className: "dt-center", defaultContent: "-", render: (data) => {
-      return toTWDate(data);
-    }
-  },
+  {title:"費用", data:"charge", className: "dt-right", defaultContent: "-", render: renderMoney},
+  {title:"繳費日期", data:"pay_date", className: "dt-center", defaultContent: "-", render: toTWDate},
 ];
 const tboption_Case = {
   dom: 'Bfti',

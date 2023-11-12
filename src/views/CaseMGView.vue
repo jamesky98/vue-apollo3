@@ -35,7 +35,7 @@ import {
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { errorHandle, logIn, logOut, toTWDate } from '../methods/User';
+import { errorHandle, logIn, logOut, toTWDate, renderCalType, renderStatus, renderMoney } from '../methods/User';
 import { resolve } from "chart.js/helpers";
 import { useStore } from 'vuex'
 
@@ -582,86 +582,14 @@ const table1 = ref();
 const data1 = ref([]);
 // 設定表格table1
 const columns1 = [
-  {
-    data: "status_code", title: "狀態", defaultContent: "-", className: "colnowarp", render: (data, type, row) => {
-      let markicon = "";
-      let classn = "";
-      switch (data) {
-        case 9: //退件
-          markicon = '<i class="fas fa-reply-all"></i>';
-          classn = "status89";
-          break;
-        case 8: //補件
-          markicon = '<i class="fas fa-history"></i>';
-          classn = "status89";
-          break;
-        case 7: //結案
-          markicon = '<i class="fas fa-check"></i>';
-          classn = "status7";
-          break;
-        case 6: //待繳費
-          markicon = '<i class="fas fa-donate"></i>';
-          classn = "status6";
-          break;
-        case 5: //陳核
-          markicon = '<i class="fas fa-paste"></i>';
-          classn = "status45";
-          break;
-        case 4: //校正中
-          markicon = '<i class="fas fa-play"></i>';
-          classn = "status45";
-          break;
-        case 3: //待送件
-          markicon = '<i class="fas fa-hourglass-start"></i>';
-          classn = "status23";
-          break;
-        case 2: //審核中
-          markicon = '<i class="fas fa-glasses"></i>';
-          classn = "status23";
-          break;
-        case 1: //(空)
-          markicon = '<i class="fas fa-exclamation-circle"></i>';
-          classn = "status1";
-      }
-      return "<span class='" + classn + "'>" + markicon + row.case_status.status + "</span>"
-    }
-  },
+  { data: "status_code", title: "狀態", defaultContent: "-", className: "colnowarp", render: renderStatus},
   { data: "id", title: "案件編號", defaultContent: "-" },
   { data: "cal_type", title: "校正項目編號", defaultContent: "-", visible: false },
-  { data: "cal_type_cal_typeTocase_base.name", title: "校正項目名稱", defaultContent: "-", visible: false },
-  {
-    data: "cal_type_cal_typeTocase_base.code", title: "校正項目", defaultContent: "-", render: (data, type, row) => {
-      let markicon = "";
-      let classn = "";
-      switch (data) {
-        case "F": //航測像機
-          markicon = '<i class="fas fa-plane-departure"></i>';
-          classn = "typeF"
-          break;
-        case "I": //空載光達
-          markicon = '<i class="fas fa-wifi rotation180"></i>';
-          classn = "typeI"
-          break;
-        case "J": //小像幅
-          markicon = '<i class="fas fa-camera"></i>';
-          classn = "typeJ"
-          break;
-        case "M": //車載光達
-          markicon = '<i class="fas fa-taxi"></i>';
-          classn = "typeM"
-          break;
-      }
-      // return "<span style='color: " + color + "; background-color:" + bcolor + "' >" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
-      return "<span class='" + classn + "'>" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
-    }
-  },
+  { data: "cal_type_cal_typeTocase_base.name", title: "校正項目", defaultContent: "-", render: renderCalType },
+  { data: "cal_type_cal_typeTocase_base.code", title: "校正項目代碼", defaultContent: "-", visible: false},
   { data: "operators_id", title: "校正人員編號", defaultContent: "-", visible: false },
   { data: "employee_case_base_operators_idToemployee.name", title: "校正人員", defaultContent: "-" },
-  {
-    data: "app_date", title: "申請日", defaultContent: "-", render: (data) => {
-      return toTWDate(data);
-    }
-  },
+  { data: "app_date", title: "申請日", defaultContent: "-", render: toTWDate},
   {
     data: "case_record_01.receive_date", title: "收件日", defaultContent: "-", render: (data, type, row) => {
       if (data) {
@@ -684,17 +612,8 @@ const columns1 = [
       }
     }
   },
-  {
-    data: "pay_date", title: "繳費日", defaultContent: "-", render: (data) => {
-      return toTWDate(data);
-    }
-  },
-  {
-    data: "charge", title: "費用", className: "colAlignRight", defaultContent: "-",
-    render: function (data, type) {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(data)
-    }
-  },
+  { data: "pay_date", title: "繳費日", defaultContent: "-", render: toTWDate},
+  { data: "charge", title: "費用", className: "colAlignRight", defaultContent: "-", render: renderMoney},
   { data: "cus.cus_org.name", title: "顧客名稱", defaultContent: "-" },
   { data: "cus.name", title: "聯絡人", defaultContent: "-", visible: false },
   { data: "item_base.chop", title: "廠牌", defaultContent: "-" },

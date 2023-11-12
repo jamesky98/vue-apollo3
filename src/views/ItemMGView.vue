@@ -154,8 +154,7 @@ const columns_eqpt2 = [
   {title:"廠牌", data:"chop", defaultContent: "-"},
   {title:"型號", data:"model", defaultContent: "-"},
   {title:"序號", data:"serial_number", defaultContent: "-"},
-  {title:"最新校正日", data:"latest_chk.check_date", defaultContent: "-", render: (data) => {
-    return toTWDate(data);}},
+  {title:"最新校正日", data:"latest_chk.check_date", defaultContent: "-", render: toTWDate},
   {title:"校正週期", data:"cal_cycle", defaultContent: "-",className: 'dt-center'},
   {title:"有效", data:"latest_chk.check_date", defaultContent: "-",className: 'dt-center', render: (data, type, row, meta) => {
     let isValid;
@@ -343,8 +342,7 @@ const columns_chk = [
     return isValid;}},
   {title:"索引", data:"eq_ck_id", defaultContent: "-", visible: false},
   {title:"週期", data:"ref_eqpt.cal_cycle", defaultContent: "-"},
-  {title:"校正日", data:"check_date", defaultContent: "-", render: (data) => {
-    return toTWDate(data);}},
+  {title:"校正日", data:"check_date", defaultContent: "-", render: toTWDate},
   {title:"報告編號", data:"report_id", defaultContent: "-"},
   {title:"校正實驗室", data:"cal_org", defaultContent: "-", visible: false},
 ];

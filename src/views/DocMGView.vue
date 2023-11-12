@@ -310,20 +310,9 @@ const columns1 = [
   { data: "doc_type", title: "類型", defaultContent: "-", visible: false },
   { data: "name", title: "文件名稱", defaultContent: "-" },
   { data: "ver", title: "版次", defaultContent: "-" },
-  {
-    data: "release_date", title: "發行日", className: "colnowarp", defaultContent: "-", render: (data) =>{
-      let ttdate =""
-      if(data){ttdate = data.split("T")[0];}
-      return ttdate;
-  }},
+  { data: "release_date", title: "發行日", className: "colnowarp", defaultContent: "-", render: toTWDate},
   { data: "parent_id", title: "上階文件", defaultContent: "-", visible: false },
-  {
-    data: "expiration_date", title: "廢止日", className: "colnowarp", defaultContent: "-", render: (data) => {
-      let ttdate = ""
-      if (data) { ttdate = data.split("T")[0]; }
-      return ttdate;
-    }
-  },
+  { data: "expiration_date", title: "廢止日", className: "colnowarp", defaultContent: "-", render: toTWDate},
   { data: "upload", title: "掃描檔", defaultContent: "-", visible: false },
   { data: "editable_upload", title: "編輯檔", defaultContent: "-", visible: false },
   { data: "comment", title: "備註", defaultContent: "-" }
@@ -377,21 +366,9 @@ const columns2 = [
   { data: "doc_level", title: "層級", defaultContent: "-", visible: false },
   { data: "doc_type", title: "類型", defaultContent: "-", visible: false },
   { data: "ver", title: "版次", defaultContent: "-", width: "50px" },
-  {
-    data: "release_date", title: "發行日", className: "colnowarp", defaultContent: "-", render: (data) => {
-      let ttdate = ""
-      if (data) { ttdate = data.split("T")[0]; }
-      return ttdate;
-    }, width: "50px"
-  },
+  { data: "release_date", title: "發行日", className: "colnowarp", defaultContent: "-", render: toTWDate, width: "50px"},
   { data: "parent_id", title: "上階文件", defaultContent: "-", visible: false },
-  {
-    data: "expiration_date", title: "廢止日", className: "colnowarp", defaultContent: "-", render: (data) => {
-      let ttdate = ""
-      if (data) { ttdate = data.split("T")[0]; }
-      return ttdate;
-    }, visible: false
-  },
+  { data: "expiration_date", title: "廢止日", className: "colnowarp", defaultContent: "-", render: toTWDate, visible: false},
   { data: "name", title: "文件名稱", defaultContent: "-", width: "50px" },
   { data: "parent_id", title: "父階文件", defaultContent: "-", visible: false },
   { data: "upload", title: "掃描檔", defaultContent: "-", visible: false },
@@ -400,13 +377,37 @@ const columns2 = [
 ];
 const tboption2 = {
   autoWidth: false,
-  dom: 'ti',
+  dom: 'Bti',
+  buttons: [
+    {
+      text: '重新整理',
+      className: 'btn-sm',
+      action: function ( e, dt, node, config ) {
+        refgetHistDoc();
+      }
+    },
+    {
+      extend: 'copy',
+      text: '複製',
+      className: 'btn-sm',
+      exportOptions: {
+        modifier: {
+          selected: null
+        }
+      }
+    },
+    {
+      extend: 'colvis',
+      className: 'btn-sm',
+      text: '顯示欄位',
+    }
+  ],
   select: {
     style: 'single',
     info: false
   },
   order: [[5, 'desc']],
-  scrollY: 'calc(50vh - 13rem)',
+  scrollY: 'calc(50vh - 14rem)',
   scrollX: true,
   lengthChange: false,
   searching: false,
@@ -423,21 +424,9 @@ const columns3 = [
   { data: "doc_level", title: "層級", visible: false },
   { data: "doc_type", title: "類型", visible: false },
   { data: "ver", title: "版次", width: "50px" },
-  {
-    data: "release_date", title: "發行日", className: "colnowarp", defaultContent: "", render: (data) => {
-      let ttdate = ""
-      if (data) { ttdate = data.split("T")[0]; }
-      return ttdate;
-    }, width: "50px"
-  },
+  { data: "release_date", title: "發行日", className: "colnowarp", defaultContent: "", render: toTWDate, width: "50px"},
   { data: "parent_id", title: "上階文件", visible: false },
-  {
-    data: "expiration_date", title: "廢止日", className: "colnowarp", defaultContent: "", render: (data) => {
-      let ttdate = ""
-      if (data) { ttdate = data.split("T")[0]; }
-      return ttdate;
-    }, visible: false
-  },
+  { data: "expiration_date", title: "廢止日", className: "colnowarp", defaultContent: "", render: toTWDate, visible: false},
   { data: "name", title: "文件名稱", width: "50px" },
   { data: "parent_id", title: "父階文件", visible: false },
   { data: "upload", title: "掃描檔", visible: false },
@@ -446,13 +435,37 @@ const columns3 = [
 ];
 const tboption3 = {
   autoWidth: false,
-  dom: 'ti',
+  dom: 'Bti',
+  buttons: [
+    {
+      text: '重新整理',
+      className: 'btn-sm',
+      action: function ( e, dt, node, config ) {
+        refgetChildDoc();
+      }
+    },
+    {
+      extend: 'copy',
+      text: '複製',
+      className: 'btn-sm',
+      exportOptions: {
+        modifier: {
+          selected: null
+        }
+      }
+    },
+    {
+      extend: 'colvis',
+      className: 'btn-sm',
+      text: '顯示欄位',
+    }
+  ],
   select: {
     style: 'single',
     info: false
   },
   order: [[2, 'asc']],
-  scrollY: 'calc(50vh - 13rem)',
+  scrollY: 'calc(50vh - 14rem)',
   scrollX: true,
   lengthChange: false,
   searching: false,

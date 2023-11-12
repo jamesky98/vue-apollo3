@@ -40,7 +40,11 @@ import ButtonsBs5 from 'datatables.net-buttons-bs5';
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { errorHandle, logIn, logOut, toTWDate, domTextSelect, updateSelMU } from '../methods/User';
+import { 
+  errorHandle, logIn, logOut, toTWDate, 
+  domTextSelect, updateSelMU,
+  renderCalType, renderPtStatus
+} from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -350,36 +354,12 @@ const data_prj = ref([]);
 const columns_prj = [
   {title:"序號", data:"id", defaultContent: "-", visible: false},
   {title:"編號", data:"project_code", defaultContent: "-"},
-  {title:"項目", data:"cal_type_id", defaultContent: "-", render: (data, type, row) => {
-      let markicon = "";
-      let classn = "";
-      let calName = ""
-      switch (data) {
-        case 1: //航測像機
-          markicon = '<i class="fas fa-plane-departure"></i>';
-          classn = "typeF";
-          calName = "航測像機";
-          break;
-        case 2: //空載光達
-          markicon = '<i class="fas fa-wifi rotation180"></i>';
-          classn = "typeI"
-          calName = "空載光達";
-          break;
-        case 9: //車載光達
-          markicon = '<i class="fas fa-taxi"></i>';
-          classn = "typeM"
-          calName = "車載光達";
-          break;
-      }
-      // return "<span class='" + classn + "'>" + markicon + row.cal_type.name + "</span>"
-      return "<span class='" + classn + "'>" + markicon + calName + "</span>"
-  }},
+  {title:"項目", data:"cal_type.name", defaultContent: "-", render: renderCalType},
   {title:"類型", data:"method", defaultContent: "-"},
   {title:"年", data:"year", defaultContent: "-"},
   {title:"月", data:"month", defaultContent: "-"},
   {title:"執行單位", data:"organizer", defaultContent: "-"},
-  {title:"發布日", data:"publish_date", defaultContent: "-", render: (data) => {
-      return toTWDate(data);}},
+  {title:"發布日", data:"publish_date", defaultContent: "-", render: toTWDate},
 ];
 const tboption_prj = {
   dom: 'Bfti',
@@ -619,10 +599,9 @@ const data_gcp = ref([]);
 const columns_gcp = [
   {title:"序號", data:"gcp_record[0].id", defaultContent: "-", visible: false},
   {title:"點號", data:"id", defaultContent: "-"},
-  {title:"狀態", data:"gcp_record[0].status", defaultContent: "-", render: statusRender},
+  {title:"狀態", data:"gcp_record[0].status", defaultContent: "-", render: renderPtStatus},
   {title:"清查人", data:"gcp_record[0].person", defaultContent: "-"},
-  {title:"清查日", data:"gcp_record[0].date", defaultContent: "-", render: (data) => {
-      return toTWDate(data);}},
+  {title:"清查日", data:"gcp_record[0].date", defaultContent: "-", render: toTWDate},
   {title:"類別", data:"gcp_type.type_name", defaultContent: "-"},
   {title:"坐標E", data:"gcp_record[0].coor_E", defaultContent: "-"},
   {title:"坐標N", data:"gcp_record[0].coor_N", defaultContent: "-"},
@@ -1004,39 +983,6 @@ function changeContactID(){
 }
 //#endregion 參考值管理==========End
 
-//#region 點位狀態顯示樣式
-function statusRender(data,type,row){
-  let markicon="";
-  let classn="";
-  switch (data) {
-    case "遺失":
-      markicon = '<i class="fas fa-lg fa-times"></i>';
-      classn = "status89";
-      break;
-    case "損毀":
-      markicon = '<i class="fas fa-skull-crossbones"></i>';
-      classn = "status89";
-      break;
-    case "正常":
-      markicon = '<i class="fas fa-check"></i>';
-      classn = "status7";
-      break;
-    case "不適用":
-      markicon = '<i class="fas fa-ban"></i>';
-      classn = "status23";
-      break;
-    case "停用":
-      markicon = '<i class="fas fa-ban"></i>';
-      classn = "status23";
-      break;
-    default:
-      markicon = '<i class="fas fa-exclamation-circle"></i>';
-      classn = "status1";
-  }
-  return "<span class='" + classn +"'>" + markicon + data + "</span>"
-}
-//#endregion 點位狀態顯示樣式
-
 //#region 標準件管理==========Start
 const dt_eqpt = ref();
 const table_eqpt = ref(); 
@@ -1056,8 +1002,7 @@ const columns_eqpt = [
   {title:"型號", data:"ref_eqpt_check.ref_eqpt.model", defaultContent: "-"},
   {title:"序號", data:"ref_eqpt_check.ref_eqpt.serial_number", defaultContent: "-"},
   {title:"報告編號", data:"ref_eqpt_check.report_id", defaultContent: "-"},
-  {title:"校正日", data:"ref_eqpt_check.check_date", defaultContent: "-", render: (data) => {
-      return toTWDate(data);}},
+  {title:"校正日", data:"ref_eqpt_check.check_date", defaultContent: "-", render: toTWDate},
   {title:"校正機關", data:"ref_eqpt_check.cal_org", defaultContent: "-"},
 ];
 const tboption_eqpt = {
@@ -1095,8 +1040,7 @@ const columns_eqpt2 = [
   {title:"廠牌", data:"chop", defaultContent: "-"},
   {title:"型號", data:"model", defaultContent: "-"},
   {title:"序號", data:"serial_number", defaultContent: "-"},
-  {title:"最新校正日", data:"latest_chk.check_date", defaultContent: "-", render: (data) => {
-    return toTWDate(data);}},
+  {title:"最新校正日", data:"latest_chk.check_date", defaultContent: "-", render: toTWDate},
   {title:"校正週期", data:"cal_cycle", defaultContent: "-",className: 'dt-center'},
   {title:"有效", data:"latest_chk.check_date", defaultContent: "-",className: 'dt-center', render: (data, type, row, meta) => {
     let isValid;
@@ -1160,8 +1104,7 @@ const columns_chk = [
     return isValid;}},
   {title:"索引", data:"eq_ck_id", defaultContent: "-", visible: false},
   {title:"週期", data:"ref_eqpt.cal_cycle", defaultContent: "-"},
-  {title:"校正日", data:"check_date", defaultContent: "-", render: (data) => {
-    return toTWDate(data);}},
+  {title:"校正日", data:"check_date", defaultContent: "-", render: toTWDate},
   {title:"報告編號", data:"report_id", defaultContent: "-"},
   {title:"校正實驗室", data:"cal_org", defaultContent: "-", visible: false},
 ];

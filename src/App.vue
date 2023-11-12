@@ -140,38 +140,77 @@ tr.selected>td>span.status1 {
 .typeF {
   color: #6495ED;
 }
-
-tr.selected>td>span.typeF {
-  color: white;
-}
-
-/* tr>td>span.typeI {
-  color: #229954;
-} */
 .typeI {
   color: #229954;
 }
-
-tr.selected>td>span.typeI {
-  color: white;
-}
-
-/* tr>td>span.typeJ {
-  color: #FF7F50;
-} */
 .typeJ {
   color: #FF7F50;
 }
 .typeM{
   color: #9966ff;
 }
+.typeX{
+  color:rgb(255, 99, 132);
+}
+.typeA{
+  color: rgb(126, 126, 126);
+}
+.typeC{
+  color:rgb(126, 126, 126);
+}
+.typeD{
+  color: rgb(126, 126, 126);
+}
+.typeK{
+  color:rgb(126, 126, 126);
+}
+.typeL{
+  color: rgb(126, 126, 126);
+}
 
-tr.selected>td>span.typeJ {
+/* 實驗室主管 */
+.typeRole1{
+  color: hwb(347 0% 0%)}
+/* 品質主管 */
+.typeRole2{
+  color: hwb(219 0% 7%);
+}
+/* 技術主管 */
+.typeRole3{
+  color: hwb(145 0% 39%);
+}
+/* 報告簽署人 */
+.typeRole4{
+  color: hwb(16 10% 0%);
+}
+/* 校正人員 */
+.typeRole5{
+  color: hwb(260 20% 0%);
+}
+/* 設備操作人員 */
+.typeRole6{
+  color: rgb(126, 126, 126);
+}
+
+tr.selected>td>span.typeF, 
+tr.selected>td>span.typeI,
+tr.selected>td>span.typeJ,
+tr.selected>td>span.typeM,
+tr.selected>td>span.typeX,
+tr.selected>td>span.typeA,
+tr.selected>td>span.typeC,
+tr.selected>td>span.typeD,
+tr.selected>td>span.typeK,
+tr.selected>td>span.typeL,
+tr.selected>td>span.typeRole1,
+tr.selected>td>span.typeRole2,
+tr.selected>td>span.typeRole3,
+tr.selected>td>span.typeRole4,
+tr.selected>td>span.typeRole5,
+tr.selected>td>span.typeRole6{
   color: white;
 }
-tr.selected>td>span.typeM {
-  color: white;
-}
+
 
 /* div.dataTables_filter {
   padding-top: 0.85em;

@@ -38,7 +38,11 @@ import ButtonsBs5 from 'datatables.net-buttons-bs5';
 // 判斷token狀況
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import UsersGQL from "../graphql/Users";
-import { errorHandle, logIn, logOut, toTWDate, domTextSelect, updateSelMU} from '../methods/User';
+import { 
+  errorHandle, logIn, logOut, toTWDate, 
+  domTextSelect, updateSelMU,
+  renderCalType, renderRole, renderStatus, renderMoney
+} from '../methods/User';
 
 const { mutate: getchecktoken } = useMutation(UsersGQL.CHECKTOKEN);
 
@@ -308,11 +312,7 @@ const columns1 = [
   { title: "實驗室編號", data: "lab_ee_id", defaultContent: "-", width: "100px" },
   { title: "員工編號", data: "person_id", defaultContent: "-", width: "100px" },
   { title: "姓名", data: "name", defaultContent: "-", width: "100px" },
-  {
-    data: "resignation_date", title: "解職日", className: 'dt-right', defaultContent: "-", render: (data) => {
-      return toTWDate(data);
-    }
-  },
+  { title: "解職日", data: "resignation_date", className: 'dt-right', defaultContent: "-", render: toTWDate},
   { title: "備註", data: "comment", defaultContent: "-" },
 ];
 const tboption1 = {
@@ -461,9 +461,7 @@ const data_train = ref([]);
 const columns_train = [
   { title: "索引", data: "train_id", defaultContent: "-"},
   { title: "訓練名稱", data: "train_name", defaultContent: "-"},
-  { title: "結訓日期", data: "end_date", defaultContent: "-", render: (data) => {
-    return toTWDate(data);} 
-  },
+  { title: "結訓日期", data: "end_date", defaultContent: "-", render: toTWDate},
   { title: "開課單位", data: "train_institution", defaultContent: "-"},
   { title: "證書編號", data: "Certificate_no", defaultContent: "-"},
   { title: "備註", data: "comment", defaultContent: "-" },
@@ -712,14 +710,10 @@ const table_empower = ref();
 const data_empower = ref([]);
 const columns_empower = [
   { title: "索引", data: "empower_id", defaultContent: "-"},
-  { title: "校正項目", data: "cal_type_cal_typeToemployee_empower.name", defaultContent: "-"},
-  { title: "職務", data: "role_type", defaultContent: "-"},
-  { title: "授權日", data: "empower_date", defaultContent: "-", render: (data) => {
-    return toTWDate(data);} 
-  },
-  { title: "停權日", data: "suspension_date", defaultContent: "-", render: (data) => {
-    return toTWDate(data);} 
-  },
+  { title: "校正項目", data: "cal_type_cal_typeToemployee_empower.name", defaultContent: "-", render: renderCalType},
+  { title: "職務", data: "role_type", defaultContent: "-", render: renderRole},
+  { title: "授權日", data: "empower_date", defaultContent: "-", render: toTWDate},
+  { title: "停權日", data: "suspension_date", defaultContent: "-", render: toTWDate},
   { title: "備註", data: "comment", defaultContent: "-" },
 ];
 const tboption_empower = {
@@ -902,101 +896,27 @@ let dt_optcase;
 const table_optcase = ref();
 const data_optcase = ref([]);
 const columns_optcase = [
-  { 
-    data: "status_code", title: "狀態", defaultContent: "-", render: (data,type,row) => {
-      let markicon="";
-      let classn="";
-      switch (data) {
-        case 9: //退件
-          markicon = '<i class="fas fa-reply-all"></i>';
-          classn = "status89";
-          break;
-        case 8: //補件
-          markicon = '<i class="fas fa-history"></i>';
-          classn = "status89";
-          break;
-        case 7: //結案
-          markicon = '<i class="fas fa-check"></i>';
-          classn = "status7";
-          break;
-        case 6: //待繳費
-          markicon = '<i class="fas fa-donate"></i>';
-          classn = "status6";
-          break;
-        case 5: //陳核
-          markicon = '<i class="fas fa-paste"></i>';
-          classn = "status45";
-          break;
-        case 4: //校正中
-          markicon = '<i class="fas fa-play"></i>';
-          classn = "status45";
-          break;
-        case 3: //待送件
-          markicon = '<i class="fas fa-hourglass-start"></i>';
-          classn = "status23";
-          break;
-        case 2: //審核中
-          markicon = '<i class="fas fa-glasses"></i>';
-          classn = "status23";
-          break;
-        case 1: //(空)
-          markicon = '<i class="fas fa-exclamation-circle"></i>';
-          classn = "status1";
-      }
-      return "<span class='" + classn +"'>" + markicon + row.case_status.status + "</span>"
-    }
-  },
+  { data: "status_code", title: "狀態", defaultContent: "-", render: renderStatus},
   { data: "id", title: "案件編號", defaultContent: "-" },
   { data: "cal_type", title: "校正項目編號", defaultContent: "-", visible: false },
-  { data: "cal_type_cal_typeTocase_base.name", title: "校正項目名稱", defaultContent: "-", visible: false },
-  { data: "cal_type_cal_typeTocase_base.code", title: "校正項目", defaultContent: "-", render: (data, type, row) => {
-    let markicon = "";
-    let classn = "";
-    switch (data) {
-      case "F": //航測像機
-        markicon = '<i class="fas fa-plane-departure"></i>';
-        classn = "typeF"
-        break;
-      case "I": //空載光達
-        markicon = '<i class="fas fa-wifi rotation180"></i>';
-        classn = "typeI"
-        break;
-      case "J": //小像幅
-        markicon = '<i class="fas fa-camera"></i>';
-        classn = "typeJ"
-        break;
-    }
-    return "<span class='"+ classn +"'>" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
-    }
-  },
+  { data: "cal_type_cal_typeTocase_base.name", title: "校正項目", defaultContent: "-", render: renderCalType},
+  { data: "cal_type_cal_typeTocase_base.code", title: "校正項目代號", defaultContent: "-", visible: false},
   { data: "employee_case_base_operators_idToemployee.name", title: "校正人員", defaultContent: "-" },
-  {
-    data: "app_date", title: "申請日", defaultContent: "-", render: (data) => {
-      return toTWDate(data);
-    }
-  },
+  { data: "app_date", title: "申請日", defaultContent: "-", render: toTWDate},
   {
     data: "case_record_01.complete_date", title: "完成日", defaultContent: "-", render: (data, type, row) => {
       if (data) {
         return toTWDate(data);
       } else if (row.case_record_02){
         return toTWDate(row.case_record_02.complete_date);
+      } else if (row.case_record_03){
+        return toTWDate(row.case_record_03.complete_date);
       }
     }
   },
-  {
-    data: "pay_date", title: "繳費日", defaultContent: "-", render: (data) => {
-      return toTWDate(data);
-    }
-  },
-  {
-    data: "charge", title: "費用", className: "colAlignRight", defaultContent: "-", 
-    render: function (data, type) {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(data)
-    } 
-  },
+  { data: "pay_date", title: "繳費日", defaultContent: "-", render: toTWDate},
+  { data: "charge", title: "費用", className: "colAlignRight", defaultContent: "-", render: renderMoney},
   { data: "cus.cus_org.name", title: "顧客名稱", defaultContent: "-" },
-  
   { data: "item_base.chop", title: "廠牌", defaultContent: "-" },
   { data: "item_base.model", title: "型號", defaultContent: "-" },
   { data: "item_base.serial_number", title: "序號", defaultContent: "-" },
@@ -1066,74 +986,11 @@ let dt_signcase;
 const table_signcase = ref();
 const data_signcase = ref([]);
 const columns_signcase = [
-  {
-    data: "status_code", title: "狀態", defaultContent: "-", className: "colnowarp", render: (data,type,row) => {
-      let markicon="";
-      let classn="";
-      switch (data) {
-        case 9: //退件
-          markicon = '<i class="fas fa-reply-all"></i>';
-          classn = "status89";
-          break;
-        case 8: //補件
-          markicon = '<i class="fas fa-history"></i>';
-          classn = "status89";
-          break;
-        case 7: //結案
-          markicon = '<i class="fas fa-check"></i>';
-          classn = "status7";
-          break;
-        case 6: //待繳費
-          markicon = '<i class="fas fa-donate"></i>';
-          classn = "status6";
-          break;
-        case 5: //陳核
-          markicon = '<i class="fas fa-paste"></i>';
-          classn = "status45";
-          break;
-        case 4: //校正中
-          markicon = '<i class="fas fa-play"></i>';
-          classn = "status45";
-          break;
-        case 3: //待送件
-          markicon = '<i class="fas fa-hourglass-start"></i>';
-          classn = "status23";
-          break;
-        case 2: //審核中
-          markicon = '<i class="fas fa-glasses"></i>';
-          classn = "status23";
-          break;
-        case 1: //(空)
-          markicon = '<i class="fas fa-exclamation-circle"></i>';
-          classn = "status1";
-      }
-      return "<span class='" + classn +"'>" + markicon + row.case_status.status + "</span>"
-    }
-  },
+  { data: "status_code", title: "狀態", defaultContent: "-", className: "colnowarp", render: renderStatus},
   { data: "id", title: "案件編號", defaultContent: "-" },
   { data: "cal_type", title: "校正項目編號", defaultContent: "-", visible: false },
-  { data: "cal_type_cal_typeTocase_base.name", title: "校正項目名稱", defaultContent: "-", visible: false },
-  { data: "cal_type_cal_typeTocase_base.code", title: "校正項目", defaultContent: "-", render: (data, type, row) => {
-    let markicon = "";
-    let classn = "";
-    switch (data) {
-      case "F": //航測像機
-        markicon = '<i class="fas fa-plane-departure"></i>';
-        classn = "typeF"
-        break;
-      case "I": //空載光達
-        markicon = '<i class="fas fa-wifi rotation180"></i>';
-        classn = "typeI"
-        break;
-      case "J": //小像幅
-        markicon = '<i class="fas fa-camera"></i>';
-        classn = "typeJ"
-        break;
-    }
-    // return "<span style='color: " + color + "; background-color:" + bcolor + "' >" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
-    return "<span class='"+ classn +"'>" + markicon + row.cal_type_cal_typeTocase_base.name + "</span>"
-    }
-  },
+  { data: "cal_type_cal_typeTocase_base.name", title: "校正項目", defaultContent: "-", render: renderCalType },
+  { data: "cal_type_cal_typeTocase_base.code", title: "校正項目代號", defaultContent: "-", visible: false},
   { data: "operators_id", title: "校正人員編號", defaultContent: "-", visible: false },
   { data: "employee_case_base_operators_idToemployee.name", title: "校正人員", defaultContent: "-" },
   {
@@ -1142,28 +999,24 @@ const columns_signcase = [
         return data;
       } else if (row.case_record_02){
         return row.case_record_02.sign_person_id;
+      } else if (row.case_record_03){
+        return row.case_record_03.sign_person_id;
       }
     }
   },
-  {
-    data: "app_date", title: "申請日", defaultContent: "-", render: (data) => {
-      return toTWDate(data);
-    }
-  },
+  { data: "app_date", title: "申請日", defaultContent: "-", render: toTWDate},
   {
     data: "case_record_01.complete_date", title: "完成日", defaultContent: "-", render: (data, type, row) => {
       if (data) {
         return toTWDate(data);
       } else if (row.case_record_02){
         return toTWDate(row.case_record_02.complete_date);
+      } else if (row.case_record_03){
+        return toTWDate(row.case_record_03.complete_date);
       }
     }
   },
-  {
-    data: "pay_date", title: "繳費日", defaultContent: "-", render: (data) => {
-      return toTWDate(data);
-    }
-  },
+  { data: "pay_date", title: "繳費日", defaultContent: "-", render: toTWDate},
   {
     data: "charge", title: "費用", className: "colAlignRight", defaultContent: "-", 
     render: function (data, type) {
@@ -1431,15 +1284,17 @@ getSupListonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
           },
           options: {
             responsive: true,
-            // parsing: {
-            //   xAxisKey: 'name',
-            // },
+            interaction: {
+              intersect: false,
+              mode: 'index',
+            },
             scales: {
               x: { stacked: false },
               y: {
                 title: {
                   display: true,
-                  text: '人數'
+                  text: '人次',
+                  font: {size: 14}
                 },
                 ticks: {
                   // forces step size to be 50 units
@@ -1453,17 +1308,32 @@ getSupListonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
               title: {
                 display: true,
                 text: '各項目人員數量統計',
+                font: {size: 16}
               },
               legend: {
                 display: true,
                 position: 'right',
               },
-              
+              tooltip:{
+                callbacks: {
+                  footer: function(context) {
+                    // console.log(context);
+                    let total = 0 ;
+                    for (let i=0;i<context.length;i++){
+                      total = total + context[i].parsed.y;
+                    }
+                    return '合計:' + total;
+                  },
+                  label: function(context) {
+                    // console.log(context)
+                    return (context.parsed.y)?(context.dataset.label + ':' + context.parsed.y):'';
+                  },
+                }
+              },
             }
           }
         }
       )
-      
       notProssing2.value = true;
       // console.log(data2.value)
     }
@@ -1475,21 +1345,13 @@ getSupListonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
   const data2 = ref([]);
   const columns2 = [
     { title: "索引", data: "empower_id", defaultContent: "-", width: "100px" },
-    { title: "校正項目", data: "cal_type_cal_typeToemployee_empower.name", defaultContent: "-"},
-    { title: "職務", data: "role_type", defaultContent: "-"},
+    { title: "校正項目", data: "cal_type_cal_typeToemployee_empower.name", defaultContent: "-", render: renderCalType},
+    { title: "職務", data: "role_type", defaultContent: "-", render: renderRole},
     { title: "員工編號", data: "person_id", defaultContent: "-", width: "100px" },
     { title: "姓名", data: "employee.name", defaultContent: "-", width: "100px" },
-    {
-      data: "employee.resignation_date", title: "解職日", className: 'dt-right', defaultContent: "-", render: (data) => {
-        return toTWDate(data);
-      }
-    },
-    { title: "授權日", data: "empower_date", defaultContent: "-", render: (data) => {
-      return toTWDate(data);} 
-    },
-    { title: "停權日", data: "suspension_date", defaultContent: "-", render: (data) => {
-      return toTWDate(data);} 
-    },
+    { title: "解職日", data: "employee.resignation_date",  className: 'dt-right', defaultContent: "-", render: toTWDate},
+    { title: "授權日", data: "empower_date", defaultContent: "-", render: toTWDate},
+    { title: "停權日", data: "suspension_date", defaultContent: "-", render: toTWDate},
   ];
   const tboption2 = {
     dom: 'Bfti',
@@ -1540,6 +1402,90 @@ getSupListonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
       info: '共 _TOTAL_ 筆資料',
     }
   };
+
+  // function renderCalType(data, type, row){
+  //   let markicon = "";
+  //   let classn = "";
+  //   let shortName = "";
+  //   switch (data) {
+  //     case "航空測量攝影機": //航測像機
+  //       shortName = "航測像機"
+  //       markicon = '<i class="fas fa-plane-departure"></i>';
+  //       classn = "typeF"
+  //       break;
+  //     case "空載光達": //空載光達
+  //       shortName = "空載光達"
+  //       markicon = '<i class="fas fa-wifi rotation180"></i>';
+  //       classn = "typeI"
+  //       break;
+  //     case "小像幅攝影機": //小像幅
+  //       shortName = "小像幅"
+  //       markicon = '<i class="fas fa-camera"></i>';
+  //       classn = "typeJ"
+  //       break;
+  //     case "車載光達": //車載光達
+  //       shortName = "車載光達"
+  //       markicon = '<i class="fas fa-taxi"></i>';
+  //       classn = "typeM"
+  //       break;
+  //     case "電子測距儀": //電子測距儀
+  //       shortName = "測距儀"
+  //       markicon = '<i class="fas fa-tools"></i>';
+  //       classn = "typeA"
+  //       break;
+  //     case "經緯儀": //經緯儀
+  //       shortName = "經緯儀"
+  //       markicon = '<i class="fas fa-tools"></i>';
+  //       classn = "typeC"
+  //       break;
+  //     case "衛星定位系統": //衛星定位系統
+  //       shortName = "衛星定位儀"
+  //       markicon = '<i class="fas fa-tools"></i>';
+  //       classn = "typeD"
+  //       break;
+  //     case "e-GNSS即時動態定位衛星定位儀": //e-GNSS即時動態定位衛星定位儀
+  //       shortName = "e-GNSS"
+  //       markicon = '<i class="fas fa-tools"></i>';
+  //       classn = "typeK"
+  //       break;
+  //     case "地面三維雷射掃描儀": //地面三維雷射掃描儀
+  //       shortName = "地面光達"
+  //       markicon = '<i class="fas fa-tools"></i>';
+  //       classn = "typeL"
+  //       break;
+  //     default:
+  //       shortName = "品質"
+  //       markicon = '<i class="fas fa-tools"></i>';
+  //       classn = "typeX"
+  //       break;
+  //   }
+  //   return "<span class='" + classn + "'>" + markicon + shortName + "</span>"
+  // }
+
+  // function renderRole(data, type, row){
+  //   let classn = "";
+  //   switch (data) {
+  //     case "實驗室主管": //實驗室主管
+  //       classn = "typeRole1"
+  //       break;
+  //     case "品質主管": //品質主管
+  //       classn = "typeRole2"
+  //       break;
+  //     case "技術主管": //技術主管
+  //       classn = "typeRole3"
+  //       break;
+  //     case "報告簽署人": //報告簽署人
+  //       classn = "typeRole4"
+  //       break;
+  //     case "校正人員": //校正人員
+  //       classn = "typeRole5"
+  //       break;
+  //     case "設備操作人員": //設備操作人員
+  //       classn = "typeRole6"
+  //       break;
+  //   }
+  //   return "<span class='" + classn + "'>" + data + "</span>"
+  // }
   // 統計圖表
   const ctx_emp = ref();
   const myChart_emp = ref();
@@ -1591,71 +1537,6 @@ getSupListonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
     // console.log('y_DataSet', y_DataSet);
     return y_DataSet
   }
-
-  function updateChartEmp(y_DataSet){
-    // 取得資料
-    // chartData_emp.value = result.data.;
-    // 清除舊圖表
-    if(myChart_emp.value) myChart_emp.value.destroy();
-    console.log(myChart_emp.value)
-    // 取得Chart畫布空間
-    ctx_emp.value = document.getElementById('myChartEmp').getContext('2d');
-    // 設定圖表參數
-    myChart_emp.value = new Chart(ctx_emp.value, {
-      type: 'bar',
-      data: {
-        datasets: [
-          {
-            label: '校正人員',
-            backgroundColor: bgcolor_60[0],
-            data: chartData_emp.value,
-            parsing: {
-              yAxisKey: 'data.校正人員'
-            }
-          },
-        ]
-      },
-      options: {
-        responsive: true,
-        interaction: {
-          intersect: false,
-          mode: 'index',
-        },
-        parsing: {
-          xAxisKey: 'name',
-        },
-        scales: {
-          x: {
-            stacked: false,
-          },
-          y: {
-            title: {
-              display: true,
-              text: '人數'
-            },
-            ticks: {
-              // forces step size to be 50 units
-              stepSize: 1
-            },
-            beginAtZero: true,
-            suggestedMax: 5
-          }
-        },
-        plugins: {
-          title: {
-            display: true,
-            text: '各項目人員數量統計',
-          },
-          legend: {
-            display: true,
-            position: 'right',
-          },
-          
-        }
-      }
-    });
-  }
-
   // 圖表設定
   const bgcolor_20 = [
     'rgba(255, 99, 132, 0.2)',

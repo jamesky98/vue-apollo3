@@ -118,5 +118,178 @@ function updateSelMU(paras){
   }
 }
 
+function renderCalType(data, type, row){
+  let markicon = "";
+  let classn = "";
+  let shortName = "";
+  switch (data) {
+    case "航空測量攝影機": //航測像機
+      shortName = "航測像機"
+      markicon = '<i class="fas fa-plane-departure"></i>';
+      classn = "typeF"
+      break;
+    case "空載光達": //空載光達
+      shortName = "空載光達"
+      markicon = '<i class="fas fa-wifi rotation180"></i>';
+      classn = "typeI"
+      break;
+    case "小像幅攝影機": //小像幅
+      shortName = "小像幅"
+      markicon = '<i class="fas fa-camera"></i>';
+      classn = "typeJ"
+      break;
+    case "車載光達": //車載光達
+      shortName = "車載光達"
+      markicon = '<i class="fas fa-taxi"></i>';
+      classn = "typeM"
+      break;
+    case "電子測距儀": //電子測距儀
+      shortName = "測距儀"
+      markicon = '<i class="fas fa-tools"></i>';
+      classn = "typeA"
+      break;
+    case "經緯儀": //經緯儀
+      shortName = "經緯儀"
+      markicon = '<i class="fas fa-tools"></i>';
+      classn = "typeC"
+      break;
+    case "衛星定位系統": //衛星定位系統
+      shortName = "衛星定位儀"
+      markicon = '<i class="fas fa-tools"></i>';
+      classn = "typeD"
+      break;
+    case "e-GNSS即時動態定位衛星定位儀": //e-GNSS即時動態定位衛星定位儀
+      shortName = "e-GNSS"
+      markicon = '<i class="fas fa-tools"></i>';
+      classn = "typeK"
+      break;
+    case "地面三維雷射掃描儀": //地面三維雷射掃描儀
+      shortName = "地面光達"
+      markicon = '<i class="fas fa-tools"></i>';
+      classn = "typeL"
+      break;
+    default:
+      shortName = "品質"
+      markicon = '<i class="fas fa-sitemap"></i>';
+      classn = "typeX"
+      break;
+  }
+  return "<span class='" + classn + "'>" + markicon + shortName + "</span>"
+}
 
-export { errorHandle, logIn, logOut, toTWDate, domTextSelect, updateSelMU};
+function renderRole(data, type, row){
+  let classn = "";
+  switch (data) {
+    case "實驗室主管": //實驗室主管
+      classn = "typeRole1"
+      break;
+    case "品質主管": //品質主管
+      classn = "typeRole2"
+      break;
+    case "技術主管": //技術主管
+      classn = "typeRole3"
+      break;
+    case "報告簽署人": //報告簽署人
+      classn = "typeRole4"
+      break;
+    case "校正人員": //校正人員
+      classn = "typeRole5"
+      break;
+    case "設備操作人員": //設備操作人員
+      classn = "typeRole6"
+      break;
+  }
+  return "<span class='" + classn + "'>" + data + "</span>"
+}
+
+function renderStatus(data, type, row){
+  let markicon="";
+  let classn="";
+  switch (data) {
+    case 9: //退件
+      markicon = '<i class="fas fa-reply-all"></i>';
+      classn = "status89";
+      break;
+    case 8: //補件
+      markicon = '<i class="fas fa-history"></i>';
+      classn = "status89";
+      break;
+    case 7: //結案
+      markicon = '<i class="fas fa-check"></i>';
+      classn = "status7";
+      break;
+    case 6: //待繳費
+      markicon = '<i class="fas fa-donate"></i>';
+      classn = "status6";
+      break;
+    case 5: //陳核
+      markicon = '<i class="fas fa-paste"></i>';
+      classn = "status45";
+      break;
+    case 4: //校正中
+      markicon = '<i class="fas fa-play"></i>';
+      classn = "status45";
+      break;
+    case 3: //待送件
+      markicon = '<i class="fas fa-hourglass-start"></i>';
+      classn = "status23";
+      break;
+    case 2: //審核中
+      markicon = '<i class="fas fa-glasses"></i>';
+      classn = "status23";
+      break;
+    case 1: //(空)
+      markicon = '<i class="fas fa-exclamation-circle"></i>';
+      classn = "status1";
+  }
+  return "<span class='" + classn +"'>" + markicon + row.case_status.status + "</span>"
+}
+
+function renderPtStatus(data,type,row){
+  let markicon="";
+  let classn="";
+  switch (data) {
+    case "遺失":
+      markicon = '<i class="fas fa-lg fa-times"></i>';
+      classn = "status89";
+      break;
+    case "損毀":
+      markicon = '<i class="fas fa-skull-crossbones"></i>';
+      classn = "status89";
+      break;
+    case "正常":
+      markicon = '<i class="fas fa-check"></i>';
+      classn = "status7";
+      break;
+    case "不適用":
+      markicon = '<i class="fas fa-ban"></i>';
+      classn = "status23";
+      break;
+    case "停用":
+      markicon = '<i class="fas fa-ban"></i>';
+      classn = "status23";
+      break;
+    default:
+      markicon = '<i class="fas fa-exclamation-circle"></i>';
+      classn = "status1";
+  }
+  return "<span class='" + classn +"'>" + markicon + data + "</span>"
+}
+
+function renderMoney(data, type, row){
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TWD', currencyDisplay: "narrowSymbol", minimumFractionDigits: 0 }).format(data)
+}
+
+export { 
+  errorHandle, 
+  logIn, 
+  logOut, 
+  toTWDate, 
+  domTextSelect, 
+  updateSelMU,
+  renderCalType,
+  renderRole,
+  renderStatus,
+  renderPtStatus,
+  renderMoney,
+};
