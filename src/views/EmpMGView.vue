@@ -998,9 +998,9 @@ const columns_signcase = [
       if (data) {
         return data;
       } else if (row.case_record_02){
-        return row.case_record_02.sign_person_id;
+        return (row.case_record_02.sign_person_id)?row.case_record_02.sign_person_id:"-";
       } else if (row.case_record_03){
-        return row.case_record_03.sign_person_id;
+        return (row.case_record_03.sign_person_id)?row.case_record_03.sign_person_id:"-";
       }
     }
   },

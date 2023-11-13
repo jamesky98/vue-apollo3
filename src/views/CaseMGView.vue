@@ -668,6 +668,7 @@ getAllCaseonDone(result => {
   // 加入table1資料
   if (!result.loading) {
     data1.value = result.data.getAllCase;
+    // console.log(result.data.getAllCase)
     notProssing2.value = true;
   }
 });

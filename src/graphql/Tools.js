@@ -32,14 +32,14 @@ mutation StatCaseByMounth($year: Int!, $method: String) {
 `;
 
 const STATCASETYPEBYYEAR = gql`
-  mutation StatCaseTypeByYear($year: Int!) {
-    statCaseTypeByYear(year: $year)
+  mutation StatCaseTypeByYear($year: Int!, $method: String) {
+    statCaseTypeByYear(year: $year, method: $method)
   }
 `;
 
 const STATCASESTATUSBYYEAR = gql`
-  mutation StatCaseStatusByYear($year: Int!) {
-    statCaseStatusByYear(year: $year)
+  mutation StatCaseStatusByYear($year: Int!, $method: String) {
+    statCaseStatusByYear(year: $year, method: $method)
   }
 `;
 

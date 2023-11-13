@@ -658,16 +658,19 @@ function saveRecord03(){
       phi: parseFloat(nowCaseImuPhi.value),
       kappa: parseFloat(nowCaseImuKap.value),
       precOri: parseFloat(nowCaseImuPrcO.value),
-      planDate: nowCasePlanDate.value.trim() === ""
-          ? null
-          : nowCasePlanDate.value.trim() + "T00:00:00.000Z",
+      planDate: 
+        (!nowCasePlanDate.value || nowCasePlanDate.value.trim() === "")
+        ? null
+        : nowCasePlanDate.value.trim() + "T00:00:00.000Z",
       cloudDensity: parseFloat(nowCasePtDensity.value),
       lidarReport: nowCaseLrReport.value,
       posReport: nowCasePosReport.value,
-      receiveDate: nowCaseRecDate.value.trim() === ""
+      receiveDate: 
+        (!nowCaseRecDate.value || nowCaseRecDate.value.trim() === "")
         ? null
         : nowCaseRecDate.value.trim() + "T00:00:00.000Z",
-      scanDate: nowCaseScanDate.value.trim() === ""
+      scanDate: 
+        (!nowCaseScanDate.value || nowCaseScanDate.value.trim() === "")
         ? null
         : nowCaseScanDate.value.trim() + "T00:00:00.000Z",
       stripsNoAc: parseInt(nowCaseStripsAc.value),
@@ -676,10 +679,12 @@ function saveRecord03(){
       others: nowCaseOther.value,
       errData: nowCaseErrData.value,
       errCloud: nowCaseErrLAS.value,
-      startDate: nowCaseStartDate.value.trim() === ""
+      startDate: 
+        (!nowCaseStartDate.value || nowCaseStartDate.value.trim() === "")
         ? null
         : nowCaseStartDate.value.trim() + "T00:00:00.000Z",
-      completeDate: nowCaseCompleteDate.value.trim() === ""
+      completeDate: 
+        (!nowCaseCompleteDate.value || nowCaseCompleteDate.value.trim() === "")
         ? null
         : nowCaseCompleteDate.value.trim() + "T00:00:00.000Z",
       refId: parseInt(nowCaseRefPrjID.value),
@@ -694,11 +699,13 @@ function saveRecord03(){
       kS: parseFloat(nowCaseKs.value),
       stdFile: "",
       reportEdit: nowCaseReportEdit.value,
-      chkDate: nowCaseChkDate.value.trim() === ""
+      chkDate: 
+        (!nowCaseChkDate.value || nowCaseChkDate.value.trim() === "")
         ? null
         : nowCaseChkDate.value.trim() + "T00:00:00.000Z",
       chkPersonId: selectChkPersonID.value === "" ? null : parseInt(selectChkPersonID.value),
-      signDate: nowCaseSignDate.value.trim() === ""
+      signDate: 
+        (!nowCaseSignDate.value || nowCaseSignDate.value.trim() === "")
         ? null
         : nowCaseSignDate.value.trim() + "T00:00:00.000Z",
       signPersonId:

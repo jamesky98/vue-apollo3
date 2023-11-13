@@ -187,6 +187,26 @@ const selDmethodMU = ref([
 ]);
 const selDmethodDOM = ref();
 
+const selDmethod3 = ref("");
+const selDmethodMU3 = ref([
+  { text: "-未選取-", value: -1 },
+  { text: "申請日", value: "app_date" },
+  { text: "收件日", value: "receive_date" },
+  { text: "完成日", value: "complete_date" },
+  { text: "繳費日", value: "pay_date" },
+]);
+const selDmethodDOM3 = ref();
+
+const selDmethod4 = ref("");
+const selDmethodMU4 = ref([
+  { text: "-未選取-", value: -1 },
+  { text: "申請日", value: "app_date" },
+  { text: "收件日", value: "receive_date" },
+  { text: "完成日", value: "complete_date" },
+  { text: "繳費日", value: "pay_date" },
+]);
+const selDmethodDOM4 = ref();
+
 //#endregion 參數==========End
 
 //#region 統計資料查詢==========Start
@@ -730,7 +750,6 @@ function changeChart2Year(e){
   if(selYear2.value!==-1){
     getCasebyMounth({
       year:((selYear2.value) && parseInt(selYear2.value)!==-1)?parseInt(selYear2.value)+1911:new Date().getFullYear(),
-      calNum: 3,
       method:(selDmethod.value && selDmethod.value!==-1)?selDmethod.value:'receive_date',
     })
   }
@@ -806,12 +825,12 @@ getCaseTypebyYearOnDone(result=>{
     ]
   };
 
-  // console.log('3-OnDone res:',chartData1.value);
+  // console.log('3-OnDone res:',chartData3.value);
   if(myChart3.value) myChart3.value.destroy();
 
-  // console.log('4-new Chart',myChart1.value);
+  // console.log('4-new Chart',myChart3.value);
   ctx3.value = document.getElementById('myChart3').getContext('2d');
-  // console.log('5-ctx1',ctx1.value);
+  // console.log('5-ctx1',ctx3.value);
   myChart3.value = new Chart(ctx3.value, {
     type: 'doughnut',
     data: data,
@@ -837,9 +856,12 @@ getCaseTypebyYearOnDone(result=>{
 getCaseTypebyYearonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function changeChart3Year(e){
-  getCaseTypebyYear({
-    year: (parseInt(selYear3.value) && parseInt(selYear3.value)!==-1)?parseInt(selYear3.value)+1911:new Date().getFullYear()
-  })
+  if(selYear3.value!==-1){
+    getCaseTypebyYear({
+      year: (parseInt(selYear3.value) && parseInt(selYear3.value)!==-1)?parseInt(selYear3.value)+1911:new Date().getFullYear(),
+      method:(selDmethod3.value && selDmethod3.value!==-1)?selDmethod3.value:'app_date',
+    })
+  }
 }
 //#endregion Chart3==========End
 
@@ -921,9 +943,12 @@ getCaseStatusbyYearOnDone(result=>{
 getCaseStatusbyYearonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function changeChart4Year(e){
-  getCaseStatusbyYear({
-    year: (parseInt(selYear4.value) && parseInt(selYear4.value)!==-1)?parseInt(selYear4.value)+1911:new Date().getFullYear(),
-  })
+  if(selYear4.value!==-1){
+    getCaseStatusbyYear({
+      year: (parseInt(selYear4.value) && parseInt(selYear4.value)!==-1)?parseInt(selYear4.value)+1911:new Date().getFullYear(),
+      method:(selDmethod4.value && selDmethod4.value!==-1)?selDmethod4.value:'app_date',
+    })
+  }
 }
 //#endregion Chart4==========End
 
@@ -1186,8 +1211,12 @@ onMounted(()=>{
       selDmethodDOM.value.setValue("receive_date");
       // 圖表3
       selYearDOM3.value.setValue(latestYear);
+      selDmethod3.value = "app_date";
+      selDmethodDOM3.value.setValue("app_date");
       // 圖表4
       selYearDOM4.value.setValue(latestYear);
+      selDmethod4.value = "app_date";
+      selDmethodDOM4.value.setValue("app_date");
       // 圖表5
       selYearDOM5.value.setValue(latestYear);
       // 圖表6
@@ -1320,7 +1349,7 @@ function zoomCart(Index){
                         v-model:selected="selYear" 
                         ref="selYearDOM" 
                         @change="changeChart1Year($event)"/>
-                      <span>※以收件日為準</span>
+                      <span>※以收件日且結案為準</span>
                       <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(0)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
                     </MDBCol>
                     <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
@@ -1385,7 +1414,14 @@ function zoomCart(Index){
                         v-model:selected="selYear3" 
                         ref="selYearDOM3" 
                         @change="changeChart3Year($event)"/>
-                      <span>※以申請日為準</span>
+                      <!-- <span>※以申請日為準</span> -->
+                      <MDBSelect size="sm"
+                        style="display:inline-block; width:10rem"
+                        label="日期模式" 
+                        v-model:options="selDmethodMU3"
+                        v-model:selected="selDmethod3" 
+                        ref="selDmethodDOM3" 
+                        @change="changeChart3Year($event)"/>
                       <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(2)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
                     </MDBCol>
                     <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">
@@ -1404,7 +1440,14 @@ function zoomCart(Index){
                         v-model:selected="selYear4" 
                         ref="selYearDOM4" 
                         @change="changeChart4Year($event)"/>
-                      <span>※以申請日為準</span>
+                      <!-- <span>※以申請日為準</span> -->
+                      <MDBSelect size="sm"
+                        style="display:inline-block; width:10rem"
+                        label="日期模式" 
+                        v-model:options="selDmethodMU4"
+                        v-model:selected="selDmethod4" 
+                        ref="selDmethodDOM4" 
+                        @change="changeChart4Year($event)"/>
                       <MDBBtn size="sm" style="position:absolute;right:1rem" color="secondary" class="px-2 py-1" @click="zoomCart(3)"><i class="fas fa-expand-arrows-alt"></i></MDBBtn>
                     </MDBCol>
                     <MDBCol col="12" style="height: calc(100% - 3em);" class="d-flex align-items-center justify-content-center">

@@ -59,7 +59,7 @@ function logIn(result) {
 }
 
 function toTWDate(data) {
-  let ttdate = "";
+  let ttdate = "-";
   if (data) {
     ttdate = data.split("T")[0];
     let dateObj = new Date(ttdate);

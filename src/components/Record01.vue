@@ -654,11 +654,11 @@ const {
     camReport: nowCaseCamReport.value,
     planMap: nowCasePlanMap.value,
     receiveDate:
-      nowCaseRecDate.value.trim() === ""
+      (!nowCaseRecDate.value|| nowCaseRecDate.value.trim() === "")
         ? null
         : nowCaseRecDate.value.trim() + "T00:00:00.000Z",
     flyDate:
-      nowCaseFlyDate.value.trim() === ""
+      (!nowCaseFlyDate.value.trim() || nowCaseFlyDate.value.trim() === "")
         ? null
         : nowCaseFlyDate.value.trim() + "T00:00:00.000Z",
     stripNsAc: parseInt(nowCaseStrNSac.value),
@@ -679,7 +679,7 @@ const {
     distorCorrVer: nowCaseDistVer.value,
     undistortion: nowCaseUndist.value,
     startDate:
-      nowCaseStartDate.value.trim() === ""
+      (!nowCaseStartDate.value || nowCaseStartDate.value.trim() === "")
         ? null
         : nowCaseStartDate.value.trim() + "T00:00:00.000Z",
     refId: parseInt(nowCaseRefPrjID.value),
@@ -711,17 +711,17 @@ const {
     stdFile: nowCaseSTDExl.value,
     reportEdit: nowCaseReportEdit.value,
     chkDate:
-      nowCaseChkDate.value.trim() === ""
+      (!nowCaseChkDate.value || nowCaseChkDate.value.trim() === "")
         ? null
         : nowCaseChkDate.value.trim() + "T00:00:00.000Z",
     chkPersonId:
       selectChkPersonID.value === "" ? null : parseInt(selectChkPersonID.value),
     completeDate:
-      nowCaseCompleteDate.value.trim() === ""
+      (!nowCaseCompleteDate.value || nowCaseCompleteDate.value.trim() === "")
         ? null
         : nowCaseCompleteDate.value.trim() + "T00:00:00.000Z",
     signDate:
-      nowCaseSignDate.value.trim() === ""
+      (!nowCaseSignDate.value || nowCaseSignDate.value.trim() === "")
         ? null
         : nowCaseSignDate.value.trim() + "T00:00:00.000Z",
     signPersonId:
