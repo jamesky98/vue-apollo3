@@ -1272,68 +1272,71 @@ getSupListonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
       let yset = computeChartData(result.data.getEmpower);
       // console.log('yset',yset);
       // console.log('chartData_emp',chartData_emp.value);
-      
-      if(myChart_emp.value) myChart_emp.value.destroy();
-      ctx_emp.value = document.getElementById('myChartEmp').getContext('2d');
-      myChart_emp.value = new Chart(ctx_emp.value,
-        {
-          type: 'bar',
-          data: {
-            labels: chartData_emp.value.map(row => row.label),
-            datasets: yset
-          },
-          options: {
-            responsive: true,
-            interaction: {
-              intersect: false,
-              mode: 'index',
+      if(myChart_emp.value){
+        myChart_emp.value.destroy();
+      }
+      if(!showByCalType.value) {
+        ctx_emp.value = document.getElementById('myChartEmp').getContext('2d');
+        myChart_emp.value = new Chart(ctx_emp.value,
+          {
+            type: 'bar',
+            data: {
+              labels: chartData_emp.value.map(row => row.label),
+              datasets: yset
             },
-            scales: {
-              x: { stacked: false },
-              y: {
-                title: {
-                  display: true,
-                  text: '人次',
-                  font: {size: 14}
-                },
-                ticks: {
-                  // forces step size to be 50 units
-                  stepSize: 1
-                },
-                beginAtZero: true,
-                suggestedMax: 5
-              }
-            },
-            plugins: {
-              title: {
-                display: true,
-                text: '各項目人員數量統計',
-                font: {size: 16}
+            options: {
+              responsive: true,
+              interaction: {
+                intersect: false,
+                mode: 'index',
               },
-              legend: {
-                display: true,
-                position: 'right',
-              },
-              tooltip:{
-                callbacks: {
-                  footer: function(context) {
-                    // console.log(context);
-                    let total = 0 ;
-                    for (let i=0;i<context.length;i++){
-                      total = total + context[i].parsed.y;
-                    }
-                    return '合計:' + total;
+              scales: {
+                x: { stacked: false },
+                y: {
+                  title: {
+                    display: true,
+                    text: '人次',
+                    font: {size: 14}
                   },
-                  label: function(context) {
-                    // console.log(context)
-                    return (context.parsed.y)?(context.dataset.label + ':' + context.parsed.y):'';
+                  ticks: {
+                    // forces step size to be 50 units
+                    stepSize: 1
                   },
+                  beginAtZero: true,
+                  suggestedMax: 5
                 }
               },
+              plugins: {
+                title: {
+                  display: true,
+                  text: '各項目人員數量統計',
+                  font: {size: 16}
+                },
+                legend: {
+                  display: true,
+                  position: 'right',
+                },
+                tooltip:{
+                  callbacks: {
+                    footer: function(context) {
+                      // console.log(context);
+                      let total = 0 ;
+                      for (let i=0;i<context.length;i++){
+                        total = total + context[i].parsed.y;
+                      }
+                      return '合計:' + total;
+                    },
+                    label: function(context) {
+                      // console.log(context)
+                      return (context.parsed.y)?(context.dataset.label + ':' + context.parsed.y):'';
+                    },
+                  }
+                },
+              }
             }
           }
-        }
-      )
+        )
+      }
       notProssing2.value = true;
       // console.log(data2.value)
     }
