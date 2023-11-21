@@ -41,7 +41,7 @@ const { mutate: userlogin, onDone: loginOnDone, onError:loginError } = useMutati
 
 loginOnDone(result => {
   if (!result.loading && result.data.login) {
-    console.log(result)
+    // console.log(result)
     logIn(result);
   }
 });

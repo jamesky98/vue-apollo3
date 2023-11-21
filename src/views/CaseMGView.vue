@@ -1,6 +1,7 @@
 <script setup>
 import Footer1 from "../components/Footer.vue";
 import Navbar1 from "../components/Navbar.vue";
+import path from "path-browserify";
 import Record01 from "../components/Record01.vue";
 import Record02 from "../components/Record02.vue";
 import Record03 from "../components/Record03.vue";
@@ -21,6 +22,7 @@ import gql from "graphql-tag";
 import CaseGQL from "../graphql/Cases";
 import CustGQL from "../graphql/Cust";
 import EmpGQL from "../graphql/Employee";
+import ToolsGQL from "../graphql/Tools";
 import ItemGQL from "../graphql/Item";
 import router from "../router";
 import { computed } from "@vue/reactivity";
@@ -103,6 +105,14 @@ provide("rGroup", rGroup);
     const updateKey = ref(0);
     const store = useStore();
     const publicPath = computed(() => store.state.selectlist.publicPath);
+
+    // API連線
+    const pURL = import.meta.env.VITE_SICLAPI_URL;
+    const pHeaders = {
+      "Content-Type": "application/json",
+      // "Content-Type": "application/x-www-form-urlencoded",
+      "Accept": "*/*",
+    }
 
     const varAllCust = ref({});
     const listOpened = ref(false);
@@ -1152,8 +1162,11 @@ function shownAPIModal() {
       dataAPI.value[upPtIndex].selected = true;
     }
   });
-
-
+  let toDay = new Date();
+  // 前30天(30 * 24 * 60 * 60 * 1000)=2592000000
+  let beforDay = new Date( Date.parse(toDay)- 2592000000 );
+  apiStartDate.value = beforDay.getFullYear() + '-' + (beforDay.getMonth() + 1) + '-' + beforDay.getDate();
+  apiEndDate.value = toDay.getFullYear() + '-' + (toDay.getMonth() + 1) + '-' + toDay.getDate();
 }
 
 // 查詢全部案件資料
@@ -1169,32 +1182,33 @@ getAPIAllCaseonDone(result => {
 });
 getAPIAllCaseonError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 
+// 連線取得資料
 function getCaseByAPI() {
-  const url = import.meta.env.VITE_SICLAPI_URL;
   notProssing.value = false;
-  let headers = {
-    "Content-Type": "application/json",
-    // "Content-Type": "application/x-www-form-urlencoded",
-    "Accept": "*/*",
-  }
 
   let body = {};
-  if (apiCaseID.value || apiCaseID.value !== '') { body.id = apiCaseID.value }
+  // 條件_案件編號
+  if (apiCaseID.value || apiCaseID.value !== '') { 
+    body.id = apiCaseID.value.slice(0,10);
+  };
+  // 條件_校正項目
   if (apiCalTypeID.value || apiCalTypeID.value !== '') { 
     let a=caseCalTypeList.value;
     body.code = a[a.findIndex(x=>parseInt(x.value)===parseInt(apiCalTypeID.value))].code
   }
+  // 條件_起始日期
   if (apiStartDate.value || apiStartDate.value.trim() !== '') {
     body.startDate = (apiStartDate.value).replaceAll("-", "/");
   }
+  // 條件_結束日期
   if (apiEndDate.value || apiEndDate.value.trim() !== '') {
     body.endDate = (apiEndDate.value).replaceAll("-", "/");
   }
   // console.log(body);
-  fetch(url, {
+  fetch(pURL, {
     method: "POST",
     mode: 'cors',
-    headers: headers,
+    headers: pHeaders,
     //別忘了把主體参數轉成字串，否則資料會變成[object Object]，它無法被成功儲存在後台
     body: JSON.stringify(body),
   })
@@ -1204,71 +1218,82 @@ function getCaseByAPI() {
     })
     .then(json => {
       // 將回傳json轉成可用矩陣
-      let myArray = [];
-      // console.log(json)
-      for (let i = 0; i < json.length; i++) {
-        for (let j = 0; j < json[i].CalibrationDetails.length; j++) {
-          for (let k = 0; k < json[i].CalibrationDetails[j].CalibrationItems.length; k++) {
-            let temp = {
-              ...json[i],
-              CalibrationDetails: null,
-              ...json[i].CalibrationDetails[j],
-              CalibrationItems: null,
-              ...json[i].CalibrationDetails[j].CalibrationItems[k]
-            };
-            switch (temp.Code) {
-              case "A":
-              case "B":
-              case "C":
-                temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
-                temp.chop = temp.COL02;
-                temp.model = temp.COL03;
-                temp.sn = temp.COL04;
-                break;
-              case "D":
-              case "K":
-                temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
-                temp.chop = temp.COL04;
-                temp.model = temp.COL05;
-                temp.sn = temp.COL06;
-                break;
-              case "I":
-              case "M":
-                temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
-                temp.chop = temp.COL02;
-                temp.model = temp.COL03;
-                temp.sn = temp.COL04;
-                break;
-              case "J":
-                temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
-                temp.chop = temp.COL02;
-                temp.model = temp.COL03;
-                temp.sn = temp.COL04;
-                break;
-              case "L":
-                temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
-                temp.chop = temp.COL02;
-                temp.model = temp.COL03;
-                temp.sn = temp.COL04;
-                break;
-              case "F":
-                temp.caseid = temp.ARTICLE_ID + "01";
-                temp.chop = temp.COL02;
-                temp.model = temp.COL03;
-                temp.sn = temp.COL04;
-                break;
-            }
-
-            temp.hasMatchCase = hasCaseID(temp.caseid);
-            myArray.push(JSON.parse(JSON.stringify(temp)));
-          }
-        }
-      }
-      // console.log(myArray);
+      return resToArray(json);
+    }).then(myArray=>{
       dataAPI.value = myArray;
       notProssing.value = true;
     })
     .catch(err => console.log(err));
+}
+
+function resToArray(json){
+  // 將回傳json轉成可用矩陣
+  let myArray = [];
+  for (let i = 0; i < json.length; i++) {
+    for (let j = 0; j < json[i].CalibrationDetails.length; j++) {
+      for (let k = 0; k < json[i].CalibrationDetails[j].CalibrationItems.length; k++) {
+        let temp = {
+          ...json[i],
+          CalibrationDetails: null,
+          ...json[i].CalibrationDetails[j],
+          CalibrationItems: null,
+          ...json[i].CalibrationDetails[j].CalibrationItems[k]
+        };
+        let isM4 = false;
+        switch (temp.Code) {
+          case "A":
+          case "B":
+          case "C":
+            temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
+            temp.chop = temp.COL02;
+            temp.model = temp.COL03;
+            temp.sn = temp.COL04;
+            break;
+          case "D":
+          case "K":
+            temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
+            temp.chop = temp.COL04;
+            temp.model = temp.COL05;
+            temp.sn = temp.COL06;
+            break;
+          case "I":
+          case "M":
+            temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
+            temp.chop = temp.COL02;
+            temp.model = temp.COL03;
+            temp.sn = temp.COL04;
+            isM4 = true;
+            break;
+          case "J":
+            temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
+            temp.chop = temp.COL02;
+            temp.model = temp.COL03;
+            temp.sn = temp.COL04;
+            isM4 = true;
+            break;
+          case "L":
+            temp.caseid = temp.ARTICLE_ID + "" + temp.COL01;
+            temp.chop = temp.COL02;
+            temp.model = temp.COL03;
+            temp.sn = temp.COL04;
+            break;
+          case "F":
+            temp.caseid = temp.ARTICLE_ID + "01";
+            temp.chop = temp.COL02;
+            temp.model = temp.COL03;
+            temp.sn = temp.COL04;
+            isM4 = true;
+            break;
+        }
+
+        if (isM4) {
+          temp.hasMatchCase = hasCaseID(temp.caseid);
+          myArray.push(JSON.parse(JSON.stringify(temp)));
+        }
+      }
+    }
+  }
+  return myArray;
 }
 
 function hasCaseID(findID) {
@@ -1276,11 +1301,19 @@ function hasCaseID(findID) {
   return (result) ? true : false
 }
 
+// 全選
 function inputSelAll() {
+  dataAPI.value.forEach((x) => {
+    x.selected = true;
+  })
+}
+// 未匯入全選
+function inputSelNewAll() {
   dataAPI.value.forEach((x) => {
     x.hasMatchCase ? x.selected = false : x.selected = true;
   })
 }
+// 清除全選
 function inputSelClear() {
   dataAPI.value.forEach((x) => {
     x.selected = false;
@@ -1303,7 +1336,7 @@ function inputAPICase() {
           addCase({
             creatCaseId: nowData.caseid,
             calType: parseInt(calTypeID),
-            appDate: ((nowData.ARCHIVE_DATE).replaceAll("/", "-")).trim() + "T00:00:00.000Z",
+            appDate: ((nowData.ARCHIVE_DATE).replaceAll("/", "-")).trim() + "T00:00:00.000+08:00",
             purpose: nowData.META_DESCRIPTION,
           }).then(result => {
             saveAPIRecord(nowData);
@@ -1623,6 +1656,49 @@ function saveAPIRecord(nowData) {
     }
   }); 
 }
+
+// 測試下載檔案
+async function tesDL(){
+  if(!dataAPI.value[2]){return}
+  let nowData = dataAPI.value[2];
+  console.log('nowData', nowData);
+  console.log('fromUrl', nowData.COL24);
+  console.log('toSubPath', "06_Case/test");
+  console.log('toFileName', "01_CamReport" + path.extname(nowData.COL24));
+
+  let fromUrl = nowData.COL24;
+  let subpath = "06_Case/" + nowData.caseid;
+  let newName = "01_CamReport" + path.extname(nowData.COL24);
+
+  //     // 下載camReport
+  //     result = dlFromAPI({
+  //       fromUrl: nowData.COL24,
+  //       toSubPath: "06_Case/" + nowData.caseid,
+  //       toFileName: "01_CamReport" + path.extname(nowData.COL24),
+  //     }).then(res=>{ 
+  //       // 下載planMap
+  //       return dlFromAPI({
+  //       fromUrl: nowData.COL25,
+  //       // toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+  //       toSubPath: "06_Case/" + nowData.caseid,
+  //       toFileName: "02_PlanDwg" + path.extname(nowData.COL25),
+  //       })
+  let upFile = await fetch(fromUrl).then(r => r.blob());
+  
+  console.log(upFile);
+    
+  await uploadFile({
+    file: upFile,
+    subpath: subpath,
+    newfilename: newName,
+  });
+}
+
+// 上傳檔案
+const { mutate: uploadFile, onDone: uploadFileOnDone, onError: uploadFileonError } = useMutation(
+  ToolsGQL.UPLOADFILE
+);
+uploadFileonError(e=>{errorHandle(e,infomsg,alert1)});
 
 // 查詢是否既有儀器否則新增儀器
 function findItemOrAdd(ndSN, ndC2, ndC3, ndCode, preResult, nowData){
@@ -1962,14 +2038,20 @@ onMounted(function () {
               <MDBCol col="4">
                 <!-- 操作按鈕 -->
                 <MDBRow>
-                  <MDBCol col="6" class="mb-2">
+                  <MDBCol col="12" class="mt-2">
+                    <MDBBtn class="w-100" size="sm" color="primary" @click="inputSelNewAll">未匯入全選</MDBBtn>
+                  </MDBCol>
+                  <MDBCol col="6" class="mt-2">
                     <MDBBtn class="w-100" size="sm" color="primary" @click="inputSelAll">全選</MDBBtn>
                   </MDBCol>
-                  <MDBCol col="6" class="mb-2">
+                  <MDBCol col="6" class="my-2">
                     <MDBBtn class="w-100" size="sm" color="primary" @click="inputSelClear">清除</MDBBtn>
                   </MDBCol>
-                  <MDBCol col="12" class="mt-4">
+                  <MDBCol col="12" class="mt-2">
                     <MDBBtn class="w-100" size="sm" color="secondary" @click="inputAPICase">匯入新增案件</MDBBtn>
+                  </MDBCol>
+                  <MDBCol col="12" class="mt-2">
+                    <MDBBtn class="w-100" size="sm" color="secondary" @click="tesDL">測試</MDBBtn>
                   </MDBCol>
                 </MDBRow>
               </MDBCol>
@@ -2375,6 +2457,9 @@ onMounted(function () {
 /* div.dataTables_filter {
   padding-top: 0.85em;
 } */
+i.inputSel {
+  cursor: pointer;
+}
 
 .colAlignRight {
   text-align: right;
