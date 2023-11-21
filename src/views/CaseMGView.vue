@@ -1658,41 +1658,41 @@ function saveAPIRecord(nowData) {
 }
 
 // 測試下載檔案
-async function tesDL(){
-  if(!dataAPI.value[2]){return}
-  let nowData = dataAPI.value[2];
-  console.log('nowData', nowData);
-  console.log('fromUrl', nowData.COL24);
-  console.log('toSubPath', "06_Case/test");
-  console.log('toFileName', "01_CamReport" + path.extname(nowData.COL24));
+// async function tesDL(){
+//   if(!dataAPI.value[2]){return}
+//   let nowData = dataAPI.value[2];
+//   console.log('nowData', nowData);
+//   console.log('fromUrl', nowData.COL24);
+//   console.log('toSubPath', "06_Case/test");
+//   console.log('toFileName', "01_CamReport" + path.extname(nowData.COL24));
 
-  let fromUrl = nowData.COL24;
-  let subpath = "06_Case/" + nowData.caseid;
-  let newName = "01_CamReport" + path.extname(nowData.COL24);
+//   let fromUrl = nowData.COL24;
+//   let subpath = "06_Case/" + nowData.caseid;
+//   let newName = "01_CamReport" + path.extname(nowData.COL24);
 
-  //     // 下載camReport
-  //     result = dlFromAPI({
-  //       fromUrl: nowData.COL24,
-  //       toSubPath: "06_Case/" + nowData.caseid,
-  //       toFileName: "01_CamReport" + path.extname(nowData.COL24),
-  //     }).then(res=>{ 
-  //       // 下載planMap
-  //       return dlFromAPI({
-  //       fromUrl: nowData.COL25,
-  //       // toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
-  //       toSubPath: "06_Case/" + nowData.caseid,
-  //       toFileName: "02_PlanDwg" + path.extname(nowData.COL25),
-  //       })
-  let upFile = await fetch(fromUrl).then(r => r.blob());
+//   //     // 下載camReport
+//   //     result = dlFromAPI({
+//   //       fromUrl: nowData.COL24,
+//   //       toSubPath: "06_Case/" + nowData.caseid,
+//   //       toFileName: "01_CamReport" + path.extname(nowData.COL24),
+//   //     }).then(res=>{ 
+//   //       // 下載planMap
+//   //       return dlFromAPI({
+//   //       fromUrl: nowData.COL25,
+//   //       // toSubPath: publicPath.value + "06_Case/" + nowData.caseid,
+//   //       toSubPath: "06_Case/" + nowData.caseid,
+//   //       toFileName: "02_PlanDwg" + path.extname(nowData.COL25),
+//   //       })
+//   let upFile = await fetch(fromUrl).then(r => r.blob());
   
-  console.log(upFile);
+//   console.log(upFile);
     
-  await uploadFile({
-    file: upFile,
-    subpath: subpath,
-    newfilename: newName,
-  });
-}
+//   await uploadFile({
+//     file: upFile,
+//     subpath: subpath,
+//     newfilename: newName,
+//   });
+// }
 
 // 上傳檔案
 const { mutate: uploadFile, onDone: uploadFileOnDone, onError: uploadFileonError } = useMutation(
@@ -2050,9 +2050,9 @@ onMounted(function () {
                   <MDBCol col="12" class="mt-2">
                     <MDBBtn class="w-100" size="sm" color="secondary" @click="inputAPICase">匯入新增案件</MDBBtn>
                   </MDBCol>
-                  <MDBCol col="12" class="mt-2">
+                  <!-- <MDBCol col="12" class="mt-2">
                     <MDBBtn class="w-100" size="sm" color="secondary" @click="tesDL">測試</MDBBtn>
-                  </MDBCol>
+                  </MDBCol> -->
                 </MDBRow>
               </MDBCol>
             </MDBRow>
