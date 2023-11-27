@@ -107,7 +107,12 @@ const nowCaseFOV = ref(""); // 最大掃描角FOV
 const nowCaseLrReport = ref(""); // LiDAR規格
 const nowCaseLrReportDL = computed(() => {
   if (nowCaseLrReport.value && nowCaseLrReport.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseLrReport.value + '?t=' + new Date().getTime();
+    let keyStr = nowCaseLrReport.value.slice(0,4).toLowerCase();
+    if(keyStr==='http'){
+      return nowCaseLrReport.value;
+    }else{
+      return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseLrReport.value + '?t=' + new Date().getTime();
+    }
   } else {
     return undefined;
   }
@@ -116,7 +121,12 @@ const nowCaseLrReportDL = computed(() => {
 const nowCasePosReport = ref(""); // POS規格
 const nowCasePosReportDL = computed(() => {
   if (nowCasePosReport.value && nowCasePosReport.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePosReport.value + '?t=' + new Date().getTime();
+    let keyStr = nowCasePosReport.value.slice(0,4).toLowerCase();
+    if(keyStr==='http'){
+      return nowCasePosReport.value;
+    }else{
+      return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePosReport.value + '?t=' + new Date().getTime();
+    }
   } else {
     return undefined;
   }
@@ -125,7 +135,12 @@ const nowCasePosReportDL = computed(() => {
 const nowCasePlanMap = ref(""); // 航線規劃圖
 const nowCasePlanMapDL = computed(() => {
   if (nowCasePlanMap.value && nowCasePlanMap.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePlanMap.value + '?t=' + new Date().getTime();
+    let keyStr = nowCasePlanMap.value.slice(0,4).toLowerCase();
+    if(keyStr==='http'){
+      return nowCasePlanMap.value;
+    }else{
+      return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePlanMap.value + '?t=' + new Date().getTime();
+    }
   } else {
     return undefined;
   }

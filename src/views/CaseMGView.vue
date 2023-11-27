@@ -1544,6 +1544,7 @@ function saveAPIRecord(nowData) {
       return res;
   }).then(res => {
     // 填入詳細資料
+    // console.log('nowData',nowData);
     switch (nowData.Code) {
       case "F":
         saveRecord01API({
@@ -1567,8 +1568,8 @@ function saveAPIRecord(nowData) {
           sideLap: parseFloat(nowData.COL20),
           ellHeight: parseFloat(nowData.COL21),
           agl: parseFloat(nowData.COL22),
-          // camReport: res[0],
-          // planMap: res[1],
+          camReport: nowData.COL24,
+          planMap: nowData.COL25,
           signPersonId: parseInt(nowData.Signatory),
         });
         break;
@@ -1596,8 +1597,8 @@ function saveAPIRecord(nowData) {
           sideLap: parseFloat(nowData.COL21),
           ellHeight: parseFloat(nowData.COL22),
           agl: parseFloat(nowData.COL23),
-          // camReport: res[0],
-          // planMap: res[1],
+          camReport: nowData.COL24,
+          planMap: nowData.COL25,
           signPersonId: parseInt(nowData.Signatory),
         });
         break;
@@ -1623,9 +1624,9 @@ function saveAPIRecord(nowData) {
           agl: parseFloat(nowData.COL25),
           cloudDensity: parseFloat(nowData.COL26),
           fov: parseFloat(nowData.COL27),
-          // lidarReport: res[0],
-          // posReport: res[1],
-          // planMap: res[2],
+          lidarReport: nowData.COL28,
+          posReport: nowData.COL29,
+          planMap: nowData.COL30,
           signPersonId: parseInt(nowData.Signatory),
         });
         break;
@@ -1648,8 +1649,8 @@ function saveAPIRecord(nowData) {
           // planMonth: parseInt(nowData.COL22),
           stripsNo: parseInt(nowData.COL23),
           cloudDensity: parseFloat(nowData.COL26),
-          lidarReport: res[0],
-          posReport: res[1],
+          lidarReport: nowData.COL28,
+          posReport: nowData.COL29,
           signPersonId: parseInt(nowData.Signatory),
         });
         break;

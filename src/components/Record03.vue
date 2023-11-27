@@ -108,7 +108,12 @@ const nowCasePtDensity = ref(""); // 單航帶點雲密度
 const nowCaseLrReport = ref(""); // LiDAR規格
 const nowCaseLrReportDL = computed(() => {
   if (nowCaseLrReport.value && nowCaseLrReport.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseLrReport.value;
+    let keyStr = nowCaseLrReport.value.slice(0,4).toLowerCase();
+    if(keyStr==='http'){
+      return nowCaseLrReport.value;
+    }else{
+      return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseLrReport.value + '?t=' + new Date().getTime();
+    }    
   } else {
     return undefined;
   }
@@ -117,7 +122,12 @@ const nowCaseLrReportDL = computed(() => {
 const nowCasePosReport = ref(""); // POS規格
 const nowCasePosReportDL = computed(() => {
   if (nowCasePosReport.value && nowCasePosReport.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePosReport.value;
+    let keyStr = nowCasePosReport.value.slice(0,4).toLowerCase();
+    if(keyStr==='http'){
+      return nowCasePosReport.value;
+    }else{
+      return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePosReport.value + '?t=' + new Date().getTime();
+    }
   } else {
     return undefined;
   }

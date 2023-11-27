@@ -102,7 +102,12 @@ const nowCaseAGL = ref(""); // 飛航離地高
 const nowCaseCamReport = ref(""); // 像機率定報告
 const nowCaseCamReportDL = computed(() => {
   if (nowCaseCamReport.value && nowCaseCamReport.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseCamReport.value + '?t=' + new Date().getTime();
+    let keyStr = nowCaseCamReport.value.slice(0,4).toLowerCase();
+    if(keyStr==='http'){
+      return nowCaseCamReport.value;
+    }else{
+      return publicPath.value + "06_Case/" + props.caseID + "/" + nowCaseCamReport.value + '?t=' + new Date().getTime();
+    }
   } else {
     return undefined;
   }
@@ -110,7 +115,12 @@ const nowCaseCamReportDL = computed(() => {
 const nowCasePlanMap = ref(""); // 航線規劃圖
 const nowCasePlanMapDL = computed(() => {
   if (nowCasePlanMap.value && nowCasePlanMap.value !== "") {
-    return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePlanMap.value + '?t=' + new Date().getTime();
+    let keyStr = nowCasePlanMap.value.slice(0,4).toLowerCase();
+    if(keyStr==='http'){
+      return nowCasePlanMap.value;
+    }else{
+      return publicPath.value + "06_Case/" + props.caseID + "/" + nowCasePlanMap.value + '?t=' + new Date().getTime();
+    }
   } else {
     return undefined;
   }
