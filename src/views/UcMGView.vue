@@ -240,7 +240,7 @@ const table3 = ref();
 const data3 = ref([]);
 const columns3 = [
   {title:"項次",render: function (data, type, row, meta ) {return meta.row},width: "30px"},
-  {title:"代號",render: function (data, type, row, meta ) {return "parms[" + meta.row + "]";},width: "30px"},
+  {title:"代號",render: function (data, type, row, meta ) {return "x[" + (meta.row+1) + "]";},width: "30px"},
   {title:"名稱", data:"x_title"},
   {title:"值", data:"x"},
 ];
@@ -262,7 +262,7 @@ const table4 = ref();
 const data4 = ref([]);
 const columns4 = [
   {title:"項次",render: function (data, type, row, meta ) {return meta.row},width: "30px"},
-  {title:"代號",render: function (data, type, row, meta ) {return "parms[" + meta.row + "]";},width: "30px"},
+  {title:"代號",render: function (data, type, row, meta ) {return "x[" + (meta.row+1) + "]";},width: "30px"},
   {title:"名稱", data:"fr_title"},
   {title:"值", data:"fr"},
 ];
@@ -284,7 +284,7 @@ const table5 = ref();
 const data5 = ref([]);
 const columns5 = [
   {title:"項次",render: function (data, type, row, meta ) {return meta.row},width: "30px"},  
-  {title:"代號",render: function (data, type, row, meta ) {return "parms[" + meta.row + "]";},width: "30px"},
+  {title:"代號",render: function (data, type, row, meta ) {return "x[" + (meta.row+1) + "]";},width: "30px"},
   {title:"名稱", data:"fa_title"},
   {title:"值", data:"fa"},
 ];
@@ -375,7 +375,7 @@ getUcModuleOnDone(result=>{
   combUx.value="";
   combFr.value="";
   getItemData();
-  // console.log('nowUcModule',nowUcModule);
+  console.log('nowUcModule',nowUcModule);
   // console.log(nowUcCalTypeDOM.value);
 
 });
@@ -594,13 +594,13 @@ function updataFr(){
 function addParam(tid){
   switch(tid){
     case 3:
-      nowUcModule.uc.data[nowUcSection.value].data[nowUcItem.value].ux = nowUcModule.uc.data[nowUcSection.value].data[nowUcItem.value].ux + "parms["+ nowUcItemX.value +"]";    
+      nowUcModule.uc.data[nowUcSection.value].data[nowUcItem.value].ux = nowUcModule.uc.data[nowUcSection.value].data[nowUcItem.value].ux + "x["+ (nowUcItemX.value+1) +"]";    
       break;
     case 4:
-      nowUcModule.uc.data[nowUcSection.value].data[nowUcItem.value].freedom = nowUcModule.uc.data[nowUcSection.value].data[nowUcItem.value].freedom + "parms["+ nowUcItemFr.value +"]";    
+      nowUcModule.uc.data[nowUcSection.value].data[nowUcItem.value].freedom = nowUcModule.uc.data[nowUcSection.value].data[nowUcItem.value].freedom + "x["+ (nowUcItemFr.value+1) +"]";    
       break;
     case 5:
-      nowUcModule.uc.data[nowUcSection.value].data[nowUcItem.value].factor = nowUcModule.uc.data[nowUcSection.value].data[nowUcItem.value].factor + "parms["+ nowUcItemFa.value +"]";    
+      nowUcModule.uc.data[nowUcSection.value].data[nowUcItem.value].factor = nowUcModule.uc.data[nowUcSection.value].data[nowUcItem.value].factor + "x["+ (nowUcItemFa.value+1) +"]";    
       break;
   }
   
