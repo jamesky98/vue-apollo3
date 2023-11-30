@@ -375,7 +375,7 @@ getUcModuleOnDone(result=>{
   combUx.value="";
   combFr.value="";
   getItemData();
-  console.log('nowUcModule',nowUcModule);
+  // console.log('nowUcModule',nowUcModule);
   // console.log(nowUcCalTypeDOM.value);
 
 });

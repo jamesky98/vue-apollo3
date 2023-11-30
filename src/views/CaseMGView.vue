@@ -108,8 +108,10 @@ provide("rGroup", rGroup);
 
     // API連線
     const pURL = import.meta.env.VITE_SICLAPI_URL;
-    const pHeaders = {
+    const pHeaders = {  
       "Content-Type": "application/json",
+      // "Content-Type": "text/char",
+      // "Content-Type": "text/plain",
       // "Content-Type": "application/x-www-form-urlencoded",
       "Accept": "*/*",
     }
@@ -1204,26 +1206,26 @@ function getCaseByAPI() {
   if (apiEndDate.value || apiEndDate.value.trim() !== '') {
     body.endDate = (apiEndDate.value).replaceAll("-", "/");
   }
-  // console.log(body);
+  console.log('body',body);
   fetch(pURL, {
     method: "POST",
     mode: 'cors',
+    // mode: 'no-cors',
     headers: pHeaders,
     //別忘了把主體参數轉成字串，否則資料會變成[object Object]，它無法被成功儲存在後台
     body: JSON.stringify(body),
+  }).then(response => {
+    console.log('response',response);
+    return response.json();
   })
-    .then(response => {
-      // console.log(response);
-      return response.json();
-    })
-    .then(json => {
-      // 將回傳json轉成可用矩陣
-      return resToArray(json);
-    }).then(myArray=>{
-      dataAPI.value = myArray;
-      notProssing.value = true;
-    })
-    .catch(err => console.log(err));
+  .then(json => {
+    // 將回傳json轉成可用矩陣
+    return resToArray(json);
+  }).then(myArray=>{
+    dataAPI.value = myArray;
+    notProssing.value = true;
+  })
+  .catch(err => console.log(err));
 }
 
 function resToArray(json){
@@ -1660,16 +1662,16 @@ function saveAPIRecord(nowData) {
 
 // 測試下載檔案
 // async function tesDL(){
-//   if(!dataAPI.value[2]){return}
-//   let nowData = dataAPI.value[2];
-//   console.log('nowData', nowData);
-//   console.log('fromUrl', nowData.COL24);
-//   console.log('toSubPath', "06_Case/test");
-//   console.log('toFileName', "01_CamReport" + path.extname(nowData.COL24));
+//   // if(!dataAPI.value[2]){return}
+//   // let nowData = dataAPI.value[2];
+//   // console.log('nowData', nowData);
+//   // console.log('fromUrl', nowData.COL24);
+//   // console.log('toSubPath', "06_Case/test");
+//   // console.log('toFileName', "01_CamReport" + path.extname(nowData.COL24));
 
-//   let fromUrl = nowData.COL24;
-//   let subpath = "06_Case/" + nowData.caseid;
-//   let newName = "01_CamReport" + path.extname(nowData.COL24);
+//   let fromUrl = "https://sicl-nlsc.moi.gov.tw/Upload/Document/202310200111Calibration%20Protocol%20for%20the%20AOS%20WA.pdf" //nowData.COL24;
+//   let subpath = "06_Case/";
+//   let newName = "01_CamReport" + path.extname(fromUrl);
 
 //   //     // 下載camReport
 //   //     result = dlFromAPI({
@@ -1684,10 +1686,12 @@ function saveAPIRecord(nowData) {
 //   //       toSubPath: "06_Case/" + nowData.caseid,
 //   //       toFileName: "02_PlanDwg" + path.extname(nowData.COL25),
 //   //       })
-//   let upFile = await fetch(fromUrl).then(r => r.blob());
+//   let upFile = await fetch(
+//     fromUrl).then(r =>{
+//       console.log(r);
+//       return r.blob();
+//     });
   
-//   console.log(upFile);
-    
 //   await uploadFile({
 //     file: upFile,
 //     subpath: subpath,
@@ -2051,9 +2055,9 @@ onMounted(function () {
                   <MDBCol col="12" class="mt-2">
                     <MDBBtn class="w-100" size="sm" color="secondary" @click="inputAPICase">匯入新增案件</MDBBtn>
                   </MDBCol>
-                  <!-- <MDBCol col="12" class="mt-2">
+                  <MDBCol col="12" class="mt-2">
                     <MDBBtn class="w-100" size="sm" color="secondary" @click="tesDL">測試</MDBBtn>
-                  </MDBCol> -->
+                  </MDBCol>
                 </MDBRow>
               </MDBCol>
             </MDBRow>
