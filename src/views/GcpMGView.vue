@@ -521,19 +521,26 @@ saveGcpContactError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 function saveGcpBtn(){
   new Promise((resovle,rej)=>{
     let result;
-    // console.log('nowGcpContactId',nowGcpContactId.value);
-    if(nowGcpContactId.value>-1 || nowGcpContactId.value===-2){
-      result=saveGcpContact({
-        updateGcpContactId: nowGcpContactId.value,
-        name: nowGcpContactMU.value.find(x=>x.value=== parseInt(nowGcpContactId.value)).text, // document.querySelector('#contactSelectDOM div input').value,
-        address: nowGcpContactAds.value,
-        person: nowGcpContactPrs.value,
-        tel: nowGcpContactTel.value,
-        comment: nowGcpContactCom.value,
-      })
+    console.log('nowGcpContactId',nowGcpContactId.value);
+    if(nowGcpNeedContact.value){
+      if(nowGcpContactId.value>-1 || nowGcpContactId.value===-2){
+        result=saveGcpContact({
+          updateGcpContactId: nowGcpContactId.value,
+          name: nowGcpContactMU.value.find(x=>x.value=== parseInt(nowGcpContactId.value)).text, // document.querySelector('#contactSelectDOM div input').value,
+          // name: document.querySelector('#contactSelectDOM div input').value,
+          address: nowGcpContactAds.value,
+          person: nowGcpContactPrs.value,
+          tel: nowGcpContactTel.value,
+          comment: nowGcpContactCom.value,
+        })
+      }else{
+        result=null
+      }
     }else{
       result=null
     }
+    
+    console.log('result',result);
     resovle(result);
   }).then(res=>{
     // 更新contact menu
