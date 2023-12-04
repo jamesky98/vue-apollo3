@@ -521,7 +521,7 @@ saveGcpContactError(e=>{errorHandle(e,infomsg,alert1,msgColor)});
 function saveGcpBtn(){
   new Promise((resovle,rej)=>{
     let result;
-    console.log('nowGcpContactId',nowGcpContactId.value);
+    // console.log('nowGcpContactId',nowGcpContactId.value);
     if(nowGcpNeedContact.value){
       if(nowGcpContactId.value>-1 || nowGcpContactId.value===-2){
         result=saveGcpContact({
@@ -540,7 +540,7 @@ function saveGcpBtn(){
       result=null
     }
     
-    console.log('result',result);
+    // console.log('result',result);
     resovle(result);
   }).then(res=>{
     // 更新contact menu
