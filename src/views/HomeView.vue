@@ -14,6 +14,7 @@ import router from '../router';
 
 const { mutate: getchecktoken, onDone: getchecktokenOnDone, onError: getchecktokenError } = useMutation(UsersGQL.CHECKTOKEN);
 getchecktokenOnDone(result => {
+  console.log("getchecktoken");
   if (result.data.checktoken) {
     // console.log("goto main");
     router.push("/main");
