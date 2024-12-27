@@ -566,12 +566,27 @@ saveTrainOnDone(result=>{
 saveTrainError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 
 function saveTrainBtn(){
+  // 儲存下拉選單資料
+  let tempTName = nowTrainName.value;
+  let tempTIns = nowTrainInstitution.value;
   if(!nowTrainID.value || nowTrainID.value===''){
     // 無序號為新增
-    newTrain().then(res=>{getAllTrain()});
+    newTrain().then(res=>{return getAllTrain()}).then(res_2=>{
+      // 將下拉選單資料回填
+      nowTrainName.value = tempTName;
+      nowTrainNameDOM.value.setValue(tempTName);
+      nowTrainInstitution.value = tempTIns;
+      nowTrainInstitutionDOM.value.setValue(tempTIns);
+    });
   }else{
     // 有序號為儲存
-    saveTrain().then(res=>{getAllTrain()});
+    saveTrain().then(res=>{return getAllTrain()}).then(res_2=>{
+      // 將下拉選單資料回填
+      nowTrainName.value = tempTName;
+      nowTrainNameDOM.value.setValue(tempTName);
+      nowTrainInstitution.value = tempTIns;
+      nowTrainInstitutionDOM.value.setValue(tempTIns);
+    });
   }
 }
 
@@ -802,12 +817,22 @@ newEmpowerOnDone(result=>{
   nowEmpowerID.value = result.data.createEmpower.empower_id;
   infomsg.value = "序號：" + nowEmpowerID.value + " 儲存完成"
   msgColor.value = "blue";
+
+  // 儲存下拉選單資料
+  let tempAssID = nowEmpowerAssID.value;
+  let tempSupID = nowEmpowerSupID.value;
   getEmpowerByPerson().then(res=>{
     // 更新授權人員下拉式選單
     return getSupList();
   }).then(res=>{
     // 更新評估人員下拉式選單
     return getAssList();
+  }).then(res=>{
+    // 將下拉選單資料回填
+    nowEmpowerAssID.value = tempAssID;
+    nowEmpowerAssDOM.value.setValue(tempAssID);
+    nowEmpowerSupID.value = tempSupID;
+    nowEmpowerSupDOM.value.setValue(tempSupID);
   });
 });
 newEmpowerError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
@@ -837,12 +862,21 @@ saveEmpowerOnDone(result=>{
   nowEmpowerID.value = result.data.updateEmpower.empower_id;
   infomsg.value = "序號：" + nowEmpowerID.value + " 儲存完成"
   msgColor.value = "blue";
+  // 儲存下拉選單資料
+  let tempAssID = nowEmpowerAssID.value;
+  let tempSupID = nowEmpowerSupID.value;
   getEmpowerByPerson().then(res=>{
     // 更新授權人員下拉式選單
     return getSupList();
   }).then(res=>{
     // 更新評估人員下拉式選單
     return getAssList();
+  }).then(res=>{
+    // 將下拉選單資料回填
+    nowEmpowerAssID.value = tempAssID;
+    nowEmpowerAssDOM.value.setValue(tempAssID);
+    nowEmpowerSupID.value = tempSupID;
+    nowEmpowerSupDOM.value.setValue(tempSupID);
   });
 });
 saveEmpowerError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
@@ -850,10 +884,10 @@ saveEmpowerError(e=>{errorHandle(e,infomsg,alert1,msgColor);});
 function saveEmpowerBtn(){
   if(!nowEmpowerID.value || nowEmpowerID.value===''){
     // 無序號為新增
-    newEmpower();
+    newEmpower()
   }else{
     // 有序號為儲存
-    saveEmpower();
+    saveEmpower()
   }
 }
 

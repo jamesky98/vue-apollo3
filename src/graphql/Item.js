@@ -35,6 +35,10 @@ const GETALLITEM = gql`
           complete_date
           sign_person_id
         }
+        case_record_03 {
+          complete_date
+          sign_person_id
+        }
       }
     }
   }

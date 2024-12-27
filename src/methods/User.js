@@ -88,9 +88,14 @@ function updateSelMU(paras){
     // isUseID, 是否使用索引
   // }
   // 檢查項目名稱是否重複
-  // console.log('paras',paras);
+  // console.log('paras',paras.newValue.value);
   let nowValue = (paras.newValue.value && paras.newValue.value!==-1)?paras.newValue.value.trim():'';
-  let isRpt = paras.nowMU.value.some(x=> ((x.text)?x.text.trim():'')===nowValue);
+  let isRpt;
+  if(nowValue){
+    isRpt = paras.nowMU.value.some(x=> ((x.text)?x.text.trim():'')===nowValue);
+  }else{
+    isRpt = true;
+  }
   paras.isUseID = (paras.isUseID)?true:false;
 
   // console.log('isRpt',isRpt);

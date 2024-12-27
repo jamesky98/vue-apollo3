@@ -1151,9 +1151,13 @@ getTablebyMounthOnDone(result=>{
 getTablebyMounthonError(e=>{errorHandle(e,infomsg,alert1)});
 
 function changeChart6Year(e){
+  // console.log({
+  //   'year':selYear6.value,
+  //   'mounth':selMounth6.value,
+  // })
   if(parseInt(selYear6.value) && parseInt(selYear6.value)!==-1 && parseInt(selMounth6.value) && parseInt(selMounth6.value)!==-1){
     getTablebyMounth({
-      year:(parseInt(selYear6.value) && parseInt(selYear6.value)!==-1)?parseInt(selYear5.value)+1911:new Date().getFullYear(),
+      year:(parseInt(selYear6.value) && parseInt(selYear6.value)!==-1)?parseInt(selYear6.value)+1911:new Date().getFullYear(),
       mounth:(parseInt(selMounth6.value) && parseInt(selMounth6.value)!==-1)?parseInt(selMounth6.value):new Date().getMonth()+1,
     })
   }
